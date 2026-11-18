@@ -84,6 +84,60 @@ pub struct VulkanDevice {
     /// How many bytes it started with: zero on a first launch, or when the
     /// file was another GPU's or another driver's.
     pipeline_cache_seed: usize,
+    /// The 3D passes' render pass, lazily created once — see
+    /// [`Self::render_pass_3d`]. One per device: it depends only on the two
+    /// attachment formats, and the depth one is a device property.
+    render_pass_3d: std::sync::Mutex<Option<RenderPass3d>>,
+    /// The 3D passes' pipelines, keyed by everything a pipeline bakes in —
+    /// see [`Pipeline3dKey`]. What `render_3d_pass` used to rebuild per call
+    /// (and tear down after): the whole 302 ms-per-first-frame class of cost,
+    /// paid every animated 3D frame.
+    pipelines_3d: std::sync::Mutex<std::collections::HashMap<Pipeline3dKey, Pipelines3d>>,
+}
+
+/// The one render pass every 3D pass renders through: RGBA16F colour and the
+/// device's depth format, cleared then stored, colour leaving as
+/// TRANSFER_SRC for the readback.
+#[derive(Debug, Clone, Copy)]
+struct RenderPass3d {
+    pass: vk::RenderPass,
+    depth_format: vk::Format,
+}
+
+/// Everything a 3D pipeline bakes in, and therefore everything the pipeline
+/// cache keys on. The shader source is keyed by *address*, not content: the
+/// only three constructors of a [`Pass3d`] are this module's own entry
+/// points, each handing one of `vieww_shaders::library`'s baked `&'static
+/// str`s, so a source's address is its identity for the life of the process
+/// — and the key costs two registers instead of a hash of a few kilobytes
+/// per frame (which, measured on lavapipe, was the whole difference between
+/// the cache winning and losing).
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct Pipeline3dKey {
+    shader: usize,
+    shader_len: usize,
+    width: u32,
+    height: u32,
+    stride: u32,
+    /// `(location, format, offset)` per attribute, formats as raw driver
+    /// values (they are `Hash`-able integers in disguise).
+    attributes: Vec<(u32, u32, u32)>,
+    storage: bool,
+    sampled: bool,
+    push_constants: bool,
+    depth_write: bool,
+    blend: bool,
+}
+
+/// One cached 3D pipeline and the objects only it uses. Destroyed with the
+/// device, not with the frame that first asked for them.
+#[derive(Debug, Clone, Copy)]
+struct Pipelines3d {
+    vs_module: vk::ShaderModule,
+    fs_module: vk::ShaderModule,
+    set_layout: vk::DescriptorSetLayout,
+    layout: vk::PipelineLayout,
+    pipeline: vk::Pipeline,
 }
 
 impl std::fmt::Debug for VulkanDevice {
@@ -278,6 +332,8 @@ impl VulkanDevice {
             pipeline_cache,
             pipeline_cache_file: file,
             pipeline_cache_seed,
+            render_pass_3d: std::sync::Mutex::new(None),
+            pipelines_3d: std::sync::Mutex::new(std::collections::HashMap::new()),
         }
     }
 
@@ -572,6 +628,25 @@ impl Drop for VulkanDevice {
     fn drop(&mut self) {
         let _ = self.save_pipeline_cache();
         unsafe {
+            if let Ok(mut cache) = self.pipelines_3d.lock() {
+                for (_, cached) in cache.drain() {
+                let Pipelines3d {
+                    vs_module,
+                    fs_module,
+                    set_layout,
+                    layout,
+                    pipeline,
+                } = cached;
+                self.device.destroy_pipeline(pipeline, None);
+                self.device.destroy_pipeline_layout(layout, None);
+                self.device.destroy_descriptor_set_layout(set_layout, None);
+                self.device.destroy_shader_module(vs_module, None);
+                    self.device.destroy_shader_module(fs_module, None);
+                }
+            }
+            if let Some(render_pass) = self.render_pass_3d.lock().ok().and_then(|mut g| g.take()) {
+                self.device.destroy_render_pass(render_pass.pass, None);
+            }
             if self.pipeline_cache != vk::PipelineCache::null() {
                 self.device
                     .destroy_pipeline_cache(self.pipeline_cache, None);
@@ -1734,6 +1809,327 @@ impl VulkanDevice {
         clippy::cast_precision_loss,
         clippy::too_many_lines
     )]
+    /// The one render pass the 3D passes render through, created on first
+    /// use and kept for the device's life. The depth format is a device
+    /// property, the colour format is the 3D target's own, and nothing else
+    /// about it varies — the per-call creation `render_3d_pass` grew up with
+    /// bought nothing but a `vkCreateRenderPass` per frame.
+    fn render_pass_3d_handle(&self) -> Result<RenderPass3d, VulkanError> {
+        {
+            let guard = self
+                .render_pass_3d
+                .lock()
+                .map_err(|_| VulkanError::Vulkan("the 3D render pass lock poisoned".into()))?;
+            if let Some(existing) = *guard {
+                return Ok(existing);
+            }
+        }
+        // D32_SFLOAT where the device supports it as a depth attachment
+        // (virtually everywhere), else the spec-mandatory D16_UNORM.
+        let d32 = unsafe {
+            self.instance
+                .get_physical_device_format_properties(self.physical_device, vk::Format::D32_SFLOAT)
+        };
+        let depth_format = if d32
+            .optimal_tiling_features
+            .contains(vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT)
+        {
+            vk::Format::D32_SFLOAT
+        } else {
+            vk::Format::D16_UNORM
+        };
+        let format = vk::Format::R16G16B16A16_SFLOAT;
+        let color_attachment = vk::AttachmentDescription::default()
+            .format(format)
+            .samples(vk::SampleCountFlags::TYPE_1)
+            .load_op(vk::AttachmentLoadOp::CLEAR)
+            .store_op(vk::AttachmentStoreOp::STORE)
+            .stencil_load_op(vk::AttachmentLoadOp::DONT_CARE)
+            .stencil_store_op(vk::AttachmentStoreOp::DONT_CARE)
+            .initial_layout(vk::ImageLayout::UNDEFINED)
+            .final_layout(vk::ImageLayout::TRANSFER_SRC_OPTIMAL);
+        let depth_attachment = vk::AttachmentDescription::default()
+            .format(depth_format)
+            .samples(vk::SampleCountFlags::TYPE_1)
+            .load_op(vk::AttachmentLoadOp::CLEAR)
+            .store_op(vk::AttachmentStoreOp::DONT_CARE)
+            .stencil_load_op(vk::AttachmentLoadOp::DONT_CARE)
+            .stencil_store_op(vk::AttachmentStoreOp::DONT_CARE)
+            .initial_layout(vk::ImageLayout::UNDEFINED)
+            .final_layout(vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+        let attachments = [color_attachment, depth_attachment];
+        let color_ref = [vk::AttachmentReference {
+            attachment: 0,
+            layout: vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
+        }];
+        let depth_ref = vk::AttachmentReference {
+            attachment: 1,
+            layout: vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        };
+        let subpass = vk::SubpassDescription::default()
+            .pipeline_bind_point(vk::PipelineBindPoint::GRAPHICS)
+            .color_attachments(&color_ref)
+            .depth_stencil_attachment(&depth_ref);
+        let subpasses = [subpass];
+        let render_pass_info = vk::RenderPassCreateInfo::default()
+            .attachments(&attachments)
+            .subpasses(&subpasses)
+            .dependencies(&COPY_AFTER_RENDER);
+        let pass = unsafe { self.device.create_render_pass(&render_pass_info, None) }?;
+        let entry = RenderPass3d { pass, depth_format };
+        let mut guard = self
+            .render_pass_3d
+            .lock()
+            .map_err(|_| VulkanError::Vulkan("the 3D render pass lock poisoned".into()))?;
+        if let Some(existing) = *guard {
+            // Two threads raced the creation; keep theirs, lose ours.
+            unsafe { self.device.destroy_render_pass(pass, None) };
+            return Ok(existing);
+        }
+        *guard = Some(entry);
+        Ok(entry)
+    }
+
+    /// The cached pipeline (and its layout, set layout and shader modules)
+    /// for one 3D pass shape, creating it on first sight. Everything the
+    /// pipeline bakes is in the key; everything that varies per frame — the
+    /// vertices, indices, uniforms, textures, descriptor sets — is not, and
+    /// stays per-call.
+    #[allow(clippy::too_many_arguments)]
+    fn pipeline_3d(
+        &self,
+        pass: &Pass3d<'_>,
+        width: u32,
+        height: u32,
+        render_pass: vk::RenderPass,
+        depth_write: bool,
+        blend: bool,
+    ) -> Result<Pipelines3d, VulkanError> {
+        let key = Pipeline3dKey {
+            shader: pass.wgsl.as_ptr() as usize,
+            shader_len: pass.wgsl.len(),
+            width,
+            height,
+            stride: pass.stride,
+            attributes: pass
+                .attributes
+                .iter()
+                .map(|&(location, format, offset)| {
+                    (location, u32::try_from(format.as_raw()).unwrap_or(0), offset)
+                })
+                .collect(),
+            storage: pass.storage.is_some(),
+            sampled: pass.sampled,
+            push_constants: pass.push_constants,
+            depth_write,
+            blend,
+        };
+        {
+            let guard = self
+                .pipelines_3d
+                .lock()
+                .map_err(|_| VulkanError::Vulkan("the 3D pipeline lock poisoned".into()))?;
+            if let Some(cached) = guard.get(&key) {
+                return Ok(*cached);
+            }
+        }
+
+        // --- the miss: everything below was the per-call bring-up -----------
+        let device = &self.device;
+        let vs_spirv = translate_wgsl_to_spirv(pass.wgsl, "vs_main", Stage::Vertex)?;
+        let fs_spirv = translate_wgsl_to_spirv(pass.wgsl, "fs_main", Stage::Fragment)?;
+        let vs_module = unsafe {
+            device
+                .create_shader_module(&vk::ShaderModuleCreateInfo::default().code(&vs_spirv), None)
+        }?;
+        let fs_module = unsafe {
+            device
+                .create_shader_module(&vk::ShaderModuleCreateInfo::default().code(&fs_spirv), None)
+        }?;
+        let entry_point = CString::new("vs_main").unwrap();
+        let fs_entry_point = CString::new("fs_main").unwrap();
+        let stages = [
+            vk::PipelineShaderStageCreateInfo::default()
+                .stage(vk::ShaderStageFlags::VERTEX)
+                .module(vs_module)
+                .name(&entry_point),
+            vk::PipelineShaderStageCreateInfo::default()
+                .stage(vk::ShaderStageFlags::FRAGMENT)
+                .module(fs_module)
+                .name(&fs_entry_point),
+        ];
+
+        // The set layout the pass shape's bindings describe — the same
+        // conditionals the per-call build ran, now keyed with the pipeline.
+        let with_storage = pass.storage.is_some();
+        let mut bindings = vec![vk::DescriptorSetLayoutBinding::default()
+            .binding(0)
+            .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
+            .descriptor_count(1)
+            .stage_flags(vk::ShaderStageFlags::VERTEX | vk::ShaderStageFlags::FRAGMENT)];
+        if with_storage {
+            bindings.push(
+                vk::DescriptorSetLayoutBinding::default()
+                    .binding(1)
+                    .descriptor_type(vk::DescriptorType::STORAGE_BUFFER)
+                    .descriptor_count(1)
+                    .stage_flags(vk::ShaderStageFlags::FRAGMENT),
+            );
+        }
+        if pass.sampled {
+            bindings.push(
+                vk::DescriptorSetLayoutBinding::default()
+                    .binding(2)
+                    .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
+                    .descriptor_count(1)
+                    .stage_flags(vk::ShaderStageFlags::FRAGMENT),
+            );
+            bindings.push(
+                vk::DescriptorSetLayoutBinding::default()
+                    .binding(3)
+                    .descriptor_type(vk::DescriptorType::SAMPLER)
+                    .descriptor_count(1)
+                    .stage_flags(vk::ShaderStageFlags::FRAGMENT),
+            );
+        }
+        let layout_info = vk::DescriptorSetLayoutCreateInfo::default().bindings(&bindings);
+        let set_layout = unsafe { device.create_descriptor_set_layout(&layout_info, None) }?;
+
+        let mut push_ranges = Vec::new();
+        if pass.push_constants {
+            push_ranges.push(
+                vk::PushConstantRange::default()
+                    .stage_flags(vk::ShaderStageFlags::FRAGMENT)
+                    .offset(0)
+                    .size(4),
+            );
+        }
+        let set_layouts = [set_layout];
+        let pipeline_layout_info = vk::PipelineLayoutCreateInfo::default()
+            .set_layouts(&set_layouts)
+            .push_constant_ranges(&push_ranges);
+        let pipeline_layout =
+            unsafe { device.create_pipeline_layout(&pipeline_layout_info, None) }?;
+
+        // One interleaved binding, laid out by the caller's attribute list.
+        let binding_desc = [vk::VertexInputBindingDescription {
+            binding: 0,
+            stride: pass.stride,
+            input_rate: vk::VertexInputRate::VERTEX,
+        }];
+        let attr_desc: Vec<vk::VertexInputAttributeDescription> = pass
+            .attributes
+            .iter()
+            .map(
+                |&(location, format, offset)| vk::VertexInputAttributeDescription {
+                    location,
+                    binding: 0,
+                    format,
+                    offset,
+                },
+            )
+            .collect();
+        let vertex_input = vk::PipelineVertexInputStateCreateInfo::default()
+            .vertex_binding_descriptions(&binding_desc)
+            .vertex_attribute_descriptions(&attr_desc);
+        let input_assembly = vk::PipelineInputAssemblyStateCreateInfo::default()
+            .topology(vk::PrimitiveTopology::TRIANGLE_LIST);
+        let viewport = vk::Viewport {
+            x: 0.0,
+            y: 0.0,
+            width: width as f32,
+            height: height as f32,
+            min_depth: 0.0,
+            max_depth: 1.0,
+        };
+        let scissor = vk::Rect2D {
+            offset: vk::Offset2D { x: 0, y: 0 },
+            extent: vk::Extent2D { width, height },
+        };
+        let viewports = [viewport];
+        let scissors = [scissor];
+        let viewport_state = vk::PipelineViewportStateCreateInfo::default()
+            .viewports(&viewports)
+            .scissors(&scissors);
+        // Culling deliberately off — see the method doc.
+        let raster = vk::PipelineRasterizationStateCreateInfo::default()
+            .polygon_mode(vk::PolygonMode::FILL)
+            .cull_mode(vk::CullModeFlags::NONE)
+            .front_face(vk::FrontFace::COUNTER_CLOCKWISE)
+            .line_width(1.0);
+        let multisample =
+            vk::PipelineMultisampleStateCreateInfo::default().rasterization_samples(vk::SampleCountFlags::TYPE_1);
+        // The depth state is the point of the 3D path: LESS keeps the nearest
+        // surface, the same contest the CPU's per-sample depth test runs; the
+        // write is the variant's half of the split.
+        let depth_stencil = vk::PipelineDepthStencilStateCreateInfo::default()
+            .depth_test_enable(true)
+            .depth_write_enable(depth_write)
+            .depth_compare_op(vk::CompareOp::LESS);
+        // Straight-alpha source-over on a linear target: the CPU's
+        // `lerp(color, a)` — `rgb = src.rgb * a + dst.rgb * (1 - a)`,
+        // `alpha = a + dst.a * (1 - a)`.
+        let blend_attachment = if blend {
+            vk::PipelineColorBlendAttachmentState::default()
+                .blend_enable(true)
+                .src_color_blend_factor(vk::BlendFactor::SRC_ALPHA)
+                .dst_color_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA)
+                .color_blend_op(vk::BlendOp::ADD)
+                .src_alpha_blend_factor(vk::BlendFactor::ONE)
+                .dst_alpha_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA)
+                .alpha_blend_op(vk::BlendOp::ADD)
+                .color_write_mask(vk::ColorComponentFlags::RGBA)
+        } else {
+            vk::PipelineColorBlendAttachmentState::default()
+                .blend_enable(false)
+                .color_write_mask(vk::ColorComponentFlags::RGBA)
+        };
+        let blend_attachments = [blend_attachment];
+        let color_blend =
+            vk::PipelineColorBlendStateCreateInfo::default().attachments(&blend_attachments);
+        let pipeline_info = vk::GraphicsPipelineCreateInfo::default()
+            .stages(&stages)
+            .vertex_input_state(&vertex_input)
+            .input_assembly_state(&input_assembly)
+            .viewport_state(&viewport_state)
+            .rasterization_state(&raster)
+            .multisample_state(&multisample)
+            .depth_stencil_state(&depth_stencil)
+            .color_blend_state(&color_blend)
+            .layout(pipeline_layout)
+            .render_pass(render_pass)
+            .subpass(0);
+        let pipelines = unsafe {
+            device.create_graphics_pipelines(self.pipeline_cache(), &[pipeline_info], None)
+        }
+        .map_err(|(_, e)| VulkanError::Vulkan(e.to_string()))?;
+        let fresh = Pipelines3d {
+            vs_module,
+            fs_module,
+            set_layout,
+            layout: pipeline_layout,
+            pipeline: pipelines[0],
+        };
+        let mut guard = self
+            .pipelines_3d
+            .lock()
+            .map_err(|_| VulkanError::Vulkan("the 3D pipeline lock poisoned".into()))?;
+        if let Some(existing) = guard.get(&key) {
+            // Two threads raced the creation; keep theirs, lose ours.
+            let stale = fresh;
+            unsafe {
+                device.destroy_pipeline(stale.pipeline, None);
+                device.destroy_pipeline_layout(stale.layout, None);
+                device.destroy_descriptor_set_layout(stale.set_layout, None);
+                device.destroy_shader_module(stale.vs_module, None);
+                device.destroy_shader_module(stale.fs_module, None);
+            }
+            return Ok(*existing);
+        }
+        guard.insert(key, fresh);
+        Ok(fresh)
+    }
+
     fn render_3d_pass(
         &self,
         width: u32,
@@ -1815,21 +2211,16 @@ impl VulkanDevice {
             });
         let image_view = unsafe { device.create_image_view(&view_info, None) }?;
 
+        // --- the render pass, cached since G-10 --------------------------------
+        // One per device: colour RGBA16F and the device's depth format,
+        // nothing else in it varies. The per-call creation this replaces was
+        // part of the bring-up-every-frame shape the 2D path left behind
+        // with `SceneRenderer`.
+        let render_pass_3d = self.render_pass_3d_handle()?;
+        let render_pass = render_pass_3d.pass;
+        let depth_format = render_pass_3d.depth_format;
+
         // --- depth attachment --------------------------------------------------
-        // D32_SFLOAT where the device supports it as a depth attachment
-        // (virtually everywhere), else the spec-mandatory D16_UNORM.
-        let d32 = unsafe {
-            self.instance
-                .get_physical_device_format_properties(self.physical_device, vk::Format::D32_SFLOAT)
-        };
-        let depth_format = if d32
-            .optimal_tiling_features
-            .contains(vk::FormatFeatureFlags::DEPTH_STENCIL_ATTACHMENT)
-        {
-            vk::Format::D32_SFLOAT
-        } else {
-            vk::Format::D16_UNORM
-        };
         let depth_info = vk::ImageCreateInfo::default()
             .image_type(vk::ImageType::TYPE_2D)
             .format(depth_format)
@@ -1869,45 +2260,9 @@ impl VulkanDevice {
             });
         let depth_view = unsafe { device.create_image_view(&depth_view_info, None) }?;
 
-        // --- render pass + framebuffer -----------------------------------------
-        let color_attachment = vk::AttachmentDescription::default()
-            .format(format)
-            .samples(vk::SampleCountFlags::TYPE_1)
-            .load_op(vk::AttachmentLoadOp::CLEAR)
-            .store_op(vk::AttachmentStoreOp::STORE)
-            .stencil_load_op(vk::AttachmentLoadOp::DONT_CARE)
-            .stencil_store_op(vk::AttachmentStoreOp::DONT_CARE)
-            .initial_layout(vk::ImageLayout::UNDEFINED)
-            .final_layout(vk::ImageLayout::TRANSFER_SRC_OPTIMAL);
-        let depth_attachment = vk::AttachmentDescription::default()
-            .format(depth_format)
-            .samples(vk::SampleCountFlags::TYPE_1)
-            .load_op(vk::AttachmentLoadOp::CLEAR)
-            .store_op(vk::AttachmentStoreOp::DONT_CARE)
-            .stencil_load_op(vk::AttachmentLoadOp::DONT_CARE)
-            .stencil_store_op(vk::AttachmentStoreOp::DONT_CARE)
-            .initial_layout(vk::ImageLayout::UNDEFINED)
-            .final_layout(vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-        let attachments = [color_attachment, depth_attachment];
-        let color_ref = [vk::AttachmentReference {
-            attachment: 0,
-            layout: vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
-        }];
-        let depth_ref = vk::AttachmentReference {
-            attachment: 1,
-            layout: vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-        };
-        let subpass = vk::SubpassDescription::default()
-            .pipeline_bind_point(vk::PipelineBindPoint::GRAPHICS)
-            .color_attachments(&color_ref)
-            .depth_stencil_attachment(&depth_ref);
-        let subpasses = [subpass];
-        let render_pass_info = vk::RenderPassCreateInfo::default()
-            .attachments(&attachments)
-            .subpasses(&subpasses)
-            .dependencies(&COPY_AFTER_RENDER);
-        let render_pass = unsafe { device.create_render_pass(&render_pass_info, None) }?;
-
+        // --- framebuffer --------------------------------------------------------
+        // The per-call half of the render pass: the attachment *images* are
+        // this frame's, so the framebuffer is too.
         let fb_attachments = [image_view, depth_view];
         let fb_info = vk::FramebufferCreateInfo::default()
             .render_pass(render_pass)
@@ -2106,41 +2461,31 @@ impl VulkanDevice {
             batch_textures.push(uploaded);
         }
 
+        // --- the pipelines, cached since G-10 ------------------------------------
+        // Everything a pipeline bakes is a function of the pass's *shape* —
+        // shader source, vertex layout, bindings, the (depth_write, blend)
+        // variant — so the shapes are keyed and kept on the device
+        // (`pipeline_3d`), built on the first frame of a shape and reused by
+        // every frame after. This used to be the whole per-frame bring-up
+        // that the 2D path left behind with `SceneRenderer`.
+        let mut variants: Vec<((bool, bool), Pipelines3d)> = Vec::new();
+        for batch in pass.batches {
+            let key = (batch.depth_write, batch.blend);
+            if variants.iter().any(|(k, _)| *k == key) {
+                continue;
+            }
+            variants.push((
+                key,
+                self.pipeline_3d(pass, width, height, render_pass, key.0, key.1)?,
+            ));
+        }
+        // Every variant of one pass shape shares its set layout (the bindings
+        // depend only on the storage/sampled flags the key already carries),
+        // so the sets below allocate against the cached one.
+        let set_layout = variants[0].1.set_layout;
+
         // --- descriptor sets: one per batch --------------------------------------
         let set_count = pass.batches.len().max(1) as u32;
-        let mut bindings = vec![vk::DescriptorSetLayoutBinding::default()
-            .binding(0)
-            .descriptor_type(vk::DescriptorType::UNIFORM_BUFFER)
-            .descriptor_count(1)
-            .stage_flags(vk::ShaderStageFlags::VERTEX | vk::ShaderStageFlags::FRAGMENT)];
-        if with_storage {
-            bindings.push(
-                vk::DescriptorSetLayoutBinding::default()
-                    .binding(1)
-                    .descriptor_type(vk::DescriptorType::STORAGE_BUFFER)
-                    .descriptor_count(1)
-                    .stage_flags(vk::ShaderStageFlags::FRAGMENT),
-            );
-        }
-        if pass.sampled {
-            bindings.push(
-                vk::DescriptorSetLayoutBinding::default()
-                    .binding(2)
-                    .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
-                    .descriptor_count(1)
-                    .stage_flags(vk::ShaderStageFlags::FRAGMENT),
-            );
-            bindings.push(
-                vk::DescriptorSetLayoutBinding::default()
-                    .binding(3)
-                    .descriptor_type(vk::DescriptorType::SAMPLER)
-                    .descriptor_count(1)
-                    .stage_flags(vk::ShaderStageFlags::FRAGMENT),
-            );
-        }
-        let layout_info = vk::DescriptorSetLayoutCreateInfo::default().bindings(&bindings);
-        let set_layout = unsafe { device.create_descriptor_set_layout(&layout_info, None) }?;
-
         let mut pool_sizes = vec![
             vk::DescriptorPoolSize {
                 ty: vk::DescriptorType::UNIFORM_BUFFER,
@@ -2165,12 +2510,11 @@ impl VulkanDevice {
             .pool_sizes(&pool_sizes)
             .max_sets(set_count);
         let descriptor_pool = unsafe { device.create_descriptor_pool(&pool_info, None) }?;
-        // The pipeline layout takes the one set layout; the allocation takes
-        // it once *per set*: Vulkan allocates exactly as many sets as
-        // `set_layouts` has entries, so a one-element array here would
-        // allocate one set, and the per-batch binds below would index past
-        // it on the first multi-batch pass (any texture or translucency).
-        let set_layouts = [set_layout];
+        // The allocation takes the set layout once *per set*: Vulkan
+        // allocates exactly as many sets as the array has entries, so a
+        // one-element array here would allocate one set, and the per-batch
+        // binds below would index past it on the first multi-batch pass (any
+        // texture or translucency).
         let set_alloc_layouts = vec![set_layout; set_count as usize];
         let set_alloc = vk::DescriptorSetAllocateInfo::default()
             .descriptor_pool(descriptor_pool)
@@ -2254,151 +2598,6 @@ impl VulkanDevice {
             }
         }
         unsafe { device.update_descriptor_sets(&writes, &[]) };
-
-        // --- shaders + the pipeline variants -------------------------------------
-        let vs_spirv = translate_wgsl_to_spirv(pass.wgsl, "vs_main", Stage::Vertex)?;
-        let fs_spirv = translate_wgsl_to_spirv(pass.wgsl, "fs_main", Stage::Fragment)?;
-        let vs_module = unsafe {
-            device
-                .create_shader_module(&vk::ShaderModuleCreateInfo::default().code(&vs_spirv), None)
-        }?;
-        let fs_module = unsafe {
-            device
-                .create_shader_module(&vk::ShaderModuleCreateInfo::default().code(&fs_spirv), None)
-        }?;
-
-        let entry_point = CString::new("vs_main").unwrap();
-        let fs_entry_point = CString::new("fs_main").unwrap();
-        let stages = [
-            vk::PipelineShaderStageCreateInfo::default()
-                .stage(vk::ShaderStageFlags::VERTEX)
-                .module(vs_module)
-                .name(&entry_point),
-            vk::PipelineShaderStageCreateInfo::default()
-                .stage(vk::ShaderStageFlags::FRAGMENT)
-                .module(fs_module)
-                .name(&fs_entry_point),
-        ];
-
-        // One interleaved binding, laid out by the caller's attribute list.
-        let binding_desc = [vk::VertexInputBindingDescription {
-            binding: 0,
-            stride: pass.stride,
-            input_rate: vk::VertexInputRate::VERTEX,
-        }];
-        let attr_desc: Vec<vk::VertexInputAttributeDescription> = pass
-            .attributes
-            .iter()
-            .map(
-                |&(location, format, offset)| vk::VertexInputAttributeDescription {
-                    location,
-                    binding: 0,
-                    format,
-                    offset,
-                },
-            )
-            .collect();
-        let vertex_input = vk::PipelineVertexInputStateCreateInfo::default()
-            .vertex_binding_descriptions(&binding_desc)
-            .vertex_attribute_descriptions(&attr_desc);
-        let input_assembly = vk::PipelineInputAssemblyStateCreateInfo::default()
-            .topology(vk::PrimitiveTopology::TRIANGLE_LIST);
-        let viewport = vk::Viewport {
-            x: 0.0,
-            y: 0.0,
-            width: width as f32,
-            height: height as f32,
-            min_depth: 0.0,
-            max_depth: 1.0,
-        };
-        let scissor = vk::Rect2D {
-            offset: vk::Offset2D { x: 0, y: 0 },
-            extent: vk::Extent2D { width, height },
-        };
-        let viewports = [viewport];
-        let scissors = [scissor];
-        let viewport_state = vk::PipelineViewportStateCreateInfo::default()
-            .viewports(&viewports)
-            .scissors(&scissors);
-        // Culling deliberately off — see the method doc.
-        let raster = vk::PipelineRasterizationStateCreateInfo::default()
-            .polygon_mode(vk::PolygonMode::FILL)
-            .cull_mode(vk::CullModeFlags::NONE)
-            .front_face(vk::FrontFace::COUNTER_CLOCKWISE)
-            .line_width(1.0);
-        let multisample = vk::PipelineMultisampleStateCreateInfo::default()
-            .rasterization_samples(vk::SampleCountFlags::TYPE_1);
-
-        // The transparent split's state pairs: depth writes for the
-        // `a >= 1.0` half, straight-alpha-over blending in linear light for
-        // the `a < 1.0` one — the CPU oracle's write-or-lerp, expressed as
-        // pipeline state. One variant per distinct pair the batches use.
-        let mut variants: Vec<((bool, bool), vk::Pipeline)> = Vec::new();
-        let mut push_ranges = Vec::new();
-        if pass.push_constants {
-            push_ranges.push(
-                vk::PushConstantRange::default()
-                    .stage_flags(vk::ShaderStageFlags::FRAGMENT)
-                    .offset(0)
-                    .size(4),
-            );
-        }
-        let pipeline_layout_info = vk::PipelineLayoutCreateInfo::default()
-            .set_layouts(&set_layouts)
-            .push_constant_ranges(&push_ranges);
-        let pipeline_layout =
-            unsafe { device.create_pipeline_layout(&pipeline_layout_info, None) }?;
-        for batch in pass.batches {
-            let key = (batch.depth_write, batch.blend);
-            if variants.iter().any(|(k, _)| *k == key) {
-                continue;
-            }
-            // The depth state is the point of the 3D path: LESS keeps the
-            // nearest surface, the same contest the CPU's per-sample depth
-            // test runs; the write is the variant's half of the split.
-            let depth_stencil = vk::PipelineDepthStencilStateCreateInfo::default()
-                .depth_test_enable(true)
-                .depth_write_enable(batch.depth_write)
-                .depth_compare_op(vk::CompareOp::LESS);
-            // Straight-alpha source-over on a linear target: the CPU's
-            // `lerp(color, a)` — `rgb = src.rgb * a + dst.rgb * (1 - a)`,
-            // `alpha = a + dst.a * (1 - a)`.
-            let blend_attachment = if batch.blend {
-                vk::PipelineColorBlendAttachmentState::default()
-                    .blend_enable(true)
-                    .src_color_blend_factor(vk::BlendFactor::SRC_ALPHA)
-                    .dst_color_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA)
-                    .color_blend_op(vk::BlendOp::ADD)
-                    .src_alpha_blend_factor(vk::BlendFactor::ONE)
-                    .dst_alpha_blend_factor(vk::BlendFactor::ONE_MINUS_SRC_ALPHA)
-                    .alpha_blend_op(vk::BlendOp::ADD)
-                    .color_write_mask(vk::ColorComponentFlags::RGBA)
-            } else {
-                vk::PipelineColorBlendAttachmentState::default()
-                    .blend_enable(false)
-                    .color_write_mask(vk::ColorComponentFlags::RGBA)
-            };
-            let blend_attachments = [blend_attachment];
-            let color_blend =
-                vk::PipelineColorBlendStateCreateInfo::default().attachments(&blend_attachments);
-            let pipeline_info = vk::GraphicsPipelineCreateInfo::default()
-                .stages(&stages)
-                .vertex_input_state(&vertex_input)
-                .input_assembly_state(&input_assembly)
-                .viewport_state(&viewport_state)
-                .rasterization_state(&raster)
-                .multisample_state(&multisample)
-                .depth_stencil_state(&depth_stencil)
-                .color_blend_state(&color_blend)
-                .layout(pipeline_layout)
-                .render_pass(render_pass)
-                .subpass(0);
-            let pipelines = unsafe {
-                device.create_graphics_pipelines(self.pipeline_cache(), &[pipeline_info], None)
-            }
-            .map_err(|(_, e)| VulkanError::Vulkan(e.to_string()))?;
-            variants.push((key, pipelines[0]));
-        }
 
         // --- readback buffer ------------------------------------------------------
         // f16 in, four bytes out — the readback holds the raw linear target.
@@ -2517,7 +2716,7 @@ impl VulkanDevice {
                 if batch.index_count == 0 {
                     continue;
                 }
-                let pipeline = &variants
+                let state = &variants
                     .iter()
                     .find(|(key, _)| *key == (batch.depth_write, batch.blend))
                     .expect("every batch's state pair has a pipeline")
@@ -2525,12 +2724,12 @@ impl VulkanDevice {
                 device.cmd_bind_pipeline(
                     command_buffer,
                     vk::PipelineBindPoint::GRAPHICS,
-                    *pipeline,
+                    state.pipeline,
                 );
                 device.cmd_bind_descriptor_sets(
                     command_buffer,
                     vk::PipelineBindPoint::GRAPHICS,
-                    pipeline_layout,
+                    state.layout,
                     0,
                     &[descriptor_sets[index]],
                     &[],
@@ -2545,7 +2744,7 @@ impl VulkanDevice {
                     );
                     device.cmd_push_constants(
                         command_buffer,
-                        pipeline_layout,
+                        state.layout,
                         vk::ShaderStageFlags::FRAGMENT,
                         0,
                         alpha_bytes,
@@ -2630,15 +2829,13 @@ impl VulkanDevice {
             ]);
         }
 
+        // The pipelines, their layouts, the shader modules, the set layout
+        // and the render pass are the device's now (`pipeline_3d`,
+        // `render_pass_3d_handle`) — the teardown is the per-frame half
+        // only: targets, buffers, descriptor sets, textures, the fence.
         unsafe {
             device.destroy_fence(fence, None);
             device.destroy_command_pool(command_pool, None);
-            for (_, pipeline) in variants {
-                device.destroy_pipeline(pipeline, None);
-            }
-            device.destroy_pipeline_layout(pipeline_layout, None);
-            device.destroy_shader_module(vs_module, None);
-            device.destroy_shader_module(fs_module, None);
             for (_, sampler) in samplers {
                 device.destroy_sampler(sampler, None);
             }
@@ -2652,7 +2849,6 @@ impl VulkanDevice {
                 device.destroy_buffer(staging, None);
             }
             device.destroy_descriptor_pool(descriptor_pool, None);
-            device.destroy_descriptor_set_layout(set_layout, None);
             device.free_memory(readback_memory, None);
             device.destroy_buffer(readback_buffer, None);
             device.free_memory(ubo_memory, None);
@@ -2664,7 +2860,6 @@ impl VulkanDevice {
             device.free_memory(vertex_memory, None);
             device.destroy_buffer(vertex_buffer, None);
             device.destroy_framebuffer(framebuffer, None);
-            device.destroy_render_pass(render_pass, None);
             device.destroy_image_view(depth_view, None);
             device.free_memory(depth_memory, None);
             device.destroy_image(depth_image, None);
