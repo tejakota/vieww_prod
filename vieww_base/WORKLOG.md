@@ -12,10 +12,15 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
-Last updated: 2026-11-15 (evening), after run `43735160469` answered both
-questions - the S20-class GPU pass now leads Valdi, the Stylo's CPU pass is
-back - and the studio repaint flake turned out to be a real race in the
-raster pool (below)
+Last updated: 2026-11-18, after the performance-plan round: eleven more
+commits on main, every one pixel-identical where the contract says so (the
+gallery, the lavapipe parity matrices) - the CPU paint optimizations
+(C-2..C-5), the GPU memory slimming, the atlas-grow carry, the 3D pipeline
+cache, the packed vertex colour, the prewarmed Windows device, and the
+D3D12 compositor graduation. Details in each commit; the headline numbers
+are in the messages. Two measured reverts are recorded at their sites (the
+gradient row kernel, the clipped-shape walk) - on the 2-core reference
+machine the staging cost more than the dispatch it removed.
 
 ---
 
