@@ -583,7 +583,10 @@ fn gpu_time_is_split_by_the_kind_of_work_that_spent_it() {
     };
     let cpu = gpu.renderer.last_timings();
     assert!(busy.filters > std::time::Duration::ZERO, "{busy:?}");
-    assert!(busy.shadows > std::time::Duration::ZERO, "{busy:?}");
+    // An unclipped shadow is drawn in the geometry run now (one masked quad,
+    // not a pass of its own - `vieww-gpu`'s scene planner), so its time is
+    // the draw bucket's; `shadows` is what clipped shadows still spend.
+    assert!(busy.draw > std::time::Duration::ZERO, "{busy:?}");
     assert!(busy.layers > std::time::Duration::ZERO, "{busy:?}");
     // The GPU's time for the frame lies inside the CPU's view of it: from
     // the submit to the fence. A millisecond of slack for the two clocks.

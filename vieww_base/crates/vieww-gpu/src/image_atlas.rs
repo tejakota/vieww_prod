@@ -600,8 +600,7 @@ mod tests {
                         for row in y..y + h {
                             let i = (row as usize * side + x as usize) * 4;
                             let n = w as usize * 4;
-                            self.texels[i..i + n]
-                                .copy_from_slice(&atlas.texels()[i..i + n]);
+                            self.texels[i..i + n].copy_from_slice(&atlas.texels()[i..i + n]);
                             self.region_bytes += n as u64;
                         }
                     }
@@ -609,7 +608,8 @@ mod tests {
             }
             self.held = Some(atlas.version());
             assert_eq!(
-                self.texels, atlas.texels(),
+                self.texels,
+                atlas.texels(),
                 "the backend's texture must equal the atlas after syncing"
             );
         }

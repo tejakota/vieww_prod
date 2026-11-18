@@ -444,13 +444,7 @@ fn backdrop(scene: &mut Scene) {
     );
 }
 
-fn push_layer(
-    scene: &mut Scene,
-    bounds: Rect,
-    alpha: f32,
-    blend: BlendMode,
-    filter: ImageFilter,
-) {
+fn push_layer(scene: &mut Scene, bounds: Rect, alpha: f32, blend: BlendMode, filter: ImageFilter) {
     scene.push_command(Command::PushLayer {
         bounds,
         alpha,

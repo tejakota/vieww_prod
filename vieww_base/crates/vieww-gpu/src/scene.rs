@@ -802,7 +802,46 @@ fn plan_with(
                     ShadowPlan::Nothing => {}
                     ShadowPlan::Gap => out.plan.note(Unsupported::Shadow),
                     ShadowPlan::Step(step, touched) => {
-                        out.step(step);
+                        // **An unclipped shadow is geometry, not a pass.** Its
+                        // step is `color x coverage`, source-over, the coverage
+                        // a mask-atlas region addressed `device - offset =
+                        // texel` - exactly what a masked solid primitive is in
+                        // the scene pipeline (`emit_covered`'s fills use the
+                        // same mask slot, the same convention). As a step it
+                        // sealed the open geometry run and issued a post draw
+                        // of its own: a card list paid one sealed run plus one
+                        // shadow draw per card. As a quad it joins the run.
+                        // A shadow that also has a clip needs two masks, which
+                        // a vertex does not carry, so it stays a pass.
+                        // `VIEWW_GPU_SHADOW_PASS=1` keeps every shadow a pass,
+                        // for an A/B on one device.
+                        match &step {
+                            Step::Shadow {
+                                patch,
+                                scissor,
+                                coverage,
+                                clip: None,
+                                ..
+                            } if !shadow_as_pass() => {
+                                #[expect(clippy::cast_precision_loss, reason = "device pixels")]
+                                let (x0, y0, x1, y1) = (
+                                    patch.x0 as f32,
+                                    patch.y0 as f32,
+                                    patch.x1 as f32,
+                                    patch.y1 as f32,
+                                );
+                                let color = straight_rgba(shadow.color);
+                                let mask = [coverage.offset[0], coverage.offset[1], 1.0, 0.0];
+                                out.push_mesh(
+                                    [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
+                                        .into_iter()
+                                        .map(|p| Vertex::solid(p, color, mask)),
+                                    &[0, 1, 2, 0, 2, 3],
+                                    scissor.to_rect(),
+                                );
+                            }
+                            _ => out.step(step),
+                        }
                         let top = stack.last_mut().expect("root frame");
                         top.ink = top.ink.union(touched);
                     }
@@ -1245,6 +1284,13 @@ impl Planner {
             scissor,
         )
     }
+}
+
+/// `VIEWW_GPU_SHADOW_PASS=1`: every shadow stays its own post pass rather than
+/// joining the geometry run (the A/B switch for the batching above).
+fn shadow_as_pass() -> bool {
+    static PASS: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *PASS.get_or_init(|| std::env::var("VIEWW_GPU_SHADOW_PASS").is_ok_and(|v| v.trim() == "1"))
 }
 
 /// Emit one fill, stroke, glyph run or image.
@@ -2895,10 +2941,15 @@ mod tests {
             let mut planner = Planner::new();
             let plan = planner.plan(&scene, 100.0, 100.0);
             assert!(plan.is_complete(), "{shadow:?}: {:?}", plan.unsupported);
-            let Some(Step::Shadow { patch, scissor, .. }) = plan.steps.first() else {
-                panic!("{:?}", plan.steps)
-            };
-            assert!(!patch.is_empty() && !scissor.is_empty(), "{shadow:?}");
+            // An unclipped shadow joins the geometry run as a masked quad;
+            // with `VIEWW_GPU_SHADOW_PASS=1` (or a clip) it is its own step.
+            match plan.steps.first() {
+                Some(Step::Shadow { patch, scissor, .. }) => {
+                    assert!(!patch.is_empty() && !scissor.is_empty(), "{shadow:?}");
+                }
+                Some(Step::Draw { .. }) => assert!(!plan.vertices.is_empty(), "{shadow:?}"),
+                other => panic!("{shadow:?}: {other:?}"),
+            }
             assert_eq!(
                 plan.target_depth, 0,
                 "a shadow draws into the current target, with no work target"
@@ -2932,13 +2983,25 @@ mod tests {
         let mut planner = Planner::new();
         let first = planner.plan(&cards(0.0), 200.0, 400.0);
         assert!(first.is_complete(), "{:?}", first.unsupported);
+        // Four unclipped shadows are four quads in one geometry run - not
+        // four sealed runs and four shadow passes.
         assert_eq!(
             first
                 .steps
                 .iter()
                 .filter(|s| matches!(s, Step::Shadow { .. }))
                 .count(),
-            4
+            0
+        );
+        assert_eq!(
+            first
+                .steps
+                .iter()
+                .filter(|s| matches!(s, Step::Draw { .. }))
+                .count(),
+            1,
+            "{:?}",
+            first.steps
         );
         assert_eq!(planner.mask_atlas().len(), 1, "four cards, one coverage");
         let version = planner.mask_atlas().version();

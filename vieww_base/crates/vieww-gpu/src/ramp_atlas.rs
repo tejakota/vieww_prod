@@ -270,8 +270,7 @@ mod tests {
                             // whatever the row count.
                             let i = (row as usize * RampAtlas::WIDTH as usize + x as usize) * 4;
                             let n = w as usize * 4;
-                            self.texels[i..i + n]
-                                .copy_from_slice(&atlas.texels()[i..i + n]);
+                            self.texels[i..i + n].copy_from_slice(&atlas.texels()[i..i + n]);
                             self.rows_sent += 1;
                         }
                     }
@@ -279,7 +278,8 @@ mod tests {
             }
             self.held = Some(atlas.version());
             assert_eq!(
-                self.texels, atlas.texels(),
+                self.texels,
+                atlas.texels(),
                 "the backend's texture must equal the atlas after syncing"
             );
         }
@@ -294,10 +294,8 @@ mod tests {
     #[test]
     fn changes_since_replayed_leaves_a_texture_equal_to_the_atlas() {
         let grad = |i: u8| {
-            Gradient::horizontal().with_stops(&[
-                (0.0, Color::rgba(i, 0, 0, 255)),
-                (1.0, Color::WHITE),
-            ])
+            Gradient::horizontal()
+                .with_stops(&[(0.0, Color::rgba(i, 0, 0, 255)), (1.0, Color::WHITE)])
         };
         let mut atlas = RampAtlas::new();
         let mut backend = Backend::default();
@@ -334,7 +332,10 @@ mod tests {
         for i in 7..=24u8 {
             atlas.row(&grad(i));
         }
-        assert!(atlas.rows() > RampAtlas::INITIAL_ROWS, "the frame doubled the rows");
+        assert!(
+            atlas.rows() > RampAtlas::INITIAL_ROWS,
+            "the frame doubled the rows"
+        );
         backend.sync(&atlas);
         assert_eq!(
             backend.fulls, 2,
@@ -358,7 +359,11 @@ mod tests {
         atlas.begin_frame();
         atlas.row(&grad(25));
         backend.sync(&atlas);
-        assert_eq!(backend.rows_sent - before, 1, "a new ramp after the compaction is its own row");
+        assert_eq!(
+            backend.rows_sent - before,
+            1,
+            "a new ramp after the compaction is its own row"
+        );
         assert_eq!(backend.texels, atlas.texels());
     }
 }

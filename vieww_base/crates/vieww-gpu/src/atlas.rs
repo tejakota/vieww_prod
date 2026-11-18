@@ -877,16 +877,14 @@ mod tests {
                     // way — and the rectangles cover everything after it.
                     if self.texels.len() != atlas.texels().len() {
                         let old_len = self.texels.len();
-                        assert!(
-                            old_len < atlas.texels().len(),
-                            "a shrink is never `grew`"
-                        );
+                        assert!(old_len < atlas.texels().len(), "a shrink is never `grew`");
                         let old_side = (old_len as f64).sqrt() as usize;
                         assert_eq!(old_side * old_side, old_len, "the model is square");
                         let mut carried = vec![0u8; side * side];
                         for row in 0..old_side {
-                            carried[row * side..row * side + old_side]
-                                .copy_from_slice(&self.texels[row * old_side..row * old_side + old_side]);
+                            carried[row * side..row * side + old_side].copy_from_slice(
+                                &self.texels[row * old_side..row * old_side + old_side],
+                            );
                         }
                         self.texels = carried;
                     }
@@ -894,8 +892,7 @@ mod tests {
                         for row in y..y + h {
                             let i = row as usize * side + x as usize;
                             let n = w as usize;
-                            self.texels[i..i + n]
-                                .copy_from_slice(&atlas.texels()[i..i + n]);
+                            self.texels[i..i + n].copy_from_slice(&atlas.texels()[i..i + n]);
                             self.region_bytes += u64::from(w);
                         }
                     }
@@ -903,7 +900,8 @@ mod tests {
             }
             self.held = Some(atlas.version());
             assert_eq!(
-                self.texels, atlas.texels(),
+                self.texels,
+                atlas.texels(),
                 "the backend's texture must equal the atlas after syncing"
             );
         }
@@ -948,7 +946,10 @@ mod tests {
         // `grew` is what makes the carry sound.
         atlas.begin_frame();
         atlas.insert(key(4), 100, 255, &[5; 25_500]);
-        assert!(atlas.side() > Atlas::INITIAL_SIDE, "the frame grew the atlas");
+        assert!(
+            atlas.side() > Atlas::INITIAL_SIDE,
+            "the frame grew the atlas"
+        );
         backend.sync(&atlas);
         assert_eq!(
             backend.fulls, 1,

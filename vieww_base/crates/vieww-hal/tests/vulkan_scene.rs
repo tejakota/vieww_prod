@@ -921,7 +921,10 @@ fn partial_glyph_uploads_match_full_uploads_frame_for_frame() {
                 .iter()
                 .filter(|p| **p != [250, 250, 248, 255])
                 .count();
-            assert!(inked > 300, "the frame must have drawn text: {inked} inked pixels");
+            assert!(
+                inked > 300,
+                "the frame must have drawn text: {inked} inked pixels"
+            );
         }
         let side = u64::from(planner.atlas().side());
         sent += renderer.last_glyph_upload_bytes();
@@ -1023,7 +1026,10 @@ fn partial_image_uploads_match_full_uploads_frame_for_frame() {
                 .iter()
                 .filter(|p| **p != [250, 250, 248, 255])
                 .count();
-            assert!(inked > 3_000, "the frame must have drawn images: {inked} inked pixels");
+            assert!(
+                inked > 3_000,
+                "the frame must have drawn images: {inked} inked pixels"
+            );
         }
         let side = u64::from(planner.image_atlas().side());
         sent += renderer.last_image_upload_bytes();
@@ -1117,11 +1123,13 @@ fn partial_ramp_uploads_match_full_uploads_frame_for_frame() {
                 .iter()
                 .filter(|p| **p != [250, 250, 248, 255])
                 .count();
-            assert!(inked > 4_000, "the frame must have drawn gradients: {inked} inked pixels");
+            assert!(
+                inked > 4_000,
+                "the frame must have drawn gradients: {inked} inked pixels"
+            );
         }
-        let texture = u64::from(vieww_gpu::RampAtlas::WIDTH)
-            * u64::from(planner.ramp_atlas().rows())
-            * 16;
+        let texture =
+            u64::from(vieww_gpu::RampAtlas::WIDTH) * u64::from(planner.ramp_atlas().rows()) * 16;
         sent += renderer.last_ramp_upload_bytes();
         whole += texture;
         match renderer.last_ramp_upload_bytes() {
@@ -1389,9 +1397,8 @@ fn an_atlas_grow_is_carried_not_reuploaded() {
     renderer
         .render_planned(&planner, &plan, W, H, base)
         .expect("render should succeed");
-    let whole_initial = u64::from(vieww_gpu::RampAtlas::WIDTH)
-        * u64::from(vieww_gpu::RampAtlas::INITIAL_ROWS)
-        * 16;
+    let whole_initial =
+        u64::from(vieww_gpu::RampAtlas::WIDTH) * u64::from(vieww_gpu::RampAtlas::INITIAL_ROWS) * 16;
     assert_eq!(
         renderer.last_ramp_upload_bytes(),
         whole_initial,
@@ -1423,7 +1430,10 @@ fn an_atlas_grow_is_carried_not_reuploaded() {
         .render_planned(&planner, &plan, W, H, base)
         .expect("render should succeed");
     drop(fresh);
-    assert_eq!(got, want, "the doubling frame's pixels differ from a full upload");
+    assert_eq!(
+        got, want,
+        "the doubling frame's pixels differ from a full upload"
+    );
 
     // The frame after is steady again: nothing new, nothing sent.
     let plan = planner.plan(&scene, W as f32, H as f32);
