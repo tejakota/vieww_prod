@@ -726,7 +726,10 @@ thread_local! {
 /// (FW-05), or — since the device half landed — the whole `VulkanDevice`,
 /// adapter picked and queues made, leaving only the surface, the present
 /// check and the swapchain after the window exists.
-#[allow(clippy::large_enum_variant, reason = "the enum lives in one process-wide cell and is taken on first use")]
+#[allow(
+    clippy::large_enum_variant,
+    reason = "the enum lives in one process-wide cell and is taken on first use"
+)]
 pub(crate) enum PrewarmedVulkan {
     Instance(vieww_hal::vulkan::VulkanInstance),
     Device(vieww_hal::vulkan::VulkanDevice),
@@ -962,6 +965,9 @@ pub struct NativeRenderer {
     /// Which route a frame that may go direct takes — fixed, or measured on
     /// this device. See [`crate::gpu_route`].
     gpu_route: crate::gpu_route::RouteChooser,
+    /// Small-damage frames on a direct-route device take the blit route's
+    /// retained damage path instead — see [`crate::gpu_route::SmallDamage`].
+    small_damage: crate::gpu_route::SmallDamage,
 }
 
 /// The GPU rasterizer goes before the device it was built on.
@@ -1169,6 +1175,7 @@ impl NativeRenderer {
             shadow: None,
             gpu_frame_current: None,
             gpu_route: crate::gpu_route::RouteChooser::new(gpu_route_mode()),
+            small_damage: crate::gpu_route::SmallDamage::default(),
         }
     }
 
@@ -2045,7 +2052,18 @@ impl NativeRenderer {
                     let eligible =
                         image.color_attachment() && plan.target_depth == 0 && render_scale == 1.0;
                     let chosen = self.gpu_route.route();
-                    let direct = eligible && chosen == crate::gpu_route::Route::Direct;
+                    // **Small damage keeps the retained frame**, on a device
+                    // whose measured route is direct. Direct redraws every
+                    // pixel by design; a three-row tick or a caret is a
+                    // sliver of that, which the blit route redraws and copies
+                    // alone. Only under `auto` (a pinned route is pinned).
+                    let share = damage_share(gpu_damage.as_deref(), extent);
+                    let retained_small = eligible
+                        && chosen == crate::gpu_route::Route::Direct
+                        && self.gpu_route.is_auto()
+                        && self.small_damage.prefer_retained(share);
+                    let direct =
+                        eligible && chosen == crate::gpu_route::Route::Direct && !retained_small;
                     let measured = || {
                         self.gpu_route
                             .compared()
@@ -2062,7 +2080,13 @@ impl NativeRenderer {
                     } else {
                         "chosen by measurement"
                     };
-                    if direct && self.gpu_route.is_auto() {
+                    if retained_small {
+                        note_gpu_route(&format!(
+                            "blit: small damage ({:.1}% of the surface) on a direct-route device \
+                             keeps the retained frame and copies the damage alone",
+                            share * 100.0
+                        ));
+                    } else if direct && self.gpu_route.is_auto() {
                         note_gpu_route(&format!(
                             "direct: depth-0 opaque frame rendered into the swapchain image; \
                              {by}{}",
@@ -2114,7 +2138,7 @@ impl NativeRenderer {
                     };
                     self.stages.gpu = renderer.last_timings();
                     self.stages.gpu_passes = renderer.last_pass_times();
-                    if eligible {
+                    if eligible && !retained_small {
                         // The latest GPU time the renderer has, for the
                         // route in use; the chooser skips the frames around
                         // a switch, where that time is the other route's.
@@ -2262,6 +2286,26 @@ fn gpu_route_mode() -> crate::gpu_route::Mode {
         Err(_) if cfg!(target_os = "android") => Mode::Auto,
         Err(_) => Mode::Fixed(Route::Direct),
     })
+}
+
+/// The share of the surface `damage` covers: `1.0` for a full redraw
+/// (`None`), the regions' summed area otherwise (capped at 1.0 — the regions
+/// may overlap, and a share past one is still "everything").
+fn damage_share(damage: Option<&[PixelRect]>, extent: (u32, u32)) -> f32 {
+    let Some(regions) = damage else {
+        return 1.0;
+    };
+    let total = f64::from(extent.0) * f64::from(extent.1);
+    if total <= 0.0 {
+        return 1.0;
+    }
+    let area: f64 = regions
+        .iter()
+        .map(|r| f64::from((r.x1 - r.x0).max(0)) * f64::from((r.y1 - r.y0).max(0)))
+        .sum();
+    #[expect(clippy::cast_possible_truncation, reason = "a share in 0..=1")]
+    let share = (area / total).min(1.0) as f32;
+    share
 }
 
 /// The route the last GPU frame took through the renderer, and why —

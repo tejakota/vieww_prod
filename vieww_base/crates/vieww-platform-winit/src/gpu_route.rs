@@ -396,6 +396,78 @@ impl RouteChooser {
     }
 }
 
+/// Whether a direct-route device should take the blit route's retained
+/// damage path for the frames now arriving.
+///
+/// The direct route redraws the whole screen every frame, by design: on a
+/// fast GPU that is cheaper than the blit route's intermediate traffic for a
+/// full-screen storm. For a tick that changes three rows, a blinking caret or
+/// a hover, it redraws a whole screen to change a sliver of it. The blit
+/// route keeps its last frame (`L[0]`), redraws the damage there and copies
+/// only the damaged rectangles to the screen.
+///
+/// Entering costs one full redraw (a direct frame leaves `L[0]` stale, and
+/// the renderer redraws it in full the first time), so it takes
+/// [`ENTER_AFTER`] small frames in a row to enter, and a frame past
+/// [`LEAVE_ABOVE`] to leave: hysteresis, so a phase that alternates does not
+/// pay the entry every other frame.
+#[derive(Debug, Default, Clone)]
+pub(crate) struct SmallDamage {
+    streak: u32,
+    retained: bool,
+}
+
+/// A frame whose damage is at most this share of the surface is small.
+pub(crate) const SMALL_SHARE: f32 = 0.15;
+/// Small frames in a row before the retained path is taken.
+pub(crate) const ENTER_AFTER: u32 = 3;
+/// On the retained path, a frame past this share goes back to direct.
+pub(crate) const LEAVE_ABOVE: f32 = 0.35;
+
+impl SmallDamage {
+    /// This frame's damage `share` (0..=1 of the surface): whether it should
+    /// take the retained path.
+    pub(crate) fn prefer_retained(&mut self, share: f32) -> bool {
+        if share <= SMALL_SHARE {
+            self.streak = self.streak.saturating_add(1);
+        } else {
+            self.streak = 0;
+        }
+        if self.retained {
+            if share > LEAVE_ABOVE {
+                self.retained = false;
+            }
+        } else if self.streak >= ENTER_AFTER {
+            self.retained = true;
+        }
+        self.retained
+    }
+}
+
+#[cfg(test)]
+mod small_damage_tests {
+    use super::*;
+
+    #[test]
+    fn small_damage_enters_after_a_streak_and_leaves_on_a_big_frame() {
+        let mut s = SmallDamage::default();
+        // A tick phase: small frames. The first two stay direct.
+        assert!(!s.prefer_retained(0.05));
+        assert!(!s.prefer_retained(0.05));
+        assert!(s.prefer_retained(0.05), "three in a row enter");
+        // A medium frame does not leave (hysteresis)...
+        assert!(s.prefer_retained(0.30));
+        // ...a big one does.
+        assert!(!s.prefer_retained(0.9));
+        // A storm: every frame full, never enters.
+        let mut storm = SmallDamage::default();
+        assert!((0..100).all(|_| !storm.prefer_retained(1.0)));
+        // Alternating small and big never pays the entry.
+        let mut flip = SmallDamage::default();
+        assert!((0..100).all(|i| !flip.prefer_retained(if i % 2 == 0 { 0.05 } else { 0.8 })));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
