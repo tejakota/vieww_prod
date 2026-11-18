@@ -1,14 +1,14 @@
 # 2 · Devices — SUCCESS
 
-- branch: `main`  sha: `5892c66ffbc8c8d25a7f3b931e9cfbfe7b10b249`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/44085244072
+- branch: `main`  sha: `ee5a473927c2afb59c895056b1e0ac209a3e18c3`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/44340953404
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
 | phase-1 / Market Watch · compare-vieww-apk | PASS |  |
-| phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
+| phase-1 / approve | skipped |  |
 | phase-2 / Market Watch · compare-firebase | PASS |  |
 | phase-2 / approve | skipped |  |
 | phase-2 / matrix.title | skipped |  |
@@ -57,9 +57,9 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / approve — skipped
-
 ### phase-1 / matrix.title — skipped
+
+### phase-1 / approve — skipped
 
 ### phase-2 / Market Watch · compare-firebase — PASS
 - PASS: Set up job
@@ -97,7 +97,7 @@
 ### phase-2 / matrix.title — skipped
 
 ### results / publish — running
-- running: Set up job
+- PASS: Set up job
 - running: Collect the run
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
