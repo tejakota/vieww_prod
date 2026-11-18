@@ -172,6 +172,41 @@ pub(crate) fn over_flat_row(dst: &mut [Premul], mask: &[f32], color: Premul, rep
     over_flat_row_scalar(dst, mask, color, replaces);
 }
 
+/// A row whose *source* varies per pixel — a gradient, a clipped shape, an
+/// LCD glyph's equal-channel spans — composited through a per-pixel coverage
+/// `mask`: `over(src[j].scaled(mask[j]), dst[j])`, the same one-scale-then-
+/// blend order `composite_coverage`'s closure path runs, with the pixel's own
+/// branches (skip at zero coverage, replace at a fully opaque scaled source)
+/// answered per lane instead of per pixel.
+///
+/// This is the kernel `over_layer_row` is for the constant-`alpha` case and
+/// `over_flat_row` for the constant-*colour* case: the three of them differ
+/// only in what varies along the row. A pixel whose `mask` is zero yields a
+/// zero-alpha source, which the skip lane writes back as the destination it
+/// loaded — the same bits the scalar walk's `continue` leaves behind.
+pub(crate) fn over_masked_row(dst: &mut [Premul], src: &[Premul], mask: &[f32]) {
+    debug_assert_eq!(dst.len(), src.len());
+    debug_assert_eq!(dst.len(), mask.len());
+    #[cfg(target_arch = "x86_64")]
+    {
+        if has_avx2() {
+            // SAFETY: `has_avx2()` asked the CPU once for this process; see
+            // `avx2`'s doc for what that check promises.
+            unsafe { avx2::over_masked_row(dst, src, mask) }
+        } else {
+            // SAFETY: SSE2 is part of the x86-64 baseline; see `sse2`'s doc.
+            unsafe { sse2::over_masked_row(dst, src, mask) }
+        }
+    }
+    #[cfg(target_arch = "aarch64")]
+    {
+        // SAFETY: NEON is part of the aarch64 baseline; see `neon`'s doc.
+        unsafe { neon::over_masked_row(dst, src, mask) }
+    }
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    over_masked_row_scalar(dst, src, mask);
+}
+
 // ---------------------------------------------------------------------------
 // Lane-wise float ops: add, subtract, divide.
 //
@@ -540,6 +575,24 @@ pub(crate) fn over_flat_row_scalar(
     }
 }
 
+/// The scalar reference for [`over_masked_row`]: the closure paths
+/// (`composite_coverage`'s, `composite_gradient`'s) ran this per pixel,
+/// branches and all.
+#[cfg_attr(any(target_arch = "x86_64", target_arch = "aarch64"), allow(dead_code))]
+pub(crate) fn over_masked_row_scalar(dst: &mut [Premul], src: &[Premul], mask: &[f32]) {
+    for (px, (&s, &c)) in dst.iter_mut().zip(src.iter().zip(mask)) {
+        let s = s.scaled(c);
+        if s.a <= 0.0 {
+            continue;
+        }
+        if s.a == 1.0 {
+            *px = s;
+            continue;
+        }
+        *px = over(s, *px);
+    }
+}
+
 /// The aarch64 sibling of the module below — see `neon`'s own doc for its
 /// written-not-run status.
 #[cfg(target_arch = "aarch64")]
@@ -761,6 +814,24 @@ mod sse2 {
             // An opaque scaled source replaces; anything else is `over`.
             let copy = _mm_cmpeq_ps(a, one);
             store(px, select(copy, s, over(s, a, d)));
+        }
+    }
+
+    #[target_feature(enable = "sse2")]
+    pub(super) fn over_masked_row(dst: &mut [Premul], src: &[Premul], mask: &[f32]) {
+        let zero = _mm_setzero_ps();
+        let one = _mm_set1_ps(1.0);
+        for ((px, s), &c) in dst.iter_mut().zip(src).zip(mask) {
+            let s = _mm_mul_ps(load(s), _mm_set1_ps(c));
+            let a = _mm_shuffle_ps::<0xFF>(s, s);
+            let d = load(px);
+            // Precedence as in `layer_loop`: skip, then copy, then over. The
+            // skip and copy are answers about this pixel's own scaled alpha,
+            // so the selects reproduce the scalar walk's branches lane for
+            // lane — a skipped pixel stores back the destination it loaded.
+            let skip = _mm_cmple_ps(a, zero);
+            let copy = _mm_cmpeq_ps(a, one);
+            store(px, select(skip, d, select(copy, s, over(s, a, d))));
         }
     }
 }
@@ -1001,6 +1072,37 @@ mod avx2 {
             let skip = cmple(a, zero);
             let copy = _mm256_and_ps(cmpeq(a, one), copy_ok);
             store2(px, select(skip, d, select(copy, s, over(s, a, d))));
+        }
+    }
+
+    #[target_feature(enable = "avx2")]
+    pub(super) fn over_masked_row(dst: &mut [Premul], src: &[Premul], mask: &[f32]) {
+        let whole = even_prefix(even_prefix(dst.len(), src.len()), mask.len());
+        let (body, tail) = dst.split_at_mut(whole);
+        let zero = _mm256_setzero_ps();
+        let one = _mm256_set1_ps(1.0);
+        for ((px, s), m) in body
+            .as_chunks_mut::<2>()
+            .0
+            .iter_mut()
+            .zip(src[..whole].as_chunks::<2>().0.iter())
+            .zip(mask[..whole].as_chunks::<2>().0.iter())
+        {
+            let cv = each_half(m[0], m[1]);
+            let s = _mm256_mul_ps(load2(s), cv);
+            let a = _mm256_shuffle_ps::<0xFF>(s, s);
+            let d = load2(px);
+            // Precedence as in `layer_loop`: skip, then copy, then over. A
+            // skipped lane is written back with the value it was loaded with
+            // — the same bits as not writing it.
+            let skip = cmple(a, zero);
+            let copy = cmpeq(a, one);
+            store2(px, select(skip, d, select(copy, s, over(s, a, d))));
+        }
+        if !tail.is_empty() {
+            // The SSE2 half for the unpaired pixel — no `unsafe` needed:
+            // AVX2 implies SSE2, so this context already guarantees it.
+            super::sse2::over_masked_row(tail, &src[whole..], &mask[whole..]);
         }
     }
 
@@ -1326,6 +1428,26 @@ mod tests {
             }
         }
 
+        // `over_masked_row`: the per-pixel-source sibling, held to the same
+        // three-way comparison — dispatched, SSE2, scalar — over the same
+        // hostile values (the `mask` carries the EDGES cycle, so zero
+        // coverage, one, above one, NaN and negatives all reach the skip,
+        // copy and blend lanes).
+        {
+            let (mut a, mut b) = (dst.clone(), dst.clone());
+            over_masked_row(&mut a, &src, &mask);
+            over_masked_row_scalar(&mut b, &src, &mask);
+            assert!(bits(&a) == bits(&b), "masked row");
+            #[cfg(target_arch = "x86_64")]
+            {
+                let mut c = dst.clone();
+                // SAFETY: SSE2 is part of the x86-64 baseline.
+                unsafe { sse2::over_masked_row(&mut c, &src, &mask) };
+                assert!(bits(&a) == bits(&c), "masked row, dispatched vs sse2");
+                assert!(bits(&c) == bits(&b), "masked row, sse2 vs scalar");
+            }
+        }
+
         // Odd and short rows: the AVX2 halves pair pixels and hand the
         // unpaired tail to the SSE2 half, so every length that leaves a tail
         // is compared the same three ways — the tail is a path, not an
@@ -1348,14 +1470,35 @@ mod tests {
                     bits(&sa).iter().all(|&c| c == [0, 0, 0, 0]),
                     "layer take tail leaves src zeroed: len {len}, alpha {alpha}"
                 );
+                let (mut a, mut b) = (d.to_vec(), d.to_vec());
+                over_masked_row(&mut a, s, m);
+                over_masked_row_scalar(&mut b, s, m);
+                assert!(bits(&a) == bits(&b), "masked tail: len {len}");
                 #[cfg(target_arch = "x86_64")]
                 {
+                    let mut c = d.to_vec();
+                    // SAFETY: SSE2 is part of the x86-64 baseline.
+                    unsafe { sse2::over_masked_row(&mut c, s, m) };
+                    assert!(
+                        bits(&a) == bits(&c),
+                        "masked tail, dispatched vs sse2: len {len}"
+                    );
+                }
+                #[cfg(target_arch = "x86_64")]
+                {
+                    let (mut a, mut b) = (d.to_vec(), d.to_vec());
+                    over_layer_row(&mut a, s, alpha, true);
+                    over_layer_row_scalar(&mut b, s, alpha, true);
                     let mut c = d.to_vec();
                     // SAFETY: SSE2 is part of the x86-64 baseline.
                     unsafe { sse2::over_layer_row(&mut c, s, alpha, true) };
                     assert!(
                         bits(&a) == bits(&c),
                         "layer tail, dispatched vs sse2: len {len}, alpha {alpha}"
+                    );
+                    assert!(
+                        bits(&c) == bits(&b),
+                        "layer tail, sse2 vs scalar: len {len}, alpha {alpha}"
                     );
                     let (mut c, mut sc) = (d.to_vec(), s.to_vec());
                     // SAFETY: SSE2 is part of the x86-64 baseline.

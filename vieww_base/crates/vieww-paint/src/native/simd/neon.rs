@@ -230,6 +230,24 @@ pub(super) fn premul_div(p: Premul, k: f32) -> Premul {
 }
 
 #[target_feature(enable = "neon")]
+pub(super) fn over_masked_row(dst: &mut [Premul], src: &[Premul], mask: &[f32]) {
+    let zero = vdupq_n_f32(0.0);
+    let one = vdupq_n_f32(1.0);
+    for ((px, s), &c) in dst.iter_mut().zip(src).zip(mask) {
+        let s = vmulq_f32(load(s), vdupq_n_f32(c));
+        let a = vdupq_laneq_f32::<3>(s);
+        let d = load(px);
+        // Precedence as in `layer_loop`: skip, then copy, then over. The
+        // skip and copy are answers about this pixel's own scaled alpha,
+        // so the selects reproduce the scalar walk's branches lane for
+        // lane — a skipped pixel stores back the destination it loaded.
+        let skip = vcleq_f32(a, zero);
+        let copy = vceqq_f32(a, one);
+        store(px, select(skip, d, select(copy, s, over(s, a, d))));
+    }
+}
+
+#[target_feature(enable = "neon")]
 pub(super) fn over_flat_row(dst: &mut [Premul], mask: &[f32], color: Premul, replaces: bool) {
     let one = vdupq_n_f32(1.0);
     let col = load(&color);

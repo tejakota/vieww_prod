@@ -2407,10 +2407,24 @@ impl NativeRenderer {
             return;
         }
         // What is left is the clipped cases: a shape with a real clip *mask*
-        // over it, which has to ask the mask per pixel and so keeps the
-        // closure. The gradient still comes from the folded `DeviceRamp`; only
-        // the row constants cannot be hoisted out through `composite_coverage`'s
-        // callback, and a masked shape is a small minority of a frame's draws.
+        // over it. Under the normal blend in gamma space — every draw on the
+        // default pipeline — the mask answers as rows, so
+        // `composite_clipped_shape` builds each row's clip-scaled colour in
+        // scratch and hands it to the shared masked-row kernel instead of
+        // asking a closure per pixel. A linear-light pipeline keeps the
+        // closure: its blend is not `over`, so the row kernel does not apply.
+        if let Some(clip) = resolved.into_mask() {
+            if matches!(self.pipeline, ColorPipeline::GammaSpace) {
+                target.composite_clipped_shape(
+                    mask.view(),
+                    origin,
+                    clip,
+                    device_ramp.as_ref(),
+                    flat,
+                );
+                return;
+            }
+        }
         target.composite_coverage(
             mask.view(),
             origin,

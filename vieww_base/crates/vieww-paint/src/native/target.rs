@@ -587,19 +587,41 @@ impl Target {
         let c = Premul::from_straight(color);
 
         let table = super::linear::coverage_table();
+        // Per row, each pixel lands in one of four classes, and the classes
+        // come in runs: the glyph's interior is whole runs of full coverage,
+        // its horizontal edges whole runs of equal fractional coverage, and
+        // only the vertical stem edges — where LCD coverage is genuinely
+        // split per channel — scatter as singles. So the row is classified
+        // first (the three coverages, clip-multiplied, into scratch), then
+        // emitted: interior runs as a fill, equal-channel runs through the
+        // shared masked-row kernel — the gray path's own `over(c.scaled(k),
+        // dst)` per pixel, lanes at a time — and split pixels as the
+        // per-channel formula, unchanged. The class order is the original
+        // loop's branch order, so a pixel's class is the branch it always
+        // took.
+        let span = (dx_end - dx_start) as usize;
+        let mut kr_row = vec![0.0f32; span];
+        let mut kg_row = vec![0.0f32; span];
+        let mut kb_row = vec![0.0f32; span];
+        let mut classes = vec![0u8; span];
+        let gray_src = vec![c; span];
         for dy in dy_start..dy_end {
             let y = coverage.y0 + dy;
             let ty = y - origin.1;
             let mask_row = coverage.row(dy as u32);
             let pixel_row = ty as usize * self.width as usize;
+            let dst_span = &mut self.pixels
+                [pixel_row + (coverage.x0 - origin.0 + dx_start) as usize..][..span];
 
-            for dx in dx_start..dx_end {
+            // Classify.
+            for (j, dx) in (dx_start..dx_end).enumerate() {
                 let base = dx as usize * LCD_SUBPIXELS;
                 let x = coverage.x0 + dx;
                 // A clip is a mask over the whole pixel, not over individual
                 // sub-columns, so it multiplies all three channels equally.
                 let clip = clip_at(x, y);
                 if clip <= 0.0 {
+                    classes[j] = 0;
                     continue;
                 }
                 // The same coverage gamma as the gray path, per channel —
@@ -617,38 +639,68 @@ impl Target {
                 } else {
                     (kr * clip, kg * clip, kb * clip)
                 };
-                if kr <= 0.0 && kg <= 0.0 && kb <= 0.0 {
-                    continue;
-                }
-                let index = pixel_row + (x - origin.0) as usize;
-                // The opaque interior fast path, same licence as
-                // `composite_coverage`'s: full coverage on every channel, an
-                // opaque colour — there is nothing to read and blend.
-                if kr == 1.0 && kg == 1.0 && kb == 1.0 && c.a == 1.0 {
-                    self.pixels[index] = c;
-                    continue;
-                }
-                let dst = self.pixels[index];
-                if kr == kg && kg == kb {
-                    // Equal channels: gray coverage in disguise. The gray
-                    // path's own arithmetic, so the bytes agree with it.
-                    self.pixels[index] = over(c.scaled(kr), dst);
-                    continue;
-                }
-                // Genuinely split channels: each colour channel blends with
-                // its own effective alpha `e_ch = a * k_ch` — the source term
-                // `c_ch * k_ch` is exactly what `scaled(k_ch)` would give
-                // that channel, so this is the gray formula evaluated per
-                // channel rather than a new definition of blending.
-                let e_r = c.a * kr;
-                let e_g = c.a * kg;
-                let e_b = c.a * kb;
-                self.pixels[index] = Premul {
-                    r: c.r * kr + dst.r * (1.0 - e_r),
-                    g: c.g * kg + dst.g * (1.0 - e_g),
-                    b: c.b * kb + dst.b * (1.0 - e_b),
-                    a: dst.a,
+                kr_row[j] = kr;
+                kg_row[j] = kg;
+                kb_row[j] = kb;
+                classes[j] = if kr <= 0.0 && kg <= 0.0 && kb <= 0.0 {
+                    0
+                } else if kr == 1.0 && kg == 1.0 && kb == 1.0 && c.a == 1.0 {
+                    1
+                } else if kr == kg && kg == kb {
+                    2
+                } else {
+                    3
                 };
+            }
+
+            // Emit, run by run.
+            let mut j = 0;
+            while j < span {
+                let class = classes[j];
+                let start = j;
+                j += 1;
+                while j < span && classes[j] == class {
+                    j += 1;
+                }
+                let (dst_run, src_run, kr_run) = (
+                    &mut dst_span[start..j],
+                    &gray_src[start..j],
+                    &kr_row[start..j],
+                );
+                match class {
+                    // The original loop's `continue`: nothing lands.
+                    0 => {}
+                    // The opaque interior fast path, same licence as
+                    // `composite_coverage`'s: full coverage on every channel,
+                    // an opaque colour — there is nothing to read and blend.
+                    1 => dst_run.fill(c),
+                    // Equal channels: gray coverage in disguise. The gray
+                    // path's own arithmetic — `over(c.scaled(k), dst)` —
+                    // through the shared masked-row kernel, so the bytes
+                    // agree with the gray compositor, clip and all.
+                    2 => super::simd::over_masked_row(dst_run, src_run, kr_run),
+                    // Genuinely split channels: each colour channel blends
+                    // with its own effective alpha `e_ch = a * k_ch` — the
+                    // source term `c_ch * k_ch` is exactly what
+                    // `scaled(k_ch)` would give that channel, so this is the
+                    // gray formula evaluated per channel rather than a new
+                    // definition of blending.
+                    _ => {
+                        for (k, px) in dst_run.iter_mut().enumerate() {
+                            let (kr, kg, kb) = (kr_row[start + k], kg_row[start + k], kb_row[start + k]);
+                            let dst = *px;
+                            let e_r = c.a * kr;
+                            let e_g = c.a * kg;
+                            let e_b = c.a * kb;
+                            *px = Premul {
+                                r: c.r * kr + dst.r * (1.0 - e_r),
+                                g: c.g * kg + dst.g * (1.0 - e_g),
+                                b: c.b * kb + dst.b * (1.0 - e_b),
+                                a: dst.a,
+                            };
+                        }
+                    }
+                }
             }
         }
     }
@@ -832,6 +884,23 @@ impl Target {
                 // Once per row, not once per pixel.
                 let row = ramp.row(y);
                 let dst_span = &mut line[x_left..x_left + span];
+                // **This loop stays scalar, and that is a measurement, not an
+                // omission.** Building the row into scratch (unscaled ramp
+                // colour, gamma'd coverage) and blending it with
+                // `over_masked_row` — the shape `composite_clipped_shape`
+                // below takes — was tried on this exact fixture set and
+                // measured *worse*: `00-fills-gradient` 4.16 -> 4.76 ms best
+                // of three alternating runs, `21-dashboard` 2.90 -> 3.18 ms.
+                // A gradient's full-coverage interior is the majority of its
+                // pixels, the old `a == 1.0` replace skipped the blend for
+                // each of them, and the kernel's compute-then-select pays
+                // the blend to discard it — the same shape
+                // `over_flat_row`'s own comment records measuring on the
+                // flat fills. The ramp colour is already in a register when
+                // the coverage arrives; staging it through memory is pure
+                // added traffic. (The clipped shapes are different: their
+                // per-pixel work was the indirect closure call, and removing
+                // that paid for the staging.)
                 for (j, dst) in dst_span.iter_mut().enumerate() {
                     // The coverage gamma — see `linear::coverage_alpha` — for
                     // the same reason the flat-fill loop applies it: coverage
@@ -881,6 +950,86 @@ impl Target {
                 paint_rows(piece, 0);
             }
         });
+    }
+
+    /// [`Self::composite_coverage`](Self::composite_coverage) for the clipped
+    /// shapes under the normal blend in gamma space — the case that used to
+    /// pay the general path's per-pixel closure: an indirect call, a
+    /// four-bounds clip lookup and a gradient match, per pixel, on top of the
+    /// blend itself.
+    ///
+    /// The colour at a pixel is a flat colour or a folded device ramp scaled
+    /// by the clip mask's coverage there; the shape's own coverage scales it
+    /// again; the blend is `over`. Those are exactly the inputs of the shared
+    /// masked-row kernel: each row is built into scratch — colour through the
+    /// clip first, the same first scale the closure ran — and blended by
+    /// [`super::simd::over_masked_row`] with the shape's coverage as the
+    /// second, so the two scales happen in the same order on the same values
+    /// and the bytes are the closure path's bytes. A pixel the closure path
+    /// skipped (no shape coverage, no clip coverage, or a transparent source
+    /// under `over`) yields a zero-alpha source in the kernel, whose skip lane
+    /// writes the destination back unchanged.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn composite_clipped_shape(
+        &mut self,
+        coverage: MaskView<'_>,
+        origin: (i32, i32),
+        clip: &CoverageMask,
+        ramp: Option<&DeviceRamp>,
+        flat: Premul,
+    ) {
+        if coverage.is_empty() {
+            return;
+        }
+        let (wx0, wy0, wx1, wy1) = self.writable();
+        let dy_start = (wy0 - (coverage.y0 - origin.1)).max(0);
+        let dy_end = (wy1 - (coverage.y0 - origin.1)).min(coverage.height as i32);
+        let dx_start = (wx0 - (coverage.x0 - origin.0)).max(0);
+        let dx_end = (wx1 - (coverage.x0 - origin.0)).min(coverage.width as i32);
+        if dy_start >= dy_end || dx_start >= dx_end {
+            return;
+        }
+        self.mark_ink(
+            coverage.x0 - origin.0 + dx_start,
+            coverage.y0 - origin.1 + dy_start,
+            coverage.x0 - origin.0 + dx_end,
+            coverage.y0 - origin.1 + dy_end,
+        );
+
+        let table = super::linear::coverage_table();
+        let width = self.width as usize;
+        let span = (dx_end - dx_start) as usize;
+        // The scratch pair, allocated once per call and reused per row: the
+        // clip-scaled colour and the gamma'd shape coverage.
+        let mut src_row = vec![Premul::TRANSPARENT; span];
+        let mut mask_row = vec![0.0f32; span];
+        for dy in dy_start..dy_end {
+            let y = coverage.y0 + dy;
+            let ty = y - origin.1;
+            let shape_row = coverage.row(dy as u32);
+            let pixel_row = ty as usize * width;
+            let dst_span = &mut self.pixels
+                [pixel_row + (coverage.x0 - origin.0 + dx_start) as usize..][..span];
+            for j in 0..span {
+                let x = coverage.x0 + dx_start + j as i32;
+                // The coverage gamma, as ever: coverage is area, alpha is
+                // light.
+                let c = super::linear::coverage_alpha_in(table, shape_row[dx_start as usize + j]);
+                let clip_c = clip.coverage_at(x, y);
+                if c <= 0.0 || clip_c <= 0.0 {
+                    src_row[j] = Premul::TRANSPARENT;
+                    mask_row[j] = 0.0;
+                    continue;
+                }
+                let color = match ramp {
+                    Some(ramp) => ramp.at_device(x, y),
+                    None => flat,
+                };
+                src_row[j] = color.scaled(clip_c);
+                mask_row[j] = c;
+            }
+            super::simd::over_masked_row(dst_span, &src_row, &mask_row);
+        }
     }
 
     /// Seed this buffer with a copy of `source`'s pixels underneath this
