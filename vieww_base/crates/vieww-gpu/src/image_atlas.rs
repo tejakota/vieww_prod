@@ -335,10 +335,13 @@ impl ImageAtlas {
             let n = (old_side * 4) as usize;
             self.texels[to..to + n].copy_from_slice(&old[from..from + n]);
         }
-        // A resize is a full upload for every backend — the texture must be
-        // recreated — so the frame's recording is abandoned rather than
-        // appended to.
-        self.dirty.rewrote();
+        // A grow preserves every texel's position and value, so this frame's
+        // rectangles still describe the backend's difference exactly — a
+        // backend that holds `base` can carry its old texture across the
+        // resize itself (one GPU copy) and send the rectangles, instead of
+        // re-uploading the whole texture from the host. `grew`, not
+        // `rewrote`.
+        self.dirty.grew();
     }
     fn blit(&mut self, p: Placement, src: &[u8]) {
         debug_assert_eq!(src.len(), (p.width * p.height * 4) as usize);

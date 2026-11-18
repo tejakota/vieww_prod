@@ -298,6 +298,11 @@ pub struct SceneRenderer {
     /// redraws anything: `(src, dx, dy)` in render pixels — a scroll's
     /// moved rows. See [`set_pending_copies`](Self::set_pending_copies).
     pending_copies: Vec<(PixelRect, i32, i32)>,
+    /// Atlas textures replaced by [`resize_with_carry`](Self::resize_with_carry):
+    /// their content was copied into the replacement **on the command buffer
+    /// being recorded**, so they cannot be destroyed until that buffer has
+    /// been submitted and finished. Drained by [`settle`](Self::settle).
+    retired_textures: Vec<Texture>,
     /// Consecutive frames whose plans used fewer targets than are allocated
     /// — the idle signal that frees the surplus. See [`TARGET_TRIM_FRAMES`].
     idle_target_frames: u32,
@@ -949,6 +954,7 @@ impl SceneRenderer {
             idle_target_frames: 0,
             target_trim_frames: TARGET_TRIM_FRAMES,
             staging_trim_frames: STAGING_TRIM_FRAMES,
+            retired_textures: Vec::new(),
             frame_clip: None,
             pending_copies: Vec::new(),
             pass_times: None,
@@ -1190,6 +1196,16 @@ impl SceneRenderer {
         let rects = match atlas.changes_since(held) {
             vieww_gpu::AtlasChanges::None => return Ok(()),
             vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried.** `Regions` with a resized texture means
+                // the atlas grew (a compaction would answer `Full`): every
+                // texel kept its position, so the old texture's content is
+                // still valid — one GPU copy carries it across, and only the
+                // rectangles come from the host. A new glyph no longer
+                // re-sends the whole (up to 16 MB) texture.
+                self.resize_with_carry(Slot::Glyphs, side, side)?;
+                rects
+            }
             _ => {
                 self.record_upload(
                     Slot::Glyphs,
@@ -1229,6 +1245,13 @@ impl SceneRenderer {
         let rects = match images.changes_since(held) {
             vieww_gpu::AtlasChanges::None => return Ok(()),
             vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried** — see `record_glyphs`' arm. This is the
+                // 64 MB one: a photo app's first overflow image used to
+                // re-send the entire atlas.
+                self.resize_with_carry(Slot::Images, side, side)?;
+                rects
+            }
             _ => {
                 self.record_upload(
                     Slot::Images,
@@ -1269,6 +1292,12 @@ impl SceneRenderer {
         let rects = match ramps.changes_since(held) {
             vieww_gpu::AtlasChanges::None => return Ok(()),
             vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A row doubling, carried** — see `record_glyphs`' arm. The
+                // copy is the old rows; the rectangles are the new ones.
+                self.resize_with_carry(Slot::Ramps, vieww_gpu::RampAtlas::WIDTH, rows)?;
+                rects
+            }
             _ => {
                 self.record_upload(
                     Slot::Ramps,
@@ -1434,6 +1463,119 @@ impl SceneRenderer {
         }
         self.texture_mut(slot).version = version;
         Ok(needed)
+    }
+
+    /// Recreate `slot`'s texture at `width` x `height`, carrying the old
+    /// texture's content across with **one GPU image-to-image copy** — the
+    /// resize half of an atlas grow, whose texels all kept their positions.
+    ///
+    /// # Why the old texture is retired rather than destroyed here
+    ///
+    /// The copy is *recorded* into the command buffer the caller is building,
+    /// not executed: destroying the source now would be a use-after-free the
+    /// driver may or may not catch. So the old image is pushed onto
+    /// [`retired_textures`](Self::retired_textures) and freed at the next
+    /// [`settle`](Self::settle), by which point every frame that could have
+    /// been executing the copy has finished. The staging arrays are the
+    /// slot's, not the texture's — they move to the replacement so the
+    /// partial uploads that follow keep their buffers.
+    ///
+    /// The new texture is left in `SHADER_READ_ONLY_OPTIMAL`, the layout
+    /// [`record_regions`](Self::record_regions) expects to transition from.
+    /// The scene descriptor sets are rebound to the new view, as any resize
+    /// must.
+    fn resize_with_carry(
+        &mut self,
+        slot: Slot,
+        width: u32,
+        height: u32,
+    ) -> Result<(), VulkanError> {
+        let format = self.texture(slot).format;
+        let (old_w, old_h) = (self.texture(slot).width, self.texture(slot).height);
+        // Frames still in flight may be sampling the old texture; the copy
+        // recorded below will not run until they have. Waiting here is the
+        // same licence `record_upload`'s resize takes.
+        unsafe { self.device.device_wait_idle() }?;
+        let mut old = {
+            let fresh = create_texture(&self.device, &self.mem_props, format, width, height)?;
+            std::mem::replace(self.texture_mut(slot), fresh)
+        };
+        // The staging arrays belong to the slot: move them across so the
+        // rectangle upload that follows this keeps its buffers.
+        self.texture_mut(slot).staging =
+            std::mem::replace(&mut old.staging, [Buffer::EMPTY; FLIGHT_SLOTS]);
+        self.texture_mut(slot).staging_idle = old.staging_idle;
+        let fresh_image = self.texture(slot).image;
+        self.retired_textures.push(old);
+        let old_image = self.retired_textures.last().map_or(vk::Image::null(), |t| t.image);
+        debug_assert!(old_image != vk::Image::null());
+        let cmd = self.cmd();
+        unsafe {
+            transition(
+                &self.device,
+                cmd,
+                old_image,
+                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+                vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+            );
+            // UNDEFINED as the fresh texture's old layout on purpose: every
+            // texel the copy does not cover is written by the rectangle
+            // upload after it, or is unwritten atlas space no draw reads.
+            transition(
+                &self.device,
+                cmd,
+                fresh_image,
+                vk::ImageLayout::UNDEFINED,
+                vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+            );
+            self.device.cmd_copy_image(
+                cmd,
+                old_image,
+                vk::ImageLayout::TRANSFER_SRC_OPTIMAL,
+                fresh_image,
+                vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                &[vk::ImageCopy {
+                    src_subresource: color_layers(),
+                    src_offset: vk::Offset3D::default(),
+                    dst_subresource: color_layers(),
+                    dst_offset: vk::Offset3D::default(),
+                    extent: vk::Extent3D {
+                        width: old_w,
+                        height: old_h,
+                        depth: 1,
+                    },
+                }],
+            );
+            transition(
+                &self.device,
+                cmd,
+                fresh_image,
+                vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+            );
+        }
+        // The scene sets sample the new view, as any resize must rebind.
+        let info = [vk::DescriptorImageInfo {
+            sampler: vk::Sampler::null(),
+            image_view: self.texture(slot).view,
+            image_layout: vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+        }];
+        let writes: Vec<vk::WriteDescriptorSet> = self
+            .scene_sets
+            .iter()
+            .map(|set| {
+                vk::WriteDescriptorSet::default()
+                    .dst_set(*set)
+                    .dst_binding(slot.binding())
+                    .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
+                    .image_info(&info)
+            })
+            .collect();
+        unsafe { self.device.update_descriptor_sets(&writes, &[]) };
+        if slot == Slot::Masks {
+            self.reset_post_sets()?;
+        }
+        Ok(())
     }
 
     /// How many bytes the most recent [`Self::upload_masks`] sent — the whole
@@ -3234,6 +3376,12 @@ impl SceneRenderer {
         for index in 0..FLIGHT_SLOTS {
             self.settle_slot(index)?;
         }
+        // The retired atlas textures: every frame that could still be
+        // executing has now finished, so the copies that carried their
+        // content into the replacements have too, and they can be freed.
+        for retired in self.retired_textures.drain(..) {
+            unsafe { destroy_texture(&self.device, retired) };
+        }
         Ok(())
     }
 
@@ -3509,6 +3657,9 @@ impl Drop for SceneRenderer {
             for slot in Slot::ALL {
                 let texture = std::mem::replace(self.texture_mut(slot), Texture::NULL);
                 destroy_texture(&self.device, texture);
+            }
+            for retired in self.retired_textures.drain(..) {
+                destroy_texture(&self.device, retired);
             }
             for flight in self.slots.iter_mut() {
                 destroy_buffer(

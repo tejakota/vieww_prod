@@ -491,10 +491,13 @@ impl Atlas {
             self.texels[to..to + old_side as usize]
                 .copy_from_slice(&old_texels[from..from + old_side as usize]);
         }
-        // A resize is a full upload for every backend — the texture must be
-        // recreated — so the frame's recording is abandoned rather than
-        // appended to.
-        self.dirty.rewrote();
+        // A grow preserves every texel's position and value, so this frame's
+        // rectangles still describe the backend's difference exactly — a
+        // backend that holds `base` can carry its old texture across the
+        // resize itself (one GPU copy) and send the rectangles, instead of
+        // re-uploading the whole texture from the host. `grew`, not
+        // `rewrote`.
+        self.dirty.grew();
     }
 
     fn blit(&mut self, at: Placement, alpha: &[u8]) {
@@ -866,11 +869,27 @@ mod tests {
                     self.fulls += 1;
                 }
                 crate::AtlasChanges::Regions(rects) => {
-                    assert_eq!(
-                        self.texels.len(),
-                        atlas.texels().len(),
-                        "a region upload never resizes"
-                    );
+                    // A grow's regions arrive beside a resized texture: every
+                    // existing texel keeps its (x, y) position (the `grew`
+                    // contract), which at a new *pitch* means the rows move
+                    // in memory — the model of `vieww-hal`'s GPU
+                    // image-to-image copy, which re-lays rows exactly this
+                    // way — and the rectangles cover everything after it.
+                    if self.texels.len() != atlas.texels().len() {
+                        let old_len = self.texels.len();
+                        assert!(
+                            old_len < atlas.texels().len(),
+                            "a shrink is never `grew`"
+                        );
+                        let old_side = (old_len as f64).sqrt() as usize;
+                        assert_eq!(old_side * old_side, old_len, "the model is square");
+                        let mut carried = vec![0u8; side * side];
+                        for row in 0..old_side {
+                            carried[row * side..row * side + old_side]
+                                .copy_from_slice(&self.texels[row * old_side..row * old_side + old_side]);
+                        }
+                        self.texels = carried;
+                    }
                     for &[x, y, w, h] in rects {
                         for row in y..y + h {
                             let i = row as usize * side + x as usize;
@@ -922,13 +941,19 @@ mod tests {
             "one 8x8 glyph is 64 bytes, not the whole texture"
         );
 
-        // Frame 4: a glyph too tall for the first shelf of a 256 atlas. A
-        // grow is a resize for a backend, so a full upload.
+        // Frame 4: a glyph too tall for the first shelf of a 256 atlas. The
+        // grow is a resize — but a *grow*: every existing texel keeps its
+        // position, so the backend carries its texture across and only the
+        // new glyph's rectangle is sent. This used to be a full upload;
+        // `grew` is what makes the carry sound.
         atlas.begin_frame();
         atlas.insert(key(4), 100, 255, &[5; 25_500]);
         assert!(atlas.side() > Atlas::INITIAL_SIDE, "the frame grew the atlas");
         backend.sync(&atlas);
-        assert_eq!(backend.fulls, 2);
+        assert_eq!(
+            backend.fulls, 1,
+            "the grow must be carried, not a full upload"
+        );
 
         // Frame 5: the backend skips the frame. The one after cannot be
         // described by rectangles — the backend's version predates that
@@ -938,7 +963,7 @@ mod tests {
         atlas.begin_frame();
         atlas.insert(key(6), 10, 10, &[4; 100]);
         backend.sync(&atlas);
-        assert_eq!(backend.fulls, 3);
+        assert_eq!(backend.fulls, 2);
 
         // Frames 6-8: fill to the ceiling, compact, insert again. The
         // compaction must reach the backend as a full upload — never as the
@@ -952,7 +977,7 @@ mod tests {
         atlas.begin_frame();
         assert!(atlas.len() < 1_000, "the compaction must have run");
         backend.sync(&atlas);
-        assert_eq!(backend.fulls, 5, "the compaction is a full upload");
+        assert_eq!(backend.fulls, 4, "the compaction is a full upload");
 
         // The frame after it is a rectangle again, on the compacted atlas.
         let before = backend.region_bytes;

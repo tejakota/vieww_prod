@@ -368,6 +368,17 @@ impl MaskAtlas {
             .collect();
         let side = (self.side * 2).min(Self::MAX_SIDE);
         self.reset(side);
+        // **The mask atlas' grow stays a full rewrite, unlike the other three
+        // atlases' `grew`.** Two reasons, both specific to how this atlas
+        // works: the grow re-blits every live entry (below), so the frame's
+        // rectangles would balloon to the whole live set rather than the new
+        // masks — more upload than the dirty-rect scheme exists to save — and
+        // the `reset` zeroes texels the old texture still holds, so carrying
+        // the old texture across would leave stale bytes where the atlas has
+        // zeros: invisible to any draw (a dead mask is never sampled again)
+        // but not the *exact* difference `changes_since` promises. The mask
+        // atlas' pressure valve is compaction, not growth; the three atlases
+        // that grow as their only resize are the ones that carry.
         self.dirty_full = true;
         // Slots handed out earlier this frame are already baked into vertices
         // as texel offsets, so a grow must not move them: every old entry is

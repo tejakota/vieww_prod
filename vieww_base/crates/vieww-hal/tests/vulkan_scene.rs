@@ -1336,3 +1336,103 @@ fn oversized_staging_decays_after_the_hysteresis() {
         "the staging must decay from the full upload's {saw_full} bytes to the partial uploads' size, not stay at {decayed}"
     );
 }
+
+/// An atlas grow is carried, not re-sent: the frame whose gradients overflow
+/// the ramp atlas' initial rows doubles the texture with one GPU copy of the
+/// old rows and uploads only the new ramps' rectangles — the bytes the
+/// renderer reports for that frame are one ramp row against the whole
+/// (doubled) texture, and the pixels still match a renderer that never grew.
+///
+/// The ramp atlas is the vehicle because its doubling is a *pure* grow: its
+/// compaction has an all-live early return, so a live set that only grows
+/// reaches the doubling without any same-frame rewrite. (The image atlas'
+/// half-full repack rewrites first, and the glyph atlas needs hundreds of
+/// distinct glyphs to overflow — both are carries too, but this is the one a
+/// test can reach deterministically.)
+#[test]
+#[ignore = "needs a Vulkan loader + ICD (lavapipe or a real GPU); run with --ignored"]
+fn an_atlas_grow_is_carried_not_reuploaded() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 200;
+    const H: u32 = 150;
+    let base = Color::rgba(250, 250, 248, 255);
+    let gradient = |i: u32| {
+        let hue = u8::try_from((i * 37) % 256).unwrap_or(0);
+        Gradient::horizontal().with_stops(&[
+            (0.0, Color::rgba(255 - hue, hue, 40, 255)),
+            (1.0, Color::rgba(hue, 40, 255 - hue, 255)),
+        ])
+    };
+    let scene_with = |count: u32| {
+        let mut scene = Scene::default();
+        for i in 0..count {
+            let x = 4.0 + (i % 8) as f32 * 24.0;
+            let y = 4.0 + (i / 8) as f32 * 22.0;
+            scene.push_command(Command::FillRect {
+                rect: Rect::new(x, y, x + 22.0, y + 20.0),
+                paint: Paint::gradient(gradient(i)),
+                transform: Transform::IDENTITY,
+                clip: Clip::NONE,
+            });
+        }
+        scene
+    };
+    let mut planner = vieww_gpu::Planner::new();
+
+    // Sixteen distinct ramps fill the initial rows; the first upload is the
+    // whole texture (the renderer has nothing yet).
+    let scene = scene_with(vieww_gpu::RampAtlas::INITIAL_ROWS);
+    let plan = planner.plan(&scene, W as f32, H as f32);
+    assert!(plan.is_complete(), "{:?}", plan.unsupported);
+    renderer
+        .render_planned(&planner, &plan, W, H, base)
+        .expect("render should succeed");
+    let whole_initial = u64::from(vieww_gpu::RampAtlas::WIDTH)
+        * u64::from(vieww_gpu::RampAtlas::INITIAL_ROWS)
+        * 16;
+    assert_eq!(
+        renderer.last_ramp_upload_bytes(),
+        whole_initial,
+        "the first frame uploads the whole initial texture"
+    );
+
+    // One more ramp doubles the rows. The carry: the old rows ride the resize
+    // as one GPU copy, and only the new ramp's row comes from the host.
+    let scene = scene_with(vieww_gpu::RampAtlas::INITIAL_ROWS + 1);
+    let plan = planner.plan(&scene, W as f32, H as f32);
+    assert!(plan.is_complete(), "{:?}", plan.unsupported);
+    assert!(
+        planner.ramp_atlas().rows() > vieww_gpu::RampAtlas::INITIAL_ROWS,
+        "the seventeenth ramp must double the rows"
+    );
+    let got = renderer
+        .render_planned(&planner, &plan, W, H, base)
+        .expect("render should succeed");
+    let row = u64::from(vieww_gpu::RampAtlas::WIDTH) * 16;
+    assert_eq!(
+        renderer.last_ramp_upload_bytes(),
+        row,
+        "the doubling frame must send one ramp row, not the grown texture — the carry is not running"
+    );
+    // And the pixels match a renderer that uploaded the whole thing: the
+    // carry must have preserved every existing row.
+    let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+    let want = fresh
+        .render_planned(&planner, &plan, W, H, base)
+        .expect("render should succeed");
+    drop(fresh);
+    assert_eq!(got, want, "the doubling frame's pixels differ from a full upload");
+
+    // The frame after is steady again: nothing new, nothing sent.
+    let plan = planner.plan(&scene, W as f32, H as f32);
+    renderer
+        .render_planned(&planner, &plan, W, H, base)
+        .expect("render should succeed");
+    assert_eq!(
+        renderer.last_ramp_upload_bytes(),
+        0,
+        "a steady frame after the doubling uploads nothing"
+    );
+}

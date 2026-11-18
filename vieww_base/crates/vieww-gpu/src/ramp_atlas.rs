@@ -169,10 +169,12 @@ impl RampAtlas {
             self.rows *= 2;
             self.texels
                 .resize((Self::WIDTH * self.rows * 4) as usize, 0.0);
-            // A resize is a full upload for every backend — the texture must
-            // be recreated — so this frame's recording is abandoned rather
-            // than appended to.
-            self.dirty.rewrote();
+            // A row doubling preserves every existing row's position and
+            // value, so this frame's rectangles still describe the backend's
+            // difference exactly — a backend that holds `base` can carry its
+            // old texture across the resize itself (one GPU copy of the old
+            // rows) and send the rectangles. `grew`, not `rewrote`.
+            self.dirty.grew();
         }
         let row = self.next_row;
         self.next_row += 1;
@@ -249,11 +251,19 @@ mod tests {
                     self.fulls += 1;
                 }
                 crate::AtlasChanges::Regions(rects) => {
-                    assert_eq!(
-                        self.texels.len(),
-                        atlas.texels().len(),
-                        "a region upload never resizes"
-                    );
+                    // A grow's regions arrive beside a resized texture: the
+                    // old rows keep their positions (that is the `grew`
+                    // contract), so the carry is "extend, keep the prefix" —
+                    // the same GPU image-to-image copy `vieww-hal`'s
+                    // `resize_with_carry` records — and the rectangles cover
+                    // everything after it.
+                    if self.texels.len() != atlas.texels().len() {
+                        assert!(
+                            self.texels.len() < atlas.texels().len(),
+                            "a shrink is never `grew`"
+                        );
+                        self.texels.resize(atlas.texels().len(), 0.0);
+                    }
                     for &[x, y, w, h] in rects {
                         for row in y..y + h {
                             // A ramp's rectangle is always (0, row, WIDTH, 1),
@@ -316,15 +326,20 @@ mod tests {
         backend.sync(&atlas);
         assert_eq!(backend.fulls, 2);
 
-        // Frame 5: more than 16 distinct ramps. The doubling is a resize, so
-        // a full upload.
+        // Frame 5: more than 16 distinct ramps. The doubling is a resize —
+        // but a *grow*: the old rows keep their positions, so the backend
+        // carries them across and only the new rows are regions. This used
+        // to be a full upload; `grew` is what makes the carry sound.
         atlas.begin_frame();
         for i in 7..=24u8 {
             atlas.row(&grad(i));
         }
         assert!(atlas.rows() > RampAtlas::INITIAL_ROWS, "the frame doubled the rows");
         backend.sync(&atlas);
-        assert_eq!(backend.fulls, 3, "the doubling is a full upload");
+        assert_eq!(
+            backend.fulls, 2,
+            "the doubling must be carried, not a full upload"
+        );
 
         // Frames 6-7: only three ramps drawn, then a compaction. Rows move to
         // new indices — the backend must be sent everything, never the rows
@@ -336,7 +351,7 @@ mod tests {
         atlas.begin_frame();
         assert!(atlas.len() < 24, "the compaction must have run");
         backend.sync(&atlas);
-        assert_eq!(backend.fulls, 4, "the compaction is a full upload");
+        assert_eq!(backend.fulls, 3, "the compaction is a full upload");
 
         // The frame after it is a row again, on the compacted atlas.
         let before = backend.rows_sent;

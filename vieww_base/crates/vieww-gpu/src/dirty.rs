@@ -134,11 +134,26 @@ impl DirtyRects {
     }
 
     /// The texture was rewritten wholesale — a compaction re-placed
-    /// everything, a grow resized it — so the rectangles recorded this frame
-    /// no longer describe any backend's difference. Marked with a version
-    /// bump, like every change.
+    /// everything — so the rectangles recorded this frame no longer describe
+    /// any backend's difference. Marked with a version bump, like every
+    /// change. A *grow* is not this: see [`grew`](Self::grew).
     pub fn rewrote(&mut self) {
         self.full = true;
+        self.version = generation::next();
+    }
+
+    /// The texture **grew**: its side (or row count) doubled, every existing
+    /// texel kept its position and value, and only the new space is
+    /// unwritten. Unlike [`rewrote`](Self::rewrote) this leaves the frame's
+    /// rectangles intact — they still describe the difference from `base`
+    /// exactly, because nothing they cover moved — so a backend that holds
+    /// `base` can recreate its texture at the new size by *carrying its own
+    /// copy across* (one GPU image-to-image copy) and then sending
+    /// the rectangles, instead of re-uploading the whole texture from the
+    /// host. A grow after a [`rewrote`](Self::rewrote) in the same frame
+    /// changes nothing: the frame is already a full rewrite, and `grew`
+    /// deliberately does not clear that.
+    pub fn grew(&mut self) {
         self.version = generation::next();
     }
 
@@ -151,11 +166,13 @@ impl DirtyRects {
     /// Texels change in exactly three places: a rect-bounded blit, a
     /// compaction, and a grow. `begin_frame` starts recording with the
     /// version the texels had at that moment; every blit after it appends its
-    /// rectangle; a compaction or grow marks the frame as a full rewrite. So
-    /// a texture that holds precisely the start-of-frame version differs from
-    /// the current texels in the recorded rectangles and nowhere else.
-    /// Anything else — a backend that skipped a frame, a first upload, a
-    /// rebuilt texture — is [`AtlasChanges::Full`], which is always correct.
+    /// rectangle; a compaction marks the frame as a full rewrite; a grow
+    /// bumps the version and *keeps* the rectangles, because it preserves
+    /// every texel's position and value — so the rectangles still describe
+    /// the whole difference from `base`, and a backend can carry its old
+    /// texture across the resize itself. Anything else — a backend that
+    /// skipped a frame, a first upload, a rebuilt texture — is
+    /// [`AtlasChanges::Full`], which is always correct.
     #[must_use]
     pub fn changes_since(&self, held: Option<u64>) -> AtlasChanges<'_> {
         match held {
