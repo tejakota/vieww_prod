@@ -269,6 +269,14 @@ impl Target {
         });
     }
 
+    /// The same union as the private [`Self::mark_ink`], for a caller that
+    /// walks rows itself and has therefore already trimmed the box to the
+    /// pixels it actually wrote — `paint_image`, which slices by row and
+    /// records its ink once at the end instead of per written pixel.
+    pub(crate) fn mark_ink_box(&mut self, x0: i32, y0: i32, x1: i32, y1: i32) {
+        self.mark_ink(x0, y0, x1, y1);
+    }
+
     /// Carry a rectangle of this buffer's pixels to where it now belongs.
     ///
     /// The row-disciplined memmove: when the destination sits below the source

@@ -22,7 +22,7 @@
 //! window), and something *blurred* (whose layer must be confined to the
 //! region rather than reaching across it).
 
-use vieww_foundation::{Color, ImageFilter, Offset, Path, Rect, Shadow};
+use vieww_foundation::{Color, Image, ImageFilter, Offset, Path, Rect, Shadow};
 use vieww_paint::native::NativeRenderer;
 use vieww_paint::{Canvas, Damage, Scene};
 
@@ -247,4 +247,72 @@ fn two_separate_changes_both_land() {
         &frame(Color::rgb(60, 120, 240), Color::rgb(200, 80, 60)),
         &frame(Color::rgb(240, 180, 60), Color::rgb(60, 180, 120)),
     );
+}
+
+/// An image that moves — the case `paint_image`'s row walk must survive
+/// under a damage region just as the shape walks do. Two things make images
+/// the interesting variant: the draw reaches to the edges of its transformed
+/// rect (so the damage must cover both the old and the new footprint), and
+/// the sampler interpolates between texels (so a repaint whose clip cut a
+/// row mid-texel would land different bytes than a full render of the same
+/// scene).
+#[test]
+fn an_image_that_moved_repaints_identically() {
+    fn frame(offset: f32) -> Scene {
+        let mut scene = Scene::new();
+        // A base coat, so the image composites over something and the
+        // region it vacated has to be restored rather than left
+        // transparent.
+        scene.fill_rect(Rect::new(0.0, 0.0, 320.0, 240.0), BASE.into());
+        let mut pixels = Vec::with_capacity(24 * 18 * 4);
+        for y in 0..18u32 {
+            for x in 0..24u32 {
+                let opaque = ((x / 3) + (y / 2)) % 2 == 0;
+                if opaque {
+                    pixels.extend_from_slice(&[240, 120, 40, 255]);
+                } else {
+                    pixels.extend_from_slice(&[40, 120, 240, 150]);
+                }
+            }
+        }
+        let image = Image::from_rgba8(pixels, 24, 18);
+        // Deliberately off the texel grid and at a non-integer scale, so
+        // the bilinear sampler does real interpolation on both frames and
+        // the opaque fast path and the blend path both run.
+        scene.draw_image(
+            Rect::new(40.5 + offset, 60.25, 160.5 + offset, 150.75),
+            &image,
+        );
+        scene
+    }
+
+    assert_retained_matches_full("a moved image", &frame(0.0), &frame(57.5));
+}
+
+/// The same image clipped by a rounded rect — the clip mask must resolve
+/// identically over the damage region as over the whole window, and the
+/// image's row walk must multiply the clip in at the same pixels.
+#[test]
+fn an_image_inside_a_rounded_clip_repaints_identically() {
+    fn frame(shift: f32) -> Scene {
+        let mut scene = Scene::new();
+        scene.fill_rect(Rect::new(0.0, 0.0, 320.0, 240.0), BASE.into());
+        scene.save();
+        scene.clip_rrect(Rect::new(30.0, 30.0, 250.0, 210.0), 24.0);
+        let mut pixels = Vec::with_capacity(20 * 20 * 4);
+        for y in 0..20u32 {
+            for x in 0..20u32 {
+                pixels.extend_from_slice(&[200, 60, 160, 255]);
+            }
+        }
+        let image = Image::from_rgba8(pixels, 20, 20);
+        scene.draw_image(
+            Rect::new(50.0 + shift, 50.0, 200.0 + shift, 170.0),
+            &image,
+        );
+        scene.restore();
+        scene
+    }
+
+    assert_retained_matches_full("a clipped image moved", &frame(0.0), &frame(33.0));
 }

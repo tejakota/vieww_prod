@@ -31,7 +31,7 @@ use crate::{Clip, Command, Damage, Scene};
 use vieww_foundation::{Color, MemoryPressure, Offset, Rect, Transform, Trim};
 
 use super::clip::{clip_bounds, resolve_clip_cached, ClipCache};
-use super::color::Premul;
+use super::color::{over, Premul};
 use super::color_glyphs::{ColorGlyph, ColorGlyphCache};
 use super::fill_cache::FillCache;
 use super::geometry::{flatten::flatten_path, stroke::stroke_to_polygons};
@@ -2150,8 +2150,52 @@ impl NativeRenderer {
         } else {
             None
         };
+        // # Row slicing, and the two hoists this loop lived without
+        //
+        // Every pixel of this draw paid three per-pixel costs that are
+        // per-row or per-draw decisions in disguise: `target.get` and
+        // `target.set` each re-derived `y * width + x` and re-checked the
+        // pixel against all four buffer edges through an `Option`, and
+        // `set` re-unioned the ink box per written pixel. The same bounds
+        // arithmetic `composite_coverage` hoisted (see its own comment) is
+        // done once per row here: `ty` either lands on the buffer for the
+        // whole row or for none of it, and the written columns are one
+        // contiguous clip of `x0..x1`. Pixels outside are exactly the ones
+        // the old `get`/`set` pair silently dropped — `get` read
+        // `TRANSPARENT`, the blend ran, `set` discarded — so excluding them
+        // by the ranges is the same result computed once, not a behaviour
+        // change.
+        //
+        // The **opaque fast path** is the same rule `composite_coverage`
+        // established: an opaque source under the normal blend in gamma
+        // space *replaces* the destination — nothing to read, mix and write
+        // back. That is the interior of every photo, screenshot and opaque
+        // icon drawn at 1:1, which before this paid a destination load and
+        // a twenty-eight-way blend dispatch per pixel. Exactly `== 1.0`,
+        // not `>=`: `over` with an alpha above one produces a *negative*
+        // destination term, so an overshot alpha is not a replacement. At
+        // exactly one it is.
+        let normal = matches!(self.pipeline, ColorPipeline::GammaSpace);
+        let (tw, th) = (target.width as i32, target.height as i32);
+        // The written column window, in this buffer's own coordinates: the
+        // same clip of `x0..x1` for every row, taken once.
+        let tx_lo = (x0 - origin.0).max(0);
+        let tx_hi = (x1 - origin.0).min(tw);
+        // The bounding box of what actually lands, recorded once at the end —
+        // the same union today's per-pixel `set` marks would have produced,
+        // so `ink` neither over- nor under-reports against the old walk.
+        let mut ink: Option<(i32, i32, i32, i32)> = None;
         for y in y0..y1 {
-            for x in x0..x1 {
+            let ty = y - origin.1;
+            if ty < 0 || ty >= th {
+                continue;
+            }
+            if tx_lo >= tx_hi {
+                continue;
+            }
+            let pixel_row = ty as usize * target.width as usize;
+            for tx in tx_lo..tx_hi {
+                let x = tx + origin.0;
                 let c = resolved.coverage_at(x, y);
                 if c <= 0.0 {
                     continue;
@@ -2176,20 +2220,33 @@ impl NativeRenderer {
                 };
                 if let Some(sample) = sample {
                     let src = sample.scaled(c);
-                    let (tx, ty) = (x - origin.0, y - origin.1);
-                    let dst = target.get(tx, ty);
-                    target.set(
-                        tx,
-                        ty,
-                        blend_with_pipeline(
-                            self.pipeline,
-                            vieww_foundation::BlendMode::Normal,
-                            src,
-                            dst,
-                        ),
-                    );
+                    let index = pixel_row + tx as usize;
+                    if normal && src.a == 1.0 {
+                        target.pixels[index] = src;
+                    } else {
+                        let dst = target.pixels[index];
+                        target.pixels[index] = if normal {
+                            over(src, dst)
+                        } else {
+                            blend_with_pipeline(
+                                self.pipeline,
+                                vieww_foundation::BlendMode::Normal,
+                                src,
+                                dst,
+                            )
+                        };
+                    }
+                    ink = Some(match ink {
+                        Some((ax0, ay0, ax1, ay1)) => {
+                            (ax0.min(tx), ay0.min(ty), ax1.max(tx + 1), ay1.max(ty + 1))
+                        }
+                        None => (tx, ty, tx + 1, ty + 1),
+                    });
                 }
             }
+        }
+        if let Some((x0, y0, x1, y1)) = ink {
+            target.mark_ink_box(x0, y0, x1, y1);
         }
     }
 
