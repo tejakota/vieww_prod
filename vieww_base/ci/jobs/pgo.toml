@@ -1,0 +1,56 @@
+# PGO: the trained build, its pixel check and its timing
+# ci/check/pgo.sh builds the fixture gallery plain, instrumented and trained,
+# and fails if the trained build's pixels differ from the plain build's. This
+# job then times both builds over the gallery, interleaved, and publishes the
+# merged profile so a release can build with -Cprofile-use.
+#
+# x86-64 only: a profile is per target. The Android (aarch64) build needs its
+# own, trained on a device - the phone runner's job, not this one.
+
+name = "PGO profile + pixel check"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+name = "System packages"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y --no-install-recommends \
+  libasound2-dev libudev-dev libxkbcommon-dev libwayland-dev pkg-config
+'''
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+name = "Train, rebuild, and check the pixels"
+run = "bash ci/check/pgo.sh target/pgo"
+
+[[step]]
+name = "Time plain against trained"
+run = '''
+for i in 1 2 3; do
+  for b in plain trained; do
+    VIEWW_RASTER_THREADS=1 "target/pgo/$b/release/fixtures" "target/pgo/time-$b" --runs 5 \
+      --receipt "target/pgo/receipt-$b-$i.json" > /dev/null
+  done
+done
+python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
+import glob, json, statistics
+print("### PGO: fixture gallery, sum of per-fixture best of 5, median of 3 rounds\n")
+print("| build | ms |\n|---|---|")
+for b in ("plain", "trained"):
+    v = [json.load(open(f))["outcome"]["total_best_ms"] for f in sorted(glob.glob(f"target/pgo/receipt-{b}-*.json"))]
+    print(f"| {b} | {statistics.median(v):.1f} |")
+EOF
+'''
+
+[[step]]
+name = "mark: upload pgo-profile"
+if = "success()"
+working-directory = "."
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

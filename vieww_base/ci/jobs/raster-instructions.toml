@@ -1,0 +1,33 @@
+# CPU raster instructions vs the merge base
+# ci/check/raster-instructions.sh: Market Watch's live and storm phases under
+# callgrind at the merge base and at this commit; fails when either grows past
+# 1% without an `Instructions-Changed:` trailer. Deterministic, so it can gate
+# on a shared runner where wall-clock timings cannot.
+
+name = "CPU raster instructions"
+
+[defaults]
+shell = "bash"
+working-directory = "vieww_base"
+
+[[step]]
+name = "System packages"
+run = '''
+sudo apt-get update -q
+sudo apt-get install -y --no-install-recommends valgrind
+'''
+
+[[step]]
+run = "rustup toolchain install"
+
+[[step]]
+name = "Count against the merge base"
+run = '''
+git fetch -q origin main
+base="$(git merge-base HEAD origin/main)"
+if [ "$base" = "$(git rev-parse HEAD)" ]; then
+  # On main itself: compare with the commit before.
+  base="HEAD~1"
+fi
+bash ci/check/raster-instructions.sh "$base"
+'''

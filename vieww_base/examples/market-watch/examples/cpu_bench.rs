@@ -6,6 +6,10 @@
 //! VIEWW_RASTER_THREADS=1 cargo run --release -p market-watch --example cpu_bench -- [--frames 120] [--runs 5] [--json OUT.json]
 //! ```
 //!
+//! `--phase scroll|live|storm` plays only the initial load and that phase:
+//! what `ci/check/raster-instructions.sh` counts under callgrind, one phase at
+//! a time (the hash then covers only those frames).
+//!
 //! `--json` also writes the numbers as one JSON object — the machine, the
 //! walk, and per phase the median, p90 and byte hash — which is what CI's
 //! machine legs compare and report (`ci/jobs/compare-machines.toml`).
@@ -38,6 +42,7 @@ fn main() {
     let mut frames = 120usize;
     let mut runs = 5usize;
     let mut json: Option<String> = None;
+    let mut only: Option<String> = None;
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
         match a.as_str() {
@@ -49,6 +54,7 @@ fn main() {
             }
             "--runs" => runs = args.next().and_then(|v| v.parse().ok()).expect("--runs N"),
             "--json" => json = Some(args.next().expect("--json PATH")),
+            "--phase" => only = Some(args.next().expect("--phase scroll|live|storm")),
             _ => {}
         }
     }
@@ -60,12 +66,24 @@ fn main() {
     );
     let surface = Rect::new(0.0, 0.0, w as f32, h as f32);
     let viewport = Screen::viewport(size);
-    let schedule = [
+    let full = [
         (Load::Load(2_000), 1),
         (Load::Scroll, frames),
         (Load::Live, frames),
         (Load::Storm, frames),
     ];
+    let schedule: Vec<(Load, usize)> = match only.as_deref() {
+        None => full.to_vec(),
+        Some(name) => {
+            let wanted = match name {
+                "scroll" => Load::Scroll,
+                "live" => Load::Live,
+                "storm" => Load::Storm,
+                other => panic!("--phase {other}: scroll, live or storm"),
+            };
+            vec![full[0], full.iter().copied().find(|(l, _)| *l == wanted).expect("in the schedule")]
+        }
+    };
     // Per phase, every run's samples together; the hash must agree run to run.
     let mut times: Vec<Vec<f64>> = vec![Vec::new(); schedule.len()];
     let mut hashes: Vec<Option<u64>> = vec![None; schedule.len()];

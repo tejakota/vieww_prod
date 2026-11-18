@@ -34,6 +34,35 @@ vieww_base/target/goldens/run/manifest.txt
 '''
 
 [[job]]
+id = "pgo"
+title = "PGO profile + pixel check (x86-64)"
+file = "ci/jobs/pgo.toml"
+stage = "housekeeping"
+task = "pgo"
+runs_on = "ubuntu-latest"
+timeout = 120
+checkout = { persist-credentials = false }
+[[job.upload]]
+name = "pgo-profile"
+path = """
+vieww_base/target/pgo/merged.profdata
+vieww_base/target/pgo/receipt-*.json
+"""
+
+[[job]]
+id = "raster-instructions"
+title = "CPU raster instructions vs the merge base"
+file = "ci/jobs/raster-instructions.toml"
+stage = "check"
+depth = "thorough"
+runs_on = "ubuntu-latest"
+timeout = 90
+checkout = { persist-credentials = false, fetch-depth = 0 }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "vieww_base", key = "raster-instructions" }
+
+[[job]]
 id = "goldens-refresh"
 title = "shots vs baseline (linux-cpu)"
 file = "ci/jobs/goldens.toml"
