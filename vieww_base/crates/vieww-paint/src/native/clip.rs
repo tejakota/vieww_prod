@@ -181,13 +181,24 @@ pub(crate) struct ClipRef<'a> {
     mask: Option<&'a CoverageMask>,
 }
 
-impl ClipRef<'_> {
+impl<'a> ClipRef<'a> {
     #[must_use]
     pub(crate) fn coverage_at(&self, x: i32, y: i32) -> f32 {
         match self.mask {
             Some(mask) => mask.coverage_at(x, y),
             None => 1.0,
         }
+    }
+
+    /// The underlying mask, when this clip carries one — consuming the ref so
+    /// the borrow handed back is of the *cache*, not of this local: a caller
+    /// that resolves a clip and then calls something needing `&mut` of
+    /// everything else (`PopLayer`'s fused composite) would otherwise hold a
+    /// borrow of a temporary. `None` is the same answer `coverage_at`
+    /// encodes as `1.0`.
+    #[must_use]
+    pub(crate) fn into_mask(self) -> Option<&'a CoverageMask> {
+        self.mask
     }
 }
 

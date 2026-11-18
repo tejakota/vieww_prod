@@ -2053,6 +2053,17 @@ impl NativeRenderer {
                 // before it composites, is the whole cost — and it composites
                 // through the ordinary path, so blends and group alpha still
                 // apply to the clipped pixels exactly as they did before.
+                //
+                // The multiply itself is fused into the composite's walk
+                // when the take kernel's conditions hold (`Target::
+                // composite_clipped_layer_and_clear`): the row is scaled and
+                // handed to the kernel while it is still in cache, instead of
+                // the old pair — a whole-buffer scale pass, then a second
+                // walk to read the scaled pixels back down. When they do not
+                // hold, the fused method falls back to the scale-then-
+                // composite pair itself, so this arm stays the one place a
+                // layer's clip meets its pixels.
+                let mut clip_mask = None;
                 if !frame.clip.is_none() && !frame.clip.shapes().is_empty() {
                     let region = Rect::new(
                         frame.origin.0 as f32,
@@ -2060,37 +2071,44 @@ impl NativeRenderer {
                         (frame.origin.0 + frame.target.width as i32) as f32,
                         (frame.origin.1 + frame.target.height as i32) as f32,
                     );
-                    let resolved = resolve_clip_cached(
+                    clip_mask = resolve_clip_cached(
                         &mut self.clips,
                         &frame.clip,
                         Transform::IDENTITY,
                         surface,
                         region,
-                    );
-                    if resolved.has_mask() {
-                        let width = frame.target.width as usize;
-                        for y in 0..frame.target.height as i32 {
-                            for x in 0..frame.target.width as i32 {
-                                let coverage =
-                                    resolved.coverage_at(frame.origin.0 + x, frame.origin.1 + y);
-                                if coverage < 1.0 {
-                                    let index = y as usize * width + x as usize;
-                                    frame.target.pixels[index] =
-                                        frame.target.pixels[index].scaled(coverage);
-                                }
-                            }
-                        }
-                    }
+                    )
+                    .into_mask();
                 }
                 let (parent, parent_origin) = current!();
-                parent.composite_layer_and_clear(
-                    &mut frame.target,
+                let (dx, dy) = (
                     frame.origin.0 - parent_origin.0,
                     frame.origin.1 - parent_origin.1,
-                    frame.blend,
-                    frame.alpha,
-                    self.pipeline,
                 );
+                match clip_mask {
+                    Some(mask) => {
+                        parent.composite_clipped_layer_and_clear(
+                            &mut frame.target,
+                            dx,
+                            dy,
+                            frame.blend,
+                            frame.alpha,
+                            self.pipeline,
+                            mask,
+                            frame.origin,
+                        );
+                    }
+                    None => {
+                        parent.composite_layer_and_clear(
+                            &mut frame.target,
+                            dx,
+                            dy,
+                            frame.blend,
+                            frame.alpha,
+                            self.pipeline,
+                        );
+                    }
+                }
                 self.targets.release(frame.target);
                 report.translated_commands += 1;
             }

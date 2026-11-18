@@ -300,10 +300,8 @@ fn an_image_inside_a_rounded_clip_repaints_identically() {
         scene.save();
         scene.clip_rrect(Rect::new(30.0, 30.0, 250.0, 210.0), 24.0);
         let mut pixels = Vec::with_capacity(20 * 20 * 4);
-        for y in 0..20u32 {
-            for x in 0..20u32 {
-                pixels.extend_from_slice(&[200, 60, 160, 255]);
-            }
+        for _ in 0..20 * 20 {
+            pixels.extend_from_slice(&[200, 60, 160, 255]);
         }
         let image = Image::from_rgba8(pixels, 20, 20);
         scene.draw_image(

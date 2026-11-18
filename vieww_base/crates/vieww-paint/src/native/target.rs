@@ -11,7 +11,7 @@
 use vieww_foundation::BlendMode;
 
 use super::color::{over, write_straight_u8, Premul};
-use super::geometry::fill::{LcdMaskView, MaskView, LCD_SUBPIXELS};
+use super::geometry::fill::{CoverageMask, LcdMaskView, MaskView, LCD_SUBPIXELS};
 use super::gradient::DeviceRamp;
 use super::linear::{blend_with_pipeline, ColorPipeline};
 
@@ -381,6 +381,8 @@ impl Target {
         out
     }
 
+    /// Test-only with [`Self::get`]/[`Self::set`], its only callers.
+    #[cfg(test)]
     fn index(&self, x: i32, y: i32) -> Option<usize> {
         if x < 0 || y < 0 || x as u32 >= self.width || y as u32 >= self.height {
             None
@@ -389,12 +391,21 @@ impl Target {
         }
     }
 
+    /// Test-only since the image walk went row-sliced: `paint_image` was the
+    /// last production caller, and every remaining reader is a test that
+    /// wants one pixel as an `Option`-free `Premul`. Kept (rather than
+    /// rewritten) for the same reason [`Self::filled`] is — the tests read
+    /// better for it.
+    #[cfg(test)]
     #[must_use]
     pub(crate) fn get(&self, x: i32, y: i32) -> Premul {
         self.index(x, y)
             .map_or(Premul::TRANSPARENT, |i| self.pixels[i])
     }
 
+    /// Test-only with [`Self::get`]: the row walks mark their ink in boxes
+    /// now, so nothing outside a test writes one pixel at a time.
+    #[cfg(test)]
     pub(crate) fn set(&mut self, x: i32, y: i32, color: Premul) {
         if let Some(i) = self.index(x, y) {
             self.pixels[i] = color;
@@ -1216,6 +1227,167 @@ impl Target {
         other.ink = None;
     }
 
+    /// Multiply a resolved clip mask into every pixel of this buffer — the
+    /// pre-pop clip pass, as its own walk, for the composite routes that
+    /// cannot fuse it ([`Self::composite_clipped_layer_and_clear`] names
+    /// them). Identical to the loop that used to live at the `PopLayer` call
+    /// site: every pixel below full coverage is scaled by it, every pixel at
+    /// or above full coverage is left untouched — `scaled` by exactly one is
+    /// the identity, and skipping it keeps the buffer's bits where they were.
+    pub(crate) fn multiply_clip(&mut self, mask: &CoverageMask, origin: (i32, i32)) {
+        let width = self.width as usize;
+        for y in 0..self.height as i32 {
+            for x in 0..self.width as i32 {
+                let coverage = mask.coverage_at(origin.0 + x, origin.1 + y);
+                if coverage < 1.0 {
+                    let index = y as usize * width + x as usize;
+                    self.pixels[index] = self.pixels[index].scaled(coverage);
+                }
+            }
+        }
+    }
+
+    /// One row of a clip mask's coverage for a layer, as `out` — zeros
+    /// outside the mask's extent, its own values inside, the same arithmetic
+    /// `coverage_at` answers per pixel, gathered once per row. `y`, `x0` and
+    /// `x1` are in the **layer's** coordinates; `origin` is the layer's own
+    /// device-space top-left, the same translation `coverage_at`'s callers
+    /// apply.
+    fn clip_coverage_row(
+        mask: &CoverageMask,
+        origin: (i32, i32),
+        y: i32,
+        x0: i32,
+        x1: i32,
+        out: &mut [f32],
+    ) {
+        let ay = origin.1 + y;
+        let row = if ay >= mask.y0 {
+            let dy = (ay - mask.y0) as u32;
+            (dy < mask.height).then(|| {
+                let w = mask.width as usize;
+                let start = dy as usize * w;
+                &mask.data[start..start + w]
+            })
+        } else {
+            None
+        };
+        match row {
+            None => out.fill(0.0),
+            Some(row) => {
+                for (px, ax) in out.iter_mut().zip((origin.0 + x0)..(origin.0 + x1)) {
+                    *px = if ax >= mask.x0 && ((ax - mask.x0) as u32) < mask.width {
+                        row[(ax - mask.x0) as usize]
+                    } else {
+                        0.0
+                    };
+                }
+            }
+        }
+    }
+
+    /// [`Self::composite_layer_and_clear`] for a layer that pops under a
+    /// shaped clip: the clip's coverage multiplies into the layer's pixels
+    /// and the result composites down, **as one walk of the layer**.
+    ///
+    /// # What was two passes, and why one
+    ///
+    /// Until this, `PopLayer` multiplied the clip into the resolved layer
+    /// buffer as its own whole-buffer walk, and *then*
+    /// `composite_layer_and_clear` walked the same megabytes again to read
+    /// them down into the parent and clear them — every pixel of a rounded
+    /// panel visited twice, once to scale it and once to composite it, with
+    /// the scaled buffer written back to memory in between purely so the
+    /// second pass could read it back. The fused walk scales each row and
+    /// hands it straight to the take kernel while it is still in cache: the
+    /// scale rule is byte for byte the old pre-pass's (`scaled` below full
+    /// coverage, untouched at or above it), applied to the same pixels in the
+    /// same order, so the bytes the kernel sees — and therefore the bytes it
+    /// writes, and the bytes the pool's clear sees — are identical.
+    ///
+    /// When the take kernel's own conditions do not hold — a blend other
+    /// than normal-in-gamma, or a damaged repaint's write mask cutting the
+    /// read window — the clip multiplies in first, as its own walk exactly as
+    /// it always did, and the ordinary composite runs after: the fusion is
+    /// for the common shape (a rounded panel over a plain background), not a
+    /// semantic change.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn composite_clipped_layer_and_clear(
+        &mut self,
+        other: &mut Target,
+        ox: i32,
+        oy: i32,
+        mode: BlendMode,
+        alpha: f32,
+        pipeline: ColorPipeline,
+        clip: &CoverageMask,
+        clip_origin: (i32, i32),
+    ) {
+        let normal = mode.is_normal() && matches!(pipeline, ColorPipeline::GammaSpace);
+        let window = self.layer_window(other, ox, oy);
+        if !(normal && window.is_some() && window == other.ink) {
+            other.multiply_clip(clip, clip_origin);
+            self.composite_layer_and_clear(other, ox, oy, mode, alpha, pipeline);
+            return;
+        }
+        let (x_start, y_start, x_end, y_end) = window.expect("checked above");
+        self.mark_ink(x_start + ox, y_start + oy, x_end + ox, y_end + oy);
+        let opaque_copy = alpha == 1.0;
+        let (ow, sw) = (other.width as usize, self.width as usize);
+        let rows = (y_end - y_start) as usize;
+        let (sx0, sx1) = (x_start as usize, x_end as usize);
+        let (dx0, dx1) = ((x_start + ox) as usize, (x_end + ox) as usize);
+        let take_rows = |base_y: i32, dst: &mut [Premul], src: &mut [Premul]| {
+            // One coverage row per worker, filled per layer row and read by
+            // the scale loop — the same gathering `composite_flat`'s scratch
+            // does for the coverage gamma. `base_y` is the **layer row this
+            // band starts at**: the parallel split hands each worker its own
+            // sub-band, whose rows restart at 0, and a coverage row is a
+            // function of the absolute row — the un-clipped `take_rows` never
+            // needed to know.
+            let mut cov = vec![0.0f32; sx1 - sx0];
+            for (i, (d, s)) in dst.chunks_exact_mut(sw).zip(src.chunks_exact_mut(ow)).enumerate() {
+                let y = base_y + i as i32;
+                Self::clip_coverage_row(clip, clip_origin, y, x_start, x_end, &mut cov);
+                let row = &mut s[sx0..sx1];
+                for (px, &c) in row.iter_mut().zip(cov.iter()) {
+                    if c < 1.0 {
+                        *px = px.scaled(c);
+                    }
+                }
+                super::simd::over_layer_row_take(&mut d[dx0..dx1], row, alpha, opaque_copy);
+            }
+        };
+        // Rows in parallel past the rasterizer's size gate, as in
+        // `composite_layer_and_clear`: each pixel's result is its own source
+        // and destination, so the split cannot change a byte.
+        let workers =
+            super::geometry::fill::composite_workers((x_end - x_start) as u32, rows as u32);
+        let src_band = &mut other.pixels[y_start as usize * ow..y_end as usize * ow];
+        let dst_band = &mut self.pixels[(y_start + oy) as usize * sw..(y_end + oy) as usize * sw];
+        if workers <= 1 {
+            take_rows(y_start, dst_band, src_band);
+        } else {
+            let chunk = rows.div_ceil(workers);
+            std::thread::scope(|scope| {
+                let mut pairs = dst_band
+                    .chunks_mut(chunk * sw)
+                    .zip(src_band.chunks_mut(chunk * ow))
+                    .enumerate();
+                let first = pairs.next();
+                for (band, (d, s)) in pairs {
+                    let take_rows = &take_rows;
+                    let base = y_start + (band * chunk) as i32;
+                    scope.spawn(move || take_rows(base, d, s));
+                }
+                if let Some((_, (d, s))) = first {
+                    take_rows(y_start, d, s);
+                }
+            });
+        }
+        other.ink = None;
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn composite_layer_rows(
         &mut self,
@@ -1544,6 +1716,157 @@ mod tests {
                 assert!(fused.pixels.iter().all(|p| *p == Premul::TRANSPARENT));
                 assert_eq!(fused.ink(), None);
             }
+        }
+    }
+
+    /// `composite_clipped_layer_and_clear` is `multiply_clip` followed by
+    /// `composite_layer_and_clear`, on both of its routes: the fused walk
+    /// (whole ink box, normal blend) and the fallback (a write mask cuts the
+    /// read window, so the clip multiplies in as its own pass first). The
+    /// clip is a fractional-coverage mask offset off-grid from the layer, so
+    /// the scale rule — `scaled` below full coverage, untouched at or above
+    /// it — runs on real antialiased values, not just 0 and 1.
+    #[test]
+    fn composite_clipped_matches_multiply_then_composite() {
+        // A 14x10 mask at device (12, 9): 1.0 in the middle, a fractional
+        // ramp down the left and top edges, zero padding — the shape of a
+        // rounded clip without building one.
+        let mask = {
+            let mut data = vec![0.0f32; 14 * 10];
+            for y in 0..10usize {
+                for x in 0..14usize {
+                    let edge = (x.min(y).min(3)) as f32 / 3.0;
+                    data[y * 14 + x] = if x >= 3 && y >= 3 { 1.0 } else { edge };
+                }
+            }
+            CoverageMask {
+                x0: 12,
+                y0: 9,
+                width: 14,
+                height: 10,
+                data,
+            }
+        };
+        let tint = |x: u32, y: u32| Premul {
+            r: (x as f32 / 20.0) * 0.8,
+            g: (y as f32 / 16.0) * 0.8,
+            b: 0.2,
+            a: 0.7 + ((x + y) % 4) as f32 * 0.1,
+        };
+        let ground = Premul {
+            r: 0.25,
+            g: 0.35,
+            b: 0.45,
+            a: 1.0,
+        };
+        for cut in [None, Some((8, 6, 26, 22))] {
+            for alpha in [1.0, 0.9] {
+                // The layer sits at device (10, 8), so the clip's mask (at
+                // (12, 9)) cuts in from its top-left corner and ends before
+                // its right edge — off-grid overlap in both axes.
+                let mut layer = Target::new(20, 16);
+                for y in 0..16usize {
+                    for x in 0..20usize {
+                        layer.set(x as i32, y as i32, tint(x as u32, y as u32));
+                    }
+                }
+                let origin = (10, 8);
+
+                let mut expected = Target::filled(40, 30, ground);
+                let mut expected_layer = layer.clone();
+                expected_layer.multiply_clip(&mask, origin);
+                expected.composite_layer_and_clear(
+                    &mut expected_layer,
+                    10,
+                    8,
+                    BlendMode::Normal,
+                    alpha,
+                    ColorPipeline::GammaSpace,
+                );
+
+                let mut actual = Target::filled(40, 30, ground);
+                let mut fused = layer.clone();
+                actual.composite_clipped_layer_and_clear(
+                    &mut fused,
+                    10,
+                    8,
+                    BlendMode::Normal,
+                    alpha,
+                    ColorPipeline::GammaSpace,
+                    &mask,
+                    origin,
+                );
+
+                assert_eq!(
+                    actual.pixels, expected.pixels,
+                    "cut {cut:?}, alpha {alpha}: the fused walk differs from multiply-then-composite"
+                );
+                assert_eq!(actual.ink(), expected.ink());
+                // The released buffer must be transparent whichever route
+                // ran, once the pool's clear has had its turn.
+                fused.clear();
+                expected_layer.clear();
+                assert!(fused.pixels.iter().all(|p| *p == Premul::TRANSPARENT));
+                assert_eq!(fused.pixels, expected_layer.pixels);
+            }
+        }
+
+        // **The parallel split.** A layer big enough to cross the workers
+        // gate hands each worker a sub-band whose rows restart at 0 — and a
+        // coverage row is a function of the absolute row, so a take_rows
+        // that derives `y` from its band-relative index composites the
+        // clip's coverage from the wrong rows. `23-editor-glass` found it as
+        // 224 wrong pixels; this is the size that prevents it from coming
+        // back. The clip's edge ramp (three fractional columns) runs down
+        // the whole height so a mis-derived row shows as a whole column of
+        // wrong coverage.
+        {
+            let (w, h) = (260u32, 300u32);
+            let mut big = CoverageMask {
+                x0: 0,
+                y0: 0,
+                width: w,
+                height: h,
+                data: vec![1.0f32; (w * h) as usize],
+            };
+            for y in 0..h as usize {
+                for x in 0..3usize {
+                    big.data[y * w as usize + x] = (x + 1) as f32 / 4.0;
+                }
+            }
+            let mut layer = Target::new(w, h);
+            for y in 0..h as i32 {
+                for x in 0..w as i32 {
+                    layer.set(x, y, tint(x as u32, y as u32));
+                }
+            }
+            let mut expected = Target::filled(w + 20, h + 10, ground);
+            let mut expected_layer = layer.clone();
+            expected_layer.multiply_clip(&big, (0, 0));
+            expected.composite_layer_and_clear(
+                &mut expected_layer,
+                0,
+                0,
+                BlendMode::Normal,
+                1.0,
+                ColorPipeline::GammaSpace,
+            );
+            let mut actual = Target::filled(w + 20, h + 10, ground);
+            let mut fused = layer;
+            actual.composite_clipped_layer_and_clear(
+                &mut fused,
+                0,
+                0,
+                BlendMode::Normal,
+                1.0,
+                ColorPipeline::GammaSpace,
+                &big,
+                (0, 0),
+            );
+            assert_eq!(
+                actual.pixels, expected.pixels,
+                "the parallel split mis-derived its coverage rows"
+            );
         }
     }
 
