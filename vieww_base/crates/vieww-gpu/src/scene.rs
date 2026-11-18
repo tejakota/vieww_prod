@@ -106,8 +106,12 @@ pub mod material {
 #[repr(C)]
 pub struct Vertex {
     pub position: [f32; 2],
-    /// Straight-alpha RGBA in `0..=1`. The shader premultiplies.
-    pub color: [f32; 4],
+    /// Straight-alpha RGBA as one byte per channel. A paint colour *is*
+    /// `k/255` per channel — `straight_rgba` divided exactly that way, and
+    /// every backend decodes UNORM8 back to exactly `k/255` — so four bytes
+    /// carry the same f32s the shader always received. The shader
+    /// premultiplies.
+    pub color: [u8; 4],
     pub uv: [f32; 2],
     /// One of [`material`].
     pub texture_kind: f32,
@@ -122,7 +126,7 @@ pub struct Vertex {
 }
 
 impl Vertex {
-    const fn solid(position: [f32; 2], color: [f32; 4], mask: [f32; 4]) -> Self {
+    const fn solid(position: [f32; 2], color: [u8; 4], mask: [f32; 4]) -> Self {
         Self {
             position,
             color,
@@ -1589,7 +1593,7 @@ fn emit_painted(
             let local = inverse.apply(Offset::new(p[0], p[1]));
             Vertex {
                 position: *p,
-                color: [1.0; 4],
+                color: [255; 4],
                 uv: [0.0; 2],
                 texture_kind: material::GRADIENT,
                 params,
@@ -1809,7 +1813,7 @@ fn emit_shape_painted(
         let local = inverse.apply(Offset::new(x, y));
         Vertex {
             position: [x, y],
-            color: [1.0; 4],
+            color: [255; 4],
             uv,
             texture_kind: material::SHAPE_GRADIENT,
             params,
@@ -2048,7 +2052,7 @@ impl Planner {
             ));
             Vertex {
                 position: [p.dx, p.dy],
-                color: [1.0; 4],
+                color: [255; 4],
                 uv: [0.0; 2],
                 texture_kind: material::IMAGE,
                 params,
@@ -2074,13 +2078,11 @@ impl Planner {
 const TOLERANCE: f32 = 0.25;
 
 /// Straight-alpha RGBA in 0..1.
-fn straight_rgba(color: Color) -> [f32; 4] {
-    [
-        f32::from(color.r) / 255.0,
-        f32::from(color.g) / 255.0,
-        f32::from(color.b) / 255.0,
-        f32::from(color.a) / 255.0,
-    ]
+/// The paint colour as the vertex carries it: one byte per channel, which
+/// every backend's UNORM8 decode turns back into exactly `k/255` — the f32s
+/// `straight_rgba` used to compute by hand.
+fn straight_rgba(color: Color) -> [u8; 4] {
+    [color.r, color.g, color.b, color.a]
 }
 
 /// A rectangle as a closed path, with the command's transform applied.
@@ -2611,10 +2613,7 @@ mod tests {
         let plan = plan(&scene, 100.0, 100.0);
         assert!(plan.is_complete());
         assert_eq!(plan.target_depth, 1);
-        assert!(plan
-            .vertices
-            .iter()
-            .all(|v| (v.color[3] - 1.0).abs() < 1e-6));
+        assert!(plan.vertices.iter().all(|v| v.color[3] == 255));
         match plan.steps.as_slice() {
             [Step::PushLayer {
                 rect,
@@ -3228,14 +3227,26 @@ mod tests {
         );
         let plan = plan(&scene, 100.0, 100.0);
         for vertex in &plan.vertices {
-            assert!((vertex.color[1] - 128.0 / 255.0).abs() < 1e-6);
-            assert!((vertex.color[3] - 64.0 / 255.0).abs() < 1e-6);
+            // The bytes are the colour's own — and through any backend's
+            // UNORM8 decode they are exactly `k/255`, the f32s this test used
+            // to assert on.
+            assert_eq!(vertex.color, [255, 128, 0, 64]);
         }
     }
 
     #[test]
-    fn the_vertex_layout_is_twenty_seven_floats() {
-        assert_eq!(std::mem::size_of::<Vertex>(), 27 * 4);
+    fn the_vertex_layout_is_ninety_six_bytes() {
+        // 23 floats (position, uv, kind, params, local, extra, shape, mask)
+        // plus the packed 4-byte colour: 96 bytes where there were 27 floats
+        // (108) — an eighth off every vertex upload. The tripwire for a
+        // layout the four backends' attribute tables describe by offset.
+        assert_eq!(std::mem::size_of::<Vertex>(), 23 * 4 + 4);
         assert_eq!(std::mem::align_of::<Vertex>(), 4);
+        // And the colour sits where the tables say: eight bytes in, right
+        // after the position.
+        assert_eq!(
+            std::mem::offset_of!(Vertex, color),
+            std::mem::size_of::<[f32; 2]>()
+        );
     }
 }

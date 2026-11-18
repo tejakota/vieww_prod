@@ -128,6 +128,11 @@ pub struct Attribute {
     pub components: u8,
     /// Byte offset inside one vertex.
     pub offset: u64,
+    /// The attribute is four `u8`s decoded as `k/255` per channel
+    /// (`uchar4Normalized`), not `components` f32s — the packed vertex
+    /// colour. Exactly the f32s a `Float4` of the same values would carry,
+    /// in a quarter of the bytes.
+    pub unorm4: bool,
 }
 
 impl MetalDevice {
@@ -188,11 +193,15 @@ impl MetalDevice {
                     .attributes()
                     .object_at(a.location)
                     .ok_or_else(|| MetalError::Invalid(format!("location {}", a.location)))?;
-                attr.set_format(match a.components {
-                    1 => MTLVertexFormat::Float,
-                    2 => MTLVertexFormat::Float2,
-                    3 => MTLVertexFormat::Float3,
-                    _ => MTLVertexFormat::Float4,
+                attr.set_format(if a.unorm4 {
+                    MTLVertexFormat::UChar4Normalized
+                } else {
+                    match a.components {
+                        1 => MTLVertexFormat::Float,
+                        2 => MTLVertexFormat::Float2,
+                        3 => MTLVertexFormat::Float3,
+                        _ => MTLVertexFormat::Float4,
+                    }
                 });
                 attr.set_offset(a.offset);
                 attr.set_buffer_index(u64::from(msl_slots::VERTEX_BUFFER));
@@ -356,6 +365,7 @@ impl MetalDevice {
                 location: 0,
                 components: 2,
                 offset: 0,
+                unorm4: false,
             }],
             8,
             format,

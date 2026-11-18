@@ -773,9 +773,14 @@ impl SceneRenderer {
 
         let f = std::mem::size_of::<f32>() as u32;
         let (scene_binding, scene_attributes) = scene_vertex_layout();
+        // 23 floats plus the packed 4-byte colour. A shipped swapped-offset
+        // bug once escaped review (GPU-RENDERER-STATUS: only a pixel
+        // comparison caught it), so the stride is pinned at creation: a
+        // `Vertex` that drifts from the attribute table fails here, on the
+        // device, before any frame draws wrong.
         assert_eq!(
             std::mem::size_of::<Vertex>() as u32,
-            27 * f,
+            23 * f + 4,
             "vertex layout drifted"
         );
 
@@ -3725,18 +3730,20 @@ fn scene_vertex_layout() -> (
     vk::VertexInputBindingDescription,
     [vk::VertexInputAttributeDescription; 9],
 ) {
-    let f = std::mem::size_of::<f32>() as u32;
-    let attribute =
-        |location: u32, components: u32, offset: u32| vk::VertexInputAttributeDescription {
+    // `Vertex::color` packs to UNORM8 bytes: a straight-alpha colour is
+    // `k/255` per channel by construction, and UNORM8 decodes to exactly
+    // `k/255` — the same f32s the shader always received, in four bytes
+    // instead of sixteen. Every other attribute is f32 (byte offsets now,
+    // not float indices, since the colour slot broke the uniform stride).
+    let attribute = |location: u32, format: vk::Format, offset: u32| {
+        vk::VertexInputAttributeDescription {
             location,
             binding: 0,
-            format: match components {
-                1 => vk::Format::R32_SFLOAT,
-                2 => vk::Format::R32G32_SFLOAT,
-                _ => vk::Format::R32G32B32A32_SFLOAT,
-            },
-            offset: offset * f,
-        };
+            format,
+            offset,
+        }
+    };
+    let f = |n: u32| n * std::mem::size_of::<f32>() as u32;
     (
         vk::VertexInputBindingDescription {
             binding: 0,
@@ -3744,15 +3751,15 @@ fn scene_vertex_layout() -> (
             input_rate: vk::VertexInputRate::VERTEX,
         },
         [
-            attribute(0, 2, 0),
-            attribute(1, 4, 2),
-            attribute(2, 2, 6),
-            attribute(3, 1, 8),
-            attribute(4, 4, 9),
-            attribute(5, 2, 13),
-            attribute(6, 4, 15),
-            attribute(7, 4, 23),
-            attribute(8, 4, 19),
+            attribute(0, vk::Format::R32G32_SFLOAT, f(0)),
+            attribute(1, vk::Format::R8G8B8A8_UNORM, f(2)),
+            attribute(2, vk::Format::R32G32_SFLOAT, f(3)),
+            attribute(3, vk::Format::R32_SFLOAT, f(5)),
+            attribute(4, vk::Format::R32G32B32A32_SFLOAT, f(6)),
+            attribute(5, vk::Format::R32G32_SFLOAT, f(10)),
+            attribute(6, vk::Format::R32G32B32A32_SFLOAT, f(12)),
+            attribute(7, vk::Format::R32G32B32A32_SFLOAT, f(20)),
+            attribute(8, vk::Format::R32G32B32A32_SFLOAT, f(16)),
         ],
     )
 }

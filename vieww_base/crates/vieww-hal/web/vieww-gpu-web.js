@@ -400,22 +400,24 @@ function guarded(entry, build) {
   return ok ? 1 : 0;
 }
 
-// `vieww_gpu::Vertex` as WebGPU sees it: 27 f32s, 108 bytes, with WGSL
-// location 7 (mask) at float offset 23 and location 8 (shape) at 19 —
-// the Rust declaration order and the shader's location order differ for
-// those two, exactly as the Vulkan port's attribute table records.
+// `vieww_gpu::Vertex` as WebGPU sees it: 23 f32s plus a packed 4-byte
+// colour, 96 bytes, with WGSL location 7 (mask) and location 8 (shape) in
+// the reverse of the Rust declaration order, exactly as the Vulkan port's
+// attribute table records. The colour is "unorm8x4" — four bytes decoding
+// to exactly k/255 per channel, the f32s a float32x4 attribute of the same
+// values would carry.
 const SCENE_VERTEX = [
   { shaderLocation: 0, offset: 0, format: "float32x2" }, // position
-  { shaderLocation: 1, offset: 8, format: "float32x4" }, // color
-  { shaderLocation: 2, offset: 24, format: "float32x2" }, // uv
-  { shaderLocation: 3, offset: 32, format: "float32" }, // texture kind
-  { shaderLocation: 4, offset: 36, format: "float32x4" }, // params
-  { shaderLocation: 5, offset: 52, format: "float32x2" }, // local
-  { shaderLocation: 6, offset: 60, format: "float32x4" }, // extra
-  { shaderLocation: 7, offset: 92, format: "float32x4" }, // mask
-  { shaderLocation: 8, offset: 76, format: "float32x4" }, // shape
+  { shaderLocation: 1, offset: 8, format: "unorm8x4" }, // color
+  { shaderLocation: 2, offset: 12, format: "float32x2" }, // uv
+  { shaderLocation: 3, offset: 20, format: "float32" }, // texture kind
+  { shaderLocation: 4, offset: 24, format: "float32x4" }, // params
+  { shaderLocation: 5, offset: 40, format: "float32x2" }, // local
+  { shaderLocation: 6, offset: 48, format: "float32x4" }, // extra
+  { shaderLocation: 7, offset: 80, format: "float32x4" }, // mask
+  { shaderLocation: 8, offset: 64, format: "float32x4" }, // shape
 ];
-const SCENE_STRIDE = 108;
+const SCENE_STRIDE = 96;
 
 // Premultiplied source-over — the blend every scene draw composites with.
 const OVER_BLEND = {

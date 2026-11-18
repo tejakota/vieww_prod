@@ -436,14 +436,16 @@ impl D3d12SceneRenderer {
         };
         let scene_elements = [
             element(0, DXGI_FORMAT_R32G32_FLOAT, 0),
-            element(1, DXGI_FORMAT_R32G32B32A32_FLOAT, 8),
-            element(2, DXGI_FORMAT_R32G32_FLOAT, 24),
-            element(3, DXGI_FORMAT_R32_FLOAT, 32),
-            element(4, DXGI_FORMAT_R32G32B32A32_FLOAT, 36),
-            element(5, DXGI_FORMAT_R32G32_FLOAT, 52),
-            element(6, DXGI_FORMAT_R32G32B32A32_FLOAT, 60),
-            element(7, DXGI_FORMAT_R32G32B32A32_FLOAT, 92),
-            element(8, DXGI_FORMAT_R32G32B32A32_FLOAT, 76),
+            // The packed vertex colour: UNORM8 decodes to exactly k/255 —
+            // the f32s a FLOAT4 attribute of the same values would carry.
+            element(1, DXGI_FORMAT_R8G8B8A8_UNORM, 8),
+            element(2, DXGI_FORMAT_R32G32_FLOAT, 12),
+            element(3, DXGI_FORMAT_R32_FLOAT, 20),
+            element(4, DXGI_FORMAT_R32G32B32A32_FLOAT, 24),
+            element(5, DXGI_FORMAT_R32G32_FLOAT, 40),
+            element(6, DXGI_FORMAT_R32G32B32A32_FLOAT, 48),
+            element(7, DXGI_FORMAT_R32G32B32A32_FLOAT, 80),
+            element(8, DXGI_FORMAT_R32G32B32A32_FLOAT, 64),
         ];
         let scene_vs = D3d12Device::compile(
             vieww_shaders::library::SCENE_WGSL,

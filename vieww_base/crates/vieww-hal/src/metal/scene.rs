@@ -165,46 +165,55 @@ const SCENE_ATTRIBUTES: [Attribute; 9] = [
         location: 0,
         components: 2,
         offset: 0,
+        unorm4: false,
     }, // position
     Attribute {
         location: 1,
         components: 4,
         offset: 8,
-    }, // color
+        unorm4: true,
+    }, // color — UNORM8 bytes, k/255 per channel exactly
     Attribute {
         location: 2,
         components: 2,
-        offset: 24,
+        offset: 12,
+        unorm4: false,
     }, // uv
     Attribute {
         location: 3,
         components: 1,
-        offset: 32,
+        offset: 20,
+        unorm4: false,
     }, // kind
     Attribute {
         location: 4,
         components: 4,
-        offset: 36,
+        offset: 24,
+        unorm4: false,
     }, // params
     Attribute {
         location: 5,
         components: 2,
-        offset: 52,
+        offset: 40,
+        unorm4: false,
     }, // local
     Attribute {
         location: 6,
         components: 4,
-        offset: 60,
+        offset: 48,
+        unorm4: false,
     }, // extra
     Attribute {
         location: 7,
         components: 4,
-        offset: 92,
+        offset: 80,
+        unorm4: false,
     }, // mask
     Attribute {
         location: 8,
         components: 4,
-        offset: 76,
+        offset: 64,
+        unorm4: false,
     }, // shape
 ];
 
