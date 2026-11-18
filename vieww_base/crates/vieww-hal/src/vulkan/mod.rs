@@ -331,9 +331,13 @@ impl VulkanDevice {
     /// *the* device rather than dropping it: see
     /// [`forget_pipeline_cache_file`](Self::forget_pipeline_cache_file) for
     /// the fallback that does have to drop one.
+    /// Only under `vulkan-swapchain`: it takes the instance that feature's
+    /// `VulkanInstance` made, and its only caller (the platform layer's
+    /// prewarm) is behind the same feature.
+    #[cfg(feature = "vulkan-swapchain")]
     #[must_use = "a device holds driver state; dropping it runs teardown"]
     pub fn from_instance_headless(
-        mut instance: VulkanInstance,
+        mut instance: self::VulkanInstance,
     ) -> Result<Self, VulkanError> {
         let (physical_device, queue_family) = {
             let (_entry, raw) = instance.parts();

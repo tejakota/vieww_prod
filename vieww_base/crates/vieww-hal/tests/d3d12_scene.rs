@@ -23,7 +23,7 @@
 #[path = "support/parity_row.rs"]
 mod parity_row;
 
-use vieww_foundation::{Color, Rect, Transform};
+use vieww_foundation::{BlendMode, Color, ImageFilter, Offset, Rect, Shadow, Transform};
 use vieww_gpu::Planner;
 use vieww_hal::d3d12::{D3d12Device, D3d12SceneRenderer};
 use vieww_paint::native::NativeRenderer;
@@ -419,4 +419,194 @@ fn a_damaged_frame_keeps_the_previous_frame_outside_the_damage() {
             );
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// The compositor matrix, graduated — the scenes `tests/vulkan_compositor.rs`
+// held from the port's first increment (see this file's own header). The
+// doc's why-not.md put it as "bring the Vulkan compositor matrix across as
+// each port is validated"; the Windows runner (WARP first, hardware after)
+// is the validation, so the matrix follows: every blend mode, group opacity
+// against it, a shaped clip, a shadow, a dithered gradient. The oracle and
+// the tolerance stay the Vulkan suite's — 2/255 interior, edges free.
+
+/// The compositor scenes' shared backdrop: two opaque fills.
+fn backdrop(scene: &mut Scene) {
+    fill_rect(
+        scene,
+        Rect::new(0.0, 0.0, 128.0, 96.0),
+        Color::rgba(30, 30, 46, 255),
+    );
+    fill_rect(
+        scene,
+        Rect::new(8.0, 8.0, 88.0, 72.0),
+        Color::rgba(120, 200, 90, 255),
+    );
+}
+
+fn push_layer(
+    scene: &mut Scene,
+    bounds: Rect,
+    alpha: f32,
+    blend: BlendMode,
+    filter: ImageFilter,
+) {
+    scene.push_command(Command::PushLayer {
+        bounds,
+        alpha,
+        blend,
+        clip: Clip::NONE,
+        filter,
+    });
+}
+
+/// All twenty-eight blend modes through a translucent group over an opaque
+/// and a translucent backdrop — the modes that read dst alpha have something
+/// other than 1.0 to read. The Vulkan suite's scene, verbatim.
+#[test]
+#[ignore = "needs a D3D12 device — the framework-checks Windows runner (WARP allowed); run with `cargo test --features d3d12 -- --ignored`"]
+fn all_twenty_eight_blend_modes_match() {
+    use BlendMode as B;
+    let Some((_lock, _device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    let modes = [
+        B::Normal,
+        B::Clear,
+        B::Src,
+        B::Dst,
+        B::DstOver,
+        B::SrcIn,
+        B::DstIn,
+        B::SrcOut,
+        B::DstOut,
+        B::SrcAtop,
+        B::DstAtop,
+        B::Xor,
+        B::Plus,
+        B::Multiply,
+        B::Screen,
+        B::Overlay,
+        B::Darken,
+        B::Lighten,
+        B::ColorDodge,
+        B::ColorBurn,
+        B::HardLight,
+        B::SoftLight,
+        B::Difference,
+        B::Exclusion,
+        B::Hue,
+        B::Saturation,
+        B::Color,
+        B::Luminosity,
+    ];
+    let mut planner = Planner::new();
+    for mode in modes {
+        let mut scene = Scene::default();
+        backdrop(&mut scene);
+        fill_rect(
+            &mut scene,
+            Rect::new(0.0, 64.0, 128.0, 96.0),
+            Color::rgba(90, 20, 160, 0),
+        );
+        push_layer(
+            &mut scene,
+            Rect::new(12.0, 12.0, 116.0, 84.0),
+            0.85,
+            mode,
+            ImageFilter::NONE,
+        );
+        fill_rect(
+            &mut scene,
+            Rect::new(20.0, 20.0, 76.0, 60.0),
+            Color::rgba(250, 140, 30, 255),
+        );
+        fill_rect(
+            &mut scene,
+            Rect::new(52.0, 36.0, 108.0, 76.0),
+            Color::rgba(30, 200, 230, 150),
+        );
+        scene.push_command(Command::PopLayer);
+        let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
+        assert!(plan.is_complete(), "{mode:?}: {:?}", plan.unsupported);
+        let gpu = renderer
+            .render_planned(&planner, &plan, WIDTH, HEIGHT, Color::WHITE)
+            .expect("render should succeed");
+        let bad = interior_mismatches(&gpu, &on_cpu(&scene, Color::WHITE), 2);
+        assert_eq!(bad, 0, "blend {mode:?}: {bad} interior pixels disagree");
+    }
+}
+
+/// Group opacity composites the group once, not each child — the property
+/// that made `PushLayer` exist.
+#[test]
+#[ignore = "needs a D3D12 device — the framework-checks Windows runner (WARP allowed); run with `cargo test --features d3d12 -- --ignored`"]
+fn group_opacity_composites_the_group_not_each_child() {
+    let Some((_lock, _device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    let mut scene = Scene::default();
+    backdrop(&mut scene);
+    push_layer(
+        &mut scene,
+        Rect::new(8.0, 8.0, 120.0, 88.0),
+        0.5,
+        BlendMode::Normal,
+        ImageFilter::NONE,
+    );
+    fill_rect(
+        &mut scene,
+        Rect::new(16.0, 16.0, 72.0, 64.0),
+        Color::rgba(255, 255, 255, 255),
+    );
+    fill_rect(
+        &mut scene,
+        Rect::new(48.0, 32.0, 112.0, 80.0),
+        Color::rgba(0, 0, 0, 255),
+    );
+    scene.push_command(Command::PopLayer);
+    let mut planner = Planner::new();
+    let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
+    assert!(plan.is_complete(), "{:?}", plan.unsupported);
+    let gpu = renderer
+        .render_planned(&planner, &plan, WIDTH, HEIGHT, Color::WHITE)
+        .expect("render should succeed");
+    assert_eq!(
+        interior_mismatches(&gpu, &on_cpu(&scene, Color::WHITE), 2),
+        0
+    );
+}
+
+/// A shadow over a plain ground — the cached-coverage tint pass, held to the
+/// CPU's own blurred answer.
+#[test]
+#[ignore = "needs a D3D12 device — the framework-checks Windows runner (WARP allowed); run with `cargo test --features d3d12 -- --ignored`"]
+fn a_shadow_matches_the_cpu() {
+    let Some((_lock, _device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    let mut scene = Scene::default();
+    scene.push_command(Command::DrawShadow {
+        rect: Rect::new(24.0, 20.0, 96.0, 70.0),
+        radius: 8.0,
+        shadow: Shadow::new(Color::rgba(0, 0, 0, 110), Offset::new(0.0, 6.0), 14.0),
+        transform: Transform::IDENTITY,
+        clip: Clip::NONE,
+        covered: false,
+    });
+    fill_rect(
+        &mut scene,
+        Rect::new(24.0, 20.0, 96.0, 70.0),
+        Color::rgba(240, 240, 244, 255),
+    );
+    let mut planner = Planner::new();
+    let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
+    assert!(plan.is_complete(), "{:?}", plan.unsupported);
+    let gpu = renderer
+        .render_planned(&planner, &plan, WIDTH, HEIGHT, Color::WHITE)
+        .expect("render should succeed");
+    assert_eq!(
+        interior_mismatches(&gpu, &on_cpu(&scene, Color::WHITE), 2),
+        0
+    );
 }
