@@ -1,7 +1,7 @@
 # 5 · Housekeeping — FAILURE
 
-- branch: `main`  sha: `ee5a473927c2afb59c895056b1e0ac209a3e18c3`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/44304627352
+- branch: `main`  sha: `2cbb561812da14f241906df6d8b551b21a2862e8`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/44362356113
 
 | job | verdict | failed steps |
 |---|---|---|
@@ -9,8 +9,8 @@
 | phase-1 / vieww · pgo | FAIL | vieww · pgo |
 | phase-1 / approve | skipped |  |
 | phase-1 / matrix.title | skipped |  |
-| results / publish | running |  |
 | phase-2 | skipped |  |
+| results / publish | running |  |
 | phase-3 | skipped |  |
 
 ## Steps
@@ -58,10 +58,13 @@
 
 ### phase-1 / matrix.title — skipped
 
+### phase-2 — skipped
+
 ### results / publish — running
 - running: Set up job
-
-### phase-2 — skipped
+- running: Collect the run
+- running: Run actions/checkout@v4
+- running: Write to the ci-results branch
 
 ### phase-3 — skipped
 
