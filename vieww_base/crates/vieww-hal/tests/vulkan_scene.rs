@@ -34,9 +34,11 @@
 #[path = "support/parity_row.rs"]
 mod parity_row;
 
-use vieww_foundation::{Color, Gradient, Image, Offset, Path, Rect, TextStyle, Transform};
+use vieww_foundation::{
+    BlendMode, Color, Gradient, Image, ImageFilter, Offset, Path, Rect, TextStyle, Transform,
+};
 use vieww_gpu::{plan_scene, Unsupported};
-use vieww_hal::vulkan::{SceneRenderer, VulkanDevice};
+use vieww_hal::vulkan::{SceneRenderer, StagingSlot, VulkanDevice};
 use vieww_paint::native::NativeRenderer;
 use vieww_paint::{Clip, Command, Paint, Scene, Stroke};
 use vieww_text::{FontStore, Paragraph, TextSpan};
@@ -1151,5 +1153,186 @@ fn partial_ramp_uploads_match_full_uploads_frame_for_frame() {
     );
     eprintln!(
         "{partial} partial, {full} full; {sent} bytes sent against {whole} for whole-texture uploads"
+    );
+}
+
+/// A renderer that once drew a deep-layered frame frees the layer targets it
+/// no longer uses, after the hysteresis — and a deep frame after the shrink
+/// still matches the CPU oracle, so the freed-and-regrown path is the same
+/// pixels as the never-freed one.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD (lavapipe or a real GPU); run with --ignored"]
+fn idle_layer_targets_are_freed_after_the_hysteresis() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 120;
+    const H: u32 = 90;
+    let base = Color::rgba(250, 250, 248, 255);
+    let mut planner = vieww_gpu::Planner::new();
+
+    let deep = |depth: usize| {
+        let mut scene = Scene::default();
+        for _ in 0..depth {
+            scene.push_command(Command::PushLayer {
+                bounds: Rect::new(4.0, 4.0, 116.0, 86.0),
+                alpha: 0.9,
+                blend: BlendMode::Normal,
+                clip: Clip::NONE,
+                filter: ImageFilter::NONE,
+            });
+        }
+        scene.push_command(Command::FillRect {
+            rect: Rect::new(10.0, 10.0, 110.0, 80.0),
+            paint: Paint::from(Color::rgb(60, 120, 240)),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        for _ in 0..depth {
+            scene.push_command(Command::PopLayer);
+        }
+        scene
+    };
+
+    // One six-deep frame grows the target list to its depth...
+    let scene = deep(6);
+    let plan = planner.plan(&scene, W as f32, H as f32);
+    assert!(plan.is_complete(), "{:?}", plan.unsupported);
+    let deep_count = {
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+        let want = fresh
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        drop(fresh);
+        assert_eq!(
+            got, want,
+            "the deep frame must match a renderer that never shrank"
+        );
+        renderer.target_count()
+    };
+    assert!(
+        deep_count >= 14,
+        "a six-deep frame must allocate its levels and scratches: {deep_count}"
+    );
+
+    // ...and a run of flat frames, past the narrowed hysteresis, frees the
+    // surplus down to what they use.
+    renderer.set_memory_trim_frames(4);
+    let mut flat = Scene::default();
+    flat.push_command(Command::FillRect {
+        rect: Rect::new(10.0, 10.0, 110.0, 80.0),
+        paint: Paint::from(Color::rgb(60, 120, 240)),
+        transform: Transform::IDENTITY,
+        clip: Clip::NONE,
+    });
+    for _ in 0..8 {
+        let plan = planner.plan(&flat, W as f32, H as f32);
+        renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+    }
+    let shrunk = renderer.target_count();
+    assert!(
+        shrunk <= 2,
+        "flat frames past the hysteresis must free the deep frame's surplus: {shrunk}"
+    );
+
+    // The regrow path is the same pixels as the never-freed one.
+    let plan = planner.plan(&deep(6), W as f32, H as f32);
+    let got = renderer
+        .render_planned(&planner, &plan, W, H, base)
+        .expect("render should succeed");
+    let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+    let want = fresh
+        .render_planned(&planner, &plan, W, H, base)
+        .expect("render should succeed");
+    drop(fresh);
+    assert_eq!(
+        got, want,
+        "the deep frame after the shrink must match a renderer that never shrank"
+    );
+}
+
+/// A staging buffer that once served a full atlas upload — the megabytes a
+/// single grow or compaction pins — decays back to the bytes the partial
+/// uploads actually send, and the frames around the decay still match a full
+/// upload's pixels.
+#[test]
+#[ignore = "needs a Vulkan loader + ICD (lavapipe or a real GPU); run with --ignored"]
+fn oversized_staging_decays_after_the_hysteresis() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    const W: u32 = 200;
+    const H: u32 = 150;
+    let base = Color::rgba(250, 250, 248, 255);
+    let logo = Image::from_rgba8(vec![220u8; 96 * 96 * 4], 96, 96);
+    let churn = |frame: u32| {
+        let (w, h) = (24u32, 24u32);
+        let mut rgba = Vec::with_capacity((w * h * 4) as usize);
+        for y in 0..h {
+            for x in 0..w {
+                rgba.extend_from_slice(&[(x * 9) as u8, (y * 7) as u8, frame as u8, 255]);
+            }
+        }
+        Image::from_rgba8(rgba, w, h)
+    };
+    let mut planner = vieww_gpu::Planner::new();
+    renderer.set_memory_trim_frames(4);
+
+    let mut saw_full = 0;
+    let mut capacity_after_decay = None;
+    for frame in 0..24 {
+        let mut scene = Scene::default();
+        scene.push_command(Command::DrawImage {
+            rect: Rect::new(8.0, 8.0, 104.0, 104.0),
+            image: logo.clone(),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        scene.push_command(Command::DrawImage {
+            rect: Rect::new(120.0, 20.0, 168.0, 68.0),
+            image: churn(frame),
+            transform: Transform::IDENTITY,
+            clip: Clip::NONE,
+        });
+        let plan = planner.plan(&scene, W as f32, H as f32);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        let got = renderer
+            .render_planned(&planner, &plan, W, H, base)
+            .expect("render should succeed");
+        if frame == 0 {
+            let side = u64::from(planner.image_atlas().side());
+            assert_eq!(
+                renderer.last_image_upload_bytes(),
+                side * side * 4,
+                "the first frame is a full upload, which sizes the staging"
+            );
+            saw_full = renderer.staging_capacity(StagingSlot::Images);
+            assert!(
+                saw_full >= side * side * 4,
+                "the staging must hold the full upload: {saw_full}"
+            );
+        }
+        if frame == 23 {
+            let mut fresh = SceneRenderer::new(&device).expect("the pipeline should build");
+            let want = fresh
+                .render_planned(&planner, &plan, W, H, base)
+                .expect("render should succeed");
+            drop(fresh);
+            assert_eq!(
+                got, want,
+                "the frame after the staging decay must match a full upload"
+            );
+            capacity_after_decay = Some(renderer.staging_capacity(StagingSlot::Images));
+        }
+    }
+    let decayed = capacity_after_decay.expect("the last frame ran");
+    assert!(
+        decayed * 8 <= saw_full,
+        "the staging must decay from the full upload's {saw_full} bytes to the partial uploads' size, not stay at {decayed}"
     );
 }

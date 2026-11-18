@@ -298,6 +298,16 @@ pub struct SceneRenderer {
     /// redraws anything: `(src, dx, dy)` in render pixels — a scroll's
     /// moved rows. See [`set_pending_copies`](Self::set_pending_copies).
     pending_copies: Vec<(PixelRect, i32, i32)>,
+    /// Consecutive frames whose plans used fewer targets than are allocated
+    /// — the idle signal that frees the surplus. See [`TARGET_TRIM_FRAMES`].
+    idle_target_frames: u32,
+    /// How many idle frames before the target surplus is freed —
+    /// [`TARGET_TRIM_FRAMES`] unless a test narrowed it. See
+    /// [`set_memory_trim_frames`](Self::set_memory_trim_frames).
+    target_trim_frames: u32,
+    /// How many idle frames before an oversized staging buffer is released —
+    /// [`STAGING_TRIM_FRAMES`] unless a test narrowed it. Same setter.
+    staging_trim_frames: u32,
     /// What the last frame whose timestamps were read spent on the GPU.
     pass_times: Option<GpuPassTimes>,
     /// Whether a frame into a swapchain image is left in flight
@@ -463,6 +473,17 @@ struct SlotQueries {
 /// previous frame's 21 ms — was most of the frame.
 const FLIGHT_SLOTS: usize = 2;
 
+/// How many consecutive frames a renderer may hold more layer targets than
+/// any of them used before the surplus is freed: ~10 s at 60 Hz. Depth grows
+/// on the first frames of a scene or the first layer of a new one, and one
+/// deep frame — a keyboard popup, a six-deep stack of glass — pins
+/// `2 * depth` full-frame RGBA16F targets (39 MB *each* at 1080x2340) for
+/// the life of the renderer, because nothing ever shrank the list. The
+/// hysteresis is what keeps a scene that honestly oscillates between two
+/// depths from thrashing: ten seconds of the shallower depth is a decision,
+/// not a jitter.
+const TARGET_TRIM_FRAMES: u32 = 600;
+
 struct Buffer {
     handle: vk::Buffer,
     memory: vk::DeviceMemory,
@@ -508,7 +529,21 @@ struct Texture {
     /// writes its own while the frame before it may still be copying out of
     /// its.
     staging: [Buffer; FLIGHT_SLOTS],
+    /// Consecutive frames each flight slot's staging has held at least
+    /// [`STAGING_TRIM_FACTOR`] times the bytes the partial uploads actually
+    /// sent — the idle signal that releases it back to `EMPTY`. A full
+    /// upload (a grow, a compaction) uses the whole buffer and resets its
+    /// slot's counter; see `record_regions`.
+    staging_idle: [u16; FLIGHT_SLOTS],
 }
+
+/// How much larger than the partial uploads' bytes a staging buffer must be,
+/// and for how many frames, before it is released: 8x for ~4 s at 60 Hz. The
+/// factor keeps a buffer that is *sometimes* the right size — an atlas whose
+/// compactions alternate with quiet frames — while still retiring the 64 MB
+/// image-atlas staging a single full upload once pinned forever.
+const STAGING_TRIM_FACTOR: u64 = 8;
+const STAGING_TRIM_FRAMES: u32 = 240;
 
 impl Texture {
     const NULL: Self = Self {
@@ -520,6 +555,7 @@ impl Texture {
         height: 0,
         version: None,
         staging: [Buffer::EMPTY; FLIGHT_SLOTS],
+        staging_idle: [0; FLIGHT_SLOTS],
     };
 }
 
@@ -530,6 +566,26 @@ enum Slot {
     Images,
     Masks,
     Ramps,
+}
+
+/// The public name of a [`Slot`], for [`SceneRenderer::staging_capacity`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StagingSlot {
+    Glyphs,
+    Images,
+    Masks,
+    Ramps,
+}
+
+impl StagingSlot {
+    const fn as_slot(self) -> Slot {
+        match self {
+            Self::Glyphs => Slot::Glyphs,
+            Self::Images => Slot::Images,
+            Self::Masks => Slot::Masks,
+            Self::Ramps => Slot::Ramps,
+        }
+    }
 }
 
 impl Slot {
@@ -890,6 +946,9 @@ impl SceneRenderer {
             ramp_upload_bytes: 0,
             timings: GpuFrameTimings::default(),
             retained: None,
+            idle_target_frames: 0,
+            target_trim_frames: TARGET_TRIM_FRAMES,
+            staging_trim_frames: STAGING_TRIM_FRAMES,
             frame_clip: None,
             pending_copies: Vec::new(),
             pass_times: None,
@@ -1300,6 +1359,42 @@ impl SceneRenderer {
                 needed,
             )?;
             self.texture_mut(slot).staging[flight] = staging;
+            self.texture_mut(slot).staging_idle[flight] = 0;
+        } else if needed.saturating_mul(STAGING_TRIM_FACTOR)
+            <= self.texture(slot).staging[flight].capacity
+        {
+            // **The idle decay.** A staging buffer grows to the largest
+            // upload it ever served and, before this, stayed there forever:
+            // one 64 MB image-atlas full upload pinned 64 MB of host-visible
+            // memory per flight slot for the life of the renderer, while the
+            // frames after it sent a few kilobytes of dirty rects. Here, a
+            // run of frames whose partial uploads need a fraction of the
+            // buffer releases it — after that flight slot's fence has
+            // settled, since the frame two ago may still be copying out of
+            // it — and the next upload of any size reallocates at exactly
+            // what it needs, as a cold renderer would have.
+            let idle = self.texture_mut(slot).staging_idle[flight].saturating_add(1);
+            self.texture_mut(slot).staging_idle[flight] = idle;
+            if u32::from(idle) >= self.staging_trim_frames {
+                self.settle_slot(flight)?;
+                let old = std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
+                unsafe { destroy_buffer(&self.device, old) };
+                // Reallocated at exactly what this frame's upload needs —
+                // the size a cold renderer would have chosen — rather than
+                // left EMPTY for the next call to grow: the write below
+                // runs either way, and a cold renderer's first upload is
+                // this same pair.
+                let staging = allocate_buffer(
+                    &self.device,
+                    vk::BufferUsageFlags::TRANSFER_SRC,
+                    self.host_visible_memory,
+                    needed,
+                )?;
+                self.texture_mut(slot).staging[flight] = staging;
+                self.texture_mut(slot).staging_idle[flight] = 0;
+            }
+        } else {
+            self.texture_mut(slot).staging_idle[flight] = 0;
         }
         write_bytes(
             &self.device,
@@ -1371,6 +1466,37 @@ impl SceneRenderer {
     #[must_use]
     pub const fn last_ramp_upload_bytes(&self) -> u64 {
         self.ramp_upload_bytes
+    }
+
+    /// How many layer targets are allocated, levels and scratch counted
+    /// together — the number the idle shrink frees down to what frames use.
+    /// For tests and measurement.
+    #[must_use]
+    pub const fn target_count(&self) -> usize {
+        self.levels.len() + self.scratch.len()
+    }
+
+    /// The staging capacity, in bytes, of one atlas slot's largest flight
+    /// buffer — the number the idle decay releases back to the bytes the
+    /// partial uploads actually send. For tests and measurement.
+    #[must_use]
+    pub fn staging_capacity(&self, slot: StagingSlot) -> u64 {
+        let mut largest = 0;
+        for flight in &self.texture(slot.as_slot()).staging {
+            largest = largest.max(flight.capacity);
+        }
+        largest
+    }
+
+    /// Narrow the idle thresholds that free the renderer's surplus memory:
+    /// how many frames of unused layer targets before they are freed, and of
+    /// eight-times-oversized staging before it is released. The defaults
+    /// ([`TARGET_TRIM_FRAMES`], [`STAGING_TRIM_FRAMES`]) are for a
+    /// production process; a test that wants to *see* a trim renders far
+    /// fewer frames than ten seconds of them.
+    pub fn set_memory_trim_frames(&mut self, frames: u32) {
+        self.target_trim_frames = frames.max(1);
+        self.staging_trim_frames = frames.max(1);
     }
 
     /// [`render`](Self::render), with `planner`'s atlases uploaded first — the
@@ -1955,6 +2081,33 @@ impl SceneRenderer {
             // settle here costs nothing that matters.
             self.settle()?;
             self.initialise_targets(&fresh)?;
+            // Growth is the opposite of idle.
+            self.idle_target_frames = 0;
+            return Ok(());
+        }
+        // **The idle shrink.** `levels`/`scratch` only ever grew before this:
+        // one deep-layered frame pinned its targets for the life of the
+        // renderer (see `TARGET_TRIM_FRAMES`). A run of frames that used
+        // fewer frees the surplus — after a settle, since earlier frames may
+        // still be sampling the targets being destroyed, and with the post
+        // descriptor sets invalidated because they are keyed by target ids.
+        // `L[0]` is always kept, so the retained damage frame survives.
+        if depth >= self.levels.len() {
+            self.idle_target_frames = 0;
+        } else {
+            self.idle_target_frames = self.idle_target_frames.saturating_add(1);
+            if self.idle_target_frames >= self.target_trim_frames && self.levels.len() > 1 {
+                let keep = depth.max(1);
+                self.settle()?;
+                for target in self.levels.drain(keep..) {
+                    unsafe { destroy_target(&self.device, target) };
+                }
+                for target in self.scratch.drain(keep..) {
+                    unsafe { destroy_target(&self.device, target) };
+                }
+                self.reset_post_sets()?;
+                self.idle_target_frames = 0;
+            }
         }
         Ok(())
     }
@@ -2183,6 +2336,9 @@ impl SceneRenderer {
             )?;
             self.texture_mut(slot).staging[flight] = staging;
         }
+        // A full upload is the largest thing this buffer serves — the run of
+        // small partial uploads that would have decayed it starts over.
+        self.texture_mut(slot).staging_idle[flight] = 0;
         write_bytes(
             &self.device,
             self.texture(slot).staging[flight].memory,
@@ -3727,6 +3883,7 @@ fn create_texture(
         height,
         version: None,
         staging: [Buffer::EMPTY; FLIGHT_SLOTS],
+        staging_idle: [0; FLIGHT_SLOTS],
     })
 }
 

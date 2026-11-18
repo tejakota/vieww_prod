@@ -115,7 +115,15 @@ impl Default for ImageAtlas {
 }
 
 impl ImageAtlas {
-    pub const INITIAL_SIDE: u32 = 512;
+    /// 256x256 RGBA is 256 KiB and holds the first handful of images — an
+    /// icon set, a logo, a thumbnail — before the first grow. It was 512
+    /// (1 MiB), sized for photo-heavy apps on the assumption that anything
+    /// smaller would just pay the grow immediately; measured against the
+    /// phone memory budget (the GPU pass already carries the CPU atlas plus
+    /// its GPU texture), a megabyte per process *before the first image*
+    /// was the wrong default, and the grow is one doubling plus a full
+    /// upload the dirty-rect machinery already handles — not a cliff.
+    pub const INITIAL_SIDE: u32 = 256;
     pub const MAX_SIDE: u32 = 4096;
     const PAD: u32 = 1;
 
