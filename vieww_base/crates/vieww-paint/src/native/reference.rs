@@ -2407,24 +2407,22 @@ impl NativeRenderer {
             return;
         }
         // What is left is the clipped cases: a shape with a real clip *mask*
-        // over it. Under the normal blend in gamma space — every draw on the
-        // default pipeline — the mask answers as rows, so
-        // `composite_clipped_shape` builds each row's clip-scaled colour in
-        // scratch and hands it to the shared masked-row kernel instead of
-        // asking a closure per pixel. A linear-light pipeline keeps the
-        // closure: its blend is not `over`, so the row kernel does not apply.
-        if let Some(clip) = resolved.into_mask() {
-            if matches!(self.pipeline, ColorPipeline::GammaSpace) {
-                target.composite_clipped_shape(
-                    mask.view(),
-                    origin,
-                    clip,
-                    device_ramp.as_ref(),
-                    flat,
-                );
-                return;
-            }
-        }
+        // over it, which has to ask the mask per pixel and so keeps the
+        // closure. The gradient still comes from the folded `DeviceRamp`; only
+        // the row constants cannot be hoisted out through `composite_coverage`'s
+        // callback, and a masked shape is a small minority of a frame's draws.
+        //
+        // A row-kernel version (`composite_clipped_shape`, staging each row's
+        // clip-scaled colour in scratch for `over_masked_row`) was tried and
+        // REVERTED: on the 2-core reference machine it measured *worse* on
+        // the clip-heavy fixtures — `00-fills-rrect-clip` 5.00 -> 5.87 ms
+        // best of three, `00-fills-nested-clips` 4.76 -> 5.44 — where a
+        // frame is hundreds of *small* clipped fills and the staging pass
+        // (two scratch rows written and read back per call) costs more than
+        // the indirect call it removed. The closure's per-pixel work is one
+        // bounds-checked lookup and a `scaled`; the compiler keeps the rest
+        // in registers. Recorded the way `composite_gradient`'s own comment
+        // records its equivalent.
         target.composite_coverage(
             mask.view(),
             origin,

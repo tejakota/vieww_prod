@@ -195,6 +195,281 @@ fn transparent_pixels(len: usize) -> Vec<Premul> {
     unsafe { Vec::from_raw_parts(ptr, len, len) }
 }
 
+/// One gradient row's work: the shared body of `composite_gradient`'s
+/// serial and row-parallel walks — the `FlatRow` split's discipline, so the
+/// two cannot drift. The loop stays scalar by measurement; see
+/// `composite_gradient`'s own comment for the number.
+struct GradientRows<'a> {
+    ramp: &'a DeviceRamp,
+    coverage: MaskView<'a>,
+    table: &'static [f32; super::linear::COVERAGE_LEVELS],
+    dy_start: usize,
+    dx_start: usize,
+    x_left: usize,
+    span: usize,
+    normal: bool,
+    pipeline: ColorPipeline,
+    mode: BlendMode,
+}
+
+impl GradientRows<'_> {
+    /// The band's rows, `base` being the first row's offset into the walk.
+    fn paint(&self, band: &mut [Premul], width: usize, base: usize) {
+        for (k, line) in band.chunks_exact_mut(width).enumerate() {
+            let dy = self.dy_start + base + k;
+            let y = self.coverage.y0 + dy as i32;
+            let mask_row = self.coverage.row(dy as u32);
+            // Once per row, not once per pixel.
+            let row = self.ramp.row(y);
+            let dst_span = &mut line[self.x_left..self.x_left + self.span];
+            for (j, dst) in dst_span.iter_mut().enumerate() {
+                // The coverage gamma — see `linear::coverage_alpha` — for
+                // the same reason the flat-fill loop applies it: coverage
+                // is area, alpha is light.
+                let c = super::linear::coverage_alpha_in(
+                    self.table,
+                    mask_row[self.dx_start + j],
+                );
+                if c <= 0.0 {
+                    continue;
+                }
+                let src = self
+                    .ramp
+                    .at(&row, self.coverage.x0 + self.dx_start as i32 + j as i32, y)
+                    .scaled(c);
+                if src.a <= 0.0 && self.normal {
+                    continue;
+                }
+                if self.normal && src.a == 1.0 {
+                    *dst = src;
+                    continue;
+                }
+                // `normal` is `mode.is_normal() && GammaSpace`, decided once
+                // at the call — so where it holds, the twenty-eight-way match
+                // in `blend` and the pipeline match in `blend_with_pipeline`
+                // have only one possible answer and are pure dispatch. See
+                // `color::over`.
+                *dst = if self.normal {
+                    over(src, *dst)
+                } else {
+                    blend_with_pipeline(self.pipeline, self.mode, src, *dst)
+                };
+            }
+        }
+    }
+}
+
+/// One tinted row's work — the shared body of `composite_tinted_within`'s
+/// serial and row-parallel walks, extracted so the two cannot drift (the
+/// `FlatRow` discipline). The clip closure stays a *parameter* rather than a
+/// field: `&dyn Fn` is not `Sync`, and the parallel arm never carries one.
+struct TintRows<'a> {
+    alpha: &'a [f32],
+    patch_width: u32,
+    x_start: i32,
+    x_end: i32,
+    y_start: i32,
+    ox: i32,
+    oy: i32,
+    skip: Option<CoveredSkip>,
+    tint: Premul,
+    normal: bool,
+    pipeline: ColorPipeline,
+}
+
+impl TintRows<'_> {
+    /// The band's rows, `first` being the first row's offset into the walk.
+    fn rows(
+        &self,
+        band: &mut [Premul],
+        first: i32,
+        row: &mut Vec<Premul>,
+        coverage: Option<&dyn Fn(i32, i32) -> f32>,
+        buf_width: usize,
+    ) {
+        for (k, line) in band.chunks_exact_mut(buf_width).enumerate() {
+            let y = self.y_start + first + k as i32;
+            // The run this row skips: the union of the skip bands containing
+            // the row, which the bands' nested x-ranges make one contiguous
+            // run. Patch-local, half-open, already clamped into the row.
+            let mut skip_run: Option<(i32, i32)> = None;
+            if let Some((bands, (ox_skip, oy_skip))) = self.skip {
+                let ty = y + self.oy - oy_skip;
+                let (mut lo, mut hi) = (i32::MAX, i32::MIN);
+                let mut any = false;
+                for &(x0, y0, x1, y1) in &bands {
+                    if ty >= y0 && ty < y1 {
+                        any = true;
+                        lo = lo.min(x0);
+                        hi = hi.max(x1);
+                    }
+                }
+                if any && hi > lo {
+                    // Device x into this buffer's coordinates, then into the
+                    // patch's, and clamped into the row's span.
+                    let lo = (lo - ox_skip - self.ox).max(self.x_start);
+                    let hi = (hi - ox_skip - self.ox).min(self.x_end);
+                    if hi > lo {
+                        skip_run = Some((lo, hi));
+                    }
+                }
+            }
+            let segments: [(i32, i32); 3] = match skip_run {
+                Some((lo, hi)) => [(self.x_start, lo), (hi, self.x_end), (0, 0)],
+                None => [(self.x_start, self.x_end), (0, 0), (0, 0)],
+            };
+            for &(seg_start, seg_end) in segments.iter().filter(|&(s, e)| e > s) {
+                row.clear();
+                let src_row = y as usize * self.patch_width as usize;
+                for x in seg_start..seg_end {
+                    let mut pixel = self.tint.scaled(self.alpha[src_row + x as usize]);
+                    if let Some(coverage) = coverage {
+                        let c = coverage(x, y);
+                        if c < 1.0 {
+                            pixel = pixel.scaled(c);
+                        }
+                    }
+                    row.push(pixel);
+                }
+                let dst = &mut line[(seg_start + self.ox) as usize..(seg_end + self.ox) as usize];
+                if self.normal {
+                    super::simd::over_layer_row(dst, row.as_slice(), 1.0, true);
+                } else {
+                    for (d, s) in dst.iter_mut().zip(row.iter()) {
+                        if s.a <= 0.0 {
+                            continue;
+                        }
+                        *d = blend_with_pipeline(self.pipeline, BlendMode::Normal, *s, *d);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// `write_rgba8`'s per-chunk body: the chunk's byte rows converted from the
+/// shared pixels, straight through `write_straight_u8` — the same whole-row
+/// conversion the flat-element split ran.
+fn rgba8_band_chunk(walk: &BandWalk<'_, u8, &[Premul]>, chunk: usize) {
+    let (pointer, len) = walk.chunks[chunk].a;
+    // SAFETY: this chunk's own disjoint block of the byte band, alive for
+    // the pool call (see `BandWalk`'s impl).
+    let bytes = unsafe { std::slice::from_raw_parts_mut(pointer, len) };
+    let row_pixels = walk.a_row / 4;
+    let first = walk.chunks[chunk].base * row_pixels;
+    write_straight_u8(&walk.context[first..first + len / 4], bytes);
+}
+
+/// `write_rgba8_region`'s shared row body.
+struct RegionRows<'a> {
+    pixels: &'a [Premul],
+    width: usize,
+    x0: usize,
+    span: usize,
+}
+
+impl RegionRows<'_> {
+    /// `base` is the first row's offset into the region's bands.
+    fn write_rows(&self, bytes: &mut [u8], base: usize, byte_row: usize) {
+        for (k, out_line) in bytes.chunks_exact_mut(byte_row).enumerate() {
+            let line = &self.pixels[(base + k) * self.width..][..self.width];
+            write_straight_u8(
+                &line[self.x0..self.x0 + self.span],
+                &mut out_line[self.x0 * 4..self.x0 * 4 + self.span * 4],
+            );
+        }
+    }
+}
+
+/// `write_rgba8_region`'s per-chunk body.
+fn rgba8_region_band_chunk(walk: &BandWalk<'_, u8, &RegionRows<'_>>, chunk: usize) {
+    let (pointer, len) = walk.chunks[chunk].a;
+    // SAFETY: this chunk's own disjoint block of the byte band, alive for
+    // the pool call (see `BandWalk`'s impl).
+    let bytes = unsafe { std::slice::from_raw_parts_mut(pointer, len) };
+    walk.context
+        .write_rows(bytes, walk.chunks[chunk].base, walk.a_row);
+}
+
+/// `reset_region`'s per-chunk body: the chunk's rows filled.
+fn clear_band_chunk(walk: &BandWalk<'_, Premul, (usize, usize, Premul)>, chunk: usize) {
+    let (x0, span, color) = walk.context;
+    let (pointer, len) = walk.chunks[chunk].a;
+    // SAFETY: this chunk's own disjoint block of the band, alive for the
+    // pool call (see `BandWalk`'s impl).
+    let band = unsafe { std::slice::from_raw_parts_mut(pointer, len) };
+    for line in band.chunks_exact_mut(walk.a_row) {
+        line[x0..x0 + span].fill(color);
+    }
+}
+
+/// `composite_layer_and_clear`'s per-chunk body: the take kernel over the
+/// chunk's rows of both bands, the same per-row slicing the serial walk's
+/// `take_rows` closure does.
+fn take_band_chunk(
+    walk: &BandWalk<'_, Premul, (f32, bool, usize, usize, usize, usize)>,
+    chunk: usize,
+) {
+    let (alpha, opaque_copy, sx0, sx1, dx0, dx1) = walk.context;
+    let (dst_pointer, dst_len) = walk.chunks[chunk].a;
+    // SAFETY: this chunk's own disjoint blocks of the two bands, alive for
+    // the pool call (see `BandWalk`'s impl).
+    let dst_band = unsafe { std::slice::from_raw_parts_mut(dst_pointer, dst_len) };
+    let src_band =
+        unsafe { std::slice::from_raw_parts_mut(walk.chunks[chunk].b.0, walk.chunks[chunk].b.1) };
+    for (d, s) in dst_band
+        .chunks_exact_mut(walk.a_row)
+        .zip(src_band.chunks_exact_mut(walk.b_row))
+    {
+        super::simd::over_layer_row_take(&mut d[dx0..dx1], &mut s[sx0..sx1], alpha, opaque_copy);
+    }
+}
+
+/// `composite_clipped_layer_and_clear`'s per-chunk body: as `take_band_chunk`
+/// with the clip's coverage row gathered per row — the chunk's base row is
+/// `y_start` plus the band offset, the absolute-row rule the receipt test
+/// pins.
+/// The clipped take's context, aliased for readability at the signature.
+type ClippedTakeContext<'a> = (
+    f32,
+    bool,
+    usize,
+    usize,
+    usize,
+    usize,
+    i32,
+    &'a CoverageMask,
+    (i32, i32),
+);
+
+fn clipped_take_band_chunk(walk: &BandWalk<'_, Premul, ClippedTakeContext<'_>>, chunk: usize) {
+    let (alpha, opaque_copy, sx0, sx1, dx0, dx1, y_start, clip, clip_origin) = walk.context;
+    let (dst_pointer, dst_len) = walk.chunks[chunk].a;
+    // SAFETY: this chunk's own disjoint blocks of the two bands, alive for
+    // the pool call (see `BandWalk`'s impl).
+    let dst_band = unsafe { std::slice::from_raw_parts_mut(dst_pointer, dst_len) };
+    let src_band =
+        unsafe { std::slice::from_raw_parts_mut(walk.chunks[chunk].b.0, walk.chunks[chunk].b.1) };
+    let x_start = sx0 as i32;
+    let x_end = sx1 as i32;
+    let mut cov = vec![0.0f32; sx1 - sx0];
+    for (i, (d, s)) in dst_band
+        .chunks_exact_mut(walk.a_row)
+        .zip(src_band.chunks_exact_mut(walk.b_row))
+        .enumerate()
+    {
+        let y = y_start + walk.chunks[chunk].base as i32 + i as i32;
+        Target::clip_coverage_row(clip, clip_origin, y, x_start, x_end, &mut cov);
+        let row = &mut s[sx0..sx1];
+        for (px, &c) in row.iter_mut().zip(cov.iter()) {
+            if c < 1.0 {
+                *px = px.scaled(c);
+            }
+        }
+        super::simd::over_layer_row_take(&mut d[dx0..dx1], row, alpha, opaque_copy);
+    }
+}
+
 impl Target {
     #[must_use]
     pub(crate) fn new(width: u32, height: u32) -> Self {
@@ -799,7 +1074,8 @@ impl Target {
         // its own coverage and destination, so splitting the band changes
         // which thread computes it, never what — bytes are identical at any
         // worker count. On the 2-core/4-thread reference laptop this halves
-        // the compositing half of a panel-heavy frame (FW-07).
+        // the compositing half of a panel-heavy frame (FW-07). The bands run
+        // on the raster pool since C-2 — no thread spawn per call.
         let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
         if workers <= 1 {
             let mut scratch = std::mem::take(&mut self.scratch);
@@ -807,6 +1083,22 @@ impl Target {
             self.scratch = scratch;
             return;
         }
+        // The pool (C-2) was tried here and measured worse on the
+        // clip-heavy fixtures - 00-fills-rrect-clip 4.99 -> 5.66 ms best of
+        // three, 00-fills-nested-clips 4.49 -> 5.22 - where a frame is
+        // *many small* flat composites and each pool submission pays its
+        // install/claim/retire handshake; the few-large-band walks (the
+        // layer pops, the present's conversions, a damage region's clear)
+        // are the ones the pool won (00-layers-nested 7.88 -> 6.74). This
+        // walk stays on `std::thread::scope`: its calls are the many-small
+        // kind.
+        let paint_rows = |band: &mut [Premul], first: usize, scratch: &mut Vec<f32>| {
+            for (k, line) in band.chunks_exact_mut(width).enumerate() {
+                let dy = (dy_start as usize + first + k) as u32;
+                let raw = &coverage.row(dy)[dx_start as usize..dx_end as usize];
+                row.paint(&mut line[x_left..x_left + span], raw, scratch);
+            }
+        };
         let chunk = rows.div_ceil(workers);
         std::thread::scope(|scope| {
             let mut pieces = band.chunks_mut(chunk * width).enumerate();
@@ -876,160 +1168,40 @@ impl Target {
         let ty0 = ty0_i as usize;
         let span = (dx_end - dx_start) as usize;
         let band = &mut self.pixels[ty0 * width..(ty0 + rows) * width];
-        let paint_rows = |band: &mut [Premul], first: usize| {
-            for (k, line) in band.chunks_exact_mut(width).enumerate() {
-                let dy = dy_start + first as i32 + k as i32;
-                let y = coverage.y0 + dy;
-                let mask_row = coverage.row(dy as u32);
-                // Once per row, not once per pixel.
-                let row = ramp.row(y);
-                let dst_span = &mut line[x_left..x_left + span];
-                // **This loop stays scalar, and that is a measurement, not an
-                // omission.** Building the row into scratch (unscaled ramp
-                // colour, gamma'd coverage) and blending it with
-                // `over_masked_row` — the shape `composite_clipped_shape`
-                // below takes — was tried on this exact fixture set and
-                // measured *worse*: `00-fills-gradient` 4.16 -> 4.76 ms best
-                // of three alternating runs, `21-dashboard` 2.90 -> 3.18 ms.
-                // A gradient's full-coverage interior is the majority of its
-                // pixels, the old `a == 1.0` replace skipped the blend for
-                // each of them, and the kernel's compute-then-select pays
-                // the blend to discard it — the same shape
-                // `over_flat_row`'s own comment records measuring on the
-                // flat fills. The ramp colour is already in a register when
-                // the coverage arrives; staging it through memory is pure
-                // added traffic. (The clipped shapes are different: their
-                // per-pixel work was the indirect closure call, and removing
-                // that paid for the staging.)
-                for (j, dst) in dst_span.iter_mut().enumerate() {
-                    // The coverage gamma — see `linear::coverage_alpha` — for
-                    // the same reason the flat-fill loop applies it: coverage
-                    // is area, alpha is light.
-                    let c =
-                        super::linear::coverage_alpha_in(table, mask_row[dx_start as usize + j]);
-                    if c <= 0.0 {
-                        continue;
-                    }
-                    let src = ramp
-                        .at(&row, coverage.x0 + dx_start + j as i32, y)
-                        .scaled(c);
-                    if src.a <= 0.0 && normal {
-                        continue;
-                    }
-                    if normal && src.a == 1.0 {
-                        *dst = src;
-                        continue;
-                    }
-                    // `normal` is `mode.is_normal() && GammaSpace`, decided once
-                    // above — so where it holds, the twenty-eight-way match in
-                    // `blend` and the pipeline match in `blend_with_pipeline` have
-                    // only one possible answer and are pure dispatch. See
-                    // `color::over`.
-                    *dst = if normal {
-                        over(src, *dst)
-                    } else {
-                        blend_with_pipeline(pipeline, mode, src, *dst)
-                    };
-                }
-            }
+        // One gradient row's work, shared by the serial walk and the
+        // row-parallel one so both are the same code — the `FlatRow` split's
+        // discipline.
+        let rows_ctx = GradientRows {
+            ramp,
+            coverage,
+            table,
+            dy_start: dy_start as usize,
+            dx_start: dx_start as usize,
+            x_left,
+            span,
+            normal,
+            pipeline,
+            mode,
         };
         let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
         if workers <= 1 {
-            paint_rows(band, 0);
+            rows_ctx.paint(band, width, 0);
             return;
         }
+        // As `composite_flat`: the pool measured worse for the many-small
+        // per-draw walks, so this one keeps `std::thread::scope` too.
         let chunk = rows.div_ceil(workers);
         std::thread::scope(|scope| {
             let mut pieces = band.chunks_mut(chunk * width).enumerate();
             let first = pieces.next();
             for (n, piece) in pieces {
-                let paint_rows = &paint_rows;
-                scope.spawn(move || paint_rows(piece, n * chunk));
+                let rows_ctx = &rows_ctx;
+                scope.spawn(move || rows_ctx.paint(piece, width, n * chunk));
             }
             if let Some((_, piece)) = first {
-                paint_rows(piece, 0);
+                rows_ctx.paint(piece, width, 0);
             }
         });
-    }
-
-    /// [`Self::composite_coverage`](Self::composite_coverage) for the clipped
-    /// shapes under the normal blend in gamma space — the case that used to
-    /// pay the general path's per-pixel closure: an indirect call, a
-    /// four-bounds clip lookup and a gradient match, per pixel, on top of the
-    /// blend itself.
-    ///
-    /// The colour at a pixel is a flat colour or a folded device ramp scaled
-    /// by the clip mask's coverage there; the shape's own coverage scales it
-    /// again; the blend is `over`. Those are exactly the inputs of the shared
-    /// masked-row kernel: each row is built into scratch — colour through the
-    /// clip first, the same first scale the closure ran — and blended by
-    /// [`super::simd::over_masked_row`] with the shape's coverage as the
-    /// second, so the two scales happen in the same order on the same values
-    /// and the bytes are the closure path's bytes. A pixel the closure path
-    /// skipped (no shape coverage, no clip coverage, or a transparent source
-    /// under `over`) yields a zero-alpha source in the kernel, whose skip lane
-    /// writes the destination back unchanged.
-    #[allow(clippy::too_many_arguments)]
-    pub(crate) fn composite_clipped_shape(
-        &mut self,
-        coverage: MaskView<'_>,
-        origin: (i32, i32),
-        clip: &CoverageMask,
-        ramp: Option<&DeviceRamp>,
-        flat: Premul,
-    ) {
-        if coverage.is_empty() {
-            return;
-        }
-        let (wx0, wy0, wx1, wy1) = self.writable();
-        let dy_start = (wy0 - (coverage.y0 - origin.1)).max(0);
-        let dy_end = (wy1 - (coverage.y0 - origin.1)).min(coverage.height as i32);
-        let dx_start = (wx0 - (coverage.x0 - origin.0)).max(0);
-        let dx_end = (wx1 - (coverage.x0 - origin.0)).min(coverage.width as i32);
-        if dy_start >= dy_end || dx_start >= dx_end {
-            return;
-        }
-        self.mark_ink(
-            coverage.x0 - origin.0 + dx_start,
-            coverage.y0 - origin.1 + dy_start,
-            coverage.x0 - origin.0 + dx_end,
-            coverage.y0 - origin.1 + dy_end,
-        );
-
-        let table = super::linear::coverage_table();
-        let width = self.width as usize;
-        let span = (dx_end - dx_start) as usize;
-        // The scratch pair, allocated once per call and reused per row: the
-        // clip-scaled colour and the gamma'd shape coverage.
-        let mut src_row = vec![Premul::TRANSPARENT; span];
-        let mut mask_row = vec![0.0f32; span];
-        for dy in dy_start..dy_end {
-            let y = coverage.y0 + dy;
-            let ty = y - origin.1;
-            let shape_row = coverage.row(dy as u32);
-            let pixel_row = ty as usize * width;
-            let dst_span = &mut self.pixels
-                [pixel_row + (coverage.x0 - origin.0 + dx_start) as usize..][..span];
-            for j in 0..span {
-                let x = coverage.x0 + dx_start + j as i32;
-                // The coverage gamma, as ever: coverage is area, alpha is
-                // light.
-                let c = super::linear::coverage_alpha_in(table, shape_row[dx_start as usize + j]);
-                let clip_c = clip.coverage_at(x, y);
-                if c <= 0.0 || clip_c <= 0.0 {
-                    src_row[j] = Premul::TRANSPARENT;
-                    mask_row[j] = 0.0;
-                    continue;
-                }
-                let color = match ramp {
-                    Some(ramp) => ramp.at_device(x, y),
-                    None => flat,
-                };
-                src_row[j] = color.scaled(clip_c);
-                mask_row[j] = c;
-            }
-            super::simd::over_masked_row(dst_span, &src_row, &mask_row);
-        }
     }
 
     /// Seed this buffer with a copy of `source`'s pixels underneath this
@@ -1179,68 +1351,6 @@ impl Target {
         let buf_width = self.width as usize;
         let rows = (y_end - y_start) as usize;
         let band = &mut self.pixels[(y_start + oy) as usize * buf_width..][..rows * buf_width];
-        let tint_rows = |band: &mut [Premul],
-                         first: i32,
-                         row: &mut Vec<Premul>,
-                         coverage: Option<&dyn Fn(i32, i32) -> f32>| {
-            for (k, line) in band.chunks_exact_mut(buf_width).enumerate() {
-                let y = y_start + first + k as i32;
-                // The run this row skips: the union of the skip bands containing
-                // the row, which the bands' nested x-ranges make one contiguous
-                // run. Patch-local, half-open, already clamped into the row.
-                let mut skip_run: Option<(i32, i32)> = None;
-                if let Some((bands, (ox_skip, oy_skip))) = skip {
-                    let ty = y + oy - oy_skip;
-                    let (mut lo, mut hi) = (i32::MAX, i32::MIN);
-                    let mut any = false;
-                    for &(x0, y0, x1, y1) in &bands {
-                        if ty >= y0 && ty < y1 {
-                            any = true;
-                            lo = lo.min(x0);
-                            hi = hi.max(x1);
-                        }
-                    }
-                    if any && hi > lo {
-                        // Device x into this buffer's coordinates, then into the
-                        // patch's, and clamped into the row's span.
-                        let lo = (lo - ox_skip - ox).max(x_start);
-                        let hi = (hi - ox_skip - ox).min(x_end);
-                        if hi > lo {
-                            skip_run = Some((lo, hi));
-                        }
-                    }
-                }
-                let segments: [(i32, i32); 3] = match skip_run {
-                    Some((lo, hi)) => [(x_start, lo), (hi, x_end), (0, 0)],
-                    None => [(x_start, x_end), (0, 0), (0, 0)],
-                };
-                for &(seg_start, seg_end) in segments.iter().filter(|&(s, e)| e > s) {
-                    row.clear();
-                    let src_row = y as usize * width as usize;
-                    for x in seg_start..seg_end {
-                        let mut pixel = tint.scaled(alpha[src_row + x as usize]);
-                        if let Some(coverage) = coverage {
-                            let c = coverage(x, y);
-                            if c < 1.0 {
-                                pixel = pixel.scaled(c);
-                            }
-                        }
-                        row.push(pixel);
-                    }
-                    let dst = &mut line[(seg_start + ox) as usize..(seg_end + ox) as usize];
-                    if normal {
-                        super::simd::over_layer_row(dst, row.as_slice(), 1.0, true);
-                    } else {
-                        for (d, s) in dst.iter_mut().zip(row.iter()) {
-                            if s.a <= 0.0 {
-                                continue;
-                            }
-                            *d = blend_with_pipeline(pipeline, BlendMode::Normal, *s, *d);
-                        }
-                    }
-                }
-            }
-        };
         let total_rows = (y_end - y_start) as u32;
         let span = (x_end - x_start) as u32;
         let workers = if coverage.is_none() {
@@ -1248,11 +1358,29 @@ impl Target {
         } else {
             1
         };
+        let tint_rows = TintRows {
+            alpha,
+            patch_width: width,
+            x_start,
+            x_end,
+            y_start,
+            ox,
+            oy,
+            skip,
+            tint,
+            normal,
+            pipeline,
+        };
         if workers <= 1 {
             let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
-            tint_rows(band, 0, &mut row, coverage);
+            tint_rows.rows(band, 0, &mut row, coverage, buf_width);
             return;
         }
+        // The parallel arm carries no coverage closure (`&dyn Fn` is not
+        // `Sync`; a shaped clip keeps the serial walk), so each spawned
+        // piece runs the shared row body with `coverage: None`. As
+        // `composite_flat`, this per-draw walk keeps `std::thread::scope`:
+        // the pool measured worse for the many-small kind.
         let chunk = total_rows.div_ceil(workers as u32) as usize;
         std::thread::scope(|scope| {
             let mut pieces = band.chunks_mut(chunk * buf_width).enumerate();
@@ -1261,12 +1389,12 @@ impl Target {
                 let tint_rows = &tint_rows;
                 scope.spawn(move || {
                     let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
-                    tint_rows(piece, (n * chunk) as i32, &mut row, None);
+                    tint_rows.rows(piece, (n * chunk) as i32, &mut row, None, buf_width);
                 });
             }
             if let Some((_, piece)) = first {
                 let mut row: Vec<Premul> = Vec::with_capacity((x_end - x_start) as usize);
-                tint_rows(piece, 0, &mut row, coverage);
+                tint_rows.rows(piece, 0, &mut row, coverage, buf_width);
             }
         });
     }
@@ -1352,26 +1480,24 @@ impl Target {
         };
         // Rows in parallel past the rasterizer's size gate, as in
         // `composite_flat`: each pixel's result is its own source and
-        // destination, so the split cannot change a byte (FW-07).
+        // destination, so the split cannot change a byte (FW-07). On the
+        // raster pool since C-2, with both bands pre-split into disjoint
+        // per-chunk blocks.
         let workers =
             super::geometry::fill::composite_workers((x_end - x_start) as u32, rows as u32);
         if workers <= 1 {
             take_rows(dst_band, src_band);
         } else {
-            let chunk = rows.div_ceil(workers);
-            std::thread::scope(|scope| {
-                let mut pairs = dst_band
-                    .chunks_mut(chunk * sw)
-                    .zip(src_band.chunks_mut(chunk * ow));
-                let first = pairs.next();
-                for (d, s) in pairs {
-                    let take_rows = &take_rows;
-                    scope.spawn(move || take_rows(d, s));
-                }
-                if let Some((d, s)) = first {
-                    take_rows(d, s);
-                }
-            });
+            run_bands(
+                dst_band,
+                Some(src_band),
+                rows,
+                sw,
+                ow,
+                workers,
+                (alpha, opaque_copy, sx0, sx1, dx0, dx1),
+                take_band_chunk,
+            );
         }
         other.ink = None;
     }
@@ -1509,7 +1635,9 @@ impl Target {
         };
         // Rows in parallel past the rasterizer's size gate, as in
         // `composite_layer_and_clear`: each pixel's result is its own source
-        // and destination, so the split cannot change a byte.
+        // and destination, so the split cannot change a byte. On the raster
+        // pool since C-2; the chunk's base row keeps the coverage rows
+        // absolute — the bug the receipt test pins.
         let workers =
             super::geometry::fill::composite_workers((x_end - x_start) as u32, rows as u32);
         let src_band = &mut other.pixels[y_start as usize * ow..y_end as usize * ow];
@@ -1517,22 +1645,26 @@ impl Target {
         if workers <= 1 {
             take_rows(y_start, dst_band, src_band);
         } else {
-            let chunk = rows.div_ceil(workers);
-            std::thread::scope(|scope| {
-                let mut pairs = dst_band
-                    .chunks_mut(chunk * sw)
-                    .zip(src_band.chunks_mut(chunk * ow))
-                    .enumerate();
-                let first = pairs.next();
-                for (band, (d, s)) in pairs {
-                    let take_rows = &take_rows;
-                    let base = y_start + (band * chunk) as i32;
-                    scope.spawn(move || take_rows(base, d, s));
-                }
-                if let Some((_, (d, s))) = first {
-                    take_rows(y_start, d, s);
-                }
-            });
+            run_bands(
+                dst_band,
+                Some(src_band),
+                rows,
+                sw,
+                ow,
+                workers,
+                (
+                    alpha,
+                    opaque_copy,
+                    sx0,
+                    sx1,
+                    dx0,
+                    dx1,
+                    y_start,
+                    clip,
+                    clip_origin,
+                ),
+                clipped_take_band_chunk,
+            );
         }
         other.ink = None;
     }
@@ -1630,18 +1762,22 @@ impl Target {
             write_straight_u8(&self.pixels, out);
             return;
         }
-        let rows = (self.height as usize).div_ceil(workers);
-        let chunk = (rows * self.width as usize).next_multiple_of(4);
-        std::thread::scope(|scope| {
-            let mut bands = self.pixels.chunks(chunk).zip(out.chunks_mut(chunk * 4));
-            let first = bands.next();
-            for (pixels, bytes) in bands {
-                scope.spawn(move || write_straight_u8(pixels, bytes));
-            }
-            if let Some((pixels, bytes)) = first {
-                write_straight_u8(pixels, bytes);
-            }
-        });
+        // Row bands on the raster pool since C-2. The conversion is per
+        // pixel, so a row split lands the same bytes the flat-element split
+        // did — `write_straight_u8`'s SIMD and scalar halves are bit-equal,
+        // which is what the row band boundaries now select between.
+        let rows = self.height as usize;
+        let width = self.width as usize;
+        run_bands(
+            out,
+            None,
+            rows,
+            width * 4,
+            0,
+            workers,
+            self.pixels.as_slice(),
+            rgba8_band_chunk,
+        );
     }
 
     /// Resize if needed and refill with `color`, reusing this buffer's
@@ -1721,17 +1857,16 @@ impl Target {
         if workers <= 1 {
             clear_rows(band);
         } else {
-            let chunk = rows.div_ceil(workers);
-            std::thread::scope(|scope| {
-                let mut pieces = band.chunks_mut(chunk * width);
-                let first = pieces.next();
-                for piece in pieces {
-                    scope.spawn(move || clear_rows(piece));
-                }
-                if let Some(piece) = first {
-                    clear_rows(piece);
-                }
-            });
+            run_bands(
+                band,
+                None,
+                rows,
+                width,
+                0,
+                workers,
+                (x0 as usize, span, color),
+                clear_band_chunk,
+            );
         }
         self.mark_ink(x0, y0, x1, y1);
     }
@@ -1759,41 +1894,143 @@ impl Target {
         let width = self.width as usize;
         let span = (x1 - x0) as usize;
         let rows = (y1 - y0) as usize;
-        let pixels = &self.pixels[y0 as usize * width..][..rows * width];
-        let bytes = &mut out[y0 as usize * width * 4..][..rows * width * 4];
-        let write_rows = |pixels: &[Premul], bytes: &mut [u8]| {
-            for (line, out_line) in pixels
-                .chunks_exact(width)
-                .zip(bytes.chunks_exact_mut(width * 4))
-            {
-                write_straight_u8(
-                    &line[x0 as usize..x0 as usize + span],
-                    &mut out_line[x0 as usize * 4..x0 as usize * 4 + span * 4],
-                );
-            }
-        };
-        // Rows in parallel on the rasterizer's own gate: each row converts
-        // independently, so the bytes are identical at any worker count —
-        // and a damaged frame's conversion is otherwise a serial millisecond
-        // per region on a phone.
+        // Rows in parallel on the rasterizer's own gate, on the raster pool
+        // since C-2: each row converts independently, so the bytes are
+        // identical at any worker count — and a damaged frame's conversion is
+        // otherwise a serial millisecond per region on a phone. The pixels
+        // ride the walk's context (shared read-only); only the byte rows are
+        // split.
         let workers = super::geometry::fill::composite_workers(span as u32, rows as u32);
+        let ctx = RegionRows {
+            pixels: &self.pixels[y0 as usize * width..][..rows * width],
+            width,
+            x0: x0 as usize,
+            span,
+        };
+        let bytes = &mut out[y0 as usize * width * 4..][..rows * width * 4];
         if workers <= 1 {
-            write_rows(pixels, bytes);
+            ctx.write_rows(bytes, 0, width * 4);
         } else {
-            let chunk = rows.div_ceil(workers);
-            std::thread::scope(|scope| {
-                let mut pixel_pieces = pixels.chunks(chunk * width);
-                let mut byte_pieces = bytes.chunks_mut(chunk * width * 4);
-                let first = pixel_pieces.next().zip(byte_pieces.next());
-                for (p, b) in pixel_pieces.zip(byte_pieces) {
-                    scope.spawn(move || write_rows(p, b));
-                }
-                if let Some((p, b)) = first {
-                    write_rows(p, b);
-                }
-            });
+            run_bands(
+                bytes,
+                None,
+                rows,
+                width * 4,
+                0,
+                workers,
+                &ctx,
+                rgba8_region_band_chunk,
+            );
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Row-parallel walks on the raster pool.
+//
+// The compositing methods below split their rows past the rasterizer's size
+// gate and hand the bands to workers. They used to do it with
+// `std::thread::scope` — a thread create and join per worker, per call — and
+// a frame has hundreds of calls above that gate: every fill, every layer
+// pop, every present's conversion. The fill walk's pool
+// (`native/raster_pool.rs`) removed exactly that cost for the scanline walk;
+// these are the same shape of work on the other half of the frame.
+//
+// The pool shares one job across its workers, so a job carries its bands as
+// raw pointers into blocks that `split_at_mut` proved disjoint — the pattern
+// `geometry/fill.rs`'s `RowJob` established — plus the walk's read-only
+// context and a plain-fn body. The pool's per-call contract (every chunk of
+// *this* batch runs exactly once before the call returns) is what makes
+// pointing workers at the caller's bands sound.
+
+/// One chunk of a row-parallel walk: its disjoint block of the primary band,
+/// the same rows of the optional second band, and the chunk's band-relative
+/// row base — the `n * chunk_rows` the `std::thread::scope` splits used to
+/// pass their closures.
+struct BandChunk<A> {
+    a: (*mut A, usize),
+    b: (*mut A, usize),
+    base: usize,
+}
+
+/// A row-parallel walk, pre-split for the pool.
+struct BandWalk<'a, A, C> {
+    chunks: Vec<BandChunk<A>>,
+    /// One row of the primary band, in elements.
+    a_row: usize,
+    /// One row of the second band; `0` when there is none.
+    b_row: usize,
+    /// The walk's read-only per-chunk context.
+    context: C,
+    /// Runs one chunk: the walk and the chunk's index.
+    body: fn(&BandWalk<'a, A, C>, usize),
+    lifetime: std::marker::PhantomData<&'a ()>,
+}
+
+// SAFETY: the raw band pointers are the disjoint halves of `split_at_mut`
+// splits made by `run_bands`, and each chunk's body touches only its own
+// block — the disjointness the borrow checker would have checked, carried by
+// the splits instead. The context is `Sync` and only read. The pool's
+// contract returns before the caller's bands end, so no pointer outlives its
+// borrow; writes go through `A: Send` values.
+unsafe impl<A: Send, C: Sync> Sync for BandWalk<'_, A, C> {}
+
+/// The pool's per-chunk trampoline: a plain fn, as `run_chunks` requires.
+fn band_walk_chunk<A: Send, C: Sync>(walk: &BandWalk<'_, A, C>, chunk: usize) {
+    (walk.body)(walk, chunk);
+}
+
+/// Split `a` (and the same-rows `b`, when the walk takes one) into `workers`
+/// row bands and run `body` over them on the raster pool — the
+/// `std::thread::scope` these walks grew up with, minus the spawn per call.
+///
+/// `rows` is the band's row count; `a_row`/`b_row` are its row strides. The
+/// chunk bodies see exactly the bands and bases the scope versions passed
+/// their closures — the last band may be short, as `chunks_mut`'s last piece
+/// always was — so the bytes are the scope version's bytes at any worker
+/// count.
+#[allow(clippy::too_many_arguments)]
+fn run_bands<A: Send, C: Sync>(
+    a: &mut [A],
+    b: Option<&mut [A]>,
+    rows: usize,
+    a_row: usize,
+    b_row: usize,
+    workers: usize,
+    context: C,
+    body: fn(&BandWalk<'_, A, C>, usize),
+) {
+    debug_assert!(workers >= 1, "the caller decides serial versus parallel");
+    let chunk_rows = rows.div_ceil(workers);
+    let mut chunks = Vec::with_capacity(workers);
+    let mut a_rest = a;
+    let mut b_rest = b;
+    for n in 0..workers {
+        let (block, rest) = a_rest.split_at_mut((chunk_rows * a_row).min(a_rest.len()));
+        a_rest = rest;
+        let b_block = match b_rest.take() {
+            Some(rest) => {
+                let (block, tail) = rest.split_at_mut((chunk_rows * b_row).min(rest.len()));
+                b_rest = Some(tail);
+                (block.as_mut_ptr(), block.len())
+            }
+            None => (std::ptr::NonNull::dangling().as_ptr(), 0),
+        };
+        chunks.push(BandChunk {
+            a: (block.as_mut_ptr(), block.len()),
+            b: b_block,
+            base: n * chunk_rows,
+        });
+    }
+    let walk = BandWalk {
+        chunks,
+        a_row,
+        b_row,
+        context,
+        body,
+        lifetime: std::marker::PhantomData,
+    };
+    super::raster_pool::run_chunks(&walk, workers, workers, band_walk_chunk);
 }
 
 #[cfg(test)]
