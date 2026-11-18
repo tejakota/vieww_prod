@@ -2641,9 +2641,17 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // when the prefix finished — with `window created` beside it, the
         // startup line shows the overlap rather than hiding it in the open.
         if let Some(prewarm) = prewarm {
-            let (prewarmed, instance) = prewarm.join();
-            if let Some(instance) = instance {
-                crate::native::offer_prewarmed_instance(instance);
+            let (prewarmed, device, instance) = prewarm.join();
+            match (device, instance) {
+                (Some(device), _) => {
+                    crate::native::offer_prewarmed(crate::native::PrewarmedVulkan::Device(device))
+                }
+                (None, Some(instance)) => {
+                    crate::native::offer_prewarmed(crate::native::PrewarmedVulkan::Instance(
+                        instance,
+                    ))
+                }
+                (None, None) => {}
             }
             crate::startup::mark("vulkan prewarmed");
             trace_line(
@@ -2654,7 +2662,7 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         let opened = NativeRenderer::for_window_on(&window, width, height, path);
         // A CPU present wanted no device: the prewarmed instance, if any, is
         // destroyed here rather than held for the life of the process.
-        crate::native::discard_prewarmed_instance();
+        crate::native::discard_prewarmed();
         // A device whose GPU cannot be opened has answered the question: under
         // `auto_rasterizer` that is the CPU path, kept, rather than an app that
         // will not start.

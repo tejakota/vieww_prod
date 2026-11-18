@@ -310,6 +310,60 @@ impl VulkanDevice {
 
     /// The last step of every constructor: the parts, plus the pipeline cache
     /// (seeded from [`set_pipeline_cache_file`]'s file when it fits).
+    /// A device opened from `instance` **without a window** — the prewarm's
+    /// device half (FW-05's follow-up): the adapter enumeration and
+    /// `vkCreateDevice` that PENDING §3.5 measured at 215 ms of a Windows
+    /// start-up run *beside* the window's creation, so only the surface, the
+    /// present check and the swapchain remain after it.
+    ///
+    /// The instance must carry the surface extensions for the display the
+    /// window will belong to — the device's own `swapchain_for_window`
+    /// creates the surface from this instance. The adapter is picked for a
+    /// graphics queue with no present constraint (the surface does not exist
+    /// yet); on the desktop combinations anyone ships that is the same
+    /// adapter `for_window` would have picked, and when it is not,
+    /// `swapchain_for_window` says so and the caller falls back to the serial
+    /// path.
+    ///
+    /// This is the "headless device" the prewarm's own doc once declined to
+    /// make, and the reason it declined — a `Drop`-time pipeline cache write
+    /// racing the real device's — is answered by handing this device over as
+    /// *the* device rather than dropping it: see
+    /// [`forget_pipeline_cache_file`](Self::forget_pipeline_cache_file) for
+    /// the fallback that does have to drop one.
+    #[must_use = "a device holds driver state; dropping it runs teardown"]
+    pub fn from_instance_headless(
+        mut instance: VulkanInstance,
+    ) -> Result<Self, VulkanError> {
+        let (physical_device, queue_family) = {
+            let (_entry, raw) = instance.parts();
+            Self::pick_physical_device(raw, |pd| Self::find_graphics_family(raw, pd))
+                .ok_or(VulkanError::NoAdapter)?
+        };
+        let (_entry, raw) = instance.parts();
+        let info = Self::adapter_info(raw, physical_device);
+        let swapchain_ext = [ash::khr::swapchain::NAME.as_ptr()];
+        let (device, queue) =
+            Self::create_device(raw, physical_device, queue_family, &swapchain_ext)?;
+        let (entry, raw) = instance.take();
+        Ok(Self::assemble(
+            entry,
+            raw,
+            physical_device,
+            (device, queue, queue_family),
+            info,
+        ))
+    }
+
+    /// Take this device out of the pipeline-cache *write* its `Drop` would
+    /// perform — for a prewarmed device being dropped because the window it
+    /// was warmed for cannot present through it, while the replacement device
+    /// is about to write the same file. The cache it *read* at creation is
+    /// unchanged; only the write is renounced.
+    pub fn forget_pipeline_cache_file(&mut self) {
+        self.pipeline_cache_file = None;
+    }
+
     pub(crate) fn assemble(
         entry: ash::Entry,
         instance: ash::Instance,

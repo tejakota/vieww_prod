@@ -719,13 +719,50 @@ thread_local! {
     /// waiting for the first device to be opened from it. Taken by
     /// [`shared_device_for`]; whatever is left after the window opened (a CPU
     /// present wanted no device) is dropped by [`discard_prewarmed_instance`].
-    static PREWARMED: RefCell<Option<vieww_hal::vulkan::VulkanInstance>> =
-        const { RefCell::new(None) };
+    static PREWARMED: RefCell<Option<PrewarmedVulkan>> = const { RefCell::new(None) };
 }
 
-/// Give the next device open an instance made ahead of time.
-pub(crate) fn offer_prewarmed_instance(instance: vieww_hal::vulkan::VulkanInstance) {
-    PREWARMED.with(|cell| *cell.borrow_mut() = Some(instance));
+/// What a [`Prewarm`] made beside the window's creation: the `VkInstance`
+/// (FW-05), or — since the device half landed — the whole `VulkanDevice`,
+/// adapter picked and queues made, leaving only the surface, the present
+/// check and the swapchain after the window exists.
+pub(crate) enum PrewarmedVulkan {
+    Instance(vieww_hal::vulkan::VulkanInstance),
+    Device(vieww_hal::vulkan::VulkanDevice),
+}
+
+/// A device made on the prewarm thread, carried to the window's thread.
+///
+/// # Safety of the crossing
+///
+/// Nothing touches the device between its creation on the prewarm thread and
+/// its hand-over here: no Vulkan call, no borrow, only the move through the
+/// join. The handles it holds are integers naming driver objects, and the
+/// Vulkan spec's external-synchronisation rules govern concurrent *use* —
+/// a transfer of ownership between threads with no interleaved use is not
+/// that. The caches inside the device are already thread-safe.
+struct DeviceCrossing(vieww_hal::vulkan::VulkanDevice);
+unsafe impl Send for DeviceCrossing {}
+
+/// Give the next device open what a prewarm made ahead of time.
+pub(crate) fn offer_prewarmed(half: PrewarmedVulkan) {
+    PREWARMED.with(|cell| *cell.borrow_mut() = Some(half));
+}
+
+/// Drop an offered half nothing used — on the thread that opens windows,
+/// where a Vulkan teardown belongs. A device half also renounces its
+/// pipeline-cache write first: nothing replaced it, so the file it read is
+/// simply left as it was.
+pub(crate) fn discard_prewarmed() {
+    let mut unused = PREWARMED.with(|cell| cell.borrow_mut().take());
+    if let Some(PrewarmedVulkan::Device(device)) = unused.as_mut() {
+        // A device nothing used: renounce its pipeline-cache write — nothing
+        // replaced it, so the file it read is simply left as it was — and
+        // drop it here, on the thread that opens windows, where a Vulkan
+        // teardown belongs.
+        device.forget_pipeline_cache_file();
+    }
+    drop(unused);
 }
 
 /// Drop an offered instance nothing used — on the thread that opens windows,
@@ -742,7 +779,25 @@ fn open_device(
     height: u32,
 ) -> Result<(VulkanDevice, VulkanSwapchain), VulkanError> {
     match PREWARMED.with(|cell| cell.borrow_mut().take()) {
-        Some(instance) => VulkanDevice::for_window_with(instance, window, width, height),
+        Some(PrewarmedVulkan::Device(mut device)) => {
+            match device.swapchain_for_window(window, width, height) {
+                Ok(swapchain) => Ok((device, swapchain)),
+                Err(error) => {
+                    // The window cannot present through the adapter the
+                    // prewarm picked (or the surface would not build). The
+                    // serial path opens a device of its own — but this one's
+                    // `Drop` would write the pipeline cache the replacement
+                    // is about to write, so it renounces its write first.
+                    device.forget_pipeline_cache_file();
+                    drop(device);
+                    let _ = error;
+                    VulkanDevice::for_window(window, width, height)
+                }
+            }
+        }
+        Some(PrewarmedVulkan::Instance(instance)) => {
+            VulkanDevice::for_window_with(instance, window, width, height)
+        }
         None => VulkanDevice::for_window(window, width, height),
     }
 }
@@ -2745,7 +2800,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("pipelines.bin");
         std::fs::write(&file, [7u8; 4096]).unwrap();
-        let (what, _) = run(Some(&file), None);
+        let (what, _, _) = run(Some(&file), None);
         std::fs::remove_dir_all(&dir).ok();
         // On iOS the loader clause says why it stayed on the main thread;
         // elsewhere it either resolved or said why not — never neither.
@@ -2758,7 +2813,7 @@ mod tests {
     fn a_first_launch_reads_a_cache_that_is_not_there_yet() {
         let missing = std::env::temp_dir().join("vieww-prewarm-test-missing.bin");
         std::fs::remove_file(&missing).ok();
-        let (what, _) = run(Some(&missing), None);
+        let (what, _, _) = run(Some(&missing), None);
         assert_eq!(what.cache, Some((0, what.cache.unwrap().1)));
         let line = what.line();
         // The honest reading: zero bytes, not an error — a first launch.
@@ -2767,7 +2822,7 @@ mod tests {
 
     #[test]
     fn a_prewarm_without_a_cache_file_only_resolves_the_loader() {
-        let (what, _) = run(None, None);
+        let (what, _, _) = run(None, None);
         assert!(what.cache.is_none());
         assert!(!what.line().contains("pipeline cache"), "{:?}", what.line());
     }
@@ -2778,11 +2833,11 @@ mod tests {
         // still answers — start-up proceeds rather than failing on the thing
         // that was meant to speed it up.
         let what = Prewarm {
-            done: Arc::new(Mutex::new((Prewarmed::default(), None))),
+            done: Arc::new(Mutex::new((Prewarmed::default(), None, None))),
             thread: None,
         }
         .join();
-        assert!(what.1.is_none());
+        assert!(what.1.is_none() && what.2.is_none());
         let what = what.0;
         assert_eq!(what, Prewarmed::default());
         assert_eq!(what.line(), "prewarm not run");
@@ -2797,7 +2852,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("pipelines.bin");
         std::fs::write(&file, [1u8; 2048]).unwrap();
-        let (what, _) = Prewarm::start(Some(file.clone()), None).join();
+        let (what, _, _) = Prewarm::start(Some(file.clone()), None).join();
         std::fs::remove_dir_all(&dir).ok();
         let line = what.line();
         assert!(
@@ -2815,18 +2870,32 @@ mod tests {
     #[cfg(not(target_os = "ios"))]
     #[test]
     fn a_prewarm_given_extensions_makes_the_instance_and_hands_it_over() {
-        let (what, instance) = Prewarm::start(None, Some(Vec::new())).join();
+        let (what, device, instance) = Prewarm::start(None, Some(Vec::new())).join();
         let line = what.line();
-        match (&what.loader, instance) {
-            (Some(_), Some(instance)) => {
+        // The device half: given a loader, the prewarm either made a whole
+        // device (adapter picked, queues made — the line names it) or it
+        // failed, and the instance survives for the serial path to use.
+        match (&what.loader, device, instance) {
+            (Some(_), Some(device), instance) => {
+                assert!(line.contains("prewarmed device in"), "{line:?}");
+                // The device owns the instance it was made from; an instance
+                // half cannot also have survived.
+                assert!(instance.is_none(), "the device consumed the instance");
+                // Unused, its cache write renounced and it is destroyed
+                // here, on the joining thread.
+                drop(device);
+            }
+            (Some(_), None, Some(instance)) => {
                 assert!(line.contains("vulkan instance ("), "{line:?}");
                 assert_eq!(what.instance.map(|(n, _)| n), Some(instance.adapters()));
                 // Unused, it is destroyed here, on the joining thread.
                 drop(instance);
             }
-            (Some(_), None) => assert!(line.contains("no prewarmed instance ("), "{line:?}"),
-            (None, made) => {
-                assert!(made.is_none(), "no loader, no instance");
+            (Some(_), None, None) => {
+                assert!(line.contains("no prewarmed instance ("), "{line:?}");
+            }
+            (None, made, _) => {
+                assert!(made.is_none(), "no loader, no device");
                 assert!(!line.contains("vulkan instance"), "{line:?}");
             }
         }
@@ -2866,6 +2935,11 @@ pub(crate) struct Prewarmed {
     instance: Option<(usize, Duration)>,
     /// Why the instance was not made, when it was asked for and failed.
     instance_error: Option<String>,
+    /// How long the device half (adapter pick + `vkCreateDevice`) took,
+    /// when it was attempted and succeeded.
+    device: Option<Duration>,
+    /// Why the device half did not run or failed, when it did not.
+    device_error: Option<String>,
 }
 
 impl Prewarmed {
@@ -2899,6 +2973,14 @@ impl Prewarmed {
                 human_bytes(bytes),
                 took.as_secs_f64() * 1000.0
             ));
+        }
+        match (self.device, &self.device_error) {
+            (Some(took), _) => parts.push(format!(
+                "prewarmed device in {:.1} ms",
+                took.as_secs_f64() * 1000.0
+            )),
+            (None, Some(why)) => parts.push(format!("no prewarmed device ({why})")),
+            (None, None) => {}
         }
         parts.join("; ")
     }
@@ -2954,7 +3036,7 @@ fn human_bytes(bytes: usize) -> String {
 /// a data race. There the prewarm reports itself as not run and the bring-up
 /// stays serial, which on a phone-sized start-up is the smaller loss.
 pub(crate) struct Prewarm {
-    done: Arc<Mutex<(Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>)>>,
+    done: Arc<Mutex<(Prewarmed, Option<DeviceCrossing>, Option<vieww_hal::vulkan::VulkanInstance>)>>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 
@@ -2972,15 +3054,17 @@ impl Prewarm {
         cache_file: Option<PathBuf>,
         extensions: Option<Vec<&'static std::ffi::CStr>>,
     ) -> Self {
-        let done = Arc::new(Mutex::new((Prewarmed::default(), None)));
+        let done = Arc::new(Mutex::new((Prewarmed::default(), None, None)));
         let thread = {
             let done = Arc::clone(&done);
             std::thread::Builder::new()
                 .name("vieww-vulkan-prewarm".to_owned())
                 .spawn(move || {
-                    let what = run(cache_file.as_deref(), extensions.as_deref());
+                    let (what, device, instance) =
+                        run(cache_file.as_deref(), extensions.as_deref());
+                    let device = device.map(DeviceCrossing);
                     if let Ok(mut slot) = done.lock() {
-                        *slot = what;
+                        *slot = (what, device, instance);
                     }
                 })
                 .ok()
@@ -2992,15 +3076,21 @@ impl Prewarm {
     /// could not even spawn (a process out of threads) reports that the
     /// prewarm did not run rather than failing the start-up it was meant to
     /// speed up.
-    pub(crate) fn join(mut self) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
+    pub(crate) fn join(
+        mut self,
+    ) -> (
+        Prewarmed,
+        Option<vieww_hal::vulkan::VulkanDevice>,
+        Option<vieww_hal::vulkan::VulkanInstance>,
+    ) {
         if let Some(thread) = self.thread.take() {
             let _ = thread.join();
             self.done
                 .lock()
-                .map(|mut slot| (slot.0.clone(), slot.1.take()))
-                .unwrap_or_default()
+                .map(|mut slot| (slot.0.clone(), slot.1.take().map(|c| c.0), slot.2.take()))
+                .unwrap_or_else(|_| (Prewarmed::default(), None, None))
         } else {
-            (Prewarmed::default(), None)
+            (Prewarmed::default(), None, None)
         }
     }
 }
@@ -3010,12 +3100,12 @@ impl Prewarm {
 fn run(
     cache_file: Option<&Path>,
     extensions: Option<&[&'static std::ffi::CStr]>,
-) -> (Prewarmed, Option<vieww_hal::vulkan::VulkanInstance>) {
+) -> (
+    Prewarmed,
+    Option<vieww_hal::vulkan::VulkanDevice>,
+    Option<vieww_hal::vulkan::VulkanInstance>,
+) {
     let mut what = Prewarmed::default();
-    // Assigned below everywhere but iOS, which keeps the loader on the
-    // main thread.
-    #[cfg_attr(target_os = "ios", allow(unused_mut))]
-    let mut made = None;
 
     // Not on iOS: `load_entry` sets an environment variable on the simulator
     // (see the struct docs), and a second thread doing that while the main
@@ -3050,17 +3140,47 @@ fn run(
     // already been resolved, so its own `load_entry` is a cheap re-open.
     // Not on iOS, for the loader's reason above.
     #[cfg(not(target_os = "ios"))]
+    let mut made_instance = None;
+    #[cfg(not(target_os = "ios"))]
     if let (Some(extensions), true) = (extensions, what.loader.is_some()) {
         let started = Instant::now();
         match vieww_hal::vulkan::VulkanInstance::for_surfaces(extensions) {
             Ok(instance) => {
                 what.instance = Some((instance.adapters(), started.elapsed()));
-                made = Some(instance);
+                made_instance = Some(instance);
             }
             Err(error) => what.instance_error = Some(error.to_string()),
         }
     }
     #[cfg(target_os = "ios")]
     let _ = extensions;
-    (what, made)
+
+    // **The device half** (PENDING §3.5's "create the device in parallel
+    // with the window"): with the instance in hand, the adapter pick and
+    // `vkCreateDevice` need nothing the window has. Making them here moves
+    // the 215 ms "device ready" slice of a Windows start-up off the serial
+    // path; what stays after the window is the surface, the present check
+    // and the swapchain. A device that cannot be made leaves the instance —
+    // the serial path still starts from it, exactly as before this existed.
+    #[cfg(not(target_os = "ios"))]
+    let mut made_device = None;
+    #[cfg(not(target_os = "ios"))]
+    if let Some(instance) = made_instance.take() {
+        let started = Instant::now();
+        match vieww_hal::vulkan::VulkanDevice::from_instance_headless(instance) {
+            Ok(device) => {
+                what.device = Some(started.elapsed());
+                made_device = Some(device);
+            }
+            Err(error) => {
+                what.device_error = Some(error.to_string());
+                // The instance is gone — `from_instance_headless` consumed
+                // it — so the serial path re-makes it; the report says why.
+                what.instance = None;
+            }
+        }
+    }
+    #[cfg(target_os = "ios")]
+    let made_device = None;
+    (what, made_device, made_instance)
 }

@@ -255,7 +255,7 @@ impl VulkanInstance {
         self.adapters
     }
 
-    fn parts(&mut self) -> (&ash::Entry, &ash::Instance) {
+    pub(crate) fn parts(&mut self) -> (&ash::Entry, &ash::Instance) {
         (
             self.entry.as_ref().expect("a live instance"),
             self.instance.as_ref().expect("a live instance"),
@@ -263,7 +263,7 @@ impl VulkanInstance {
     }
 
     /// Hand the instance over to a device, which destroys it from then on.
-    fn take(mut self) -> (ash::Entry, ash::Instance) {
+    pub(crate) fn take(mut self) -> (ash::Entry, ash::Instance) {
         (
             self.entry.take().expect("a live instance"),
             self.instance.take().expect("a live instance"),
