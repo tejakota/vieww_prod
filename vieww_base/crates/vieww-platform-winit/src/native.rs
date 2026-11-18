@@ -726,6 +726,7 @@ thread_local! {
 /// (FW-05), or — since the device half landed — the whole `VulkanDevice`,
 /// adapter picked and queues made, leaving only the surface, the present
 /// check and the swapchain after the window exists.
+#[allow(clippy::large_enum_variant, reason = "the enum lives in one process-wide cell and is taken on first use")]
 pub(crate) enum PrewarmedVulkan {
     Instance(vieww_hal::vulkan::VulkanInstance),
     Device(vieww_hal::vulkan::VulkanDevice),
@@ -762,13 +763,6 @@ pub(crate) fn discard_prewarmed() {
         // teardown belongs.
         device.forget_pipeline_cache_file();
     }
-    drop(unused);
-}
-
-/// Drop an offered instance nothing used — on the thread that opens windows,
-/// where a Vulkan teardown belongs.
-pub(crate) fn discard_prewarmed_instance() {
-    let unused = PREWARMED.with(|cell| cell.borrow_mut().take());
     drop(unused);
 }
 
@@ -3035,8 +3029,17 @@ fn human_bytes(bytes: usize) -> String {
 /// thread is inside winit would make every `std::env` access on that thread
 /// a data race. There the prewarm reports itself as not run and the bring-up
 /// stays serial, which on a phone-sized start-up is the smaller loss.
+/// What a finished prewarm leaves in its slot: the report, the device half
+/// (crossed from the prewarm thread), and the instance half when no device
+/// was made.
+type PrewarmSlot = (
+    Prewarmed,
+    Option<DeviceCrossing>,
+    Option<vieww_hal::vulkan::VulkanInstance>,
+);
+
 pub(crate) struct Prewarm {
-    done: Arc<Mutex<(Prewarmed, Option<DeviceCrossing>, Option<vieww_hal::vulkan::VulkanInstance>)>>,
+    done: Arc<Mutex<PrewarmSlot>>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 
