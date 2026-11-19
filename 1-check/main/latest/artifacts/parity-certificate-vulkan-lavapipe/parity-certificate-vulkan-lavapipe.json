@@ -1,20 +1,20 @@
 {
   "format": "vieww.parity-certificate/1",
-  "commit": "af1ddaf69f2dff46076765b4d80437128c7f95e5",
-  "generated": "2026-11-19T14:37:41+00:00",
-  "runner": "GitHub Actions 1000003514",
+  "commit": "f7fb7bc816d813c38298b9eb4e3e046a285b9fac",
+  "generated": "2026-11-19T15:05:27+00:00",
+  "runner": "GitHub Actions 1000003529",
   "oracle": "vieww-paint NativeRenderer (CPU)",
   "backends": [
     {
-      "backend": "metal",
+      "backend": "vulkan",
       "adapters": [
-        "macos-15 paravirtual GPU"
+        "lavapipe"
       ],
       "contract": "interior<=2/255,edges-free",
-      "comparisons": 59,
-      "tests": 16,
+      "comparisons": 5,
+      "tests": 5,
       "interior_violations": 0,
-      "worst_delta_anywhere": 1,
+      "worst_delta_anywhere": 161,
       "holds": true,
       "failed_tests": []
     }
