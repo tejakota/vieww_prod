@@ -455,7 +455,6 @@ impl MetalSceneRenderer {
         // Both are shared (not private) buffers: the encoder reads them as
         // bound, and the command buffer retains them past its own life.
         let constants = shared_buffer(&self.device, as_bytes(&plan.constants));
-        #[expect(clippy::cast_possible_truncation, reason = "a table's bytes")]
         let table_bytes = u32::try_from(as_bytes(&plan.constants).len()).unwrap_or(u32::MAX);
         let table_size = shared_buffer(&self.device, as_bytes(&[table_bytes]));
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
