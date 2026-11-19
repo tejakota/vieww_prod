@@ -71,7 +71,7 @@ use crate::mask_atlas::{MaskAtlas, MaskKey, MaskSlot};
 use crate::ramp_atlas::RampAtlas;
 use crate::tessellate::{tessellate_fill, tessellate_stroke, TessellationCache};
 
-/// What a vertex's fragment computes. Carried in [`Vertex::texture_kind`].
+/// What a vertex's fragment computes. Carried in [`DrawConstants::kind`].
 pub mod material {
     /// A flat colour.
     pub const SOLID: f32 = 0.0;
@@ -87,36 +87,40 @@ pub mod material {
     pub const SHAPE_GRADIENT: f32 = 5.0;
 }
 
-/// One vertex.
+/// The half of the old vertex every vertex of one draw item shares.
 ///
-/// `#[repr(C)]` because it is uploaded verbatim and a backend's vertex
-/// attribute descriptions are offsets into exactly this layout. Every field is
-/// `f32` (27 of them, 108 bytes), so there is no padding to get wrong.
+/// `#[repr(C)]` because it is uploaded verbatim: one table per frame, a
+/// storage buffer the scene shader indexes with [`Vertex::draw`]. Six
+/// `vec4`s — 96 bytes, written once per draw item instead of once per
+/// vertex. This is the flat payload the 96-byte vertex carried in every one
+/// of its (at least four) copies; the shader's arithmetic is bit-for-bit what
+/// it was, because every field holds the same f32s the vertex attributes
+/// used to decode to.
 ///
 /// | field          | SOLID | GLYPH                    | IMAGE                        | GRADIENT                         | SHAPE_SOLID / SHAPE_GRADIENT      |
 /// |----------------|-------|--------------------------|------------------------------|----------------------------------|-----------------------------------|
 /// | `color`        | paint | run colour               | unused (white)               | unused (white)                   | paint / unused                    |
 /// | `uv`           | —     | glyph atlas fetch offset | —                            | —                                | `[0]` = shape radius in device px |
+/// | `kind`         | SOLID | GLYPH                    | IMAGE                        | GRADIENT                         | SHAPE_SOLID / SHAPE_GRADIENT      |
 /// | `params`       | —     | —                        | lower mip patch `x, y, w, h` | geometry (see `gradient_params`) | geometry for SHAPE_GRADIENT       |
-/// | `local`        | —     | —                        | unit rect coordinate         | unit paint-bounds coordinate     | unit paint-bounds coordinate      |
 /// | `extra`        | —     | —                        | upper mip patch `x, y, w, h` | `row, dither, kind, 0`           | `row, dither, kind, 0`            |
 /// | `shape`        | —     | —                        | —                            | —                                | device-space rect `l, t, r, b`    |
 /// | `mask`         | `ox, oy, enabled, _` for a shaped clip; `mask[3]` is the mip blend for IMAGE |
+///
+/// `uv` and `kind` share a `vec4` (`uv_kind`: `xy` the uv, `z` the
+/// material, `w` spare) so the table is six aligned `vec4`s and the WGSL
+/// struct mirrors it field for field.
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(C)]
-pub struct Vertex {
-    pub position: [f32; 2],
-    /// Straight-alpha RGBA as one byte per channel. A paint colour *is*
-    /// `k/255` per channel — `straight_rgba` divided exactly that way, and
-    /// every backend decodes UNORM8 back to exactly `k/255` — so four bytes
-    /// carry the same f32s the shader always received. The shader
+pub struct DrawConstants {
+    /// Straight-alpha RGBA, pre-decoded to `k/255` per channel — exactly the
+    /// f32s the packed UNORM8 vertex colour used to decode to on every
+    /// backend, computed the same way on this side of the upload. The shader
     /// premultiplies.
-    pub color: [u8; 4],
-    pub uv: [f32; 2],
-    /// One of [`material`].
-    pub texture_kind: f32,
+    pub color: [f32; 4],
+    /// `xy`: the uv. `z`: the material ([`material`]). `w`: spare.
+    pub uv_kind: [f32; 4],
     pub params: [f32; 4],
-    pub local: [f32; 2],
     pub extra: [f32; 4],
     /// The analytic shape's device-space edges, for the SHAPE materials: a
     /// rounded rectangle's `left, top, right, bottom`, with its radius in
@@ -125,20 +129,48 @@ pub struct Vertex {
     pub mask: [f32; 4],
 }
 
-impl Vertex {
-    const fn solid(position: [f32; 2], color: [u8; 4], mask: [f32; 4]) -> Self {
+impl DrawConstants {
+    /// A SOLID material's entry: a paint colour over a (possibly shaped)
+    /// clip mask.
+    const fn solid(color: [f32; 4], mask: [f32; 4]) -> Self {
         Self {
-            position,
             color,
-            uv: [0.0; 2],
-            texture_kind: material::SOLID,
+            uv_kind: [0.0, 0.0, material::SOLID, 0.0],
             params: [0.0; 4],
-            local: [0.0; 2],
             extra: [0.0; 4],
             shape: [0.0; 4],
             mask,
         }
     }
+}
+
+/// One vertex: what varies corner to corner, plus which [`DrawConstants`]
+/// entry every vertex of its draw item shares.
+///
+/// `#[repr(C)]` because it is uploaded verbatim and a backend's vertex
+/// attribute descriptions are offsets into exactly this layout. Three
+/// fields, 20 bytes, no padding to get wrong.
+///
+/// The old vertex was 96 bytes (27 floats before the packed colour): the
+/// flat half — colour, uv, material, params, extra, shape, mask — rode in
+/// every copy, four per quad and hundreds per tessellated mesh, though a
+/// triangle's three vertices always agreed on it. It moved behind
+/// [`Vertex::draw`]'s index into [`ScenePlan::constants`], which is why the
+/// stride is what it is: the per-vertex upload a card-list frame pays drops
+/// by three quarters against the 108-byte plan figure, and the table it
+/// fetches from is read once per triangle and cached, not once per vertex.
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(C)]
+pub struct Vertex {
+    pub position: [f32; 2],
+    /// The paint-space coordinate the IMAGE, GRADIENT and SHAPE materials
+    /// interpolate across the draw — the inverse transform of `position`,
+    /// normalised to the paint bounds. Zero for the materials that do not
+    /// look at it.
+    pub local: [f32; 2],
+    /// The index of this draw item's [`DrawConstants`] in
+    /// [`ScenePlan::constants`].
+    pub draw: u32,
 }
 
 /// A contiguous run of indices sharing one scissor rectangle.
@@ -404,6 +436,11 @@ pub struct ScenePlan {
     pub vertices: Vec<Vertex>,
     /// Every draw's indices, already offset into [`vertices`](Self::vertices).
     pub indices: Vec<u32>,
+    /// One entry per draw item, addressed by [`Vertex::draw`] — the flat
+    /// half of the frame's geometry, uploaded as one storage buffer. Exactly
+    /// as long as there are draw items: a mesh that emitted nothing leaves
+    /// no entry behind.
+    pub constants: Vec<DrawConstants>,
     /// The draw calls, in paint order. [`Step::Draw`] addresses them.
     pub runs: Vec<DrawRun>,
     /// The frame's program. See the module doc.
@@ -431,6 +468,17 @@ impl ScenePlan {
     #[must_use]
     pub fn triangle_count(&self) -> usize {
         self.indices.len() / 3
+    }
+
+    /// The constants entry a vertex's [`draw`](Vertex::draw) index addresses.
+    ///
+    /// The CPU-side lens onto a draw item's flat payload — what the vertex
+    /// carried inline before the table existed, and what the scene shader
+    /// fetches per draw. Panics on an out-of-range index, which only a
+    /// hand-built (or corrupted) plan can produce.
+    #[must_use]
+    pub fn draw_constants(&self, vertex: &Vertex) -> &DrawConstants {
+        &self.constants[vertex.draw as usize]
     }
 
     /// How many `draw_indexed` calls executing this plan's geometry costs.
@@ -470,15 +518,27 @@ impl Builder {
 
     fn push_mesh(
         &mut self,
-        vertices: impl Iterator<Item = Vertex>,
+        constants: DrawConstants,
+        corners: impl Iterator<Item = ([f32; 2], [f32; 2])>,
         indices: &[u32],
         scissor: Rect,
     ) {
         let base = u32::try_from(self.plan.vertices.len()).unwrap_or(u32::MAX);
         let before = self.plan.vertices.len();
-        self.plan.vertices.extend(vertices);
+        // The mesh's own entry, shared by every vertex below — the index a
+        // vertex's `draw` carries into the frame's constants table.
+        let draw = u32::try_from(self.plan.constants.len()).unwrap_or(u32::MAX);
+        self.plan.constants.push(constants);
+        self.plan
+            .vertices
+            .extend(corners.map(|(position, local)| Vertex {
+                position,
+                local,
+                draw,
+            }));
         if self.plan.vertices.len() == before || indices.is_empty() {
             self.plan.vertices.truncate(before);
+            self.plan.constants.pop();
             return;
         }
         let first_index = u32::try_from(self.plan.indices.len()).unwrap_or(u32::MAX);
@@ -499,8 +559,13 @@ impl Builder {
         }
     }
 
-    fn quad(&mut self, corners: [Vertex; 4], scissor: Rect) {
-        self.push_mesh(corners.into_iter(), &[0, 1, 2, 0, 2, 3], scissor);
+    fn quad(
+        &mut self,
+        constants: DrawConstants,
+        corners: [([f32; 2], [f32; 2]); 4],
+        scissor: Rect,
+    ) {
+        self.push_mesh(constants, corners.into_iter(), &[0, 1, 2, 0, 2, 3], scissor);
     }
 
     fn seal(&mut self) {
@@ -836,12 +901,12 @@ fn plan_with(
                                     patch.x1 as f32,
                                     patch.y1 as f32,
                                 );
-                                let color = straight_rgba(shadow.color);
                                 let mask = [coverage.offset[0], coverage.offset[1], 1.0, 0.0];
                                 out.push_mesh(
+                                    DrawConstants::solid(decoded_rgba(shadow.color), mask),
                                     [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
                                         .into_iter()
-                                        .map(|p| Vertex::solid(p, color, mask)),
+                                        .map(|p| (p, [0.0; 2])),
                                     &[0, 1, 2, 0, 2, 3],
                                     scissor.to_rect(),
                                 );
@@ -891,10 +956,11 @@ fn plan_with(
                         // instruction (Clear erases wherever it is composited,
                         // so a ring of `blend(Clear, transparent, dst)`
                         // erases a ring the CPU never touches).
-                        let analytic = v.texture_kind == material::SHAPE_SOLID
-                            || v.texture_kind == material::SHAPE_GRADIENT;
+                        let c = &out.plan.constants[v.draw as usize];
+                        let analytic = c.uv_kind[2] == material::SHAPE_SOLID
+                            || c.uv_kind[2] == material::SHAPE_GRADIENT;
                         let (px, py) = if analytic {
-                            ([v.shape[0], v.shape[2]], [v.shape[1], v.shape[3]])
+                            ([c.shape[0], c.shape[2]], [c.shape[1], c.shape[3]])
                         } else {
                             (
                                 [v.position[0], v.position[0]],
@@ -1675,9 +1741,9 @@ fn emit_painted(
         return;
     }
     let Some(gradient) = paint.gradient else {
-        let color = straight_rgba(paint.color);
         out.push_mesh(
-            positions.iter().map(|p| Vertex::solid(*p, color, mask)),
+            DrawConstants::solid(decoded_rgba(paint.color), mask),
+            positions.iter().map(|p| (*p, [0.0; 2])),
             indices,
             scissor,
         );
@@ -1705,23 +1771,25 @@ fn emit_painted(
         kind,
         0.0,
     ];
+    let constants = DrawConstants {
+        color: [1.0; 4],
+        uv_kind: [0.0, 0.0, material::GRADIENT, 0.0],
+        params,
+        extra,
+        shape: [0.0; 4],
+        mask,
+    };
     out.push_mesh(
+        constants,
         positions.iter().map(|p| {
             let local = inverse.apply(Offset::new(p[0], p[1]));
-            Vertex {
-                position: *p,
-                color: [255; 4],
-                uv: [0.0; 2],
-                texture_kind: material::GRADIENT,
-                params,
-                local: [
+            (
+                *p,
+                [
                     (local.dx - local_bounds.left) * inv_w,
                     (local.dy - local_bounds.top) * inv_h,
                 ],
-                extra,
-                shape: [0.0; 4],
-                mask,
-            }
+            )
         }),
         indices,
         scissor,
@@ -1877,27 +1945,23 @@ fn emit_shape_painted(
     // a fragment in at all.
     let quad = rect.inflate(1.0);
     let shape = [rect.left, rect.top, rect.right, rect.bottom];
-    let uv = [radius, 0.0];
 
     let Some(gradient) = paint.gradient else {
-        let color = straight_rgba(paint.color);
-        let corner = |x: f32, y: f32| Vertex {
-            position: [x, y],
-            color,
-            uv,
-            texture_kind: material::SHAPE_SOLID,
+        let constants = DrawConstants {
+            color: decoded_rgba(paint.color),
+            uv_kind: [radius, 0.0, material::SHAPE_SOLID, 0.0],
             params: [0.0; 4],
-            local: [0.0; 2],
             extra: [0.0; 4],
             shape,
             mask,
         };
         out.quad(
+            constants,
             [
-                corner(quad.left, quad.top),
-                corner(quad.right, quad.top),
-                corner(quad.right, quad.bottom),
-                corner(quad.left, quad.bottom),
+                ([quad.left, quad.top], [0.0; 2]),
+                ([quad.right, quad.top], [0.0; 2]),
+                ([quad.right, quad.bottom], [0.0; 2]),
+                ([quad.left, quad.bottom], [0.0; 2]),
             ],
             scissor,
         );
@@ -1928,22 +1992,24 @@ fn emit_shape_painted(
     ];
     let corner = |x: f32, y: f32| {
         let local = inverse.apply(Offset::new(x, y));
-        Vertex {
-            position: [x, y],
-            color: [255; 4],
-            uv,
-            texture_kind: material::SHAPE_GRADIENT,
-            params,
-            local: [
+        (
+            [x, y],
+            [
                 (local.dx - local_bounds.left) * inv_w,
                 (local.dy - local_bounds.top) * inv_h,
             ],
-            extra,
-            shape,
-            mask,
-        }
+        )
+    };
+    let constants = DrawConstants {
+        color: [1.0; 4],
+        uv_kind: [radius, 0.0, material::SHAPE_GRADIENT, 0.0],
+        params,
+        extra,
+        shape,
+        mask,
     };
     out.quad(
+        constants,
         [
             corner(quad.left, quad.top),
             corner(quad.right, quad.top),
@@ -2063,24 +2129,21 @@ impl Planner {
             inked.x() as f32 - slot.x as f32,
             inked.y() as f32 - slot.y as f32,
         ];
-        let rgba = straight_rgba(color);
-        let corner = |x: f32, y: f32| Vertex {
-            position: [x, y],
-            color: rgba,
-            uv: fetch,
-            texture_kind: material::GLYPH,
+        let constants = DrawConstants {
+            color: decoded_rgba(color),
+            uv_kind: [fetch[0], fetch[1], material::GLYPH, 0.0],
             params: [0.0; 4],
-            local: [0.0; 2],
             extra: [0.0; 4],
             shape: [0.0; 4],
             mask,
         };
         out.quad(
+            constants,
             [
-                corner(x0, y0),
-                corner(x1, y0),
-                corner(x1, y1),
-                corner(x0, y1),
+                ([x0, y0], [0.0; 2]),
+                ([x1, y0], [0.0; 2]),
+                ([x1, y1], [0.0; 2]),
+                ([x0, y1], [0.0; 2]),
             ],
             scissor,
         );
@@ -2167,19 +2230,18 @@ impl Planner {
                 rect.left + local[0] * rect.width(),
                 rect.top + local[1] * rect.height(),
             ));
-            Vertex {
-                position: [p.dx, p.dy],
-                color: [255; 4],
-                uv: [0.0; 2],
-                texture_kind: material::IMAGE,
-                params,
-                local,
-                extra,
-                shape: [0.0; 4],
-                mask,
-            }
+            ([p.dx, p.dy], local)
+        };
+        let constants = DrawConstants {
+            color: [1.0; 4],
+            uv_kind: [0.0, 0.0, material::IMAGE, 0.0],
+            params,
+            extra,
+            shape: [0.0; 4],
+            mask,
         };
         out.quad(
+            constants,
             [
                 corner([0.0, 0.0]),
                 corner([1.0, 0.0]),
@@ -2194,12 +2256,17 @@ impl Planner {
 /// Curve flattening tolerance, in device pixels. See `tessellate`.
 const TOLERANCE: f32 = 0.25;
 
-/// Straight-alpha RGBA in 0..1.
-/// The paint colour as the vertex carries it: one byte per channel, which
-/// every backend's UNORM8 decode turns back into exactly `k/255` — the f32s
-/// `straight_rgba` used to compute by hand.
-fn straight_rgba(color: Color) -> [u8; 4] {
-    [color.r, color.g, color.b, color.a]
+/// Straight-alpha RGBA in 0..1, as the f32s the shader's arithmetic wants:
+/// `k/255` per channel, decoded here exactly as every backend's UNORM8
+/// vertex attribute used to decode it — the constants table carries the
+/// numbers directly now, and they are the numbers that were computed then.
+fn decoded_rgba(color: Color) -> [f32; 4] {
+    [
+        f32::from(color.r) / 255.0,
+        f32::from(color.g) / 255.0,
+        f32::from(color.b) / 255.0,
+        f32::from(color.a) / 255.0,
+    ]
 }
 
 /// A rectangle as a closed path, with the command's transform applied.
@@ -2355,12 +2422,12 @@ mod tests {
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.texture_kind == material::SHAPE_SOLID));
+            .all(|v| plan.draw_constants(v).uv_kind[2] == material::SHAPE_SOLID));
         // The shape the shader measures against is the rect itself…
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.shape == [10.0, 20.0, 30.0, 40.0]));
+            .all(|v| plan.draw_constants(v).shape == [10.0, 20.0, 30.0, 40.0]));
         // …and the quad carrying it is that rect inflated by the one-pixel
         // ramp, because outside that the SDF's coverage is identically zero
         // and a fragment there would be wasted.
@@ -2371,7 +2438,10 @@ mod tests {
         assert_eq!(ys.iter().cloned().fold(f32::MAX, f32::min), 19.0);
         assert_eq!(ys.iter().cloned().fold(f32::MIN, f32::max), 41.0);
         // A rect has no corners to round.
-        assert!(plan.vertices.iter().all(|v| v.uv[0] == 0.0));
+        assert!(plan
+            .vertices
+            .iter()
+            .all(|v| plan.draw_constants(v).uv_kind[0] == 0.0));
     }
 
     /// A scale is still a shape — the rect and its (zero) radius are in
@@ -2396,7 +2466,7 @@ mod tests {
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.shape == [5.0, 5.0, 25.0, 25.0]));
+            .all(|v| plan.draw_constants(v).shape == [5.0, 5.0, 25.0, 25.0]));
     }
 
     /// The rounded card: the path `Path::rounded_rect` builds is recognised,
@@ -2417,12 +2487,15 @@ mod tests {
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.texture_kind == material::SHAPE_SOLID));
+            .all(|v| plan.draw_constants(v).uv_kind[2] == material::SHAPE_SOLID));
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.shape == [10.0, 10.0, 50.0, 40.0]));
-        assert!(plan.vertices.iter().all(|v| (v.uv[0] - 6.0).abs() < 1e-6));
+            .all(|v| plan.draw_constants(v).shape == [10.0, 10.0, 50.0, 40.0]));
+        assert!(plan
+            .vertices
+            .iter()
+            .all(|v| (plan.draw_constants(v).uv_kind[0] - 6.0).abs() < 1e-6));
     }
 
     /// `path` rebuilt verb-for-verb through the public builders, with the
@@ -2473,7 +2546,7 @@ mod tests {
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.texture_kind == material::SOLID));
+            .all(|v| plan.draw_constants(v).uv_kind[2] == material::SOLID));
     }
 
     /// A rotation is not axis-aligned, so the shape falls back — the
@@ -2499,7 +2572,7 @@ mod tests {
         assert!(plan
             .vertices
             .iter()
-            .all(|v| v.texture_kind == material::SOLID));
+            .all(|v| plan.draw_constants(v).uv_kind[2] == material::SOLID));
     }
 
     // ------------------------------------------------------------- the SDF
@@ -2730,7 +2803,10 @@ mod tests {
         let plan = plan(&scene, 100.0, 100.0);
         assert!(plan.is_complete());
         assert_eq!(plan.target_depth, 1);
-        assert!(plan.vertices.iter().all(|v| v.color[3] == 255));
+        assert!(plan
+            .vertices
+            .iter()
+            .all(|v| plan.draw_constants(v).color[3] == 1.0));
         match plan.steps.as_slice() {
             [Step::PushLayer {
                 rect,
@@ -2944,7 +3020,9 @@ mod tests {
         assert!(plan.is_complete());
         assert!(!plan.vertices.is_empty());
         assert!(
-            plan.vertices.iter().all(|v| v.mask[2] == 0.0),
+            plan.vertices
+                .iter()
+                .all(|v| plan.draw_constants(v).mask[2] == 0.0),
             "tessellated, no mask"
         );
         assert_eq!(planner.mask_atlas().len(), 0);
@@ -2971,7 +3049,10 @@ mod tests {
         let mut planner = Planner::new();
         let full = planner.plan(&scene, 100.0, 100.0);
         assert!(full.is_complete(), "{:?}", full.unsupported);
-        assert!(full.vertices.iter().all(|v| v.mask[2] == 1.0));
+        assert!(full
+            .vertices
+            .iter()
+            .all(|v| full.draw_constants(v).mask[2] == 1.0));
         assert_eq!(planner.mask_atlas().len(), 1);
         // A steady second frame reuses the mask and changes no texels.
         let version = planner.mask_atlas().version();
@@ -3189,10 +3270,11 @@ mod tests {
         let run = &plan.runs[0];
         let scissor = run.scissor.unwrap_or_else(|| Rect::new(0.0, 0.0, fw, fh));
         let vertex = plan.vertices.last().expect("the shadow quad");
-        assert!(vertex.mask[2] > 0.5, "masked: {:?}", vertex.mask);
+        let constants = plan.draw_constants(vertex);
+        assert!(constants.mask[2] > 0.5, "masked: {:?}", constants.mask);
         #[expect(clippy::cast_possible_truncation, reason = "integral offsets")]
-        let (off_x, off_y) = (vertex.mask[0] as i32, vertex.mask[1] as i32);
-        let color = straight_rgba(tint);
+        let (off_x, off_y) = (constants.mask[0] as i32, constants.mask[1] as i32);
+        let color = decoded_rgba(tint);
         let side = planner.mask_atlas().side() as usize;
         let texels = planner.mask_atlas().texels();
         let (sx0, sy0) = (scissor.left.floor() as i32, scissor.top.floor() as i32);
@@ -3212,13 +3294,8 @@ mod tests {
                 if inside {
                     let m = f32::from(texels[((y - off_y) as usize) * side + (x - off_x) as usize])
                         / 255.0;
-                    let a = f32::from(color[3]) / 255.0 * m;
-                    let src = [
-                        f32::from(color[0]) / 255.0 * a,
-                        f32::from(color[1]) / 255.0 * a,
-                        f32::from(color[2]) / 255.0 * a,
-                        a,
-                    ];
+                    let a = color[3] * m;
+                    let src = [color[0] * a, color[1] * a, color[2] * a, a];
                     for c in 0..4 {
                         d[c] = src[c] + d[c] * (1.0 - a);
                     }
@@ -3273,7 +3350,7 @@ mod tests {
             assert!(plan
                 .vertices
                 .iter()
-                .all(|v| v.texture_kind == material::SHAPE_GRADIENT));
+                .all(|v| plan.draw_constants(v).uv_kind[2] == material::SHAPE_GRADIENT));
             // The quad is the rect inflated by one device pixel, so its
             // corners' paint coordinates sit just outside the unit square —
             // clamped in the shader, and covered to zero by the SDF.
@@ -3314,10 +3391,10 @@ mod tests {
             let plan = planner.plan(&scene, 100.0, 100.0);
             assert!(plan.is_complete());
             assert_eq!(plan.vertices.len(), 4, "one quad");
-            assert!(plan
-                .vertices
-                .iter()
-                .all(|v| v.texture_kind == material::GRADIENT && v.mask[2] > 0.5));
+            assert!(plan.vertices.iter().all(|v| {
+                let c = plan.draw_constants(v);
+                c.uv_kind[2] == material::GRADIENT && c.mask[2] > 0.5
+            }));
             assert_eq!(planner.mask_atlas().len(), 1);
             let locals: Vec<[f32; 2]> = plan.vertices.iter().map(|v| v.local).collect();
             assert!(
@@ -3362,15 +3439,16 @@ mod tests {
         let plan = planner.plan(&scene, 100.0, 100.0);
         assert!(plan.is_complete());
         let v = plan.vertices[0];
+        let c = plan.draw_constants(&v);
         assert!(
-            v.params[2] < 64.0,
+            c.params[2] < 64.0,
             "the lower level is a mip, not the base: {:?}",
-            v.params
+            c.params
         );
         assert!(
-            v.mask[3] > 0.0 && v.mask[3] < 1.0,
+            c.mask[3] > 0.0 && c.mask[3] < 1.0,
             "a fractional level blends: {}",
-            v.mask[3]
+            c.mask[3]
         );
     }
 
@@ -3506,7 +3584,7 @@ mod tests {
     }
 
     #[test]
-    fn the_colour_reaching_the_vertices_is_the_straight_paint_colour() {
+    fn the_colour_reaching_the_draws_is_the_straight_paint_colour() {
         let mut scene = Scene::default();
         solid(
             &mut scene,
@@ -3516,26 +3594,40 @@ mod tests {
         );
         let plan = plan(&scene, 100.0, 100.0);
         for vertex in &plan.vertices {
-            // The bytes are the colour's own — and through any backend's
-            // UNORM8 decode they are exactly `k/255`, the f32s this test used
-            // to assert on.
-            assert_eq!(vertex.color, [255, 128, 0, 64]);
+            // The table's entry is the colour decoded to `k/255` per channel —
+            // exactly the f32s the packed UNORM8 vertex colour used to decode
+            // to on every backend, which this test used to assert byte-wise.
+            assert_eq!(
+                plan.draw_constants(vertex).color,
+                [255.0 / 255.0, 128.0 / 255.0, 0.0, 64.0 / 255.0]
+            );
         }
     }
 
     #[test]
-    fn the_vertex_layout_is_ninety_six_bytes() {
-        // 23 floats (position, uv, kind, params, local, extra, shape, mask)
-        // plus the packed 4-byte colour: 96 bytes where there were 27 floats
-        // (108) — an eighth off every vertex upload. The tripwire for a
-        // layout the four backends' attribute tables describe by offset.
-        assert_eq!(std::mem::size_of::<Vertex>(), 23 * 4 + 4);
+    fn the_vertex_layout_is_twenty_bytes() {
+        // Two positions and a draw index: 20 bytes where there were 27 floats
+        // (108), then 23 floats plus a packed colour (96) — the flat payload
+        // lives in the constants table now, one entry per draw item instead
+        // of one copy per vertex. The tripwire for a layout the four
+        // backends' attribute tables describe by offset.
+        assert_eq!(std::mem::size_of::<Vertex>(), 5 * 4);
         assert_eq!(std::mem::align_of::<Vertex>(), 4);
-        // And the colour sits where the tables say: eight bytes in, right
-        // after the position.
+        // And the index sits where the tables say: sixteen bytes in, after
+        // the position and the paint-space coordinate.
         assert_eq!(
-            std::mem::offset_of!(Vertex, color),
-            std::mem::size_of::<[f32; 2]>()
+            std::mem::offset_of!(Vertex, draw),
+            2 * std::mem::size_of::<[f32; 2]>()
         );
+        // The table entry is six aligned vec4s, mirrored field for field by
+        // the WGSL struct — any padding here would desynchronise the shader's
+        // stride from the upload's.
+        assert_eq!(std::mem::size_of::<DrawConstants>(), 6 * 16);
+        assert_eq!(std::mem::align_of::<DrawConstants>(), 4);
+        assert_eq!(std::mem::offset_of!(DrawConstants, uv_kind), 16);
+        assert_eq!(std::mem::offset_of!(DrawConstants, params), 32);
+        assert_eq!(std::mem::offset_of!(DrawConstants, extra), 48);
+        assert_eq!(std::mem::offset_of!(DrawConstants, shape), 64);
+        assert_eq!(std::mem::offset_of!(DrawConstants, mask), 80);
     }
 }

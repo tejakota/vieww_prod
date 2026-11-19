@@ -45,6 +45,26 @@ struct Uniforms {
 @group(0) @binding(3) var t_mask: texture_2d<f32>;
 // RGBA32F premultiplied gradient ramps, 256 texels per row.
 @group(0) @binding(4) var t_ramp: texture_2d<f32>;
+// The frame's per-draw constants: one entry per draw item, addressed by the
+// `draw` index each vertex carries. This is the flat half of the old
+// vertex — colour, uv, material, params, extra, shape, mask — which every
+// vertex of a draw used to carry in its own bytes (96 per vertex) though a
+// triangle's three always agreed on it. `vieww_gpu::DrawConstants` mirrors
+// the struct field for field; the values are the same f32s the vertex
+// attributes used to decode to, so the fragment arithmetic is unchanged.
+//
+// `vieww_gpu::DrawConstants`, field for field: six aligned vec4s.
+struct DrawConstants {
+    color: vec4<f32>,
+    // xy the uv, z the material, w spare.
+    uv_kind: vec4<f32>,
+    params: vec4<f32>,
+    extra: vec4<f32>,
+    shape: vec4<f32>,
+    mask: vec4<f32>,
+};
+
+@group(0) @binding(5) var<storage, read> constants: array<DrawConstants>;
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
@@ -61,26 +81,21 @@ struct VertexOutput {
 @vertex
 fn vs_main(
     @location(0) position: vec2<f32>,
-    @location(1) color: vec4<f32>,
-    @location(2) uv: vec2<f32>,
-    @location(3) kind: f32,
-    @location(4) params: vec4<f32>,
-    @location(5) local: vec2<f32>,
-    @location(6) extra: vec4<f32>,
-    @location(7) mask: vec4<f32>,
-    @location(8) shape: vec4<f32>,
+    @location(1) local: vec2<f32>,
+    @location(2) draw: u32,
 ) -> VertexOutput {
+    let c = constants[draw];
     var out: VertexOutput;
     let normalized = position / u.viewport.xy;
     out.clip_position = vec4<f32>(normalized.x * 2.0 - 1.0, 1.0 - normalized.y * 2.0, 0.0, 1.0);
-    out.color = color;
-    out.uv = uv;
-    out.kind = kind;
-    out.params = params;
+    out.color = c.color;
+    out.uv = c.uv_kind.xy;
+    out.kind = c.uv_kind.z;
+    out.params = c.params;
     out.local = local;
-    out.extra = extra;
-    out.mask = mask;
-    out.shape = shape;
+    out.extra = c.extra;
+    out.mask = c.mask;
+    out.shape = c.shape;
     return out;
 }
 

@@ -26,6 +26,12 @@ pub mod msl_slots {
     /// The buffer slot `var<immediate>` (push-constant) data is read from;
     /// bind it with `set_vertex_bytes`/`set_fragment_bytes`.
     pub const IMMEDIATES_BUFFER: u8 = 20;
+    /// The buffer slot naga's bounds-check clamp reads the module's runtime
+    /// array sizes from — `scene.wgsl`'s per-draw constants table, whose
+    /// `Restrict` clamping needs the array's byte length on MSL the way
+    /// SPIR-V's `OpArrayLength` gets it for free. One `uint` per runtime
+    /// array, bound by the backend that owns the array's storage.
+    pub const SIZES_BUFFER: u8 = 21;
     /// The buffer slot vertex attributes are fetched from: the index a
     /// pipeline's vertex descriptor layout must use for `[[stage_in]]`.
     pub const VERTEX_BUFFER: u8 = 30;
@@ -222,7 +228,13 @@ impl ParsedShader {
             naga::back::msl::EntryPointResources {
                 resources,
                 immediates_buffer: Some(msl_slots::IMMEDIATES_BUFFER),
-                sizes_buffer: None,
+                // A runtime-sized array under the `Restrict` clamp needs its
+                // byte length on MSL (SPIR-V reads it out of the block with
+                // `OpArrayLength`); without a slot naga silently drops the
+                // entry point from the output and records the failure in the
+                // translation info, which is how the constants table first
+                // showed up as "MSL missing a vertex function".
+                sizes_buffer: Some(msl_slots::SIZES_BUFFER),
             },
         );
         let options = naga::back::msl::Options {

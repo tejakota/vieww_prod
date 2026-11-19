@@ -1405,16 +1405,18 @@ mod tests {
         ScenePlan {
             vertices: vec![vieww_gpu::Vertex {
                 position: [0.0, 0.0],
-                color: [255, 0, 0, 255],
-                uv: [0.0; 2],
-                texture_kind: 0.0,
-                params: [0.0; 4],
                 local: [0.0; 2],
+                draw: 0,
+            }],
+            indices: vec![0, 0, 0],
+            constants: vec![vieww_gpu::DrawConstants {
+                color: [1.0, 0.0, 0.0, 1.0],
+                uv_kind: [0.0; 4],
+                params: [0.0; 4],
                 extra: [0.0; 4],
                 shape: [0.0; 4],
                 mask: [0.0; 4],
             }],
-            indices: vec![0, 0, 0],
             runs: vec![DrawRun {
                 first_index: 0,
                 index_count: 3,

@@ -89,7 +89,7 @@ use vieww_gpu::{PixelRect, Planner, ScenePlan, Vertex};
 
 use crate::scene_exec::{frame_passes, Redrawn, Retained, SceneOp, TargetId};
 
-use super::{check_size, Attribute, Blend, MetalDevice, MetalError};
+use super::{check_size, Attribute, AttributeFormat, Blend, MetalDevice, MetalError};
 
 /// Where one frame's wall time went, on the CPU's clock — this backend's
 /// counterpart of `vulkan::scene`'s
@@ -181,64 +181,27 @@ impl Slot {
 }
 
 /// `vieww_gpu::Vertex`, field by field — the WGSL locations' offsets in
-/// bytes. Location 7 is `mask` (floats 23..27) and location 8 is `shape`
-/// (floats 19..23): the Rust field order and the shader's location order
-/// differ, exactly as `vulkan::scene`'s own attribute table documents.
-const SCENE_ATTRIBUTES: [Attribute; 9] = [
+/// bytes. Location 0 is the position, location 1 the paint-space
+/// coordinate, location 2 the `u32` index into the frame's constants
+/// table; the flat payload those used to share a vertex with rides in the
+/// table, fetched by the vertex stage through `buffer(5)` and sized by
+/// `buffer(vieww_shaders::msl_slots::SIZES_BUFFER)`.
+const SCENE_ATTRIBUTES: [Attribute; 3] = [
     Attribute {
         location: 0,
-        components: 2,
         offset: 0,
-        unorm4: false,
+        format: AttributeFormat::Float(2),
     }, // position
     Attribute {
         location: 1,
-        components: 4,
         offset: 8,
-        unorm4: true,
-    }, // color — UNORM8 bytes, k/255 per channel exactly
-    Attribute {
-        location: 2,
-        components: 2,
-        offset: 12,
-        unorm4: false,
-    }, // uv
-    Attribute {
-        location: 3,
-        components: 1,
-        offset: 20,
-        unorm4: false,
-    }, // kind
-    Attribute {
-        location: 4,
-        components: 4,
-        offset: 24,
-        unorm4: false,
-    }, // params
-    Attribute {
-        location: 5,
-        components: 2,
-        offset: 40,
-        unorm4: false,
+        format: AttributeFormat::Float(2),
     }, // local
     Attribute {
-        location: 6,
-        components: 4,
-        offset: 48,
-        unorm4: false,
-    }, // extra
-    Attribute {
-        location: 7,
-        components: 4,
-        offset: 80,
-        unorm4: false,
-    }, // mask
-    Attribute {
-        location: 8,
-        components: 4,
-        offset: 64,
-        unorm4: false,
-    }, // shape
+        location: 2,
+        offset: 16,
+        format: AttributeFormat::Uint,
+    }, // draw — the constants table index
 ];
 
 /// Every render target and the dummy are premultiplied RGBA16F.
@@ -487,6 +450,14 @@ impl MetalSceneRenderer {
         self.ensure_targets(width, height, plan.target_depth + 1)?;
         let vertices = shared_buffer(&self.device, as_bytes(&plan.vertices));
         let indices = shared_buffer(&self.device, as_bytes(&plan.indices));
+        // The per-draw constants table and the size naga's bounds-check
+        // clamp reads for it — one `uint` per runtime array, so one here.
+        // Both are shared (not private) buffers: the encoder reads them as
+        // bound, and the command buffer retains them past its own life.
+        let constants = shared_buffer(&self.device, as_bytes(&plan.constants));
+        #[expect(clippy::cast_possible_truncation, reason = "a table's bytes")]
+        let table_bytes = u32::try_from(as_bytes(&plan.constants).len()).unwrap_or(u32::MAX);
+        let table_size = shared_buffer(&self.device, as_bytes(&[table_bytes]));
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport: [f32; 4] = [width as f32, height as f32, 0.0, 0.0];
         self.timings.upload += started.elapsed();
@@ -630,6 +601,16 @@ impl MetalSceneRenderer {
                         enc.set_vertex_buffer(
                             u64::from(vieww_shaders::msl_slots::VERTEX_BUFFER),
                             Some(&vertices),
+                            0,
+                        );
+                        // The constants table the scene's vertices index
+                        // into, at the WGSL binding naga assigned it — and
+                        // the byte size its `Restrict` clamp reads, at the
+                        // slot `msl_slots` reserves for sizes.
+                        enc.set_vertex_buffer(5, Some(&constants), 0);
+                        enc.set_vertex_buffer(
+                            u64::from(vieww_shaders::msl_slots::SIZES_BUFFER),
+                            Some(&table_size),
                             0,
                         );
                         let [glyphs, images, masks, ramps] = &self.atlases;

@@ -593,6 +593,7 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
 
         self.bridge.buffer_write(0, as_bytes(&plan.vertices));
         self.bridge.buffer_write(1, as_bytes(&plan.indices));
+        self.bridge.buffer_write(2, as_bytes(&plan.constants));
 
         // ── the interpreter ─────────────────────────────────────────────
         //
@@ -1692,7 +1693,11 @@ mod tests {
         }
         fn buffer_write(&mut self, which: u32, bytes: &[u8]) {
             self.log.push(log_line(
-                if which == 0 { "vertices" } else { "indices" },
+                match which {
+                    0 => "vertices",
+                    1 => "indices",
+                    _ => "constants",
+                },
                 bytes.len().to_string(),
             ));
         }
@@ -1796,16 +1801,18 @@ mod tests {
         ScenePlan {
             vertices: vec![vieww_gpu::Vertex {
                 position: [0.0, 0.0],
-                color: [255, 0, 0, 255],
-                uv: [0.0; 2],
-                texture_kind: 0.0,
-                params: [0.0; 4],
                 local: [0.0; 2],
+                draw: 0,
+            }],
+            indices: vec![0, 0, 0],
+            constants: vec![vieww_gpu::DrawConstants {
+                color: [1.0, 0.0, 0.0, 1.0],
+                uv_kind: [0.0; 4],
+                params: [0.0; 4],
                 extra: [0.0; 4],
                 shape: [0.0; 4],
                 mask: [0.0; 4],
             }],
-            indices: vec![0, 0, 0],
             runs: vec![DrawRun {
                 first_index: 0,
                 index_count: 3,

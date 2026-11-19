@@ -60,7 +60,7 @@ pub use resources::{
     ReadbackQueue, ResidencyPriority, ResourceHeap, TextureFormat, TextureUsage, UploadQueue,
 };
 pub use scene::{
-    material, plan as plan_scene, DrawRun, FilterOp, MaskRef, PixelRect, Planner, ScenePlan, Step,
-    Unsupported, Vertex, MAX_TARGET_DEPTH,
+    material, plan as plan_scene, DrawConstants, DrawRun, FilterOp, MaskRef, PixelRect, Planner,
+    ScenePlan, Step, Unsupported, Vertex, MAX_TARGET_DEPTH,
 };
 pub use tessellate::{flatten_cubic, tessellate_fill, tessellate_stroke, Mesh};

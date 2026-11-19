@@ -429,26 +429,34 @@ export function vieww_gpu_atlas_copy(handle, slot, width, height) {
   return registered;
 }
 
+// The three geometry uploads a frame makes, as `buffer_write(which)`'s
+// `which` numbers them: the vertex buffer, the index buffer, and the
+// per-draw constants table.
+function bufferSlot(which) {
+  if (which === 0) return ["vertexBuffer", "vertexSize", GPUBufferUsage.VERTEX];
+  if (which === 1) return ["indexBuffer", "indexSize", GPUBufferUsage.INDEX];
+  return ["constantsBuffer", "constantsSize", GPUBufferUsage.STORAGE];
+}
+
 export function vieww_gpu_buffer_write(handle, which, data, len) {
   const entry = entryOf(handle);
   if (!entry || !entry.device || len === 0) return;
   const d = entry.device;
-  let buffer = which === 0 ? entry.vertexBuffer : entry.indexBuffer;
-  let size = which === 0 ? entry.vertexSize : entry.indexSize;
+  const [bufferKey, sizeKey, usage] = bufferSlot(which);
+  let buffer = entry[bufferKey];
+  let size = entry[sizeKey] || 0;
   if (!buffer || size < len) {
     if (buffer) buffer.destroy();
     size = Math.max(64, align4(len));
     buffer = d.createBuffer({
       size,
-      usage: GPUBufferUsage.COPY_DST | (which === 0 ? GPUBufferUsage.VERTEX : GPUBufferUsage.INDEX),
+      usage: GPUBufferUsage.COPY_DST | usage,
     });
-    if (which === 0) {
-      entry.vertexBuffer = buffer;
-      entry.vertexSize = size;
-    } else {
-      entry.indexBuffer = buffer;
-      entry.indexSize = size;
-    }
+    entry[bufferKey] = buffer;
+    entry[sizeKey] = size;
+    // A regrown constants buffer needs its bind group rebuilt — the version
+    // `sceneBindGroup` keys on changes exactly here.
+    if (which === 2) entry.constantsVersion = (entry.constantsVersion || 0) + 1;
   }
   d.queue.writeBuffer(buffer, 0, needMem().buffer, data, len);
 }
@@ -479,24 +487,19 @@ function guarded(entry, build) {
   return ok ? 1 : 0;
 }
 
-// `vieww_gpu::Vertex` as WebGPU sees it: 23 f32s plus a packed 4-byte
-// colour, 96 bytes, with WGSL location 7 (mask) and location 8 (shape) in
-// the reverse of the Rust declaration order, exactly as the Vulkan port's
-// attribute table records. The colour is "unorm8x4" — four bytes decoding
-// to exactly k/255 per channel, the f32s a float32x4 attribute of the same
-// values would carry.
+// `vieww_gpu::Vertex` as WebGPU sees it: two `f32` pairs and the `u32`
+// index into the frame's constants table — 20 bytes. The flat payload a
+// vertex used to carry inline (colour, uv, material, params, extra, shape,
+// mask — 96 bytes per vertex) rides in the constants table instead, a
+// read-only storage buffer the vertex stage indexes with location 2; the
+// values it holds are the same f32s the packed attributes used to decode
+// to, so the shader's arithmetic is unchanged.
 const SCENE_VERTEX = [
   { shaderLocation: 0, offset: 0, format: "float32x2" }, // position
-  { shaderLocation: 1, offset: 8, format: "unorm8x4" }, // color
-  { shaderLocation: 2, offset: 12, format: "float32x2" }, // uv
-  { shaderLocation: 3, offset: 20, format: "float32" }, // texture kind
-  { shaderLocation: 4, offset: 24, format: "float32x4" }, // params
-  { shaderLocation: 5, offset: 40, format: "float32x2" }, // local
-  { shaderLocation: 6, offset: 48, format: "float32x4" }, // extra
-  { shaderLocation: 7, offset: 80, format: "float32x4" }, // mask
-  { shaderLocation: 8, offset: 64, format: "float32x4" }, // shape
+  { shaderLocation: 1, offset: 8, format: "float32x2" }, // local
+  { shaderLocation: 2, offset: 16, format: "uint32" }, // draw — the constants index
 ];
-const SCENE_STRIDE = 96;
+const SCENE_STRIDE = 20;
 
 // Premultiplied source-over — the blend every scene draw composites with.
 const OVER_BLEND = {
@@ -515,6 +518,9 @@ function layoutsOf(entry) {
       { binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
       // rgba32float ramps: textureLoad only, hence unfilterable.
       { binding: 4, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "unfilterable-float" } },
+      // The per-draw constants table, one entry per draw item, indexed by
+      // each vertex's `draw` attribute.
+      { binding: 5, visibility: GPUShaderStage.VERTEX, buffer: { type: "read-only-storage" } },
     ],
   });
   const postGroup0 = d.createBindGroupLayout({
@@ -671,7 +677,7 @@ export function vieww_gpu_pass_scissor(handle, x, y, w, h) {
 }
 
 function sceneBindGroup(entry) {
-  const key = entry.atlases.join("|");
+  const key = entry.atlases.join("|") + "#" + (entry.constantsVersion || 0);
   if (entry.sceneGroup && entry.sceneGroupKey === key) return entry.sceneGroup;
   const group = entry.device.createBindGroup({
     layout: layoutsOf(entry).sceneGroup,
@@ -681,11 +687,29 @@ function sceneBindGroup(entry) {
         binding: i + 1,
         resource: entry.textures.get(h).texture.createView(),
       })),
+      // The constants table's buffer is recreated when it grows, so its
+      // bind group is too — the version the key carries changes exactly
+      // then, never per frame.
+      { binding: 5, resource: { buffer: constantsBufferOf(entry) } },
     ],
   });
   entry.sceneGroup = group;
   entry.sceneGroupKey = key;
   return group;
+}
+
+// The constants table's current buffer, or a zeroed stand-in before the
+// first frame writes one — a bind group must bind something, and an empty
+// table is never indexed (a plan with no draws has no vertices to do it).
+function constantsBufferOf(entry) {
+  if (entry.constantsBuffer) return entry.constantsBuffer;
+  if (!entry.constantsZero) {
+    entry.constantsZero = entry.device.createBuffer({
+      size: 16,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+    });
+  }
+  return entry.constantsZero;
 }
 
 export function vieww_gpu_pass_scene(handle) {

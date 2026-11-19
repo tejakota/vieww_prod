@@ -5,8 +5,10 @@
 //! [`SceneRenderer`] is built once per surface and keeps everything that does
 //! not change between frames: two render passes, three graphics pipelines,
 //! four texture resources and the descriptor sets that bind them. Per frame
-//! it uploads whichever atlases changed, writes the vertex and index buffers,
-//! records **one** command buffer for the plan's whole [`Step`](vieww_gpu::Step) program, and
+//! it uploads whichever atlases changed, writes the vertex, index and
+//! per-draw constants buffers (the constants table — binding 5, one entry
+//! per draw item — is what let the vertex shrink to 20 bytes), records
+//! **one** command buffer for the plan's whole [`Step`](vieww_gpu::Step) program, and
 //! submits it once.
 //!
 //! ```text
@@ -456,6 +458,9 @@ struct FlightSlot {
     uniform: Buffer,
     vertices: Buffer,
     indices: Buffer,
+    /// This slot's copy of the per-draw constants table, read by the scene
+    /// shader's vertex stage through binding 5 of the same set.
+    constants: Buffer,
     /// This slot's timestamp pool, when the queue can timestamp at all.
     queries: Option<SlotQueries>,
     /// A frame submitted on this slot that the CPU has not waited for yet.
@@ -656,20 +661,21 @@ impl SceneRenderer {
         )?;
 
         // ── descriptor layouts ──────────────────────────────────────────────
-        let scene_bindings: Vec<_> = (0..5u32)
+        let scene_bindings: Vec<_> = (0..6u32)
             .map(|binding| {
                 vk::DescriptorSetLayoutBinding::default()
                     .binding(binding)
-                    .descriptor_type(if binding == 0 {
-                        vk::DescriptorType::UNIFORM_BUFFER
-                    } else {
-                        vk::DescriptorType::SAMPLED_IMAGE
+                    .descriptor_type(match binding {
+                        0 => vk::DescriptorType::UNIFORM_BUFFER,
+                        // The per-draw constants table, fetched by the vertex
+                        // stage one entry per draw: binding 5.
+                        5 => vk::DescriptorType::STORAGE_BUFFER,
+                        _ => vk::DescriptorType::SAMPLED_IMAGE,
                     })
                     .descriptor_count(1)
-                    .stage_flags(if binding == 0 {
-                        vk::ShaderStageFlags::VERTEX
-                    } else {
-                        vk::ShaderStageFlags::FRAGMENT
+                    .stage_flags(match binding {
+                        0 | 5 => vk::ShaderStageFlags::VERTEX,
+                        _ => vk::ShaderStageFlags::FRAGMENT,
                     })
             })
             .collect();
@@ -720,6 +726,12 @@ impl SceneRenderer {
                             // ERROR_OUT_OF_POOL_MEMORY"), while the Stylo's
                             // older driver let the overdrawn pool pass.
                             descriptor_count: 4 * FLIGHT_SLOTS as u32,
+                        },
+                        vk::DescriptorPoolSize {
+                            ty: vk::DescriptorType::STORAGE_BUFFER,
+                            // The constants table, binding 5, one per set as
+                            // above.
+                            descriptor_count: FLIGHT_SLOTS as u32,
                         },
                     ])
                     .max_sets(FLIGHT_SLOTS as u32),
@@ -915,6 +927,7 @@ impl SceneRenderer {
                     uniform: std::mem::replace(&mut uniforms[index], Buffer::EMPTY),
                     vertices: Buffer::EMPTY,
                     indices: Buffer::EMPTY,
+                    constants: Buffer::EMPTY,
                     queries: slot_queries[index].take(),
                     in_flight: false,
                 });
@@ -2593,9 +2606,11 @@ impl SceneRenderer {
     fn upload_geometry(&mut self, plan: &ScenePlan) -> Result<(), VulkanError> {
         let vertex_bytes = as_bytes(&plan.vertices);
         let index_bytes = as_bytes(&plan.indices);
+        let constants_bytes = as_bytes(&plan.constants);
         let slot = self.recording;
         let old_vertices = std::mem::replace(&mut self.slots[slot].vertices, Buffer::EMPTY);
         let old_indices = std::mem::replace(&mut self.slots[slot].indices, Buffer::EMPTY);
+        let old_constants = std::mem::replace(&mut self.slots[slot].constants, Buffer::EMPTY);
         self.slots[slot].vertices = grow(
             &self.device,
             old_vertices,
@@ -2610,8 +2625,41 @@ impl SceneRenderer {
             self.host_visible_memory,
             index_bytes.len() as u64,
         )?;
+        self.slots[slot].constants = grow(
+            &self.device,
+            old_constants,
+            vk::BufferUsageFlags::STORAGE_BUFFER,
+            self.host_visible_memory,
+            constants_bytes.len() as u64,
+        )?;
         write_bytes(&self.device, self.slots[slot].vertices.memory, vertex_bytes)?;
         write_bytes(&self.device, self.slots[slot].indices.memory, index_bytes)?;
+        write_bytes(
+            &self.device,
+            self.slots[slot].constants.memory,
+            constants_bytes,
+        )?;
+        // Binding 5 points at this slot's table, whose handle a regrow just
+        // replaced — the write is safe here because `upload_geometry` runs
+        // after `begin_commands` settled this slot, so no submission in
+        // flight reads the set being rewritten (the texture bindings defer
+        // through `stale_scene_bindings` for the same reason: theirs can
+        // change while the slot *is* in flight).
+        let info = [vk::DescriptorBufferInfo {
+            buffer: self.slots[slot].constants.handle,
+            offset: 0,
+            range: self.slots[slot].constants.capacity,
+        }];
+        unsafe {
+            self.device.update_descriptor_sets(
+                &[vk::WriteDescriptorSet::default()
+                    .dst_set(self.scene_sets[slot])
+                    .dst_binding(5)
+                    .descriptor_type(vk::DescriptorType::STORAGE_BUFFER)
+                    .buffer_info(&info)],
+                &[],
+            );
+        }
         Ok(())
     }
 
@@ -3717,6 +3765,10 @@ impl Drop for SceneRenderer {
                     &self.device,
                     std::mem::replace(&mut flight.indices, Buffer::EMPTY),
                 );
+                destroy_buffer(
+                    &self.device,
+                    std::mem::replace(&mut flight.constants, Buffer::EMPTY),
+                );
                 self.device.destroy_fence(flight.fence, None);
                 if let Some(queries) = flight.queries.take() {
                     self.device.destroy_query_pool(queries.pool, None);
@@ -3759,20 +3811,16 @@ impl Drop for SceneRenderer {
 
 // ── construction helpers ───────────────────────────────────────────────────
 
-/// `vieww_gpu::Vertex`, field by field: 2 + 4 + 2 + 1 + 4 + 2 + 4 + 4 + 4.
-/// Offsets in floats: position 0, color 2, uv 6, kind 8, params 9,
-/// local 13, extra 15, shape 19, mask 23 — WGSL location 7 is `mask`
-/// (23), location 8 is `shape` (19). One definition, because the direct
+/// `vieww_gpu::Vertex`, field by field: two `f32` pairs and the `u32`
+/// index into the frame's constants table — 20 bytes. The flat payload a
+/// vertex used to carry rides in the table instead, fetched by the vertex
+/// stage through binding 5, so the attributes are location 0 `position`,
+/// location 1 `local`, location 2 `draw`. One definition, because the direct
 /// route builds the same pipeline against another format.
 fn scene_vertex_layout() -> (
     vk::VertexInputBindingDescription,
-    [vk::VertexInputAttributeDescription; 9],
+    [vk::VertexInputAttributeDescription; 3],
 ) {
-    // `Vertex::color` packs to UNORM8 bytes: a straight-alpha colour is
-    // `k/255` per channel by construction, and UNORM8 decodes to exactly
-    // `k/255` — the same f32s the shader always received, in four bytes
-    // instead of sixteen. Every other attribute is f32 (byte offsets now,
-    // not float indices, since the colour slot broke the uniform stride).
     let attribute =
         |location: u32, format: vk::Format, offset: u32| vk::VertexInputAttributeDescription {
             location,
@@ -3780,7 +3828,6 @@ fn scene_vertex_layout() -> (
             format,
             offset,
         };
-    let f = |n: u32| n * std::mem::size_of::<f32>() as u32;
     (
         vk::VertexInputBindingDescription {
             binding: 0,
@@ -3788,15 +3835,9 @@ fn scene_vertex_layout() -> (
             input_rate: vk::VertexInputRate::VERTEX,
         },
         [
-            attribute(0, vk::Format::R32G32_SFLOAT, f(0)),
-            attribute(1, vk::Format::R8G8B8A8_UNORM, f(2)),
-            attribute(2, vk::Format::R32G32_SFLOAT, f(3)),
-            attribute(3, vk::Format::R32_SFLOAT, f(5)),
-            attribute(4, vk::Format::R32G32B32A32_SFLOAT, f(6)),
-            attribute(5, vk::Format::R32G32_SFLOAT, f(10)),
-            attribute(6, vk::Format::R32G32B32A32_SFLOAT, f(12)),
-            attribute(7, vk::Format::R32G32B32A32_SFLOAT, f(20)),
-            attribute(8, vk::Format::R32G32B32A32_SFLOAT, f(16)),
+            attribute(0, vk::Format::R32G32_SFLOAT, 0),
+            attribute(1, vk::Format::R32G32_SFLOAT, 8),
+            attribute(2, vk::Format::R32_UINT, 16),
         ],
     )
 }

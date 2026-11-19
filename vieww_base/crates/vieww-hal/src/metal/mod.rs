@@ -124,15 +124,24 @@ pub enum Blend {
 pub struct Attribute {
     /// The WGSL `@location`.
     pub location: u64,
-    /// Number of `f32` components, 1 to 4.
-    pub components: u8,
     /// Byte offset inside one vertex.
     pub offset: u64,
-    /// The attribute is four `u8`s decoded as `k/255` per channel
-    /// (`uchar4Normalized`), not `components` f32s — the packed vertex
-    /// colour. Exactly the f32s a `Float4` of the same values would carry,
-    /// in a quarter of the bytes.
-    pub unorm4: bool,
+    /// How the attribute's bytes decode.
+    pub format: AttributeFormat,
+}
+
+/// How one vertex attribute's bytes decode, as a pipeline's vertex
+/// descriptor must say it.
+#[derive(Debug, Clone, Copy)]
+pub enum AttributeFormat {
+    /// `n` `f32` components, 1 to 4.
+    Float(u8),
+    /// Four `u8`s decoded as `k/255` per channel (`uchar4Normalized`) —
+    /// the packed vertex colour, exactly the f32s a `Float4` of the same
+    /// values would carry, in a quarter of the bytes.
+    Unorm4,
+    /// One `u32` — a per-draw constants table index.
+    Uint,
 }
 
 impl MetalDevice {
@@ -193,15 +202,13 @@ impl MetalDevice {
                     .attributes()
                     .object_at(a.location)
                     .ok_or_else(|| MetalError::Invalid(format!("location {}", a.location)))?;
-                attr.set_format(if a.unorm4 {
-                    MTLVertexFormat::UChar4Normalized
-                } else {
-                    match a.components {
-                        1 => MTLVertexFormat::Float,
-                        2 => MTLVertexFormat::Float2,
-                        3 => MTLVertexFormat::Float3,
-                        _ => MTLVertexFormat::Float4,
-                    }
+                attr.set_format(match a.format {
+                    AttributeFormat::Float(1) => MTLVertexFormat::Float,
+                    AttributeFormat::Float(2) => MTLVertexFormat::Float2,
+                    AttributeFormat::Float(3) => MTLVertexFormat::Float3,
+                    AttributeFormat::Float(_) => MTLVertexFormat::Float4,
+                    AttributeFormat::Unorm4 => MTLVertexFormat::UChar4Normalized,
+                    AttributeFormat::Uint => MTLVertexFormat::UInt,
                 });
                 attr.set_offset(a.offset);
                 attr.set_buffer_index(u64::from(msl_slots::VERTEX_BUFFER));
@@ -363,9 +370,8 @@ impl MetalDevice {
             vieww_shaders::library::SOLID_WGSL,
             &[Attribute {
                 location: 0,
-                components: 2,
                 offset: 0,
-                unorm4: false,
+                format: AttributeFormat::Float(2),
             }],
             8,
             format,

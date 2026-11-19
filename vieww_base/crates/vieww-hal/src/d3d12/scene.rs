@@ -397,7 +397,10 @@ impl D3d12SceneRenderer {
             unsafe { raw.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) };
 
         // ── root signatures ───────────────────────────────────────────────
-        // The scene: four dwords at b0, the atlases as one table t1..t4.
+        // The scene: four dwords at b0, the atlases as one table t1..t4, and
+        // the per-draw constants table as a root SRV at t5 — naga's HLSL
+        // maps a read-only storage buffer to a `StructuredBuffer`, which a
+        // root descriptor serves without a heap slot.
         let scene_range = [D3D12_DESCRIPTOR_RANGE {
             RangeType: D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
             NumDescriptors: 4,
@@ -416,6 +419,16 @@ impl D3d12SceneRenderer {
                     },
                 },
                 ShaderVisibility: D3D12_SHADER_VISIBILITY_ALL,
+            },
+            D3D12_ROOT_PARAMETER {
+                ParameterType: D3D12_ROOT_PARAMETER_TYPE_SRV,
+                Anonymous: D3D12_ROOT_PARAMETER_0 {
+                    Descriptor: D3D12_ROOT_DESCRIPTOR {
+                        ShaderRegister: 5,
+                        RegisterSpace: 0,
+                    },
+                },
+                ShaderVisibility: D3D12_SHADER_VISIBILITY_VERTEX,
             },
         ];
         let scene_root = root_signature(device, &scene_parameters)?;
@@ -449,8 +462,9 @@ impl D3d12SceneRenderer {
         let semantic = std::ffi::CString::new(vieww_shaders::hlsl_slots::VERTEX_SEMANTIC)
             .map_err(|_| D3d12Error::Invalid("semantic".into()))?;
         // `vieww_gpu::Vertex`'s WGSL locations, as HLSL LOCn semantics —
-        // location 7 is `mask` (floats 23..27) and 8 is `shape` (19..23),
-        // as the shared attribute table has it.
+        // position, the paint-space coordinate, and the `u32` index into
+        // the constants table the vertex stage fetches its flat payload
+        // through.
         let element = |index: u32, format: DXGI_FORMAT, offset: u32| D3D12_INPUT_ELEMENT_DESC {
             SemanticName: windows::core::PCSTR(semantic.as_ptr().cast()),
             SemanticIndex: index,
@@ -462,16 +476,8 @@ impl D3d12SceneRenderer {
         };
         let scene_elements = [
             element(0, DXGI_FORMAT_R32G32_FLOAT, 0),
-            // The packed vertex colour: UNORM8 decodes to exactly k/255 —
-            // the f32s a FLOAT4 attribute of the same values would carry.
-            element(1, DXGI_FORMAT_R8G8B8A8_UNORM, 8),
-            element(2, DXGI_FORMAT_R32G32_FLOAT, 12),
-            element(3, DXGI_FORMAT_R32_FLOAT, 20),
-            element(4, DXGI_FORMAT_R32G32B32A32_FLOAT, 24),
-            element(5, DXGI_FORMAT_R32G32_FLOAT, 40),
-            element(6, DXGI_FORMAT_R32G32B32A32_FLOAT, 48),
-            element(7, DXGI_FORMAT_R32G32B32A32_FLOAT, 80),
-            element(8, DXGI_FORMAT_R32G32B32A32_FLOAT, 64),
+            element(1, DXGI_FORMAT_R32G32_FLOAT, 8),
+            element(2, DXGI_FORMAT_R32_UINT, 16),
         ];
         let scene_vs = D3d12Device::compile(
             vieww_shaders::library::SCENE_WGSL,
@@ -810,8 +816,10 @@ impl D3d12SceneRenderer {
         self.ensure_post_capacity(u32::try_from(posts).unwrap_or(u32::MAX))?;
         let vertex_bytes: &[u8] = plain_bytes(&plan.vertices);
         let index_bytes: &[u8] = plain_bytes(&plan.indices);
+        let constants_bytes: &[u8] = plain_bytes(&plan.constants);
         let vertices = self.upload_buffer(vertex_bytes)?;
         let indices = self.upload_buffer(index_bytes)?;
+        let constants = self.upload_buffer(constants_bytes)?;
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport: [f32; 4] = [width as f32, height as f32, 0.0, 0.0];
         self.timings.upload += started.elapsed();
@@ -913,6 +921,13 @@ impl D3d12SceneRenderer {
                             list.SetGraphicsRootDescriptorTable(
                                 1,
                                 gpu_handle(&self.heap, self.increment, Slot::Glyphs.heap_slot()),
+                            );
+                            // The constants table, a root SRV: no heap, no
+                            // view, just the buffer's address — set once for
+                            // every draw this frame.
+                            list.SetGraphicsRootShaderResourceView(
+                                2,
+                                constants.GetGPUVirtualAddress(),
                             );
                             list.IASetVertexBuffers(
                                 0,
