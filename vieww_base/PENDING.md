@@ -73,7 +73,7 @@ picked lavapipe and the numbers are not a GPU's. Then update the "unmeasured
 for speed" wording in `docs/guide/README.md`, `crates/vieww-hal/src/lib.rs`
 and `docs/GPU-RENDERER-STATUS.md`.
 
-## 1.2 macOS — the Metal scene renderer is ported; it has not run
+## 1.2 macOS — the Metal scene renderer has run; the iPhone half is open
 
 **What.** `crates/vieww-hal/src/metal/scene.rs` is
 `MetalSceneRenderer` (2026-10-24): the *shared* plan traversal
@@ -86,42 +86,35 @@ the four atlases, the clear-colour contract, the retained-damage path —
 frame's region clears are blits of the clear colour (Metal has no
 `cmd_clear_attachments` inside an encoder; the `clear.wgsl` draw this port
 first used came back all-zero inside the damage on the macOS CI, and the
-blit replaced it — commit c19661d0). Deliberately simpler and documented as
-such: readback frames only (no swapchain path), whole-atlas uploads for
-glyphs/images/ramps with the mask atlas's changed rectangles only
-(`upload_masks`, `vulkan::scene`'s `record_masks` ported 2026-11-17,
-unexecuted), `Instant`-based `FrameTimings` with Metal's counter samples
-unported (the module doc names the seam).
+blit replaced it — commit c19661d0).
 
-**Why not closed.** The port type-checks from Linux
-(`ci/check/cross-check.sh macos` — verified in this delivery) and
-`tests/metal_scene.rs` mirrors the Vulkan parity suites' claims (empty
-frame, geometry, translucent overlap, group opacity, the incomplete-plan
-refusal, reuse across sizes, the retained-damage contract byte for byte,
-and — added with the `upload_masks` port, equally unexecuted — partial mask
-uploads matching full ones frame for frame), but it has never *executed*
-against this code: there is no software Metal, so the `framework-checks`
-macOS runner is the only place any of it runs, and the WORKLOG's last
-recorded runs (2026-11-15) show `framework-macos` and
-`framework-ios-simulator` cancelled with no steps and no runner —
-availability or quota, still unexplained. The last commits that
-did run it (2026-10-25, f0e7547) found the empty-scene SIGSEGV and the
-all-zero region clears, fixed in c19661d0; the shared `scene_exec` has
-moved ~900 lines since. The runner's GPU is paravirtual, so no number from
-it will be a performance claim either. The window path still renders
-through MoltenVK until a winit surface lands for this backend.
+**2026-11-19: it has run.** The `framework-macos` leg executes again
+(`macos-15` runners, `c7e8056`), and the Metal suite passed 28/28 on the
+runner's paravirtual GPU: the compositor matrix the plan asked for
+(twenty-eight blend modes, backdrop blur, colour matrices, nested layers
+with mixed effects, gradients per pixel, every shadow variant, shaped
+clips), the partial glyph/image/mask/ramp uploads, and the idle target
+trim (`cb8c641` and the atlas-diet round). The parity certificate is
+uploaded per run (`parity-certificate-metal-paravirtual.json`). No number
+from a paravirtual GPU is a performance claim.
 
-**Blocks.** Native Metal rendering (dropping the MoltenVK dependency).
+**Why not closed.** The window path still renders through MoltenVK — a
+winit surface for this backend (a `CAMetalLayer` swapchain/drawable path,
+selected in the platform layer on Apple targets) is the remaining bring-up,
+with `MTLCounterSampleBuffer` timestamps beside it; and the iPhone numbers
+(Device Farm, GPU frame time separated from drawable wait) do not exist
+yet.
 
-**Start.** Get the `framework-macos` leg to start again (runner
-availability or quota — WORKLOG's open question), then run
-`tests/metal_scene.rs` on it
-(`cargo test -p vieww-hal --features metal -- --ignored --test-threads=1`),
-fix what the first real execution finds, then bring the compositor suite's
-scenes (`vulkan_compositor.rs`'s blend/blur/mask/shadow matrix) across as
-the port is validated.
+**Blocks.** Native Metal presenting (dropping the MoltenVK dependency on
+iOS), and every Metal performance claim.
 
-## 1.3 Windows — the D3D12 scene renderer is ported; it has not run
+**Start.** `crates/vieww-platform-winit/src/ios.rs` presents through
+MoltenVK today; the `CAMetalLayer` path is selected in
+`{ios,app,native}.rs` on Apple targets, and the done criterion is the
+Device Farm's GPU-frame-time number on the iPhone 14 and 18 Pro Max (under
+8.3 ms at 120 Hz, below the 16.2 ms pacing figure).
+
+## 1.3 Windows — the D3D12 scene renderer has run on WARP; hardware timing is open
 
 **What.** `crates/vieww-hal/src/d3d12/scene.rs` is `D3d12SceneRenderer`
 (2026-10-24): the shared `scene_exec` traversal through this backend's own
@@ -133,27 +126,29 @@ triplet every post pass rewrites with its `src`/`aux`/mask, the dummy),
 three root signatures (scene constants at `b0` plus the atlas table,
 `post.wgsl`'s immediates as 32 root-constant dwords at `b15` plus the
 triplet table, the clear's colour at `b0`), and per-target resource-state
-tracking. Deliberately as simple as the Metal port, and for the same
-documented reasons.
+tracking.
 
-**Why not closed.** The port type-checks from Linux
-(`ci/check/cross-check.sh windows`, with `--features d3d12,vulkan` —
-verified in this delivery, which also un-broke that gate on main: an
-`unused_mut` in `wright-tools` had it red on Windows), and
-`tests/d3d12_scene.rs` mirrors the Vulkan parity suites' claims — but it
-has never *executed*. The `framework-checks` Windows runner (WARP included;
-correctness evidence, never performance evidence) is where it first runs.
-No number from it will be a timing claim until the suite runs on a hardware
-adapter.
+**2026-11-19: it has run.** The `framework-windows` leg executes the full
+parity matrix on WARP — nested layers with mixed effects, backdrop blur,
+colour matrices, image transforms, the twenty-eight blend modes, every
+shadow variant, the partial glyph/image/ramp uploads, the idle target trim
+— 10 tests, 0 interior violations, worst delta 1/255, certificate uploaded
+per run (`parity-certificate-d3d12-warp.json`). The compositor-matrix
+port the plan asked for is on `main` (`cb8c641`).
 
-**Blocks.** Windows GPU rendering. Windows also has a *separate* unsolved
-problem — see 3.3.
+**Why not closed.** WARP is correctness evidence, never performance
+evidence. The suite has never run on a hardware adapter; the Kaby Lake
+laptop's GPU is the one the receipts name, and no `fixtures`/`baseline`
+number exists for this backend.
 
-**Start.** Run `tests/d3d12_scene.rs` on the Windows runner
-(`VIEWW_D3D12_ALLOW_WARP=1 cargo test -p vieww-hal --features d3d12 --
---ignored --test-threads=1`), fix what the first real execution finds, then
-run the same suite on the Kaby Lake laptop for the first real D3D12
-timings.
+**Blocks.** Every D3D12 performance claim, and the plan's T2 receipt row
+(a hardware-adapter receipt under `receipts/` closes it).
+
+**Start.** `ci/hardware/close-remaining.sh` shapes the laptop runs; the
+same suite that runs on WARP
+(`VIEWW_D3D12_ALLOW_WARP=0 cargo test -p vieww-hal --features d3d12 --
+--ignored --test-threads=1`) picks the hardware adapter when one exists,
+then `fixtures --runs 10 --receipt` beside it.
 
 ## 1.4 iOS — runs on a real iPhone; its numbers are not recorded
 
@@ -591,6 +586,12 @@ actually removes on a real driver is still Device Farm's run to show
 (lavapipe keeps no compiled code, so the local test only proves the header
 round-trip).
 
+**2026-11-18: the start-up work itself landed** (`9b82b2b`, deferred
+initialisation through the frame path — the plan's 840 → ~250 ms item).
+The code is on `main`; the before/after `baseline` trace with
+`VIEWW_TRACE_FRAMES=1` on the Windows laptop is the receipt that closes
+this, and it has not been run yet.
+
 **Start.** Create the device in parallel with the window; run `baseline` with
 `VIEWW_TRACE_FRAMES=1` to attribute the remainder.
 
@@ -689,7 +690,11 @@ so `memset` looks ~20x worse than it is; time anything that moves memory).
 Candidates: an SSE2 blur (the horizontal running sum and the vertical strip
 pass); half-float or 8-bit layer storage for layers that need no extended
 range (cuts nested's traffic in half or more, but changes bytes — needs a
-tolerance decision); AVX2 behind runtime detection.
+tolerance decision). ~~AVX2 behind runtime detection~~ — shipped
+2026-11-18 (`3736a4a`), runtime-detected; CI's Linux leg now shows glass at
+4.4 ms and nested at 4.6 ms, and the i5-7200U receipt on the reference
+laptop is what closes this (the numbers above are that laptop's, before
+AVX2).
 
 **2026-10-18, the walk goes row-parallel and the general fill is
 memoised** (commits f004294, 0502ae0; no machine receipt yet — this
@@ -762,12 +767,18 @@ the largest single item on the low-end phone.
 
 Idle is already right: 0 frames and 0 pixels while nothing changes, on both
 OSes. Linux shows 3.4% idle CPU on the CPU path with no frames — something
-wakes without drawing.
+wakes without drawing. **2026-11-19: the wake half landed** (`d05bf95`) —
+a wake that carries no delivery no longer forces a frame; whether the
+3.4% dropped is the device suite's next run to show.
 
 **Start.** A heap profile of `baseline` (`heaptrack`) and a size breakdown
 (`cargo bloat --release --example baseline -p vieww-platform-winit -n 40`);
 on the phone, `dumpsys meminfo` by category is already in the Device Farm
-artifacts.
+artifacts. **2026-11-19: the GPU half of the diet reached every backend** —
+partial atlas uploads (a grow carried by one copy) and the idle target trim
+are on Vulkan, Metal, D3D12 and WebGPU alike; the 40 MB desktop budget has
+not been re-measured against it, which is this section's own receipt to
+commit.
 
 ## 4.3 The sixteen-fix "same pixels, faster" advisory, mapped to what actually exists
 

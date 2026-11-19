@@ -1,68 +1,59 @@
-# Remaining work (updated 2026-10-15)
+# Remaining work (updated 2026-11-19)
 
 Verified state of each item is in `PENDING.md`; this is the short list.
 
-## Done on 2026-10-15 (branch `claude/roadmap-p0-shadow-planner`)
+## Done on 2026-11-19 (main, through the atlas-diet round)
 
-Evidence in `TRACKER.md`'s 2026-10-15 section.
+Evidence in `TRACKER.md` and the WORKLOG; the status document this list
+follows is *vieww_prod performance plan: status check and to-do plan*
+(2026-11-19).
 
-- **Benchmark receipts** — `fixtures --receipt`, `--runs`; kept by
-  `close-remaining.sh gallery` and `certify.sh`.
-- **The hybrid planner in shadow** — `fixtures --shadow`,
-  `VIEWW_PLANNER_SHADOW=<file>` on a window; its first run found and fixed a
-  composite-cost bug (727 ms predicted for a 6 ms frame). PENDING §2.3 is
-  what stands between shadow and authoritative.
-- **Per-stage frame timings** — GPU upload/record/submit/wait/readback and
-  scale/plan/raster/acquire/present on every frame, into the device suite's
-  `frame_stages` (PENDING §1.5's breakdown, once run on the phone).
-- **A double `Scene::scaled` on HiDPI CPU fallback frames**, removed.
-- **2,146 lines of orphaned text-stack files**, removed.
-
-**Next on hardware** (each is one command now): `ci/hardware/close-remaining.sh
-gallery` on the laptop (PENDING §1.1, §2.3); `ci/mobile/device-suite.sh --gpu`
-on the Redmi (§1.5).
-
-## Done on 2026-10-12 (this session's commits, on top of `8fae3b4`)
-
-- **Branch verified**: studio suite 921/921, remote-preview tests, vieww-3d
-  GPU tests, workspace clippy — on Rust 1.97 (the 1.98.1 pin could not be
-  downloaded in the session); `film_lab` given a reasoned
-  `manual_range_contains` allow (the rewrite changes NaN behaviour).
-- **SIMD compositing** (PENDING §4.1, narrowed): SSE2 output conversion and
-  compositing rows, the layer clear fused into the composite,
-  `-C target-cpu=x86-64-v2` restored. Gallery 232.7 → 164.6 ms, every output
-  byte-identical; `layers-nested` ~28.5 → ~20–22 ms, `editor-glass`
-  ~27 → ~21 ms — still over 16.7 ms.
-- **Animated GPU paths** (PENDING §2.1, measured and fixed): CPU coverage is
-  bounded (~1.3 ms for a large rotating panel), so no MSAA; the cost was
-  whole-texture mask uploads (up to 16.8 MB/frame). Now partial uploads and a
-  churn-aware compaction: 1.9 MB/frame mean for three moving shapes.
-- **GPU 3D lit pass** (PENDING §1.7): Lambert under ambient, hemisphere and
-  directional lights, with the CPU's shadow map, back faces culled/flipped as
-  on the CPU — held to the CPU oracle on lavapipe.
+- **The gate is green again** — the rustfmt diff, the WebGPU test vertex,
+  the signed APK and the docs links fixed, `macos-15` runners starting the
+  Apple legs again (`c7e8056`, `fceec64`): `framework-macos` and
+  `framework-ios-simulator` execute, and goldens / web / gate / emulator
+  pass.
+- **Metal has run** (PENDING §1.2, the first execution): 28/28 on the
+  macOS runner's paravirtual GPU — the compositor matrix, partial
+  glyph/image/mask/ramp uploads, the idle target trim.
+- **D3D12 has run** (PENDING §1.3): the full parity matrix on WARP, 10
+  tests, 0 interior violations, worst delta 1/255 (`cb8c641`).
+- **The atlas diet and the target trim reach all four backends** (§4.2):
+  Metal and D3D12 in `cb8c641`, WebGPU in the same round — partial uploads
+  with a carried grow, `TARGET_TRIM_FRAMES`, mock-pinned encodings and a
+  browser parity run whose churn pairs must take the region path.
+- **A wake that carries nothing draws no frame** (§4.2's idle CPU): the
+  wake half of the no-op-present item (`d05bf95`).
+- **Release builds carry a trained profile** — the gate trains its own on
+  the fixture gallery and exports `-Cprofile-use`; the phone has a path to
+  train an aarch64 one (`cf1f61e`).
+- **Clipped shadows are quads** — the clip folds into the shadow's
+  coverage (one mask where the pass fetched two), so a card list under a
+  viewport clip is one geometry run.
 
 ## Open
 
-1. **Push** — the session's GitHub access was not linked, so these commits
-   arrive as `vieww-session-2026-10-12.patch` (`git am` on
-   `feature/vieww_code_base2`).
-2. **Place the workflows** (`.github/workflows-pending/restore.sh`) — needs a
-   `workflow`-scoped token. Note: the Vulkan job will be red on the known
-   backdrop-blur edge (PENDING §2.2) until that edge mode is decided.
-3. ~~**Backdrop-blur edge mode** (PENDING §2.2)~~ — closed 2026-10-13: GPU
-   layer/backdrop blurs clamp at the edge like `effects::blur` (CSS
-   `duplicate`); shadows keep transparent edges.
-4. **The two over-budget fixtures** (PENDING §4.1) — ~4–5 ms left, spread
-   over blur, shadows, rasterisation and memory traffic. Candidates: SSE2
-   blur; narrower layer storage (changes bytes — needs a tolerance decision);
-   AVX2 behind runtime detection. Time anything that moves memory.
-5. **GPU 3D next increments** (PENDING §1.7): point and spot lights, Phong,
-   textures, the transparent pass; a cached pipeline instead of per-render
-   bring-up; a GPU shadow map only if measured to matter.
-6. **Windows / macOS / hardware** — `tests/remote.rs` on Windows (§3.3),
-   first Metal/D3D12 CI results and the `SceneRenderer` port (§1.2/§1.3), a
-   real GPU (§1.1, including what partial mask uploads save over PCIe), iOS
-   and Android devices (§1.4/§1.5), Firefox/WebKit parity (§1.6), a
-   two-monitor refresh-rate check (§3.2).
-7. **Toolchain** — re-run `ci/check/checks.sh --quick` on the pinned 1.98.1
-   where it can be downloaded; this session's clippy runs were on 1.97.
+1. **Metal on the iPhone** (PENDING §1.2): a `CAMetalLayer`
+   swapchain/drawable path so iOS windows stop presenting through
+   MoltenVK; `MTLCounterSampleBuffer` timestamps; then the Device Farm
+   numbers (iPhone 14 / 18 Pro Max, GPU time under 8.3 ms at 120 Hz).
+2. **D3D12 on a hardware adapter** (PENDING §1.3): run the same suite plus
+   `fixtures`/`baseline` on the Kaby Lake laptop's GPU and commit the
+   receipt — WARP is correctness, never speed.
+3. **The two over-budget fixtures** (PENDING §4.1): AVX2 shipped
+   (`3736a4a`, runtime-detected); CI's Linux leg now shows glass at 4.4 ms
+   and nested at 4.6 ms — the i5-7200U receipt is what closes it.
+4. **The vertex diet's second half**: f16 UVs, u16 atlas coordinates, a
+   per-draw uniform index for the repeated fields — 96 bytes today against
+   the plan's ~50%-of-108 target.
+5. **Compute-pass blur** (the G-4 follow-up): the fragment hybrid picks the
+   cheaper form per pixel; the one-add-one-sub running sum per row and
+   column is the documented next step.
+6. **Windows start-up measurement** (§3.5): the 840 → ~250 ms code landed
+   (`9b82b2b`); the before/after `baseline` trace on the laptop is owed.
+7. **The verification owed on done items** — one Device Farm round (storm
+   attribution, `gpu` vs `gpuserial`, small-damage), one laptop round
+   (`fixtures --runs 10 --receipt`, `baseline` with `VIEWW_TRACE_FRAMES=1`),
+   a first-frame timing for the cached 3D pipelines.
+8. **Toolchain** — keep the legs on the pinned 1.98.1; the soma upgrade's
+   web dispatch has no web build (`apps/soma/ci.toml` is android+ios only).
