@@ -29,6 +29,11 @@
 //!   actually type reach the words the corpus actually uses.
 //! * **completion** — the last token being typed is prefix-matched against
 //!   the term index, so "migra" already scores against *migraine*.
+//! * **typos** — a token that is *close* to an index term but not one
+//!   ("migrane", "dyabetes", "kidny") joins the query at reduced weight,
+//!   found by a bounded Damerau-Levenshtein scan over the term index. The
+//!   clinical vocabulary is exactly the part of a health app people cannot
+//!   spell, and a misspelling previously returned nothing at all.
 //!
 //! # Why no neural net
 //!
@@ -534,6 +539,13 @@ const STOP: &[&str] = &[
 /// The same suffix stemmer the builder applies, in the same order. A
 /// mirrored pair — change one and the vectors stop agreeing with the
 /// queries, so both carry the other's test vectors.
+///
+/// The `es` rules are sibilant-aware: `es` is a real suffix only after
+/// `ch`/`sh`/`x`/`z`/`ss` (watches, dishes, boxes, buzzes, classes), and
+/// the whole `-aches` family is `-ache` + `s` (a headache plural is not a
+/// watch plural). Everywhere else the `e` belongs to the word — `stones`
+/// stems to `stone`, not `ston` — because the singular and the plural must
+/// meet in one key, or a query for one can never find the other's page.
 fn stem(word: &str) -> &str {
     if word.len() > 4 && word.ends_with("ies") {
         let stem = &word[..word.len() - 3];
@@ -546,7 +558,21 @@ fn stem(word: &str) -> &str {
     if word.len() > 4 && word.ends_with("ed") {
         return &word[..word.len() - 2];
     }
-    if word.len() > 3 && word.ends_with("es") && !word.ends_with("ses") {
+    if word.len() > 4 && word.ends_with("aches") {
+        // headaches, backaches, earaches — "-ache" + "s".
+        return &word[..word.len() - 1];
+    }
+    if word.len() > 4
+        && (word.ends_with("sses") || word.ends_with("ches") || word.ends_with("shes"))
+    {
+        // classes, watches, dishes.
+        return &word[..word.len() - 2];
+    }
+    if word.len() > 3
+        && word.ends_with("es")
+        && matches!(word.as_bytes().get(word.len() - 3), Some(b'x') | Some(b'z'))
+    {
+        // boxes, buzzes.
         return &word[..word.len() - 2];
     }
     if word.len() > 3 && word.ends_with('s') && !word.ends_with("ss") {
@@ -664,7 +690,9 @@ const SYNONYMS: &[(&str, &str)] = &[
     ("the flu", "influenza flu virus"),
     ("common cold", "cold rhinovirus upper respiratory"),
     ("sun burn", "sunburn ultraviolet skin burn"),
-    (" razor burn", "razor bumps skin shaving"),
+    // No leading space: a phrase must fire wherever it sits in the query,
+    // including at the very start, where " razor burn" never matched.
+    ("razor burn", "razor bumps skin shaving"),
     ("acid reflux", "gerd gastroesophageal reflux heartburn"),
     ("heartburn", "gerd reflux acid"),
     ("winded", "breathless dyspnea"),
@@ -739,6 +767,93 @@ const SYNONYMS: &[(&str, &str)] = &[
 ];
 
 // ---------------------------------------------------------------------------
+// Typos — the near-miss layer
+// ---------------------------------------------------------------------------
+
+/// Damerau-Levenshtein distance (optimal string alignment), or `None` the
+/// moment the distance is known to exceed `limit`. Two rows and the row
+/// above them, so a transposition — "teh" vs "the" — costs one, not two.
+fn damerau_within(a: &[char], b: &[char], limit: usize) -> Option<usize> {
+    let n = a.len();
+    let m = b.len();
+    if n.abs_diff(m) > limit {
+        return None;
+    }
+    let mut prev2: Vec<usize> = Vec::new();
+    let mut prev: Vec<usize> = (0..=m).collect();
+    let mut row = vec![0_usize; m + 1];
+    for i in 1..=n {
+        row[0] = i;
+        let mut row_min = row[0];
+        for j in 1..=m {
+            let cost = usize::from(a[i - 1] != b[j - 1]);
+            // Substitute, delete from a, insert into a.
+            let mut cell = (prev[j - 1] + cost).min(prev[j] + 1).min(row[j - 1] + 1);
+            if i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1] {
+                cell = cell.min(prev2[j - 2] + 1);
+            }
+            row[j] = cell;
+            row_min = row_min.min(cell);
+        }
+        if row_min > limit {
+            return None;
+        }
+        prev2 = prev.clone();
+        prev.copy_from_slice(&row);
+    }
+    (prev[m] <= limit).then_some(prev[m])
+}
+
+/// The nearest index term to a token the corpus does not carry, if one is
+/// close enough to be trusted.
+///
+/// The scan is the whole term index with cheap gates in front of the edit
+/// distance: a length window first, then the candidate's evidence (a term
+/// fewer than five topics carry, or an idf under three, is not a word
+/// someone was trying to spell — it is noise reaching back), then — for the
+/// single-edit tier — an endpoint, which one edit cannot move both of.
+/// What survives is ranked by fewest edits, then by the most postings
+/// (a word people were searching for is a word the corpus talks about),
+/// then by idf. The best one joins the query; two-finger typos are only
+/// considered for the long clinical words, where a two-edit false positive
+/// barely exists.
+fn fuzzy_term(db: &Db, token: &str) -> Option<String> {
+    let chars: Vec<char> = token.chars().collect();
+    if chars.len() < 4 {
+        return None;
+    }
+    let limit = if chars.len() >= 8 { 2 } else { 1 };
+    let first = chars[0];
+    let last = *chars.last().expect("non-empty by the length gate");
+    let mut best: Option<(usize, std::cmp::Reverse<usize>, std::cmp::Reverse<f32>, String)> = None;
+    for entry in &db.terms.entries {
+        if entry.postings.len() < 5 || entry.idf < 3.0 {
+            continue;
+        }
+        let cand: Vec<char> = entry.term.chars().collect();
+        if cand.len().abs_diff(chars.len()) > limit {
+            continue;
+        }
+        if limit == 1 && cand[0] != first && *cand.last().expect("non-empty") != last {
+            continue;
+        }
+        let Some(edits) = damerau_within(&chars, &cand, limit) else {
+            continue;
+        };
+        let rank = (
+            edits,
+            std::cmp::Reverse(entry.postings.len()),
+            std::cmp::Reverse(entry.idf),
+            entry.term.to_owned(),
+        );
+        if best.as_ref().is_none_or(|b| (rank.0, rank.1, rank.2) < (b.0, b.1, b.2)) {
+            best = Some(rank);
+        }
+    }
+    best.map(|(_, _, _, term)| term)
+}
+
+// ---------------------------------------------------------------------------
 // The search itself
 // ---------------------------------------------------------------------------
 
@@ -803,16 +918,33 @@ struct QueryTerm {
     expanded: bool,
 }
 
-/// The query, understood: tokens, synonym expansions, prefix completion.
+/// The query, understood: tokens, synonym expansions, typo corrections and
+/// prefix completion.
+///
+/// Prefix completion is gated on nothing else having been expanded: a
+/// partial word only ever ends a query while the person is still typing
+/// it, and the moment a synonym or a correction has fired, the last token
+/// is a *complete* word the dictionary already interpreted — completing
+/// "peeing a lot" against the term index would be reaching for "lotion",
+/// not finishing a thought.
 fn understand(db: &Db, query: &str) -> Vec<QueryTerm> {
-    let mut out: Vec<QueryTerm> = tokenize(query)
-        .into_iter()
-        .map(|t| QueryTerm { term: t, weight: 1.0, expanded: false })
+    let user = tokenize(query);
+    let mut out: Vec<QueryTerm> = user
+        .iter()
+        .map(|t| QueryTerm { term: t.clone(), weight: 1.0, expanded: false })
         .collect();
+    let mut expanded_any = false;
+    // Tokens a matched synonym phrase already interpreted — the typo layer
+    // must not second-guess the dictionary's reading of them ("cant sleep"
+    // is understood; reinterpreting "cant" on its own is not deeper, it is
+    // noisier).
+    let mut interpreted: Vec<String> = Vec::new();
 
     let lowered = query.to_lowercase();
     for (phrase, expansion) in SYNONYMS {
         if lowered.contains(phrase) {
+            expanded_any = true;
+            interpreted.extend(tokenize(phrase));
             for t in tokenize(expansion) {
                 if !out.iter().any(|q| q.term == t) {
                     out.push(QueryTerm { term: t, weight: 0.75, expanded: true });
@@ -821,19 +953,35 @@ fn understand(db: &Db, query: &str) -> Vec<QueryTerm> {
         }
     }
 
+    // The typo layer: every user token the index does not carry, and no
+    // synonym has already spoken for, is offered its nearest index term.
+    for t in &user {
+        if interpreted.iter().any(|i| i == t) || db.terms.find(t).is_some() {
+            continue;
+        }
+        if let Some(near) = fuzzy_term(db, t) {
+            expanded_any = true;
+            if !out.iter().any(|q| q.term == near) {
+                out.push(QueryTerm { term: near, weight: 0.6, expanded: true });
+            }
+        }
+    }
+
     // Prefix completion on the final token: "migra" -> "migraine" (and its
     // neighborhood). Only when the token itself is not a known term — a
-    // known term is already scoring at full weight.
-    if let Some(last) = out.last() {
-        if !last.expanded && db.terms.find(&last.term).is_none() && last.term.len() >= 3 {
-            let prefix = last.term.clone();
-            for term in db.terms.prefix(&prefix, 6) {
-                if term != prefix {
-                    out.push(QueryTerm {
-                        term: term.to_owned(),
-                        weight: 0.55,
-                        expanded: true,
-                    });
+    // known term is already scoring at full weight — and nothing above has
+    // expanded the query.
+    if !expanded_any {
+        if let Some(last) = user.last() {
+            if db.terms.find(last).is_none() && last.len() >= 3 {
+                for term in db.terms.prefix(last, 6) {
+                    if term != last {
+                        out.push(QueryTerm {
+                            term: term.to_owned(),
+                            weight: 0.55,
+                            expanded: true,
+                        });
+                    }
                 }
             }
         }
@@ -880,7 +1028,15 @@ pub fn search(db: &Db, query: &str, limit: usize) -> (Vec<Hit>, bool) {
                     if norm > f32::EPSILON {
                         // q_i * d_i / |d| — the query side is constant
                         // across topics, so only the weight is needed.
-                        semantic[t] += qt.weight * entry.idf * (tf * entry.idf) / norm;
+                        // A posting at tf >= 3 carries the term in the
+                        // *title* (the builder counts a title mention at
+                        // weight 3, descriptions at 1): the page that IS
+                        // the word outranks a page that merely says it
+                        // often — a pill's leaflet says "depression"
+                        // more than the Depression page does, and the
+                        // cosine alone could not tell them apart.
+                        let title = if tf >= 3.0 { 1.5 } else { 1.0 };
+                        semantic[t] += qt.weight * entry.idf * (tf * entry.idf) * title / norm;
                         flags[t] |= if qt.expanded { found::EXPANDED } else { found::SEMANTIC };
                     }
                 }
@@ -936,8 +1092,15 @@ pub fn search(db: &Db, query: &str, limit: usize) -> (Vec<Hit>, bool) {
         }
         let topic = &db.topics[index];
         // Cosine similarity of a short query runs 0.2..0.8 against a good
-        // topic; scaled to sit beside the literal scores.
-        let mut score = lit + (sem * 2.4).min(2.6);
+        // topic; scaled to sit beside the literal scores. The ceiling is a
+        // guard against pathological density (a term repeated twenty times
+        // in one description), not a blend control: an exact title match
+        // collects both layers and cannot be outranked by this one, so the
+        // cosine's own spread — which is the semantic layer's whole
+        // contribution — is allowed to show. The old ceiling of 2.6 sat
+        // below almost every strong cosine and tied them all, which handed
+        // the ordering to the tiebreakers.
+        let mut score = lit + (sem * 2.4).min(12.0);
         let len = topic.title.chars().count() as f32;
         score += kind_boost(topic.kind);
         score += (60.0 - len.min(60.0)) * 0.004;
@@ -1099,6 +1262,13 @@ mod tests {
         assert!(tokenize("the a of is it").is_empty());
         // punctuation splits
         assert_eq!(tokenize("kidney-stone (renal)"), ["kidney", "stone", "renal"]);
+        // The plural fix: the singular and the plural must meet in one key.
+        assert_eq!(tokenize("kidney stones"), ["kidney", "stone"]);
+        assert_eq!(tokenize("headaches"), ["headache"]);
+        assert_eq!(tokenize("muscles"), ["muscle"]);
+        assert_eq!(tokenize("watches"), ["watch"]);
+        assert_eq!(tokenize("boxes"), ["box"]);
+        assert_eq!(tokenize("houses"), ["house"]);
     }
 
     #[test]
@@ -1159,5 +1329,104 @@ mod tests {
         let (hits, _) = search(&db, "chest pain", 8);
         let top = hits.first().map(|h| db.topics[h.topic].title.to_lowercase());
         assert!(top.as_deref().is_some_and(|t| t.contains("chest pain")), "exact title should lead: {top:?}");
+    }
+
+    // --- the typo layer --------------------------------------------------
+
+    #[test]
+    fn damerau_counts_the_classic_cases() {
+        let d = |a: &str, b: &str, limit: usize| {
+            damerau_within(
+                &a.chars().collect::<Vec<_>>(),
+                &b.chars().collect::<Vec<_>>(),
+                limit,
+            )
+        };
+        // Substitution, insertion, deletion: one edit each.
+        assert_eq!(d("migrane", "migraine", 1), Some(1));
+        assert_eq!(d("astma", "asthma", 1), Some(1));
+        assert_eq!(d("kidny", "kidney", 1), Some(1));
+        // A transposition is one edit, not two.
+        assert_eq!(d("teh", "the", 1), Some(1));
+        // Beyond the limit is a refusal, not a distance.
+        assert_eq!(d("migrane", "migraine", 0), None);
+        assert_eq!(d("heart", "lungs", 1), None);
+    }
+
+    #[test]
+    fn typos_still_find_the_word() {
+        let db = crate::db::parse();
+        // The clinical vocabulary is the part people cannot spell; each of
+        // these is a real-world misspelling with zero literal overlap.
+        for (query, want) in [
+            ("migrane", "migraine"),
+            ("dyabetes", "diabetes"),
+            ("pnemonia", "pneumonia"),
+            ("hipatitis", "hepatitis"),
+            ("aneamia", "anemia"),
+        ] {
+            let (hits, _) = search(&db, query, 8);
+            let top: Vec<&str> = hits.iter().take(3).map(|h| db.topics[h.topic].title.as_ref()).collect();
+            assert!(
+                top.iter().any(|t| t.to_lowercase().contains(want)),
+                "{query} did not surface {want}: {top:?}"
+            );
+        }
+        // Two tokens, one misspelled: the good token still carries, the bad
+        // one is corrected, and the exact page leads.
+        let (hits, _) = search(&db, "kidny stones", 8);
+        let top = hits.first().map(|h| db.topics[h.topic].title.to_lowercase());
+        assert!(
+            top.as_deref().is_some_and(|t| t.contains("kidney stones")),
+            "kidny stones should find Kidney Stones first: {top:?}"
+        );
+    }
+
+    #[test]
+    fn typos_do_not_reach_for_gibberish() {
+        let db = crate::db::parse();
+        // Nothing in the corpus is one edit from this; the layer must stay
+        // quiet rather than invent a reading.
+        let (hits, _) = search(&db, "xqkjw", 8);
+        assert!(hits.is_empty(), "gibberish must not reach: {:?}",
+            hits.iter().take(3).map(|h| db.topics[h.topic].title).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn razor_burn_fires_at_query_start() {
+        let db = crate::db::parse();
+        // The phrase used to carry a leading space and never matched at the
+        // start of a query — the one place it is most likely to sit.
+        let (hits, _) = search(&db, "razor burn", 8);
+        let top: Vec<&str> = hits.iter().take(3).map(|h| db.topics[h.topic].title.as_ref()).collect();
+        assert!(
+            top.iter().any(|t| t.to_lowercase().contains("razor burn")),
+            "razor burn not surfaced: {top:?}"
+        );
+        assert!(
+            hits.iter().any(|h| h.flags & found::EXPANDED != 0),
+            "the synonym layer never fired for a query-start 'razor burn'"
+        );
+    }
+
+    // --- title evidence in the vector layer -------------------------------
+
+    #[test]
+    fn the_page_that_is_the_word_leads() {
+        let db = crate::db::parse();
+        // A dense medication leaflet used to out-cosine the page named
+        // after the condition, because the cosine was capped into a tie.
+        for (query, want) in [
+            ("feeling sad", "depression"),
+            ("peeing a lot", "frequent urination"),
+            ("cant sleep", "insomnia"),
+        ] {
+            let (hits, _) = search(&db, query, 8);
+            let top: Vec<&str> = hits.iter().take(3).map(|h| db.topics[h.topic].title.as_ref()).collect();
+            assert!(
+                top.iter().any(|t| t.to_lowercase().contains(want)),
+                "{query} did not surface {want} in the top three: {top:?}"
+            );
+        }
     }
 }

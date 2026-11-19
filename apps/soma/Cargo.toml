@@ -1,8 +1,33 @@
 [package]
 name = "soma"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
 publish = false
+
+# **An empty `[workspace]` table is the load-bearing line in this file.**
+#
+# A scaffolded project has no control over where it lands on disk. The studio's
+# `new_project` puts it beside the open folder, which is the right default for
+# an isolated project — but it is *also* the right default when the open folder
+# is itself inside another workspace (like this very checkout), and in that case
+# the new project's `Cargo.toml` lands inside a parent workspace's directory
+# tree without being listed in its `members`.
+#
+# Without this empty table, Cargo walks up from the new project, finds the
+# parent workspace, and errors:
+#
+#     error: current package believes it's in a workspace when it's not:
+#            current:  …/vieww-app-2/Cargo.toml
+#            workspace: …/vieww/Cargo.toml
+#
+# The empty `[workspace]` table tells Cargo "this package is its own workspace
+# root, do not look further up the tree", which is the standard Cargo idiom for
+# a sub-package that is standalone inside a larger repo — used by `rust-analyzer`'s
+# examples, Bevy's examples, and the cargo book's own nested-package
+# documentation. Removing it makes the scaffold fail inside any checkout of
+# vieww itself, which is exactly the place a vieww user is most likely to be
+# standing when they press New Project.
+[workspace]
 
 [dependencies]
 # The umbrella crate: widgets, layout, painting and the element tree.

@@ -1,0 +1,31 @@
+[package]
+name = "soma-core"
+version = "0.2.0"
+edition = "2021"
+publish = false
+
+# The framework-free bench for soma's data and search layers.
+#
+# `soma` itself depends on the vieww workspace, whose crates are not present
+# in this sandbox (see ../../vieww_prod/recovered/README.md). `src/db.rs` and
+# `src/search.rs` are std-only, so this crate compiles them *unmodified* by
+# path-include: no copy, no fork — the harness cannot drift from the app.
+# When the framework comes back, `cargo test` inside `soma/` runs the same
+# tests against the same files, and this bench keeps working beside it for
+# fast, framework-free iteration on the search stack.
+#
+# Standalone workspace, same rule as soma's own Cargo.toml.
+[workspace]
+
+[lib]
+name = "soma_core"
+path = "src/lib.rs"
+
+# The query dumper — graph_debug.rs's twin, minus the soma crate (which
+# cannot link without the framework). Same queries, same output shape.
+[[bin]]
+name = "queries"
+path = "src/bin/queries.rs"
+
+[profile.test]
+opt-level = 2
