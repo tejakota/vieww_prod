@@ -12,6 +12,23 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
+Last updated: 2026-11-19, after the status-check round: the gate is green
+again (the macos-15 runners start, the Apple and Windows legs execute, and
+`1 · Check` on `fceec64` was the first all-PASS run since the plan was
+written) - Metal has run for the first time (28/28 on the runner's
+paravirtual GPU), D3D12 ran the full matrix on WARP (10 tests, 0 interior
+violations), the atlas diet and the idle target trim reached the WebGPU
+backend (browser parity with churn pairs that must take the region path),
+clipped shadows became quads (the clip folds into the coverage, replayed
+against the oracle at 2/255 with no GPU), and C-3's leftovers landed fused
+- the clip fixtures 24% and 23% faster, the gallery byte-identical. What
+remains is in `TODO.md`'s open list: the iPhone present path, the
+hardware-adapter receipts, the vertex diet's second half, and the compute
+blur (the fragment hybrid's math and its edge modes are documented at the
+kernel - the one-add-one-sub form is the follow-up).
+
+---
+
 Last updated: 2026-11-18, after the performance-plan round: eleven more
 commits on main, every one pixel-identical where the contract says so (the
 gallery, the lavapipe parity matrices) - the CPU paint optimizations
