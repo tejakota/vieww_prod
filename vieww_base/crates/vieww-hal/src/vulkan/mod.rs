@@ -657,6 +657,17 @@ impl VulkanDevice {
         }
     }
 
+    /// A format's optimal-tiling features, so a renderer built on this one
+    /// can decide what its own images may ask of it before creating any —
+    /// the compute blur's storage targets, for one.
+    pub(crate) fn format_features(&self, format: vk::Format) -> vk::FormatFeatureFlags {
+        unsafe {
+            self.instance
+                .get_physical_device_format_properties(self.physical_device, format)
+                .optimal_tiling_features
+        }
+    }
+
     /// The loaded device handle, for a renderer built on top of this one.
     ///
     /// `pub(crate)`, not `pub`: an `ash::Device` in a caller's hands is a

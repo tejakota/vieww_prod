@@ -21,6 +21,11 @@
 //!     scene         batched geometry, source-over     (Step::Draw)
 //!     post_replace  full-screen, no blending          copy · blur · matrix · mask · blend
 //!     post_over     full-screen, source-over          normal composite · shadow tint
+//!     cs_blur       compute, per scanline             the blur modes, one add and one
+//!                                                    sub per pixel — built when the
+//!                                                    device's targets may be storage
+//!                                                    images, and then used in place of
+//!                                                    the fragment blur passes
 //! ```
 //!
 //! # Why every target is RGBA16F and premultiplied
@@ -73,7 +78,7 @@ use ash::vk;
 use vieww_foundation::Color;
 use vieww_gpu::{PixelRect, Planner, ScenePlan, Vertex};
 
-use crate::scene_exec::{frame_passes, PassKind, PostPush, Retained, SceneOp, TargetId};
+use crate::scene_exec::{frame_passes, PassKind, PostPass, PostPush, Retained, SceneOp, TargetId};
 
 use super::present_history::{self, PresentHistory};
 #[cfg(feature = "vulkan-swapchain")]
@@ -227,6 +232,21 @@ pub struct SceneRenderer {
     post_set_layout: vk::DescriptorSetLayout,
     post_pool: vk::DescriptorPool,
     post_sets: HashMap<(TargetId, TargetId), vk::DescriptorSet>,
+
+    /// The compute blur — the one-add-one-sub running sum a fragment
+    /// cannot hold, one invocation per scanline — when the device's targets
+    /// can be storage images and the run has not turned it off
+    /// (`VIEWW_GPU_COMPUTE_BLUR=0`, for an A/B on one device). `None` means
+    /// the blur modes run as the fragment hybrid they ran as before.
+    blur: Option<BlurCompute>,
+    /// Its descriptor sets, keyed by (src, dst) as the post sets are by
+    /// (src, aux) — reset with them, because the same target reallocations
+    /// invalidate both.
+    blur_sets: HashMap<(TargetId, TargetId), vk::DescriptorSet>,
+    /// Whether the renderer's own targets are created with `STORAGE` usage:
+    /// only when the device reports the format as a storage image, without
+    /// which the compute blur has nowhere to write and stays off.
+    target_storage: bool,
 
     shaders: Vec<vk::ShaderModule>,
     command_pool: vk::CommandPool,
@@ -632,6 +652,126 @@ enum Bound {
     Post(bool),
 }
 
+/// Whether this run wants the compute blur. `VIEWW_GPU_COMPUTE_BLUR=0`
+/// turns it off — the A/B on one device, the same shape as the shadow
+/// pass's `VIEWW_GPU_SHADOW_PASS`.
+fn compute_blur_wanted() -> bool {
+    !std::env::var_os("VIEWW_GPU_COMPUTE_BLUR").is_some_and(|v| v == "0")
+}
+
+/// The compute half of `post.wgsl`: `cs_blur`, one invocation per scanline
+/// of a dispatch's write band, carrying the running sum from one pixel to
+/// the next — the two reads and one add and one sub the fragment form could
+/// only approximate by re-deriving its window at every pixel.
+struct BlurCompute {
+    module: vk::ShaderModule,
+    pipeline: vk::Pipeline,
+    layout: vk::PipelineLayout,
+    set_layout: vk::DescriptorSetLayout,
+    pool: vk::DescriptorPool,
+}
+
+impl BlurCompute {
+    /// The source as `t_src` (binding 0, sampled, resting in
+    /// `SHADER_READ_ONLY_OPTIMAL`) and the destination as `t_dst` (binding
+    /// 3, a storage image in `GENERAL`) — the fragment set's bindings 1 and
+    /// 2 untouched, because per-entry-point compilation keeps them out of
+    /// the compute blob entirely.
+    ///
+    /// # Errors
+    ///
+    /// Vulkan object creation or SPIR-V translation failing.
+    fn new(device: &VulkanDevice) -> Result<Self, VulkanError> {
+        let handle = device.raw_device();
+        let set_layout = unsafe {
+            handle.create_descriptor_set_layout(
+                &vk::DescriptorSetLayoutCreateInfo::default().bindings(&[
+                    vk::DescriptorSetLayoutBinding::default()
+                        .binding(0)
+                        .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
+                        .descriptor_count(1)
+                        .stage_flags(vk::ShaderStageFlags::COMPUTE),
+                    vk::DescriptorSetLayoutBinding::default()
+                        .binding(3)
+                        .descriptor_type(vk::DescriptorType::STORAGE_IMAGE)
+                        .descriptor_count(1)
+                        .stage_flags(vk::ShaderStageFlags::COMPUTE),
+                ]),
+                None,
+            )
+        }?;
+        let pool = unsafe {
+            handle.create_descriptor_pool(
+                &vk::DescriptorPoolCreateInfo::default()
+                    .pool_sizes(&[
+                        vk::DescriptorPoolSize {
+                            ty: vk::DescriptorType::SAMPLED_IMAGE,
+                            descriptor_count: 512,
+                        },
+                        vk::DescriptorPoolSize {
+                            ty: vk::DescriptorType::STORAGE_IMAGE,
+                            descriptor_count: 512,
+                        },
+                    ])
+                    .max_sets(512),
+                None,
+            )
+        }?;
+        // The post immediates block, as the compute stage's push constants:
+        // the same `PostPush` the fragment pass receives, with `p0` borrowed
+        // for this dispatch's write band.
+        let push_ranges = [vk::PushConstantRange {
+            stage_flags: vk::ShaderStageFlags::COMPUTE,
+            offset: 0,
+            size: std::mem::size_of::<PostPush>() as u32,
+        }];
+        let layout = unsafe {
+            handle.create_pipeline_layout(
+                &vk::PipelineLayoutCreateInfo::default()
+                    .set_layouts(&[set_layout])
+                    .push_constant_ranges(&push_ranges),
+                None,
+            )
+        }?;
+        let code =
+            translate_wgsl_to_spirv(vieww_shaders::library::POST_WGSL, "cs_blur", Stage::Compute)?;
+        let module = unsafe {
+            handle.create_shader_module(&vk::ShaderModuleCreateInfo::default().code(&code), None)
+        }?;
+        let stage = vk::PipelineShaderStageCreateInfo::default()
+            .stage(vk::ShaderStageFlags::COMPUTE)
+            .module(module)
+            .name(c"cs_blur");
+        let pipeline = unsafe {
+            handle
+                .create_compute_pipelines(
+                    device.pipeline_cache(),
+                    &[vk::ComputePipelineCreateInfo::default()
+                        .stage(stage)
+                        .layout(layout)],
+                    None,
+                )
+                .map(|pipelines| pipelines[0])
+                .map_err(|(_, e)| VulkanError::Vulkan(e.to_string()))?
+        };
+        Ok(Self {
+            module,
+            pipeline,
+            layout,
+            set_layout,
+            pool,
+        })
+    }
+
+    unsafe fn destroy(&self, device: &ash::Device) {
+        device.destroy_pipeline(self.pipeline, None);
+        device.destroy_shader_module(self.module, None);
+        device.destroy_pipeline_layout(self.layout, None);
+        device.destroy_descriptor_pool(self.pool, None);
+        device.destroy_descriptor_set_layout(self.set_layout, None);
+    }
+}
+
 impl SceneRenderer {
     /// Build the render passes, pipelines and placeholder textures.
     ///
@@ -795,14 +935,15 @@ impl SceneRenderer {
 
         let f = std::mem::size_of::<f32>() as u32;
         let (scene_binding, scene_attributes) = scene_vertex_layout();
-        // 23 floats plus the packed 4-byte colour. A shipped swapped-offset
-        // bug once escaped review (GPU-RENDERER-STATUS: only a pixel
-        // comparison caught it), so the stride is pinned at creation: a
-        // `Vertex` that drifts from the attribute table fails here, on the
-        // device, before any frame draws wrong.
+        // Two `f32` pairs and a `u32` index — the flat payload lives in the
+        // constants table. A shipped swapped-offset bug once escaped review
+        // (GPU-RENDERER-STATUS: only a pixel comparison caught it), so the
+        // stride is pinned at creation: a `Vertex` that drifts from the
+        // attribute table fails here, on the device, before any frame draws
+        // wrong.
         assert_eq!(
             std::mem::size_of::<Vertex>() as u32,
-            23 * f + 4,
+            4 * f + 4,
             "vertex layout drifted"
         );
 
@@ -884,7 +1025,7 @@ impl SceneRenderer {
         let images = create_texture(&handle, &mem_props, vk::Format::R8G8B8A8_UNORM, 1, 1)?;
         let masks = create_texture(&handle, &mem_props, vk::Format::R8_UNORM, 1, 1)?;
         let ramps = create_texture(&handle, &mem_props, vk::Format::R32G32B32A32_SFLOAT, 1, 1)?;
-        let dummy = create_target(&handle, &mem_props, rp_load, 1, 1)?;
+        let dummy = create_target(&handle, &mem_props, rp_load, 1, 1, false)?;
         let queries = match device.timestamp_support() {
             Some((period, bits)) => {
                 let mask = if bits >= 64 {
@@ -954,6 +1095,9 @@ impl SceneRenderer {
             post_set_layout,
             post_pool,
             post_sets: HashMap::new(),
+            blur: None,
+            blur_sets: HashMap::new(),
+            target_storage: false,
             shaders,
             command_pool,
             slots,
@@ -1019,6 +1163,18 @@ impl SceneRenderer {
         for slot in Slot::ALL {
             let bytes = vec![0u8; bytes_per_texel(renderer.texture(slot).format)];
             renderer.upload(slot, &bytes, 1, 1, None, true)?;
+        }
+        // The compute blur, when the device's own targets can be storage
+        // images and the run has not asked it off. Decided here and not at
+        // target creation only because the two must agree: `STORAGE` on an
+        // image a format does not support fails the creation, so the flag
+        // and the pipeline are set together or neither is.
+        renderer.target_storage = device
+            .format_features(TARGET_FORMAT)
+            .contains(vk::FormatFeatureFlags::STORAGE_IMAGE)
+            && compute_blur_wanted();
+        if renderer.target_storage {
+            renderer.blur = Some(BlurCompute::new(device)?);
         }
         renderer.initialise_targets(&[TargetId::Dummy])?;
         Ok(renderer)
@@ -2215,6 +2371,7 @@ impl SceneRenderer {
                 self.rp_load,
                 width,
                 height,
+                self.target_storage,
             )?);
             self.scratch.push(create_target(
                 &self.device,
@@ -2222,6 +2379,7 @@ impl SceneRenderer {
                 self.rp_load,
                 width,
                 height,
+                self.target_storage,
             )?);
             fresh.push(TargetId::Level(level));
             fresh.push(TargetId::Scratch(level));
@@ -2411,6 +2569,18 @@ impl SceneRenderer {
             }?;
             self.post_sets.clear();
         }
+        // The blur sets bind the same targets' views, so the same
+        // reallocations invalidate them; the pool resets with the post one
+        // because both are only rewritten between frames, after a settle.
+        if !self.blur_sets.is_empty() {
+            if let Some(blur) = self.blur.as_ref() {
+                unsafe {
+                    self.device
+                        .reset_descriptor_pool(blur.pool, vk::DescriptorPoolResetFlags::empty())
+                }?;
+            }
+            self.blur_sets.clear();
+        }
         Ok(())
     }
 
@@ -2450,6 +2620,161 @@ impl SceneRenderer {
         unsafe { self.device.update_descriptor_sets(&writes, &[]) };
         self.post_sets.insert((src, aux), set);
         Ok(set)
+    }
+
+    /// One blur dispatch's set: the source sampled from its resting layout,
+    /// the destination stored to in `GENERAL` — the only layout a storage
+    /// image may be written in.
+    fn blur_set(&mut self, src: TargetId, dst: TargetId) -> Result<vk::DescriptorSet, VulkanError> {
+        if let Some(set) = self.blur_sets.get(&(src, dst)) {
+            return Ok(*set);
+        }
+        let pool = self
+            .blur
+            .as_ref()
+            .expect("a blur set is only asked of a renderer with the compute blur")
+            .pool;
+        let set_layout = self.blur.as_ref().expect("as above").set_layout;
+        let set = unsafe {
+            self.device.allocate_descriptor_sets(
+                &vk::DescriptorSetAllocateInfo::default()
+                    .descriptor_pool(pool)
+                    .set_layouts(&[set_layout]),
+            )
+        }?[0];
+        let src_info = [vk::DescriptorImageInfo {
+            sampler: vk::Sampler::null(),
+            image_view: self.target(src).view,
+            image_layout: vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+        }];
+        let dst_info = [vk::DescriptorImageInfo {
+            sampler: vk::Sampler::null(),
+            image_view: self.target(dst).view,
+            image_layout: vk::ImageLayout::GENERAL,
+        }];
+        let writes = [
+            vk::WriteDescriptorSet::default()
+                .dst_set(set)
+                .dst_binding(0)
+                .descriptor_type(vk::DescriptorType::SAMPLED_IMAGE)
+                .image_info(&src_info),
+            vk::WriteDescriptorSet::default()
+                .dst_set(set)
+                .dst_binding(3)
+                .descriptor_type(vk::DescriptorType::STORAGE_IMAGE)
+                .image_info(&dst_info),
+        ];
+        unsafe { self.device.update_descriptor_sets(&writes, &[]) };
+        self.blur_sets.insert((src, dst), set);
+        Ok(set)
+    }
+
+    /// One blur pass as a compute dispatch: end the open render pass, make
+    /// the source's last writes visible to the compute stage (the render
+    /// pass's own external dependency only orders them against the fragment
+    /// stage), move the destination into `GENERAL`, dispatch one invocation
+    /// per scanline of `scissor`, then return the destination to the
+    /// `SHADER_READ_ONLY_OPTIMAL` every target rests in — so the next op,
+    /// whichever pass it opens, finds what it always found.
+    fn dispatch_blur(
+        &mut self,
+        rec: &mut Recorder,
+        pass: &PostPass,
+        scissor: PixelRect,
+    ) -> Result<(), VulkanError> {
+        if self.blur.is_none() {
+            return Ok(());
+        }
+        rec.end(self);
+        let cmd = self.cmd();
+        let src = self.target(pass.src).image;
+        let dst = self.target(pass.into).image;
+        // One invocation per scanline of the band: its rows for a
+        // horizontal pass, its columns for a vertical one.
+        let horizontal = pass.push.args[0] < 1.5;
+        let scanlines = u32::try_from(if horizontal {
+            scissor.y1 - scissor.y0
+        } else {
+            scissor.x1 - scissor.x0
+        })
+        .unwrap_or(0);
+        if scanlines == 0 {
+            return Ok(());
+        }
+        let set = self.blur_set(pass.src, pass.into)?;
+        let (pipeline, layout) = {
+            let blur = self
+                .blur
+                .as_ref()
+                .expect("checked above: a blur dispatch is only recorded with the compute blur");
+            (blur.pipeline, blur.layout)
+        };
+        let mut push = pass.push;
+        push.p[0] = [
+            scissor.x0 as f32,
+            scissor.y0 as f32,
+            scissor.x1 as f32,
+            scissor.y1 as f32,
+        ];
+        // SAFETY: recording into this slot's command buffer; the barriers
+        // below order the dispatch against every pass around it.
+        unsafe {
+            image_barrier(
+                &self.device,
+                cmd,
+                src,
+                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+                vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT
+                    | vk::PipelineStageFlags::FRAGMENT_SHADER,
+                vk::PipelineStageFlags::COMPUTE_SHADER,
+                vk::AccessFlags::COLOR_ATTACHMENT_WRITE | vk::AccessFlags::SHADER_READ,
+                vk::AccessFlags::SHADER_READ,
+            );
+            image_barrier(
+                &self.device,
+                cmd,
+                dst,
+                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+                vk::ImageLayout::GENERAL,
+                vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT
+                    | vk::PipelineStageFlags::FRAGMENT_SHADER,
+                vk::PipelineStageFlags::COMPUTE_SHADER,
+                vk::AccessFlags::COLOR_ATTACHMENT_WRITE | vk::AccessFlags::SHADER_READ,
+                vk::AccessFlags::SHADER_WRITE,
+            );
+            self.device
+                .cmd_bind_pipeline(cmd, vk::PipelineBindPoint::COMPUTE, pipeline);
+            self.device.cmd_bind_descriptor_sets(
+                cmd,
+                vk::PipelineBindPoint::COMPUTE,
+                layout,
+                0,
+                &[set],
+                &[],
+            );
+            self.device.cmd_push_constants(
+                cmd,
+                layout,
+                vk::ShaderStageFlags::COMPUTE,
+                0,
+                as_bytes(std::slice::from_ref(&push)),
+            );
+            self.device.cmd_dispatch(cmd, scanlines.div_ceil(64), 1, 1);
+            image_barrier(
+                &self.device,
+                cmd,
+                dst,
+                vk::ImageLayout::GENERAL,
+                vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+                vk::PipelineStageFlags::COMPUTE_SHADER,
+                vk::PipelineStageFlags::FRAGMENT_SHADER
+                    | vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
+                vk::AccessFlags::SHADER_WRITE,
+                vk::AccessFlags::SHADER_READ | vk::AccessFlags::COLOR_ATTACHMENT_WRITE,
+            );
+        }
+        Ok(())
     }
 
     // ── textures ───────────────────────────────────────────────────────────
@@ -2988,42 +3313,67 @@ impl SceneRenderer {
                     kind,
                 } => {
                     self.mark(*kind);
-                    let set = self.post_set(pass.src, pass.aux)?;
-                    rec.ensure_open(self, pass.into);
-                    if bound != Bound::Post(pass.over) {
+                    // The blur modes' compute route: one dispatch per scissor
+                    // band, the running sum carried along each scanline. A
+                    // direct frame is excluded — its post passes may write
+                    // the swapchain image, which is nobody's storage target
+                    // — and a device without the format's storage support
+                    // never built the pipeline, so the fragment hybrid it
+                    // certified runs instead.
+                    if self.blur.is_some()
+                        && direct_frame.is_none()
+                        && matches!(
+                            pass.push.args[0],
+                            crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
+                        )
+                    {
+                        for scissor in scissors {
+                            self.dispatch_blur(&mut rec, pass, *scissor)?;
+                        }
+                        // The dispatches ended the open render pass; the
+                        // next op rebinds whatever it needs.
+                        bound = Bound::None;
+                    } else {
+                        let set = self.post_set(pass.src, pass.aux)?;
+                        rec.ensure_open(self, pass.into);
+                        if bound != Bound::Post(pass.over) {
+                            unsafe {
+                                self.device.cmd_bind_pipeline(
+                                    self.cmd(),
+                                    vk::PipelineBindPoint::GRAPHICS,
+                                    if pass.over {
+                                        rec.post_over
+                                    } else {
+                                        rec.post_replace
+                                    },
+                                );
+                            }
+                            bound = Bound::Post(pass.over);
+                        }
                         unsafe {
-                            self.device.cmd_bind_pipeline(
+                            self.device.cmd_bind_descriptor_sets(
                                 self.cmd(),
                                 vk::PipelineBindPoint::GRAPHICS,
-                                if pass.over {
-                                    rec.post_over
-                                } else {
-                                    rec.post_replace
-                                },
+                                self.post_layout,
+                                0,
+                                &[set],
+                                &[],
                             );
-                        }
-                        bound = Bound::Post(pass.over);
-                    }
-                    unsafe {
-                        self.device.cmd_bind_descriptor_sets(
-                            self.cmd(),
-                            vk::PipelineBindPoint::GRAPHICS,
-                            self.post_layout,
-                            0,
-                            &[set],
-                            &[],
-                        );
-                        self.device.cmd_push_constants(
-                            self.cmd(),
-                            self.post_layout,
-                            vk::ShaderStageFlags::FRAGMENT,
-                            0,
-                            as_bytes(std::slice::from_ref(&pass.push)),
-                        );
-                        for scissor in scissors {
-                            self.device
-                                .cmd_set_scissor(self.cmd(), 0, &[pixel_scissor(*scissor)]);
-                            self.device.cmd_draw(self.cmd(), 3, 1, 0, 0);
+                            self.device.cmd_push_constants(
+                                self.cmd(),
+                                self.post_layout,
+                                vk::ShaderStageFlags::FRAGMENT,
+                                0,
+                                as_bytes(std::slice::from_ref(&pass.push)),
+                            );
+                            for scissor in scissors {
+                                self.device.cmd_set_scissor(
+                                    self.cmd(),
+                                    0,
+                                    &[pixel_scissor(*scissor)],
+                                );
+                                self.device.cmd_draw(self.cmd(), 3, 1, 0, 0);
+                            }
                         }
                     }
                 }
@@ -3788,6 +4138,9 @@ impl Drop for SceneRenderer {
             }
             self.device.destroy_descriptor_pool(self.scene_pool, None);
             self.device.destroy_descriptor_pool(self.post_pool, None);
+            if let Some(blur) = self.blur.take() {
+                blur.destroy(&self.device);
+            }
             self.device
                 .destroy_descriptor_set_layout(self.scene_set_layout, None);
             self.device
@@ -4066,16 +4419,25 @@ fn create_target(
     render_pass: vk::RenderPass,
     width: u32,
     height: u32,
+    storage: bool,
 ) -> Result<Target, VulkanError> {
     let (image, memory, view) = allocate_image(
         device,
         mem_props,
         TARGET_FORMAT,
         (width, height),
+        // The compute blur's storage usage, only when the device reported
+        // the format as one it will store to — the gate decided with the
+        // pipeline, so target and route agree.
         vk::ImageUsageFlags::COLOR_ATTACHMENT
             | vk::ImageUsageFlags::SAMPLED
             | vk::ImageUsageFlags::TRANSFER_SRC
-            | vk::ImageUsageFlags::TRANSFER_DST,
+            | vk::ImageUsageFlags::TRANSFER_DST
+            | if storage {
+                vk::ImageUsageFlags::STORAGE
+            } else {
+                vk::ImageUsageFlags::empty()
+            },
     )?;
     let framebuffer = unsafe {
         device.create_framebuffer(
@@ -4199,6 +4561,47 @@ unsafe fn transition(
         cmd,
         vk::PipelineStageFlags::ALL_COMMANDS,
         vk::PipelineStageFlags::ALL_COMMANDS,
+        vk::DependencyFlags::empty(),
+        &[],
+        &[],
+        &[barrier],
+    );
+}
+
+/// An image barrier with the stages and accesses named — `transition`'s
+/// `ALL_COMMANDS` form is right for the blit route's transfers, but a
+/// compute dispatch's storage write wants its own ordering said out loud:
+/// which stages produced what it reads, and which consume what it wrote.
+///
+/// # Safety
+///
+/// `image` is live and `cmd` is being recorded; the layouts match the
+/// image's actual current and intended layout.
+#[allow(clippy::too_many_arguments, reason = "a barrier is its eight facts")]
+unsafe fn image_barrier(
+    device: &ash::Device,
+    cmd: vk::CommandBuffer,
+    image: vk::Image,
+    from: vk::ImageLayout,
+    to: vk::ImageLayout,
+    src_stage: vk::PipelineStageFlags,
+    dst_stage: vk::PipelineStageFlags,
+    src_access: vk::AccessFlags,
+    dst_access: vk::AccessFlags,
+) {
+    let barrier = vk::ImageMemoryBarrier::default()
+        .old_layout(from)
+        .new_layout(to)
+        .src_queue_family_index(vk::QUEUE_FAMILY_IGNORED)
+        .dst_queue_family_index(vk::QUEUE_FAMILY_IGNORED)
+        .image(image)
+        .subresource_range(color_range())
+        .src_access_mask(src_access)
+        .dst_access_mask(dst_access);
+    device.cmd_pipeline_barrier(
+        cmd,
+        src_stage,
+        dst_stage,
         vk::DependencyFlags::empty(),
         &[],
         &[],

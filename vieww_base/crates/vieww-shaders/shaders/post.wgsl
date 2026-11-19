@@ -46,6 +46,12 @@ var<immediate> pc: Post;
 @group(0) @binding(0) var t_src: texture_2d<f32>;
 @group(0) @binding(1) var t_aux: texture_2d<f32>;
 @group(0) @binding(2) var t_mask: texture_2d<f32>;
+// The compute blur's destination, a storage image — binding 3, past the
+// fragment set's three, so the one module serves both pipeline families.
+// Only `cs_blur` references it; per-entry-point compilation drops it from
+// every fragment blob, so the ports' pipelines never see a binding their
+// set layouts do not provide.
+@group(0) @binding(3) var t_dst: texture_storage_2d<rgba16float, write>;
 
 @vertex
 fn vs_main(@builtin(vertex_index) index: u32) -> @builtin(position) vec4<f32> {
@@ -429,4 +435,117 @@ fn box_blur(p: vec2<i32>, mode: i32) -> vec4<f32> {
             - blur_tap(anchor, step, i - r, clamped));
     }
     return sum / f32(2 * r + 1);
+}
+
+// ── the compute form ───────────────────────────────────────────────────────
+//
+// Modes 1 and 2 as a compute pass: the one-add-one-sub running sum carried
+// along each scanline, which is the thing a fragment cannot do — it cannot
+// hand the next pixel the sum this one finished with, so the fragment form
+// re-derives its window from the seed (near the start) or gathers every tap
+// again (past it). One invocation per scanline of this dispatch's write
+// band, 64 to a workgroup; the seed derivation and the slide are the
+// fragment form's arithmetic — and the CPU kernels' — so the sums agree
+// addition for addition and the parity suites' 2/255 referee means what it
+// always meant.
+//
+// Reads per pixel are O(1) in the radius: the seed costs `far + 1` loads
+// once per scanline and the slide two per pixel (`i + r + 1` entering,
+// `i - r` leaving), where the fragment's cheaper form still paid `2r + 1`
+// per pixel past the scanline's start and the tap loop pays it everywhere.
+//
+// `pc.p0` carries this dispatch's write band (x0, y0, x1, y1) — spare in
+// the blur modes, and the one thing the fragment path received from its
+// dynamic scissor state instead.
+@compute @workgroup_size(64)
+fn cs_blur(@builtin(global_invocation_id) id: vec3<u32>) {
+    let mode = i32(round(pc.args.x));
+    let r = i32(round(pc.args.y));
+    let clamped = pc.args.z > 0.5;
+    // `var` + `if` rather than `let` + an if-expression: naga's parser
+    // takes the latter as a statement and stops at the condition ("expected
+    // `;`"). The fragment form avoids the same corner by assigning `step`
+    // through an `if` too.
+    var horizontal = true;
+    if mode == 2 {
+        horizontal = false;
+    }
+    let band = vec4<i32>(i32(pc.p0.x), i32(pc.p0.y), i32(pc.p0.z), i32(pc.p0.w));
+    // The scanline this invocation owns: a row of the band for a horizontal
+    // pass, a column for a vertical one.
+    var count = band.z - band.x;
+    if horizontal {
+        count = band.w - band.y;
+    }
+    let index = i32(id.x);
+    if index >= count {
+        return;
+    }
+    var step = vec2<i32>(1, 0);
+    if !horizontal {
+        step = vec2<i32>(0, 1);
+    }
+    // The scanline, anchored at the read region's near edge exactly as the
+    // fragment form anchors it: `anchor` is the scanline's first pixel of
+    // the region, `span` the region's length along it, `first`/`stop` this
+    // band's offsets — the window arithmetic is relative to the region, so
+    // a band grown past the region's edge reads it in the pass's edge mode
+    // the way the fragment's `src_at`/`src_clamped` do.
+    var anchor = vec2<i32>(i32(pc.region.x), band.y + index);
+    var span = i32(pc.region.z) - i32(pc.region.x);
+    var first = band.x - i32(pc.region.x);
+    var stop = band.z - i32(pc.region.x);
+    if !horizontal {
+        anchor = vec2<i32>(band.x + index, i32(pc.region.y));
+        span = i32(pc.region.w) - i32(pc.region.y);
+        first = band.y - i32(pc.region.y);
+        stop = band.w - i32(pc.region.y);
+    }
+    let far = min(r, span - 1);
+
+    // The seed — the fragment form's, which is the CPU's.
+    var sum = vec4<f32>(0.0);
+    if clamped {
+        // Duplicate: the first sample counts r + 1 times — once here, r
+        // more below; one load, the same r adds the CPU's seed makes of
+        // `src_row[0]` (likewise the far-edge repeats at the bottom).
+        let first = blur_tap(anchor, step, 0, true);
+        sum = first;
+        for (var i = 0; i < r; i = i + 1) {
+            sum = sum + first;
+        }
+        for (var i = 1; i <= far; i = i + 1) {
+            sum = sum + blur_tap(anchor, step, i, true);
+        }
+        if span <= r {
+            let last = blur_tap(anchor, step, span - 1, true);
+            for (var i = 0; i < r + 1 - span; i = i + 1) {
+                sum = sum + last;
+            }
+        }
+    } else {
+        // Transparent: only the in-range taps contribute; the rest of the
+        // window is the zeros the sum started at.
+        for (var i = 0; i <= far; i = i + 1) {
+            sum = sum + blur_tap(anchor, step, i, false);
+        }
+    }
+
+    // Slide to the band's first pixel — the fragment form's per-pixel
+    // re-derivation, paid once per scanline here — then write-and-slide
+    // across the band: one add and one sub per pixel, the window handed
+    // from one pixel to the next.
+    for (var i = 0; i < first; i = i + 1) {
+        sum = sum + (blur_tap(anchor, step, i + r + 1, clamped)
+            - blur_tap(anchor, step, i - r, clamped));
+    }
+    for (var i = first; i < stop; i = i + 1) {
+        if horizontal {
+            textureStore(t_dst, vec2<i32>(anchor.x + i, anchor.y), sum / f32(2 * r + 1));
+        } else {
+            textureStore(t_dst, vec2<i32>(anchor.x, anchor.y + i), sum / f32(2 * r + 1));
+        }
+        sum = sum + (blur_tap(anchor, step, i + r + 1, clamped)
+            - blur_tap(anchor, step, i - r, clamped));
+    }
 }
