@@ -131,9 +131,26 @@ type PlatformA11y = AccessAdapter;
 /// A wake before then is dropped, and correctly — there is no window, no
 /// surface and no tree, so there is no frame to ask for. The first frame draws
 /// everything anyway.
+///
+/// # Waking is a claim, and the claim is counted
+///
+/// `wake()` means *a delivery landed somewhere*: a task's value, a finished
+/// font scan. The loop's `Wake` handler pairs that claim with a count — every
+/// `wake()` increments [`Shared::wake_deliveries`], and the handler takes the
+/// count when the event arrives — so it can tell a wake that carries something
+/// to collect (a frame must run, because `take_pending` and font adoption
+/// happen inside one) from a wake that carries nothing (draw no frame; poll
+/// animation and rebuild state instead and go back to sleep when they are
+/// clean). That pairing is the no-op-present item's second half: before it,
+/// every wake forced a frame on every window whether anything was dirty or
+/// not.
 #[derive(Clone, Default)]
 pub struct Waker {
     proxy: Arc<Mutex<Option<EventLoopProxy<UserEvent>>>>,
+    /// Wakes that carry a delivery, not yet taken by the loop's `Wake`
+    /// handler. Incremented *before* the event is sent, so a handler that has
+    /// the event always has the count.
+    delivered: Arc<std::sync::atomic::AtomicUsize>,
 }
 
 impl std::fmt::Debug for Waker {
@@ -163,6 +180,11 @@ impl Waker {
 impl vieww_foundation::task::FrameWaker for Waker {
     fn wake(&self) {
         if let Some(proxy) = self.locked().as_ref() {
+            // The count first: the handler runs only after the send returns,
+            // so an increment that happened after it would be a delivery the
+            // next event owes, not this one.
+            self.delivered
+                .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             // An error means the loop has already stopped, which is not a
             // failure: the application is closing and the frame this would have
             // asked for is one nobody will see.
@@ -1110,6 +1132,7 @@ impl App {
         let mut runner = Runner {
             shared: Shared {
                 proxy: event_loop.create_proxy(),
+                wake_deliveries: self.waker.delivered.clone(),
                 config: self,
                 crash_context,
                 epoch: Instant::now(),
@@ -1411,6 +1434,13 @@ struct Shared {
     failure: Option<PlatformError>,
     /// Gets a screen reader's requests onto the UI thread.
     proxy: EventLoopProxy<UserEvent>,
+    /// Deliveries landed by [`Waker::wake`](crate::Waker) — a task's value, a
+    /// finished font scan — not yet answered by a frame. The `Wake` handler
+    /// takes this count and pairs it with the event, so a wake that carries
+    /// nothing can be answered with a poll instead of a frame. Shares the
+    /// `Waker`'s own counter, which is why it is an `Arc` rather than a plain
+    /// field: the increments happen on worker threads.
+    wake_deliveries: Arc<std::sync::atomic::AtomicUsize>,
     /// The activity, kept for the one thing `winit` does not surface: where the
     /// system furniture is. Cloning it shares the activity rather than copying
     /// anything.
@@ -2931,7 +2961,12 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // when it is done so the next frame adopts the full fallback (see
         // `FrameDriver::use_system_fonts_in_background`).
         let proxy = self.shared.proxy.clone();
+        let delivered = Arc::clone(&self.shared.wake_deliveries);
         driver.use_system_fonts_in_background(move || {
+            // A delivery, like a task's: the adoption happens inside the next
+            // frame (`adopt_ready_fonts` runs in `drive`), so the wake has to
+            // carry the claim the handler pairs with a frame.
+            delivered.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             // An error means the loop already stopped: nobody to show them to.
             let _ = proxy.send_event(UserEvent::Wake);
         });
@@ -3364,13 +3399,41 @@ impl<F: FnOnce(&mut FrameDriver)> ApplicationHandler<UserEvent> for Runner<F> {
                 }
                 return;
             }
-            // A worker finished, or a window was asked for. Neither can mark
-            // anything pending from over there, so all this does is guarantee a
-            // frame happens — the waiting element's `take_pending` runs in it
-            // and notices the value, and `about_to_wait` services the queue.
+            // A worker finished, or the font scan did. Both land a value only a
+            // frame can collect — the waiting element's `take_pending` and
+            // `adopt_ready_fonts` run inside one — so a wake that carries a
+            // delivery must have its frame. **A wake that carries nothing
+            // draws none**: the poll below asks each window whether anything is
+            // dirty (an animation deadline that has arrived, elements waiting
+            // on a rebuild) and requests only where the answer is yes. Before
+            // this poll, every wake forced a frame on every window, and on the
+            // GPU path that was 1.7-5.0 ms of app work per wake on every phone
+            // — the battery regression `present_planned`'s no-op half fixed on
+            // the present side, fixed here on the wake side.
+            //
+            // `owes_rebuild` is safe to ask here and nowhere in `about_to_wait`:
+            // this runs once per *event*, not once per loop iteration, so a
+            // standing state cannot turn it into a spin (the 2923-iterations
+            // lesson `needs_frame`'s own docs record). The delivery count is
+            // taken once, before the loop, so a batch of wakes that arrived
+            // before the handler are answered by the one frame the first of
+            // them requests — `poll_states` collects every landed value in it.
             UserEvent::Wake => {
+                let delivered = self
+                    .shared
+                    .wake_deliveries
+                    .swap(0, std::sync::atomic::Ordering::SeqCst);
+                let now = self.shared.now();
                 for window in &mut self.windows {
-                    window.scheduler.request_frame();
+                    if window.scheduler.is_frame_requested() {
+                        // A frame is already owed; it will collect whatever the
+                        // wake delivered, and re-requesting would only move the
+                        // ask from the poll below to here.
+                        continue;
+                    }
+                    if vieww_render::wake_owes_frame(delivered, &window.driver, now) {
+                        window.scheduler.request_frame();
+                    }
                 }
                 if self.is_finished() {
                     event_loop.exit();

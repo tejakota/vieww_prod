@@ -159,6 +159,36 @@ pub fn wake_if_pending(driver: &FrameDriver, scheduler: &mut FrameScheduler) -> 
     owed
 }
 
+/// Whether a wake owes this window a frame — the poll half of the wake
+/// contract, beside [`next_action`]'s sleep half and for the same reason: the
+/// platform crate must not reimplement a rule a harness could not test.
+///
+/// `delivered` is how many wakes since the last one carried something only a
+/// frame can collect — a task's value, a finished font scan, both of which are
+/// picked up by code that runs *inside* a frame (`poll_states`'s
+/// `take_pending`, `adopt_ready_fonts`). A delivery always owes its frame: the
+/// loop cannot ask the tree whether the value is its own without running the
+/// very walk the frame would run.
+///
+/// A wake with no delivery owes a frame only when the window is already dirty:
+/// an animation deadline that has arrived (one still in the future is answered
+/// by its own `SleepUntil`), or elements waiting on a rebuild. Otherwise the
+/// wake draws nothing and the loop goes back to sleep — before this rule every
+/// wake forced a frame on every window, which on the GPU path was app work per
+/// wake on every phone, the battery cost `present_planned`'s no-op half fixed
+/// on the present side and this fixes on the wake side.
+///
+/// Called once per *wake event*, never per loop iteration, which is what makes
+/// `owes_rebuild` safe to ask here: a standing state read per iteration is the
+/// spin `needs_frame`'s own docs record (2923 iterations, 2 frames).
+#[must_use]
+pub fn wake_owes_frame(delivered: usize, driver: &FrameDriver, now: Duration) -> bool {
+    if delivered > 0 {
+        return true;
+    }
+    driver.frame_deadline(now).is_some_and(|at| at <= now) || driver.owes_rebuild()
+}
+
 /// One window's share of the harness.
 struct HarnessWindow {
     driver: FrameDriver,
@@ -1073,6 +1103,124 @@ mod tests {
             app.frames_of(1),
             second,
             "the window that read nothing drew nothing"
+        );
+    }
+    // ── the wake poll's contract ──────────────────────────────────────────
+
+    /// A wake that carries a delivery owes its frame even on a settled, clean
+    /// tree: the value lives in a channel only a frame's `poll_states` walks,
+    /// so "is it mine?" is a question the frame answers, not the loop.
+    #[test]
+    fn a_delivered_wake_owes_a_frame_on_a_clean_tree() {
+        let mut app = harness();
+        app.driver()
+            .elements()
+            .set_root(ColoredBox::new(Color::RED).child(SizedBox::square(20.0)));
+        app.settle(8);
+        assert_eq!(app.frames(), 0, "nothing is animating or pending");
+
+        let now = app.now();
+        assert!(
+            wake_owes_frame(1, app.driver(), now),
+            "a delivery must be collected by a frame — the loop cannot ask the \
+             tree whether the value is its own without running the walk the \
+             frame would run"
+        );
+    }
+
+    /// A wake with no delivery owes nothing on a clean tree — the skip that
+    /// stops an idle loop paying app work (and, on the GPU path, a GPU woken)
+    /// per wake. Before the poll, this case forced a frame on every window.
+    #[test]
+    fn an_empty_wake_owes_nothing_on_a_clean_tree() {
+        let mut app = harness();
+        app.driver()
+            .elements()
+            .set_root(ColoredBox::new(Color::RED).child(SizedBox::square(20.0)));
+        app.settle(8);
+        assert_eq!(app.frames(), 0);
+
+        let now = app.now();
+        assert!(
+            !wake_owes_frame(0, app.driver(), now),
+            "no delivery, no animation due, nothing pending a rebuild — the \
+             wake draws nothing and the loop goes back to sleep"
+        );
+    }
+
+    /// A wake with no delivery owes a frame when an animation's deadline has
+    /// arrived, and owes nothing while it is still in the future — the future
+    /// one is its own `SleepUntil`'s to answer, and paying it early only
+    /// shifts the animation's phase.
+    ///
+    /// A scheduled ticker stands in for the caret — the shape
+    /// `Ticker::next_deadline` exists for — because a curve-sampled tween
+    /// honestly answers "as soon as possible" and never names a time.
+    #[test]
+    fn an_empty_wake_owes_a_frame_only_when_the_deadline_has_arrived() {
+        /// Blinks on a schedule, like a caret: is_animating for as long as it
+        /// exists, and able to say when the next change is.
+        struct Blink {
+            next: Option<Duration>,
+        }
+        impl vieww_animation::Ticker for Blink {
+            fn tick(&mut self, _now: Duration) -> bool {
+                false
+            }
+            fn is_animating(&self) -> bool {
+                true
+            }
+            fn next_deadline(&self, _now: Duration) -> Option<Duration> {
+                self.next
+            }
+        }
+
+        let mut app = harness();
+        app.driver()
+            .elements()
+            .set_root(ColoredBox::new(Color::RED).child(SizedBox::square(20.0)));
+        let blink = std::rc::Rc::new(std::cell::RefCell::new(Blink {
+            next: Some(ms(400)),
+        }));
+        app.driver().tickers().add(&blink);
+        app.settle(2);
+        assert!(app.driver().is_animating(), "the blink is animating");
+
+        let now = app.now();
+        assert!(
+            !wake_owes_frame(0, app.driver(), now),
+            "a deadline 400ms out is not due; the wake owes nothing and the              loop's own SleepUntil answers it"
+        );
+        blink.borrow_mut().next = Some(now);
+        assert!(
+            wake_owes_frame(0, app.driver(), now),
+            "a deadline that has arrived is due a frame, and a wake may collect it"
+        );
+    }
+
+    /// A wake with no delivery owes a frame when elements are waiting on a
+    /// rebuild — the dirty state a wake is allowed to collect. Asked once per
+    /// event, never per iteration, which is what keeps the standing state
+    /// from becoming the spin `needs_frame`'s docs record.
+    #[test]
+    fn an_empty_wake_owes_a_frame_when_a_rebuild_is_pending() {
+        let mut app = harness();
+        let colour = app.driver().elements().runtime().signal(Color::RED);
+        app.driver().elements().set_root(Repaint {
+            colour: colour.clone(),
+        });
+        app.settle(8);
+        assert_eq!(app.frames(), 0, "settled and clean before the write");
+
+        colour.set(Color::BLUE);
+        assert!(
+            app.driver().owes_rebuild(),
+            "the write left the reader pending"
+        );
+        let now = app.now();
+        assert!(
+            wake_owes_frame(0, app.driver(), now),
+            "a pending rebuild is dirty state; a wake may collect it"
         );
     }
 }

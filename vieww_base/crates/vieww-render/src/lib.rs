@@ -67,7 +67,7 @@ pub mod window;
 
 pub use baseline::BaselineCtx;
 pub use children::ChildIds;
-pub use event_loop::{next_action, wake_if_pending, LoopAction, LoopHarness};
+pub use event_loop::{next_action, wake_if_pending, wake_owes_frame, LoopAction, LoopHarness};
 pub use factory::RenderFactory;
 pub use focus::FocusManager;
 pub use frame::{FrameDriver, FrameError, FramePhase, InvalidationKind};

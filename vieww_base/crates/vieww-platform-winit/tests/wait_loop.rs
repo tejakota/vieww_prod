@@ -365,6 +365,19 @@ fn an_idle_application_stops_drawing_rather_than_spinning() {
 /// channel "until the user touches it" — so a wake that crosses the thread
 /// boundary is the case worth proving, not a redraw asked for from inside a hook
 /// the loop was already running.
+///
+/// # The waking contract, updated for the poll
+///
+/// A wake that **carries a delivery** — `wake()` was called, which is what a
+/// task's completion and a finished font scan both do — costs exactly one
+/// frame, never a frame rate: the frame is where `poll_states` collects the
+/// value, so the loop cannot ask the tree whether the delivery was its own
+/// without running it. A wake that carries nothing (this crate no longer
+/// sends one, but the loop must not assume that) draws no frame at all when
+/// the window is clean — `vieww_render::wake_owes_frame` is that decision,
+/// and its harness tests pin the clean-tree skip, the due deadline and the
+/// pending rebuild. This scenario pins the delivered half on a real loop:
+/// the frame after the wake must exist, and the loop must settle afterwards.
 fn a_waker_brings_a_sleeping_loop_back_and_it_settles_again() {
     vieww_hardware::skip_without!(display, gpu);
     arm_deadline("a_waker_brings_a_sleeping_loop_back_and_it_settles_again");
