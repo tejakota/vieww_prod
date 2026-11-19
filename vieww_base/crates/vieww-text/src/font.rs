@@ -1007,11 +1007,17 @@ mod fallback_tests {
     /// whole scan has finished, so pre-adoption text is exactly the embedded
     /// shaping, never a half-populated system one that would reflow twice.
     ///
-    /// Deterministic by construction: the hand-over under test is the
-    /// embedded-only one ([`FontStore::embedded_only_in_background`]), which
-    /// finishes in milliseconds on any machine — the real system scan's
+    /// The hand-over under test is the embedded-only one
+    /// ([`FontStore::embedded_only_in_background`]); the real system scan's
     /// *duration* is the machine's disk and is deliberately not what this
-    /// pins.
+    /// pins. What the test *can* be deterministic about is the atomicity —
+    /// a take yields the whole scan or nothing — and the adoption checks
+    /// below are that guarantee's referee. Whether the first take catches
+    /// the scan still running is a race no test controls: the embedded scan
+    /// finishes in microseconds, and a loaded CI machine can deschedule
+    /// this thread past it (the quick leg lost exactly that race on
+    /// 2026-11-19 with nothing wrong), so both outcomes are taken in
+    /// stride and checked identically.
     #[test]
     fn the_first_frame_cannot_see_a_half_finished_scan() {
         use std::sync::atomic::{AtomicBool, Ordering};
@@ -1036,18 +1042,23 @@ mod fallback_tests {
             let ready = Arc::clone(&ready);
             move || ready.store(true, Ordering::SeqCst)
         });
-        assert!(
-            pending.try_take().is_none(),
-            "before the scan finishes there is nothing to adopt"
-        );
-
-        let deadline = Instant::now() + Duration::from_secs(30);
-        while !ready.load(Ordering::SeqCst) && Instant::now() < deadline {
-            std::thread::yield_now();
-        }
-        let mut adopted = pending
-            .try_take()
-            .expect("the finished hand-over yields its store");
+        // `None` is the mid-scan case this test was written for — nothing
+        // adoptable while the scan runs. `Some` is the scan having finished
+        // first, which is equally correct: the store it yields must be as
+        // complete as the one the wait below takes.
+        let early = pending.try_take();
+        let mut adopted = match early {
+            Some(store) => store,
+            None => {
+                let deadline = Instant::now() + Duration::from_secs(30);
+                while !ready.load(Ordering::SeqCst) && Instant::now() < deadline {
+                    std::thread::yield_now();
+                }
+                pending
+                    .try_take()
+                    .expect("the finished hand-over yields its store")
+            }
+        };
         let after = shape(&mut adopted, fixture);
         assert!(
             (before.size().width - after.size().width).abs() < 0.01,
