@@ -1560,7 +1560,11 @@ impl Stopped {
 /// message is a quote in a message.
 #[must_use]
 pub fn parse_diagnostics(stderr: &str, file_name: &str) -> Vec<Diagnostic> {
-    let mut out = Vec::new();
+    // Annotated for the note arm below: it reads `out.last_mut()`'s field
+    // before the `push` that would otherwise fix the element type, and a
+    // field read through an unresolved inference variable is an error the
+    // later push cannot retroactively answer.
+    let mut out: Vec<Diagnostic> = Vec::new();
     // Whether the record most recently pushed was an error with no span —
     // a *tool* failure, whose follow-up note is the only place the tool's
     // own output appears. See the `"note"` arm below.
@@ -1778,7 +1782,10 @@ mod tests {
         let parsed = parse_diagnostics(stderr, "lesson.rs");
         assert_eq!(parsed.len(), 1, "the error is one diagnostic");
         assert!(
-            parsed[0].help.as_deref().is_some_and(|help| help.contains("ld:")),
+            parsed[0]
+                .help
+                .as_deref()
+                .is_some_and(|help| help.contains("ld:")),
             "the note's linker output rides in the help, where a person \
              reading the Problems panel finds it: {:?}",
             parsed[0].help

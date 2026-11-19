@@ -389,8 +389,7 @@ fn a_burst_of_keystrokes_inside_one_frame_lands_in_full() {
     // 16 ms and a burst is not. The timestamps still advance, as a real
     // keyboard's do, so nothing about the burst depends on two events sharing
     // a clock reading.
-    let mut t = 2_u64;
-    for ch in "hello".chars() {
+    for (ch, t) in "hello".chars().zip(2_u64..) {
         assert!(
             driver.handle_key(&KeyEvent::down(
                 LogicalKey::Character(ch.to_string()),
@@ -398,7 +397,6 @@ fn a_burst_of_keystrokes_inside_one_frame_lands_in_full() {
             )),
             "the field took '{ch}'"
         );
-        t += 1;
     }
     driver.draw_frame_at(Duration::from_millis(10));
 
@@ -419,26 +417,22 @@ fn a_burst_then_a_frame_then_another_burst_chains_across_both() {
     editor.set_text("");
     driver.draw_frame_at(Duration::from_millis(1));
 
-    let mut t = 2_u64;
-    for ch in "abc".chars() {
+    for (ch, t) in "abc".chars().zip(2_u64..) {
         driver.handle_key(&KeyEvent::down(
             LogicalKey::Character(ch.to_string()),
             Duration::from_millis(t),
         ));
-        t += 1;
     }
     driver.draw_frame_at(Duration::from_millis(10));
     assert_eq!(editor.value.get().text, "abc", "the first burst lands");
 
     // The rebuild has happened; the second burst starts from the value the
     // rebuild carried, and chains within itself the same way.
-    let mut t = 20_u64;
-    for ch in "defg".chars() {
+    for (ch, t) in "defg".chars().zip(20_u64..) {
         driver.handle_key(&KeyEvent::down(
             LogicalKey::Character(ch.to_string()),
             Duration::from_millis(t),
         ));
-        t += 1;
     }
     driver.draw_frame_at(Duration::from_millis(30));
     assert_eq!(
