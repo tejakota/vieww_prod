@@ -71,7 +71,8 @@ use crate::mask_atlas::{MaskAtlas, MaskKey, MaskSlot};
 use crate::ramp_atlas::RampAtlas;
 use crate::tessellate::{tessellate_fill, tessellate_stroke, TessellationCache};
 
-/// What a vertex's fragment computes. Carried in [`DrawConstants::kind`].
+/// What a vertex's fragment computes. Carried in
+/// [`DrawConstants::uv_kind`](super::DrawConstants::uv_kind)'s `z`.
 pub mod material {
     /// A flat colour.
     pub const SOLID: f32 = 0.0;
@@ -81,7 +82,8 @@ pub mod material {
     pub const IMAGE: f32 = 2.0;
     /// A per-fragment gradient: geometry in `params`, ramp row in `extra`.
     pub const GRADIENT: f32 = 3.0;
-    /// A flat colour × analytic rounded-rect coverage (see [`Vertex::shape`](super::Vertex::shape)).
+    /// A flat colour × analytic rounded-rect coverage (see
+    /// [`DrawConstants::shape`](super::DrawConstants::shape)).
     pub const SHAPE_SOLID: f32 = 4.0;
     /// A per-fragment gradient × analytic rounded-rect coverage.
     pub const SHAPE_GRADIENT: f32 = 5.0;
