@@ -1,0 +1,906 @@
+===== phase-1 / vieww-audio · test	log =====
+2026-11-19T11:16:43.1560574Z test a_three_hour_stream_stays_small_through_a_seek_storm ... ok
+2026-11-19T11:16:43.2109764Z test streaming_matches_whole_file ... ok
+2026-11-19T11:16:43.2482817Z test seeks_land_on_the_same_samples ... ok
+2026-11-19T11:16:43.2483268Z 
+2026-11-19T11:16:43.2483763Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+2026-11-19T11:16:43.2484458Z 
+2026-11-19T11:16:43.2490663Z [1m[92m     Running[0m tests/tags.rs (target/release/deps/tags-13fbaf68dd96fb90)
+2026-11-19T11:16:43.2504907Z 
+2026-11-19T11:16:43.2505110Z running 10 tests
+2026-11-19T11:16:43.2509917Z test aiff_id3_chunk ... ok
+2026-11-19T11:16:43.2512087Z test flac_vorbis_comments ... ok
+2026-11-19T11:16:43.2512676Z test id3v24_and_id3v1 ... ok
+2026-11-19T11:16:43.2512999Z test id3v23 ... ok
+2026-11-19T11:16:43.2513330Z test ffprobe_reads_what_the_writers_write ... ok
+2026-11-19T11:16:43.2514651Z test ogg_opus_tags ... ok
+2026-11-19T11:16:43.2515184Z test mp4_atoms ... ok
+2026-11-19T11:16:43.2515692Z test ogg_vorbis_comments ... ok
+2026-11-19T11:16:43.2516231Z test riff_info ... ok
+2026-11-19T11:16:43.2516865Z test untagged_files_have_no_tags_beyond_the_encoder ... ok
+2026-11-19T11:16:43.2517297Z 
+2026-11-19T11:16:43.2517825Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-19T11:16:43.2519177Z [1m[92m     Running[0m tests/tuning.rs (target/release/deps/tuning-1fac9dc1019541e5)
+2026-11-19T11:16:43.2519550Z 
+2026-11-19T11:16:43.2532041Z 
+2026-11-19T11:16:43.2532353Z running 4 tests
+2026-11-19T11:16:43.3620248Z test every_voice_kind_follows_the_tuning ... ok
+2026-11-19T11:16:43.3950105Z test fractional_pitch_and_tuning_compose ... ok
+2026-11-19T11:16:43.5385241Z test the_default_table_renders_identically ... ok
+2026-11-19T11:16:43.5403078Z test a_just_scale_sounds_its_ratios ... ok
+2026-11-19T11:16:43.5403455Z 
+2026-11-19T11:16:43.5403787Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+2026-11-19T11:16:43.5404492Z 
+2026-11-19T11:16:43.5407790Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/vieww_audio_plugin-fd9365666e6e7c83)
+2026-11-19T11:16:43.5423430Z 
+2026-11-19T11:16:43.5423907Z running 76 tests
+2026-11-19T11:16:43.5427075Z test aax::tests::the_refusal_is_named_and_precise ... ok
+2026-11-19T11:16:43.5428126Z test auv3::events::tests::a_long_sysex_spans_start_continue_end_packets ... ok
+2026-11-19T11:16:43.5429383Z test auv3::events::tests::a_short_sysex_is_one_complete_packet ... ok
+2026-11-19T11:16:43.5430142Z test auv3::events::tests::an_empty_render_event_list_delivers_nothing ... ok
+2026-11-19T11:16:43.5431243Z test auv3::events::tests::channel_voice_round_trips ... ok
+2026-11-19T11:16:43.5432044Z test auv3::events::tests::an_immediate_window_event_lands_at_frame_zero ... ok
+2026-11-19T11:16:43.5433139Z test auv3::events::tests::a_full_or_overlong_schedule_drops_and_counts ... ok
+2026-11-19T11:16:43.5434430Z test auv3::events::tests::immediate_events_land_at_frame_zero_and_past_events_clamp ... ok
+2026-11-19T11:16:43.5435580Z test auv3::events::tests::render_event_layout_offsets_match_the_header ... ok
+2026-11-19T11:16:43.5436561Z test auv3::events::tests::clear_empties_the_ring ... ok
+2026-11-19T11:16:43.5437419Z test auv3::events::tests::system_common_round_trips ... ok
+2026-11-19T11:16:43.5438965Z test auv3::events::tests::the_immediate_constant_is_the_headers_and_forms_a_window ... ok
+2026-11-19T11:16:43.5440328Z test auv3::events::tests::the_render_event_walk_delivers_midi_parameters_and_sysex ... ok
+2026-11-19T11:16:43.5441632Z test auv3::events::tests::the_schedule_delivers_due_events_in_time_order ... ok
+2026-11-19T11:16:43.5442827Z test auv3::events::tests::unknown_render_event_types_are_skipped_not_guessed ... ok
+2026-11-19T11:16:43.5444078Z test auv3::events::tests::zero_word_counts_and_overruns_are_refused ... ok
+2026-11-19T11:16:43.5445278Z test auv3::manifest::tests::codes_derive_from_the_id_and_vendor ... ok
+2026-11-19T11:16:43.5446485Z test auv3::manifest::tests::tags_map_to_apples_vocabulary_with_a_default ... ok
+2026-11-19T11:16:43.5447778Z test auv3::tests::descriptions_carry_the_kind_and_derivation ... ok
+2026-11-19T11:16:43.5449134Z test auv3::tests::four_char_codes_are_big_endian ... ok
+2026-11-19T11:16:43.5450062Z test auv3::manifest::tests::the_entry_and_the_snippet_agree ... ok
+2026-11-19T11:16:43.5451197Z test auv3::manifest::tests::versions_pack_and_refuse_to_guess ... ok
+2026-11-19T11:16:43.5452329Z test auv3::view::tests::the_queue_coalesces_at_capacity ... ok
+2026-11-19T11:16:43.5453571Z test clap::tests::an_effect_processes_automates_and_reports_through_extensions ... ok
+2026-11-19T11:16:43.5454887Z test clap::tests::an_instrument_receives_notes_and_transport ... ok
+2026-11-19T11:16:43.5455968Z test clap::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-19T11:16:43.5457043Z test auv3::view::tests::the_panel_attaches_offscreen_and_renders_deterministically ... ok
+2026-11-19T11:16:43.5458631Z test clap::tests::the_factory_lists_both_plugins_with_their_features ... ok
+2026-11-19T11:16:43.5459704Z test clap::tests::state_round_trips_through_clap_streams ... ok
+2026-11-19T11:16:43.5460758Z test clap::tests::gui_edits_reach_the_plugin_and_automation_reaches_the_panel ... ok
+2026-11-19T11:16:43.5461888Z test gui::tests::frames_read_pixels_and_refuse_outside ... ok
+2026-11-19T11:16:43.5462870Z test gui::tests::parents_report_what_they_carry ... ok
+2026-11-19T11:16:43.5463845Z test auv3::view::tests::a_drag_round_trips_into_the_edit_queue ... ok
+2026-11-19T11:16:43.5464827Z test gui::tests::pointer_positions_read_back ... ok
+2026-11-19T11:16:43.5465757Z test gui::vieww::tests::a_press_outside_the_rows_edits_nothing ... ok
+2026-11-19T11:16:43.5466847Z test gui::vieww::tests::degenerate_ranges_render_and_hit_at_the_middle ... ok
+2026-11-19T11:16:43.5472711Z test gui::vieww::tests::drags_clamp_and_snap_to_the_taper ... ok
+2026-11-19T11:16:43.5475545Z test clap::tests::the_gui_extension_lives_the_clap_lifecycle_offscreen ... ok
+2026-11-19T11:16:43.5489501Z test gui::vieww::tests::readout_digits_are_the_classic_patterns ... ok
+2026-11-19T11:16:43.5492685Z test gui::vieww::tests::a_drag_round_trips_through_the_host_and_back ... ok
+2026-11-19T11:16:43.5505991Z test gui::vieww::tests::native_parents_are_refused_and_close_notifies ... ok
+2026-11-19T11:16:43.5513113Z test lv2::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-19T11:16:43.5514137Z test lv2::tests::a_corrupt_sequence_is_ignored_rather_than_read_past ... ok
+2026-11-19T11:16:43.5514788Z test lv2::tests::an_effect_automates_sample_accurately_and_reports_latency ... ok
+2026-11-19T11:16:43.5515657Z test lv2::tests::an_instrument_receives_midi_notes_and_folds_them_into_events ... ok
+2026-11-19T11:16:43.5516386Z test gui::vieww::tests::frames_are_deterministic ... ok
+2026-11-19T11:16:43.5516874Z test lv2::tests::descriptors_list_their_uris_and_refuse_unknown_ones ... ok
+2026-11-19T11:16:43.5523986Z test lv2::tests::instantiate_refuses_without_a_urid_map ... ok
+2026-11-19T11:16:43.5525834Z test lv2::tests::midi_note_on_velocity_zero_is_a_note_off ... ok
+2026-11-19T11:16:43.5526765Z test lv2::tests::parameters_round_trip_through_patch_messages ... ok
+2026-11-19T11:16:43.5529107Z test lv2::tests::state_round_trips_through_the_extension ... ok
+2026-11-19T11:16:43.5530101Z test lv2::ttl::tests::effect_ttl_matches_the_wrapper_layout ... ok
+2026-11-19T11:16:43.5531469Z test lv2::ttl::tests::instrument_ttl_supports_midi_and_has_no_audio_inputs ... ok
+2026-11-19T11:16:43.5532719Z test lv2::ttl::tests::manifest_names_the_uri_binary_and_tll ... ok
+2026-11-19T11:16:43.5533911Z test lv2::ttl::tests::numbers_and_versions_are_plain_turtle ... ok
+2026-11-19T11:16:43.5535065Z test lv2::ttl::tests::bundle_files_land_on_disk_with_the_generated_text ... ok
+2026-11-19T11:16:43.5536256Z test lv2::ttl::tests::plugin_class_comes_from_kind_and_features ... ok
+2026-11-19T11:16:43.5537362Z test gui::vieww::tests::the_frame_is_sized_and_opaque ... ok
+2026-11-19T11:16:43.5538632Z test sanitize_tests::non_finite_plugin_output_becomes_silence ... ok
+2026-11-19T11:16:43.5539787Z test tests::automation_is_sample_accurate ... ok
+2026-11-19T11:16:43.5540786Z test tests::buffers_window_and_pass_through ... ok
+2026-11-19T11:16:43.5542095Z test tests::c_strings_truncate_on_char_boundaries ... ok
+2026-11-19T11:16:43.5543109Z test tests::default_state_round_trips_parameters ... ok
+2026-11-19T11:16:43.5544206Z test tests::denormals_flush_inside_the_guard_and_return_after ... ok
+2026-11-19T11:16:43.5545349Z test vst3::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-19T11:16:43.5546459Z test tests::events_arrive_relative_to_their_slice ... ok
+2026-11-19T11:16:43.5547483Z test vst3::sys::layout::utf16_buffers ... ok
+2026-11-19T11:16:43.5548511Z test vst3::sys::layout::uids_use_the_platform_byte_order ... ok
+2026-11-19T11:16:43.5549706Z test vst3::tests::an_effect_processes_with_sample_accurate_automation ... ok
+2026-11-19T11:16:43.5550885Z test vst3::tests::midi_parameter_values_become_midi_bytes ... ok
+2026-11-19T11:16:43.5551964Z test vst3::tests::process_context_becomes_transport ... ok
+2026-11-19T11:16:43.5553103Z test vst3::tests::state_moves_between_instances_and_the_controller_follows ... ok
+2026-11-19T11:16:43.5554255Z test vst3::tests::subcategories_follow_features ... ok
+2026-11-19T11:16:43.5555290Z test vst3::tests::the_factory_describes_both_classes ... ok
+2026-11-19T11:16:43.5556570Z test vst3::tests::an_instrument_gets_notes_cc_parameters_and_context ... ok
+2026-11-19T11:16:43.5587972Z test gui::vieww::tests::resize_and_scale_change_the_frame_and_geometry_keeps_working ... ok
+2026-11-19T11:16:43.5588933Z 
+2026-11-19T11:16:43.5589678Z test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-19T11:16:43.5590360Z 
+2026-11-19T11:16:43.5601419Z [1m[92m     Running[0m tests/load_built_plugins.rs (target/release/deps/load_built_plugins-ce72d4ef38a4646e)
+2026-11-19T11:16:43.5614286Z 
+2026-11-19T11:16:43.5615061Z running 2 tests
+2026-11-19T11:16:43.5617545Z test vst3_plugins_load_and_run_from_disk_and_bundles ... ok
+2026-11-19T11:16:43.5618734Z test clap_plugins_load_and_run_from_disk ... ok
+2026-11-19T11:16:43.5619067Z 
+2026-11-19T11:16:43.5619346Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-19T11:16:43.5619926Z 
+2026-11-19T11:16:43.5620486Z [1m[92m     Running[0m tests/lv2_bundle.rs (target/release/deps/lv2_bundle-16ed065da5bb204a)
+2026-11-19T11:16:43.5633111Z 
+2026-11-19T11:16:43.5633403Z running 1 test
+2026-11-19T11:16:43.5638035Z test the_bundle_is_complete_and_the_library_in_it_runs ... ok
+2026-11-19T11:16:43.5638940Z 
+2026-11-19T11:16:43.5639420Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-19T11:16:43.5639964Z 
+2026-11-19T11:16:43.5640630Z [1m[92m     Running[0m tests/lv2_synth_bundle.rs (target/release/deps/lv2_synth_bundle-4920eb9d736adcd9)
+2026-11-19T11:16:43.5653755Z 
+2026-11-19T11:16:43.5654118Z running 1 test
+2026-11-19T11:16:43.5657991Z test the_instrument_bundle_is_complete_and_speaks_midi ... ok
+2026-11-19T11:16:43.5658745Z 
+2026-11-19T11:16:43.5659176Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-19T11:16:43.5659556Z 
+2026-11-19T11:16:43.5672209Z [1m[92m     Running[0m tests/realtime_no_alloc.rs (target/release/deps/realtime_no_alloc-1476f7bad924d76f)
+2026-11-19T11:16:43.6052149Z realtime_no_alloc: 500 blocks through a plugin Driver (300 unsorted events and 4 parameter changes each) allocated nothing
+2026-11-19T11:16:43.6053607Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/vieww_music-17cd63bce5a4279d)
+2026-11-19T11:16:43.6068778Z 
+2026-11-19T11:16:43.6069477Z running 80 tests
+2026-11-19T11:16:43.6072434Z test carnatic::gamaka::tests::bend_points_are_semitones_over_beats ... ok
+2026-11-19T11:16:43.6073791Z test carnatic::korvai::tests::a_classic_adi_mora_from_the_half_beat ... ok
+2026-11-19T11:16:43.6075061Z test carnatic::gamaka::tests::shapes_land_where_they_say ... ok
+2026-11-19T11:16:43.6076026Z test carnatic::korvai::tests::mora_arithmetic ... ok
+2026-11-19T11:16:43.6076988Z test carnatic::gamaka::tests::every_shape_is_smooth ... ok
+2026-11-19T11:16:43.6077996Z test carnatic::korvai::tests::sollus_count_their_pulses ... ok
+2026-11-19T11:16:43.6079209Z test carnatic::melakarta::tests::chakras_group_by_six ... ok
+2026-11-19T11:16:43.6080235Z test carnatic::melakarta::tests::the_anchors_every_student_learns ... ok
+2026-11-19T11:16:43.6081565Z test carnatic::melakarta::tests::lookup_by_name ... ok
+2026-11-19T11:16:43.6082585Z test carnatic::korvai::tests::every_fitted_mora_lands_on_sam ... ok
+2026-11-19T11:16:43.6083757Z test carnatic::melakarta::tests::structural_invariants_hold_for_all_72 ... ok
+2026-11-19T11:16:43.6085017Z test carnatic::raga::tests::a_plain_raga_allows_its_notes_both_ways ... ok
+2026-11-19T11:16:43.6086134Z test carnatic::raga::tests::a_vakra_path_is_enforced ... ok
+2026-11-19T11:16:43.6087126Z test carnatic::raga::tests::just_intonation_by_swara ... ok
+2026-11-19T11:16:43.6088558Z test carnatic::raga::tests::asymmetric_ragas_differ_by_direction ... ok
+2026-11-19T11:16:43.6089651Z test carnatic::raga::tests::construction_is_validated ... ok
+2026-11-19T11:16:43.6090867Z test carnatic::swara::tests::just_ratios_by_position ... ok
+2026-11-19T11:16:43.6092256Z test carnatic::swara::tests::notation_round_trips ... ok
+2026-11-19T11:16:43.6093459Z test carnatic::swara::tests::sixteen_names_on_twelve_positions ... ok
+2026-11-19T11:16:43.6094469Z test carnatic::tala::tests::pulses_locate_in_the_cycle ... ok
+2026-11-19T11:16:43.6095445Z test carnatic::tala::tests::the_common_talas_have_their_lengths ... ok
+2026-11-19T11:16:43.6096577Z test carnatic::tala::tests::thirty_five_suladi_talas_by_construction ... ok
+2026-11-19T11:16:43.6098797Z test carnatic::tala::tests::adi_is_eight_beats_with_its_hand_pattern ... ok
+2026-11-19T11:16:43.6099781Z test generate::tests::markov_follows_its_training ... ok
+2026-11-19T11:16:43.6105098Z test generate::tests::walks_are_reproducible_and_seed_dependent ... ok
+2026-11-19T11:16:43.6529742Z test generate::tests::a_raga_walk_never_breaks_its_grammar ... ok
+2026-11-19T11:16:43.7779794Z test live::tests::a_tempo_change_mid_play_reschedules_what_has_not_played ... ok
+2026-11-19T11:16:43.7792264Z test notation::abc::tests::a_small_tune_is_written_as_abc ... ok
+2026-11-19T11:16:43.7839693Z test notation::abc::tests::chords_overlaps_octaves_and_microtones ... ok
+2026-11-19T11:16:43.7869157Z test notation::abc::tests::every_demo_piece_exports ... ok
+2026-11-19T11:16:43.7879889Z test notation::lilypond::tests::a_small_tune_is_written_as_lilypond ... ok
+2026-11-19T11:16:43.7919557Z test notation::lilypond::tests::chords_voices_clefs_and_microtones ... ok
+2026-11-19T11:16:43.7949314Z test notation::lilypond::tests::every_demo_piece_exports ... ok
+2026-11-19T11:16:43.7989517Z test notation::lilypond::tests::pitches_and_durations ... ok
+2026-11-19T11:16:43.8019197Z test notation::musicxml::tests::gamakas_are_written_as_ornaments ... ok
+2026-11-19T11:16:43.8048908Z test notation::musicxml::tests::garbage_is_refused_with_a_reason ... ok
+2026-11-19T11:16:43.8079587Z test notation::musicxml::tests::microtones_are_decimal_alters_and_ties_cross_barlines ... ok
+2026-11-19T11:16:43.8109335Z test notation::musicxml::tests::the_demo_pieces_round_trip_note_for_note ... ok
+2026-11-19T11:16:43.8139820Z test pieces::tests::the_carnatic_piece_keeps_its_grammar_and_lands_on_sam ... ok
+2026-11-19T11:16:43.8149325Z test pieces::tests::the_chorale_is_voice_led_and_retunes ... ok
+2026-11-19T11:16:43.8199011Z test pieces::tests::the_rock_song_is_a_twelve_bar ... ok
+2026-11-19T11:16:43.8229039Z test pitch::tests::a_just_keyboard_is_a_tuning ... ok
+2026-11-19T11:16:43.8258881Z test pitch::tests::cents_match_the_textbook ... ok
+2026-11-19T11:16:43.8288979Z test pitch::tests::degrees_must_ascend - should panic ... ok
+2026-11-19T11:16:43.8318905Z test pitch::tests::ratios_are_exact ... ok
+2026-11-19T11:16:45.6869951Z test live::tests::pause_seek_and_gain ... ok
+2026-11-19T11:16:45.9137521Z test render::tests::a_gamaka_bends_the_sound ... ok
+2026-11-19T11:16:46.0539776Z test render::tests::a_score_renders_bounded_and_finite ... ok
+2026-11-19T11:16:46.4761179Z test render::tests::rendering_is_deterministic ... ok
+2026-11-19T11:16:48.2806921Z test render::tests::the_master_meets_loudness_and_ceiling ... ok
+2026-11-19T11:16:49.3229285Z test live::tests::a_tempo_change_before_playing_is_the_offline_mix_at_that_tempo ... ok
+2026-11-19T11:16:49.3230908Z test rock::tests::a_song_has_every_part_in_time ... ok
+2026-11-19T11:16:49.3240362Z test rock::tests::the_backbeat_falls_on_two_and_four ... ok
+2026-11-19T11:16:49.3259786Z test rock::tests::the_form ... ok
+2026-11-19T11:16:49.3265152Z test scala::tests::a_19_edo_file_tunes_19_keys_per_octave ... ok
+2026-11-19T11:16:49.3266422Z test scala::tests::bad_files_are_refused ... ok
+2026-11-19T11:16:49.3280537Z test scala::tests::cents_ratios_and_integers_all_read ... ok
+2026-11-19T11:16:49.3290259Z test scala::tests::the_22_shrutis_read_and_round_trip ... ok
+2026-11-19T11:16:49.3300073Z test score::tests::clips_carry_pitch_cents_channels_and_curves ... ok
+2026-11-19T11:16:49.3319661Z test score::tests::lengths_and_time ... ok
+2026-11-19T11:16:49.3350148Z test score::tests::retuning_touches_no_event ... ok
+2026-11-19T11:16:49.3360462Z test score::tests::smf_export_round_trips_through_the_parser ... ok
+2026-11-19T11:16:49.3380895Z test western::chord::tests::diatonic_triads_and_sevenths_come_out_of_the_steps ... ok
+2026-11-19T11:16:49.3400694Z test western::chord::tests::qualities_round_trip ... ok
+2026-11-19T11:16:49.3404760Z test western::chord::tests::roman_numerals_read ... ok
+2026-11-19T11:16:49.3494275Z test western::key::tests::a_major_scale_with_its_tonic_stressed_is_its_major_key ... ok
+2026-11-19T11:16:49.3599533Z test western::key::tests::a_minor_scale_with_its_tonic_stressed_is_its_minor_key ... ok
+2026-11-19T11:16:49.3667781Z test western::key::tests::mayamalavagowla_over_a_drone_on_d_is_found ... ok
+2026-11-19T11:16:49.3669812Z test western::rhythm::tests::euclidean_rhythms_of_the_world ... ok
+2026-11-19T11:16:49.3670933Z test western::rhythm::tests::rotation_parsing_and_swing ... ok
+2026-11-19T11:16:49.3671924Z test western::scale::tests::degrees_wrap_octaves ... ok
+2026-11-19T11:16:49.3672902Z test western::scale::tests::modes_are_rotations ... ok
+2026-11-19T11:16:49.3673838Z test western::scale::tests::the_two_systems_meet ... ok
+2026-11-19T11:16:49.3674765Z test western::tests::note_names_round_trip ... ok
+2026-11-19T11:16:49.3675756Z test western::voice_leading::tests::a_ii_v_i_moves_by_step ... ok
+2026-11-19T11:16:49.3676926Z test western::voice_leading::tests::an_impossible_range_gives_nothing ... ok
+2026-11-19T11:16:49.3678045Z test western::voice_leading::tests::constraints_hold ... ok
+2026-11-19T11:16:49.5590849Z test render::tests::the_tuning_reaches_the_sound ... ok
+2026-11-19T11:16:50.6182230Z test live::tests::live_playback_is_the_offline_mix ... ok
+2026-11-19T11:16:51.3145765Z test render::tests::rendered_files_carry_their_tags ... ok
+2026-11-19T11:16:51.3146151Z 
+2026-11-19T11:16:51.3146496Z test result: ok. 80 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.71s
+2026-11-19T11:16:51.3146945Z 
+2026-11-19T11:16:51.3204767Z [1m[92m     Running[0m tests/realtime_no_alloc.rs (target/release/deps/realtime_no_alloc-8ab23733e7bc0195)
+2026-11-19T11:16:52.5760338Z realtime_no_alloc: LiveScore::render allocates nothing across every demo piece
+2026-11-19T11:16:52.5762705Z [1m[92m   Doc-tests[0m vieww_audio
+2026-11-19T11:16:53.0685581Z 
+2026-11-19T11:16:53.0686050Z running 9 tests
+2026-11-19T11:16:53.0705797Z test crates/vieww-audio/src/codec/platform.rs - codec::platform::install (line 92) ... ignored
+2026-11-19T11:16:53.0707145Z test crates/vieww-audio/src/rt.rs - rt::CheckedAlloc (line 639) ... ignored
+2026-11-19T11:16:53.0959989Z test crates/vieww-audio/src/rt.rs - rt::RtSection (line 536) - compile fail ... ok
+2026-11-19T11:16:53.1124992Z test crates/vieww-audio/src/rt.rs - rt::RtSection (line 544) - compile fail ... ok
+2026-11-19T11:16:53.1873982Z test crates/vieww-audio/src/lib.rs - (line 69) ... ok
+2026-11-19T11:16:53.1892782Z test crates/vieww-audio/src/analysis.rs - analysis (line 36) ... ok
+2026-11-19T11:16:53.2215984Z test crates/vieww-audio/src/player.rs - player (line 10) ... ok
+2026-11-19T11:16:53.2232436Z test crates/vieww-audio/src/rt.rs - rt::RtSection (line 554) ... ok
+2026-11-19T11:16:53.2836034Z test crates/vieww-audio/src/wav.rs - wav (line 27) ... ok
+2026-11-19T11:16:53.2836529Z 
+2026-11-19T11:16:53.2836977Z test result: ok. 7 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.21s
+2026-11-19T11:16:53.2837585Z 
+2026-11-19T11:16:53.2848726Z [1m[92m   Doc-tests[0m vieww_audio_plugin
+2026-11-19T11:16:53.3878922Z 
+2026-11-19T11:16:53.3879368Z running 5 tests
+2026-11-19T11:16:53.3881404Z test crates/vieww-audio-plugin/src/clap/mod.rs - clap (line 3) ... ignored
+2026-11-19T11:16:53.3882879Z test crates/vieww-audio-plugin/src/gui/vieww.rs - gui::vieww (line 14) ... ignored
+2026-11-19T11:16:53.3884291Z test crates/vieww-audio-plugin/src/lv2/mod.rs - lv2 (line 4) ... ignored
+2026-11-19T11:16:53.3885519Z test crates/vieww-audio-plugin/src/vst3/mod.rs - vst3 (line 3) ... ignored
+2026-11-19T11:16:53.4585177Z test crates/vieww-audio-plugin/src/aax.rs - aax::refused (line 52) ... ok
+2026-11-19T11:16:53.4585607Z 
+2026-11-19T11:16:53.4585923Z test result: ok. 1 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.07s
+2026-11-19T11:16:53.4586301Z 
+2026-11-19T11:16:53.4596589Z [1m[92m   Doc-tests[0m vieww_music
+2026-11-19T11:16:53.5186103Z 
+2026-11-19T11:16:53.5186720Z running 1 test
+2026-11-19T11:16:53.5937343Z test crates/vieww-music/src/lib.rs - (line 43) ... ok
+2026-11-19T11:16:53.5937902Z 
+2026-11-19T11:16:53.5938520Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+2026-11-19T11:16:53.5939186Z 
+2026-11-19T11:16:53.6027079Z ##[endgroup]
+2026-11-19T11:16:53.6034550Z ##[group]Clippy
+2026-11-19T11:16:53.8401677Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T11:16:53.8403411Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T11:16:53.8404864Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T11:16:54.3639918Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T11:16:54.5055990Z [1m[91merror[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T11:16:54.5057399Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:16:54.5058739Z      [1m[94m|[0m
+2026-11-19T11:16:54.5060056Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T11:16:54.5061714Z      [1m[94m|[0m                         [1m[91m^[0m                                                                [1m[91m^[0m
+2026-11-19T11:16:54.5062760Z      [1m[94m|[0m
+2026-11-19T11:16:54.5063705Z      [1m[94m= [0m[1mnote[0m: `-D unused-parens` implied by `-D warnings`
+2026-11-19T11:16:54.5065211Z      [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[allow(unused_parens)]`
+2026-11-19T11:16:54.5066319Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T11:16:54.5067093Z      [1m[94m|[0m
+2026-11-19T11:16:54.5068478Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T11:16:54.5070265Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T11:16:54.5071416Z      [1m[94m|[0m
+2026-11-19T11:16:54.5071830Z 
+2026-11-19T11:16:54.8833408Z [1m[91merror[0m: could not compile `vieww-paint` (lib) due to 1 previous error
+2026-11-19T11:16:54.8834654Z [1m[33mwarning[0m: build failed, waiting for other jobs to finish...
+2026-11-19T11:16:56.6913974Z ##[endgroup]
+2026-11-19T11:16:56.6956051Z ##[error]Clippy failed (exit 101)
+2026-11-19T11:16:56.7034332Z ##[error]Process completed with exit code 1.
+2026-11-19T11:16:56.7217058Z Post job cleanup.
+2026-11-19T11:16:56.8075550Z [command]/usr/bin/git version
+2026-11-19T11:16:56.8124811Z git version 2.56.1
+2026-11-19T11:16:56.8173342Z Temporarily overriding HOME='/home/runner/work/_temp/d840defa-ed35-4bb5-a305-a60cab1f5a28' before making global git config changes
+2026-11-19T11:16:56.8174692Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-19T11:16:56.8181834Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-19T11:16:56.8219811Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-19T11:16:56.8253689Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-19T11:16:56.8483960Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-19T11:16:56.8511348Z http.https://github.com/.extraheader
+2026-11-19T11:16:56.8524386Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-19T11:16:56.8562459Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-19T11:16:56.8790051Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-19T11:16:56.8823983Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-19T11:16:56.9204913Z Cleaning up orphan processes
+2026-11-19T11:16:56.9504011Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · quick	log =====
+2026-11-19T11:34:31.9221629Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-19T11:34:31.9222118Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-19T11:34:31.9899885Z [1m[92m    Checking[0m once_cell v1.21.4
+2026-11-19T11:34:32.0700731Z [1m[92m   Compiling[0m wasm-bindgen-shared v0.2.129
+2026-11-19T11:34:32.1918219Z [1m[92m    Checking[0m unicode-segmentation v1.13.3
+2026-11-19T11:34:32.3460421Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-19T11:34:32.4747962Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T11:34:33.1947696Z [1m[92m    Checking[0m core_maths v0.1.1
+2026-11-19T11:34:33.2377525Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-19T11:34:33.3276345Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-19T11:34:33.7317604Z [1m[92m    Checking[0m bitflags v2.13.2
+2026-11-19T11:34:33.8207801Z [1m[92m    Checking[0m cfg-if v1.0.5
+2026-11-19T11:34:33.8847571Z [1m[92m    Checking[0m ttf-parser v0.25.1
+2026-11-19T11:34:34.0307634Z [1m[92m   Compiling[0m rustversion v1.0.23
+2026-11-19T11:34:34.2167358Z [1m[92m    Checking[0m simd-adler32 v0.3.10
+2026-11-19T11:34:34.5591712Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-19T11:34:34.5634629Z [1m[92m    Checking[0m adler2 v2.0.1
+2026-11-19T11:34:34.6200699Z [1m[92m    Checking[0m yazi v0.2.1
+2026-11-19T11:34:34.8230897Z [1m[92m    Checking[0m memmap2 v0.9.11
+2026-11-19T11:34:34.8887846Z [1m[92m    Checking[0m tinyvec v1.13.3
+2026-11-19T11:34:34.9148878Z [1m[92m    Checking[0m log v0.4.34
+2026-11-19T11:34:35.0037498Z [1m[92m    Checking[0m smallvec v1.16.2
+2026-11-19T11:34:35.1297420Z [1m[92m    Checking[0m zeno v0.3.3
+2026-11-19T11:34:35.6287615Z [1m[92m    Checking[0m fontdb v0.23.0
+2026-11-19T11:34:35.7443902Z [1m[92m    Checking[0m rangemap v1.8.0
+2026-11-19T11:34:35.8213613Z [1m[92m    Checking[0m self_cell v1.3.0
+2026-11-19T11:34:35.8750372Z [1m[92m    Checking[0m unicode-script v0.5.8
+2026-11-19T11:34:35.9387798Z [1m[92m    Checking[0m unicode-bidi v0.3.18
+2026-11-19T11:34:36.0990483Z [1m[92m    Checking[0m sys-locale v0.3.2
+2026-11-19T11:34:36.1317727Z [1m[92m    Checking[0m unicode-linebreak v0.1.5
+2026-11-19T11:34:36.2255485Z [1m[92m    Checking[0m rustc-hash v2.1.3
+2026-11-19T11:34:36.2727908Z [1m[92m    Checking[0m linebender_resource_handle v0.1.1
+2026-11-19T11:34:36.2757151Z [1m[92m    Checking[0m smol_str v0.3.6
+2026-11-19T11:34:36.3177502Z [1m[92m   Compiling[0m bumpalo v3.20.3
+2026-11-19T11:34:36.4557786Z [1m[92m    Checking[0m miniz_oxide v0.9.1
+2026-11-19T11:34:36.5469252Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-19T11:34:36.6929198Z [1m[92m   Compiling[0m wasm-bindgen v0.2.129
+2026-11-19T11:34:36.8481988Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-19T11:34:37.0649423Z [1m[92m   Compiling[0m wasm-bindgen-macro-support v0.2.129
+2026-11-19T11:34:37.5537607Z [1m[92m    Checking[0m flate2 v1.1.10
+2026-11-19T11:34:37.8018114Z [1m[92m    Checking[0m miniz_oxide v0.8.9
+2026-11-19T11:34:38.1692968Z [1m[92m    Checking[0m fdeflate v0.3.7
+2026-11-19T11:34:38.4187765Z [1m[92m    Checking[0m pin-project-lite v0.2.17
+2026-11-19T11:34:38.4517536Z [1m[92m    Checking[0m slab v0.4.12
+2026-11-19T11:34:38.5457882Z [1m[92m    Checking[0m futures-core v0.3.34
+2026-11-19T11:34:38.6078315Z [1m[92m    Checking[0m futures-task v0.3.34
+2026-11-19T11:34:38.6737585Z [1m[92m    Checking[0m futures-util v0.3.34
+2026-11-19T11:34:40.1020726Z [1m[92m    Checking[0m png v0.18.1
+2026-11-19T11:34:40.7768555Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-19T11:34:40.9218072Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T11:34:41.0058017Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T11:34:45.5145584Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-19T11:34:54.0557702Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-19T11:34:56.7838396Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T11:35:04.5478082Z [1m[92m    Checking[0m bytemuck v1.25.2
+2026-11-19T11:35:04.6978101Z [1m[92m    Checking[0m font-types v0.12.5
+2026-11-19T11:35:04.9587001Z [1m[92m    Checking[0m read-fonts v0.41.0
+2026-11-19T11:35:05.5407440Z [1m[92m    Checking[0m font-types v0.11.3
+2026-11-19T11:35:05.7850064Z [1m[92m    Checking[0m read-fonts v0.37.0
+2026-11-19T11:35:06.1495346Z [1m[92m   Compiling[0m wasm-bindgen-macro v0.2.129
+2026-11-19T11:35:07.3777706Z [1m[92m    Checking[0m js-sys v0.3.106
+2026-11-19T11:35:10.2766798Z [1m[92m    Checking[0m skrifa v0.44.0
+2026-11-19T11:35:10.7368098Z [1m[92m    Checking[0m harfrust v0.5.2
+2026-11-19T11:35:10.7427958Z [1m[92m    Checking[0m skrifa v0.40.0
+2026-11-19T11:35:12.1967501Z [1m[92m    Checking[0m swash v0.2.10
+2026-11-19T11:35:12.5928061Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T11:35:12.7337715Z [1m[33mwarning[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T11:35:12.7367277Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:35:12.7406888Z      [1m[94m|[0m
+2026-11-19T11:35:12.7437165Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T11:35:12.7456831Z      [1m[94m|[0m                         [1m[33m^[0m                                                                [1m[33m^[0m
+2026-11-19T11:35:12.7457430Z      [1m[94m|[0m
+2026-11-19T11:35:12.7458034Z      [1m[94m= [0m[1mnote[0m: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+2026-11-19T11:35:12.7458767Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T11:35:12.7459221Z      [1m[94m|[0m
+2026-11-19T11:35:12.7460516Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T11:35:12.7461544Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T11:35:12.7462218Z      [1m[94m|[0m
+2026-11-19T11:35:12.7462428Z 
+2026-11-19T11:35:13.8372383Z [1m[33mwarning[0m: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:35:14.0659334Z [1m[92m    Checking[0m web-sys v0.3.106
+2026-11-19T11:35:14.3208598Z [1m[92m    Checking[0m cosmic-text v0.19.0
+2026-11-19T11:35:15.0229507Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T11:35:15.2242576Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T11:35:16.3358272Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-19T11:35:16.6585233Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-19T11:35:19.1948457Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-19T11:35:19.3183315Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 47.64s
+2026-11-19T11:35:19.3411058Z ==> cargo clippy -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-19T11:35:19.5741823Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T11:35:19.5804121Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T11:35:19.5844398Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T11:35:19.5845884Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T11:35:19.6667776Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-19T11:35:20.6103498Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-19T11:35:20.6104637Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T11:35:20.6107552Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T11:35:20.7657848Z [1m[91merror[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T11:35:20.7687568Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:35:20.7717268Z      [1m[94m|[0m
+2026-11-19T11:35:20.7747616Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T11:35:20.7777306Z      [1m[94m|[0m                         [1m[91m^[0m                                                                [1m[91m^[0m
+2026-11-19T11:35:20.7786868Z      [1m[94m|[0m
+2026-11-19T11:35:20.7807098Z      [1m[94m= [0m[1mnote[0m: `-D unused-parens` implied by `-D warnings`
+2026-11-19T11:35:20.7837162Z      [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[allow(unused_parens)]`
+2026-11-19T11:35:20.7866961Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T11:35:20.7867624Z      [1m[94m|[0m
+2026-11-19T11:35:20.7897314Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T11:35:20.7927769Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T11:35:20.7936714Z      [1m[94m|[0m
+2026-11-19T11:35:20.7956429Z 
+2026-11-19T11:35:21.4307065Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T11:35:21.4308840Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-19T11:35:21.7250369Z [1m[91merror[0m: could not compile `vieww-paint` (lib) due to 1 previous error
+2026-11-19T11:35:21.7251360Z [1m[33mwarning[0m: build failed, waiting for other jobs to finish...
+2026-11-19T11:35:24.2474903Z     FAILED: web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target) (exit 1)
+2026-11-19T11:35:24.2475648Z 
+2026-11-19T11:35:24.2476179Z ==> fixture gallery (renders every screen; fails on a layout overflow)
+2026-11-19T11:35:24.4854192Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-19T11:35:24.4854689Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-19T11:35:24.4855307Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-19T11:35:24.4883488Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-19T11:35:24.5434936Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-19T11:35:24.6151679Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-11-19T11:35:24.8808084Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T11:35:25.0045349Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-19T11:35:25.2214021Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-19T11:35:25.3128667Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-19T11:35:25.3611361Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-19T11:35:25.5057508Z [1m[92m   Compiling[0m core_maths v0.1.1
+2026-11-19T11:35:25.5578310Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-19T11:35:26.1207605Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-19T11:35:27.4117686Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-19T11:35:28.2907525Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-19T11:35:28.4848016Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-19T11:35:28.8277802Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-19T11:35:29.2717586Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-19T11:35:29.3017852Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-19T11:35:29.4067466Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-19T11:35:29.7117504Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-19T11:35:29.8227686Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-11-19T11:35:29.8786653Z [1m[92m   Compiling[0m libc v0.2.189
+2026-11-19T11:35:30.0548156Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-19T11:35:30.2367587Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-19T11:35:30.3128554Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-19T11:35:30.8247159Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-19T11:35:30.9287735Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-19T11:35:31.2717697Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-19T11:35:31.9637598Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-19T11:35:31.9957720Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-19T11:35:33.9837615Z [1m[92m   Compiling[0m roxmltree v0.20.0
+2026-11-19T11:35:34.6527739Z [1m[92m   Compiling[0m memmap2 v0.9.11
+2026-11-19T11:35:34.8560643Z [1m[92m   Compiling[0m fontconfig-parser v0.5.8
+2026-11-19T11:35:35.5364146Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-19T11:35:36.8810254Z [1m[92m   Compiling[0m yazi v0.2.1
+2026-11-19T11:35:37.9677550Z [1m[92m   Compiling[0m tinyvec v1.13.3
+2026-11-19T11:35:38.3547819Z [1m[92m   Compiling[0m smallvec v1.16.2
+2026-11-19T11:35:38.5307641Z [1m[92m   Compiling[0m log v0.4.34
+2026-11-19T11:35:38.6567576Z [1m[92m   Compiling[0m zeno v0.3.3
+2026-11-19T11:35:39.4637615Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-19T11:35:46.7644373Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-19T11:35:48.0318310Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-19T11:35:48.0947847Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-19T11:35:48.7388132Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-19T11:35:52.2117974Z [1m[92m   Compiling[0m unicode-linebreak v0.1.5
+2026-11-19T11:35:52.3747610Z [1m[92m   Compiling[0m thiserror v2.0.21
+2026-11-19T11:35:52.5177677Z [1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+2026-11-19T11:35:52.5709440Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-19T11:35:52.7408023Z [1m[92m   Compiling[0m self_cell v1.3.0
+2026-11-19T11:35:52.7894170Z [1m[92m   Compiling[0m rangemap v1.8.0
+2026-11-19T11:35:53.0302849Z [1m[92m   Compiling[0m unicode-bidi v0.3.18
+2026-11-19T11:35:53.8967880Z [1m[92m   Compiling[0m unicode-script v0.5.8
+2026-11-19T11:35:54.2527451Z [1m[92m   Compiling[0m sys-locale v0.3.2
+2026-11-19T11:35:54.4157643Z [1m[92m   Compiling[0m smol_str v0.3.6
+2026-11-19T11:35:54.6077701Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-19T11:35:54.6818365Z [1m[92m   Compiling[0m rustc-hash v2.1.3
+2026-11-19T11:35:54.7267896Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-19T11:35:57.6137547Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-19T11:35:58.7407843Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T11:35:58.8707836Z [1m[33mwarning[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T11:35:58.8717122Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:35:58.8736916Z      [1m[94m|[0m
+2026-11-19T11:35:58.8766985Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T11:35:58.8768017Z      [1m[94m|[0m                         [1m[33m^[0m                                                                [1m[33m^[0m
+2026-11-19T11:35:58.8796710Z      [1m[94m|[0m
+2026-11-19T11:35:58.8826966Z      [1m[94m= [0m[1mnote[0m: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+2026-11-19T11:35:58.8856634Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T11:35:58.8886565Z      [1m[94m|[0m
+2026-11-19T11:35:58.8907215Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T11:35:58.8977161Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T11:35:58.8996723Z      [1m[94m|[0m
+2026-11-19T11:35:58.9006241Z 
+2026-11-19T11:35:58.9580924Z [1m[92m   Compiling[0m zerocopy-derive v0.8.59
+2026-11-19T11:35:59.4597169Z [1m[92m   Compiling[0m thiserror-impl v2.0.21
+2026-11-19T11:36:00.3148692Z [1m[92m   Compiling[0m cfg_aliases v0.2.2
+2026-11-19T11:36:00.3348791Z [1m[92m   Compiling[0m equivalent v1.0.2
+2026-11-19T11:36:00.3467021Z [1m[92m   Compiling[0m naga v30.0.1
+2026-11-19T11:36:00.3677816Z [1m[92m   Compiling[0m indexmap v2.14.2
+2026-11-19T11:36:01.4098258Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T11:36:01.6518007Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T11:36:01.8627627Z [1m[92m   Compiling[0m rustc-hash v1.1.0
+2026-11-19T11:36:02.0127146Z [1m[92m   Compiling[0m unicode-width v0.2.2
+2026-11-19T11:36:02.1837518Z [1m[92m   Compiling[0m bit-vec v0.9.1
+2026-11-19T11:36:02.3154469Z [1m[92m   Compiling[0m bit-set v0.10.0
+2026-11-19T11:36:02.3957370Z [1m[92m   Compiling[0m codespan-reporting v0.13.1
+2026-11-19T11:36:02.7251454Z [1m[92m   Compiling[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-19T11:36:03.5487730Z [1m[92m   Compiling[0m naga-types v30.0.1
+2026-11-19T11:36:03.6198273Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T11:36:03.8827574Z [1m[92m   Compiling[0m euclid v0.22.14
+2026-11-19T11:36:04.0409458Z [1m[92m   Compiling[0m half v2.7.1
+2026-11-19T11:36:04.3217508Z [1m[92m   Compiling[0m arrayvec v0.7.8
+2026-11-19T11:36:04.6657531Z [1m[92m   Compiling[0m lyon_geom v1.0.19
+2026-11-19T11:36:05.0574602Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-19T11:36:05.2657650Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-19T11:36:09.7987864Z [1m[33mwarning[0m: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:36:09.8047191Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-19T11:36:13.5138093Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-19T11:36:13.7437564Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-19T11:36:14.1717538Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-19T11:36:14.3647974Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-19T11:36:14.7879945Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-19T11:36:14.9807602Z [1m[92m   Compiling[0m float_next_after v1.0.0
+2026-11-19T11:36:14.9973432Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T11:36:15.0274588Z [1m[92m   Compiling[0m ash v0.38.0+1.3.281
+2026-11-19T11:36:15.0537610Z [1m[92m   Compiling[0m lyon_tessellation v1.0.22
+2026-11-19T11:36:15.0870756Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-19T11:36:15.4318072Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-19T11:36:16.8287991Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-19T11:36:17.0997635Z [1m[92m   Compiling[0m libloading v0.8.9
+2026-11-19T11:36:17.2258230Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-19T11:36:20.8448171Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T11:36:22.3188180Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-19T11:36:26.5448478Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-19T11:36:28.4788737Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-19T11:36:30.2987863Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-19T11:36:33.0738095Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-19T11:36:36.1218047Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-19T11:36:36.3287920Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-19T11:36:36.8877824Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-19T11:36:37.8548771Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+2026-11-19T11:36:39.0195131Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-19T11:36:39.3682986Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-19T11:36:41.1064546Z [1m[92m   Compiling[0m weezl v0.1.12
+2026-11-19T11:36:41.9063979Z [1m[92m   Compiling[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+2026-11-19T11:36:42.0358310Z [1m[92m   Compiling[0m color_quant v1.1.0
+2026-11-19T11:36:42.2353702Z [1m[92m   Compiling[0m gif v0.14.2
+2026-11-19T11:36:42.4027776Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-19T11:36:42.4538636Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-19T11:36:43.5928612Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-19T11:36:57.8582477Z [1m[92m    Finished[0m `release` profile [optimized] target(s) in 1m 33s
+2026-11-19T11:36:57.8692744Z [1m[92m     Running[0m `target/release/fixtures /tmp/tmp.FiKx3Vzwhl`
+2026-11-19T11:37:01.4996818Z 
+2026-11-19T11:37:01.4997648Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+2026-11-19T11:37:01.4998292Z error: unnecessary parentheses around assigned value
+2026-11-19T11:37:01.4998693Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:37:01.4999165Z error: could not compile `vieww-paint` (lib) due to 1 previous error
+2026-11-19T11:37:01.4999794Z warning: build failed, waiting for other jobs to finish...
+2026-11-19T11:37:01.5000455Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-19T11:37:01.5000871Z 
+2026-11-19T11:37:01.5001219Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-19T11:37:01.5002464Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-19T11:37:01.5003345Z warning: unnecessary parentheses around assigned value
+2026-11-19T11:37:01.5003897Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:37:01.5004637Z warning: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:37:01.5005262Z error: unnecessary parentheses around assigned value
+2026-11-19T11:37:01.5005698Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:37:01.5006331Z error: could not document `vieww-paint`
+2026-11-19T11:37:01.5006847Z warning: build failed, waiting for other jobs to finish...
+2026-11-19T11:37:01.5007192Z 
+2026-11-19T11:37:01.5007608Z --- web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target): its diagnostics ---
+2026-11-19T11:37:01.5008472Z warning: unnecessary parentheses around assigned value
+2026-11-19T11:37:01.5009012Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:37:01.5009767Z warning: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:37:01.5010504Z error: unnecessary parentheses around assigned value
+2026-11-19T11:37:01.5011026Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:37:01.5011594Z error: could not compile `vieww-paint` (lib) due to 1 previous error
+2026-11-19T11:37:01.5012202Z warning: build failed, waiting for other jobs to finish...
+2026-11-19T11:37:01.5012557Z 
+2026-11-19T11:37:01.5012715Z 3 stage(s) failed:
+2026-11-19T11:37:01.5013165Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+2026-11-19T11:37:01.5013736Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-19T11:37:01.5014369Z   - web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target) (exit 1)
+2026-11-19T11:37:01.5026303Z ##[endgroup]
+2026-11-19T11:37:01.5046949Z ##[error]Quick checks failed (exit 1)
+2026-11-19T11:37:01.5135543Z ##[error]Process completed with exit code 1.
+2026-11-19T11:37:01.5299633Z Post job cleanup.
+2026-11-19T11:37:01.6014096Z [command]/usr/bin/git version
+2026-11-19T11:37:01.6053352Z git version 2.56.1
+2026-11-19T11:37:01.6084501Z Temporarily overriding HOME='/home/runner/work/_temp/9ae82733-c700-4172-a729-c8d2b0f01377' before making global git config changes
+2026-11-19T11:37:01.6085825Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-19T11:37:01.6090657Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-19T11:37:01.6129155Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-19T11:37:01.6163352Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-19T11:37:01.6430881Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-19T11:37:01.6464662Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-19T11:37:01.6777778Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-19T11:37:01.6814321Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-19T11:37:01.7260492Z Cleaning up orphan processes
+2026-11-19T11:37:01.7667959Z Terminate orphan process: pid (33664) (java)
+2026-11-19T11:37:01.7796856Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-gate	log =====
+2026-11-19T11:55:39.5262110Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-19T11:55:44.3195858Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T11:55:44.8892018Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-19T11:55:44.9996410Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-19T11:55:44.9997048Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-19T11:55:45.1665020Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-19T11:55:45.1757429Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-19T11:55:48.7151588Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-19T11:55:48.7154731Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-19T11:56:01.1255856Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-19T11:56:02.9745187Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-19T11:56:07.3034308Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-19T11:56:10.0980982Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T11:56:10.6345028Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T11:56:13.7324869Z [1m[92m   Compiling[0m vieww-reload v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-reload)
+2026-11-19T11:56:14.0735089Z [1m[92m    Finished[0m `test` profile [unoptimized] target(s) in 42.17s
+2026-11-19T11:56:14.0805591Z [1m[92m     Running[0m tests/end_to_end.rs (target/debug/deps/end_to_end-c193484d1bd3647c)
+2026-11-19T11:56:14.0819130Z 
+2026-11-19T11:56:14.0819352Z running 3 tests
+2026-11-19T11:57:02.7113574Z test a_guest_that_panics_while_building_does_not_take_the_host_down ... ok
+2026-11-19T11:57:51.4611803Z test a_guest_whose_state_changed_shape_forces_a_restart ... ok
+2026-11-19T11:58:40.2559662Z test a_rebuilt_guest_reloads_and_the_tree_is_kept ... ok
+2026-11-19T11:58:40.2559987Z 
+2026-11-19T11:58:40.2560268Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 146.17s
+2026-11-19T11:58:40.2560627Z 
+2026-11-19T11:58:40.2680235Z 
+2026-11-19T11:58:40.2680841Z ==> packaging (layout and a preview compiled against the bundle)
+2026-11-19T11:58:40.3259074Z ==> building viewwstudio 0.1.0 (debug, linux)
+2026-11-19T11:58:40.5472310Z [1m[92m   Compiling[0m zvariant_utils v4.2.0
+2026-11-19T11:58:40.5507963Z [1m[92m   Compiling[0m uuid v1.26.1
+2026-11-19T11:58:40.5544295Z [1m[33mwarning[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T11:58:40.5545035Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:58:40.5545538Z      [1m[94m|[0m
+2026-11-19T11:58:40.5546205Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T11:58:40.5547059Z      [1m[94m|[0m                         [1m[33m^[0m                                                                [1m[33m^[0m
+2026-11-19T11:58:40.5547602Z      [1m[94m|[0m
+2026-11-19T11:58:40.5548179Z      [1m[94m= [0m[1mnote[0m: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+2026-11-19T11:58:40.5548761Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T11:58:40.5549181Z      [1m[94m|[0m
+2026-11-19T11:58:40.5549873Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T11:58:40.5550816Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T11:58:40.5551426Z      [1m[94m|[0m
+2026-11-19T11:58:40.5551583Z 
+2026-11-19T11:58:40.5552066Z [1m[33mwarning[0m: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:58:40.5553216Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T11:58:40.5586934Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-19T11:58:41.0435793Z [1m[92m   Compiling[0m accesskit v0.25.1
+2026-11-19T11:58:41.3204789Z [1m[92m   Compiling[0m zvariant v5.15.0
+2026-11-19T11:58:41.8814715Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-19T11:58:42.4904397Z [1m[92m   Compiling[0m accesskit_consumer v0.39.1
+2026-11-19T11:58:43.9474436Z [1m[92m   Compiling[0m zbus_names v4.3.4
+2026-11-19T11:58:44.8824938Z [1m[92m   Compiling[0m zbus_xml v5.2.1
+2026-11-19T11:58:45.6617553Z [1m[92m   Compiling[0m zbus-lockstep v0.5.2
+2026-11-19T11:58:45.8464355Z [1m[92m   Compiling[0m zbus v5.19.0
+2026-11-19T11:58:45.9991160Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-19T11:58:47.3895084Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-19T11:58:48.4694829Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-19T11:58:50.5914922Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-19T11:58:50.6934760Z [1m[92m   Compiling[0m atspi-common v0.13.0
+2026-11-19T11:58:50.7315443Z [1m[92m   Compiling[0m ahash v0.8.12
+2026-11-19T11:58:50.8924612Z [1m[92m   Compiling[0m winit v0.30.13
+2026-11-19T11:58:51.1271214Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-19T11:58:56.3994115Z [1m[92m   Compiling[0m atspi-proxies v0.13.0
+2026-11-19T11:58:58.3824397Z [1m[92m   Compiling[0m atspi v0.29.0
+2026-11-19T11:58:58.4164658Z [1m[92m   Compiling[0m accesskit_atspi_common v0.21.0
+2026-11-19T11:59:01.6914788Z [1m[92m   Compiling[0m accesskit_unix v0.24.0
+2026-11-19T11:59:05.6354628Z [1m[92m   Compiling[0m accesskit_winit v0.34.1
+2026-11-19T11:59:05.8255439Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-19T11:59:07.5974982Z [1m[92m   Compiling[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-19T11:59:07.6354699Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-19T11:59:07.6695007Z [1m[92m   Compiling[0m vieww-platform-winit v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-winit)
+2026-11-19T11:59:09.6135382Z [1m[92m   Compiling[0m vieww-platform-web-dom v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web-dom)
+2026-11-19T11:59:19.4161583Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 39.06s
+2026-11-19T11:59:19.4453653Z ==> drawing icons
+2026-11-19T11:59:19.6585315Z [1m[33mwarning[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T11:59:19.6585830Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:59:19.6586153Z      [1m[94m|[0m
+2026-11-19T11:59:19.6586586Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T11:59:19.6587124Z      [1m[94m|[0m                         [1m[33m^[0m                                                                [1m[33m^[0m
+2026-11-19T11:59:19.6587509Z      [1m[94m|[0m
+2026-11-19T11:59:19.6587881Z      [1m[94m= [0m[1mnote[0m: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+2026-11-19T11:59:19.6588266Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T11:59:19.6588537Z      [1m[94m|[0m
+2026-11-19T11:59:19.6588979Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T11:59:19.6589580Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T11:59:19.6589997Z      [1m[94m|[0m
+2026-11-19T11:59:19.6590117Z 
+2026-11-19T11:59:19.6590449Z [1m[33mwarning[0m: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:59:19.6614266Z [1m[92m   Compiling[0m viewwstudio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/viewwstudio)
+2026-11-19T11:59:19.6624537Z [1m[92m   Compiling[0m vieww-hardware v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hardware)
+2026-11-19T11:59:19.6625513Z [1m[92m   Compiling[0m vieww-accessibility v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-accessibility)
+2026-11-19T11:59:19.6626426Z [1m[92m   Compiling[0m vieww-test-harness v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-test-harness)
+2026-11-19T11:59:25.3513334Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 5.88s
+2026-11-19T11:59:25.3680251Z [1m[92m     Running[0m `target/debug/examples/icon /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/icons`
+2026-11-19T11:59:26.2365756Z ==> verifying the bundle compiles a preview
+2026-11-19T11:59:48.0593994Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/viewwstudio-linux-x86_64.tar.gz
+2026-11-19T11:59:48.0617600Z     211M
+2026-11-19T11:59:48.2069725Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/SHA256SUMS
+2026-11-19T11:59:48.2085404Z     1 asset(s)
+2026-11-19T11:59:48.2098271Z ==> /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/package/index.html
+2026-11-19T11:59:48.2098712Z     links point at github.com/tejakota/vieww_prod
+2026-11-19T11:59:48.2119014Z done
+2026-11-19T11:59:48.2522078Z 
+2026-11-19T11:59:48.2522732Z --- clippy (workspace, all targets, warnings are errors): its diagnostics ---
+2026-11-19T11:59:48.2523461Z error: unnecessary parentheses around assigned value
+2026-11-19T11:59:48.2523912Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:59:48.2524406Z error: could not compile `vieww-paint` (lib) due to 1 previous error
+2026-11-19T11:59:48.2524898Z warning: build failed, waiting for other jobs to finish...
+2026-11-19T11:59:48.2525351Z error: could not compile `vieww-paint` (lib test) due to 1 previous error
+2026-11-19T11:59:48.2525641Z 
+2026-11-19T11:59:48.2525865Z --- docs (workspace, broken intra-doc links are errors): its diagnostics ---
+2026-11-19T11:59:48.2527014Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/doc/vieww/index.html
+2026-11-19T11:59:48.2527646Z warning: unnecessary parentheses around assigned value
+2026-11-19T11:59:48.2528065Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:59:48.2528638Z warning: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:59:48.2529253Z error: unnecessary parentheses around assigned value
+2026-11-19T11:59:48.2529691Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:59:48.2530061Z error: could not document `vieww-paint`
+2026-11-19T11:59:48.2530473Z warning: build failed, waiting for other jobs to finish...
+2026-11-19T11:59:48.2530750Z 
+2026-11-19T11:59:48.2531094Z --- web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target): its diagnostics ---
+2026-11-19T11:59:48.2531683Z warning: unnecessary parentheses around assigned value
+2026-11-19T11:59:48.2532105Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:59:48.2532698Z warning: `vieww-paint` (lib) generated 1 warning (run `cargo fix --lib -p vieww-paint` to apply 1 suggestion)
+2026-11-19T11:59:48.2533465Z error: unnecessary parentheses around assigned value
+2026-11-19T11:59:48.2533869Z     --> crates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T11:59:48.2534224Z error: could not compile `vieww-paint` (lib) due to 1 previous error
+2026-11-19T11:59:48.2534593Z warning: build failed, waiting for other jobs to finish...
+2026-11-19T11:59:48.2534797Z 
+2026-11-19T11:59:48.2534898Z 3 stage(s) failed:
+2026-11-19T11:59:48.2535192Z   - clippy (workspace, all targets, warnings are errors) (exit 101)
+2026-11-19T11:59:48.2535650Z   - docs (workspace, broken intra-doc links are errors) (exit 101)
+2026-11-19T11:59:48.2536157Z   - web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target) (exit 1)
+2026-11-19T11:59:48.2539652Z ##[endgroup]
+2026-11-19T11:59:48.2548817Z ##[error]The gate failed (exit 1)
+2026-11-19T11:59:48.2550426Z ##[group]Performance budget (advisory, FW-08)
+2026-11-19T11:59:48.9704688Z perf-baseline: no previous perf-linux/perf-measured.json under ci-results/framework-checks
+2026-11-19T12:00:25.5204376Z [1m[33mwarning[0m[1m: unnecessary parentheses around assigned value[0m
+2026-11-19T12:00:25.5244011Z     [1m[94m--> [0mcrates/vieww-paint/src/native/target.rs:1344:25
+2026-11-19T12:00:25.5273768Z      [1m[94m|[0m
+2026-11-19T12:00:25.5304067Z [1m[94m1344[0m [1m[94m|[0m         let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+2026-11-19T12:00:25.5333940Z      [1m[94m|[0m                         [1m[33m^[0m                                                                [1m[33m^[0m
+2026-11-19T12:00:25.5363554Z      [1m[94m|[0m
+2026-11-19T12:00:25.5393843Z      [1m[94m= [0m[1mnote[0m: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+2026-11-19T12:00:25.5423620Z [1m[96mhelp[0m: remove these parentheses
+2026-11-19T12:00:25.5443538Z      [1m[94m|[0m
+2026-11-19T12:00:25.5444373Z [1m[94m1344[0m [91m- [0m        let clip_span = [91m([0mclip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize[91m)[0m;
+2026-11-19T12:00:25.5445366Z [1m[94m1344[0m [92m+ [0m        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
+2026-11-19T12:00:25.5445987Z      [1m[94m|[0m
+2026-11-19T12:00:25.5446170Z 
+2026-11-19T12:01:32.4575528Z 
+2026-11-19T12:01:32.4576687Z fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+2026-11-19T12:01:32.4577381Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-19T12:01:32.4578429Z 00-fills                            840x560      384     2.62ms     3.33ms       6.8        6  384 plain fills — the control
+2026-11-19T12:01:32.4579531Z 00-fills-rounded                    840x560      384     3.24ms     3.75ms       8.4        5  the same fills, rounded — cost of curves
+2026-11-19T12:01:32.4580590Z 00-fills-gradient                   840x560      384     4.20ms     4.57ms      10.9        4  the same fills, gradient-shaded — cost of shading
+2026-11-19T12:01:32.4581419Z 00-fills-rrect-clip                 840x560      384     2.55ms     3.18ms       6.6        7  the same fills under ONE rounded clip
+2026-11-19T12:01:32.4582229Z 00-fills-nested-clips               840x560      384     2.53ms     3.00ms       6.6        7  the same fills, three clips deep
+2026-11-19T12:01:32.4583189Z 00-strokes                          840x560      384     9.71ms    10.50ms      25.3        2  stroke expansion: joins, caps
+2026-11-19T12:01:32.4584003Z 00-curves                           840x560      384     7.54ms     8.07ms      19.6        2  open cubics — the flattener's real workload
+2026-11-19T12:01:32.4584625Z 00-shadows                          840x560      768     5.26ms     5.79ms       6.9        3  384 blurred shadow masks
+2026-11-19T12:01:32.4585265Z 00-layers-flat                      840x560     1152     3.43ms     3.96ms       3.0        5  384 sibling isolated layers
+2026-11-19T12:01:32.4586022Z 00-layers-nested                    840x560       74     5.95ms     8.13ms      80.4        3  24 layers deep — compositor depth
+2026-11-19T12:01:32.4586671Z 00-blend-modes                      840x560       71     2.54ms     2.68ms      35.8        7  12 blend modes over one backdrop
+2026-11-19T12:01:32.4587319Z 00-blurs                            840x560       24     1.67ms     1.83ms      69.6       10  blur at five sigmas, incl. bounds
+2026-11-19T12:01:32.4587984Z 00-transforms                       840x560       97     1.48ms     1.56ms      15.3       11  96 rotated + scaled boxes
+2026-11-19T12:01:32.4588622Z 10-icon-grid                        840x560       46     0.85ms     1.01ms      18.5       20  120 vector icons, four sizes
+2026-11-19T12:01:32.4589302Z 10-icon-strokes                     840x560       46     2.14ms     2.23ms      46.5        8  stroked line-art icons at small sizes
+2026-11-19T12:01:32.4590017Z 11-typography                       840x560       11     0.90ms     1.00ms      82.2       18  a type scale, real glyph outlines
+2026-11-19T12:01:32.4590823Z 11-code-block                       840x560       56     0.77ms     0.84ms      13.7       22  syntax-coloured code — many small runs
+2026-11-19T12:01:32.4591519Z 12-avatar                           840x560       18     2.08ms     2.24ms     115.7        8  one complex layered vector portrait
+2026-11-19T12:01:32.4592196Z 12-avatar-wall                      840x560      362     5.16ms     5.39ms      14.3        3  24 of them, clipped to circles
+2026-11-19T12:01:32.4593126Z 20-settings                         840x560       45     1.17ms     1.33ms      26.0       14  a settings form: rows, switches, chrome
+2026-11-19T12:01:32.4593904Z 21-dashboard                        840x560       39     1.84ms     1.97ms      47.1        9  cards, charts, elevation, gradients
+2026-11-19T12:01:32.4594570Z 22-editor                          1366x679      129     2.09ms     2.49ms      16.2        8  an IDE shell: sidebar, code, panels
+2026-11-19T12:01:32.4595244Z 23-editor-glass                    1366x679      149     7.49ms     7.74ms      50.3        2  the same, with blur, shadows and overlays
+2026-11-19T12:01:32.4595931Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-19T12:01:32.4596452Z 23 fixtures, 77.2 ms of rendering in total
+2026-11-19T12:01:32.4596916Z drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+2026-11-19T12:01:32.4597412Z every fixture renders inside a 60 Hz frame budget
+2026-11-19T12:01:32.4597767Z no fixture's layout overflows
+2026-11-19T12:01:32.4653088Z receipt  : /tmp/tmp.qhSk6w6joW/receipt.json
+2026-11-19T12:01:32.4653342Z 
+2026-11-19T12:01:32.4653521Z motion                frames       mean      worst   moving   stall  what it covers
+2026-11-19T12:01:32.4654371Z ----------------------------------------------------------------------------------------------------------------------
+2026-11-19T12:01:32.8045112Z 30-fade-in                24     0.91ms     1.25ms     23/23       0  opacity 0 -> 1: the simplest reveal
+2026-11-19T12:01:33.1752212Z 31-stagger                24     1.20ms     1.60ms     15/23       0  five rows revealing in sequence
+2026-11-19T12:01:33.3934817Z 32-splash                 24     0.96ms     1.95ms     21/23       2  a launch splash: scale, rise, fade out
+2026-11-19T12:01:33.9154188Z 33-sheet                  24     4.17ms     6.91ms     14/23       0  a modal sheet over a blurred backdrop
+2026-11-19T12:01:34.2590570Z 34-spinner                24     0.69ms     1.23ms     23/23       0  a continuous sweep — transforms every frame
+2026-11-19T12:01:34.7490106Z 35-shared-element         24     4.19ms     6.13ms     23/23       0  a card expanding into a detail view — the hard transition
+2026-11-19T12:01:35.0593056Z 36-morph                  24     1.24ms     1.74ms     23/23       0  one vector path morphing into another, stroked and filled
+2026-11-19T12:01:35.0674006Z 
+2026-11-19T12:01:35.0674918Z interaction                       damage  full frame    retained  speed-up  identical?
+2026-11-19T12:01:35.0675397Z ------------------------------------------------------------------------------------------------
+2026-11-19T12:01:35.0772187Z light row 4                        8.01%      1.92ms      0.37ms      5.2x  yes
+2026-11-19T12:01:35.0863436Z move the light to row 9           16.03%      1.84ms      0.46ms      4.0x  yes
+2026-11-19T12:01:35.0951265Z clear the selection                8.01%      1.85ms      0.30ms      6.2x  yes
+2026-11-19T12:01:35.1037101Z nothing changes at all            -0.00%      1.83ms      0.12ms     14.6x  yes
+2026-11-19T12:01:35.1647072Z glass: highlight moves             0.72%      8.33ms      5.37ms      1.6x  yes  within 60Hz
+2026-11-19T12:01:35.1957487Z glass: highlight clears            0.72%      7.81ms      5.30ms      1.5x  yes  within 60Hz
+2026-11-19T12:01:35.1976323Z 
+2026-11-19T12:01:35.1976473Z wrote 23 PNGs to /tmp/tmp.qhSk6w6joW/out
+2026-11-19T12:01:35.2229103Z | class | metric | budget | now | change | verdict (tolerance ±10%) |
+2026-11-19T12:01:35.2229663Z |---|---|---|---|---|---|
+2026-11-19T12:01:35.2230467Z perf-budget: no budget and no previous run for class 'ubuntu-24-04-5-lts/x86-64/intel-r-xeon-r-6975p-c': not gated this time (this run is the baseline for the next)
+2026-11-19T12:01:35.2231312Z perf-budget: nothing gated
+2026-11-19T12:01:35.2261654Z ##[endgroup]
+2026-11-19T12:01:35.2267390Z ##[group]mark: upload perf-linux
+2026-11-19T12:01:35.2281748Z ##[endgroup]
+2026-11-19T12:01:35.2377378Z ##[error]Process completed with exit code 1.
+2026-11-19T12:01:35.2456534Z ##[group]Run actions/upload-artifact@v4
+2026-11-19T12:01:35.2456807Z with:
+2026-11-19T12:01:35.2457023Z   name: perf-linux
+2026-11-19T12:01:35.2457258Z   path: /home/runner/work/_temp/perf
+2026-11-19T12:01:35.2457529Z   if-no-files-found: ignore
+2026-11-19T12:01:35.2457781Z   include-hidden-files: false
+2026-11-19T12:01:35.2458016Z   compression-level: 6
+2026-11-19T12:01:35.2458240Z   overwrite: false
+2026-11-19T12:01:35.2458441Z env:
+2026-11-19T12:01:35.2458641Z   CI_INPUTS: ***
+2026-11-19T12:01:35.2458846Z   CI_MATRIX: ***
+2026-11-19T12:01:35.2459597Z   CI_JOB: ***"title": "vieww \u00b7 framework-gate", "project": "vieww", "id": "framework-gate", "file": "vieww_base/ci/jobs/framework-gate.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "perf-linux", "path": "$*** runner.temp ***/perf", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-19T12:01:35.2460358Z   CI_PROJECT: vieww
+2026-11-19T12:01:35.2461037Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-19T12:01:35.2463581Z   CI_GITHUB_TOKEN: ***
+2026-11-19T12:01:35.2463844Z   CI_SECRET_NAMES: 
+2026-11-19T12:01:35.2464054Z   CI_HAS_AWS_ROLE: false
+2026-11-19T12:01:35.2464282Z   ANDROID_KEYSTORE: 
+2026-11-19T12:01:35.2464509Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-19T12:01:35.2464741Z   ANDROID_KEY_ALIAS: 
+2026-11-19T12:01:35.2464962Z   ANDROID_KEY_PASSWORD: 
+2026-11-19T12:01:35.2465187Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-19T12:01:35.2465418Z   APPLE_NOTARY_ISSUER: 
+2026-11-19T12:01:35.2465637Z   APPLE_NOTARY_KEY: 
+2026-11-19T12:01:35.2465841Z   APPLE_NOTARY_KEY_ID: 
+2026-11-19T12:01:35.2466054Z   APPLE_P12_PASSWORD: 
+2026-11-19T12:01:35.2466264Z   APPLE_SIGNING_IDENTITY: 
+2026-11-19T12:01:35.2466487Z   AWS_ACCESS_KEY_ID: 
+2026-11-19T12:01:35.2466689Z   AWS_ROLE_ARN: 
+2026-11-19T12:01:35.2466897Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-19T12:01:35.2467127Z   CARGO_REGISTRY_TOKEN: 
+2026-11-19T12:01:35.2467346Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-19T12:01:35.2467581Z   CLOUDFLARE_API_TOKEN: 
+2026-11-19T12:01:35.2467800Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-19T12:01:35.2468008Z   FIREBASE_PROJECT: 
+2026-11-19T12:01:35.2468217Z   FIREBASE_SA_KEY: 
+2026-11-19T12:01:35.2468413Z   IOS_CERT_P12: 
+2026-11-19T12:01:35.2468607Z   IOS_CERT_PASSWORD: 
+2026-11-19T12:01:35.2468808Z   IOS_IDENTITY: 
+2026-11-19T12:01:35.2468996Z   IOS_PROFILE: 
+2026-11-19T12:01:35.2469200Z   WINDOWS_CERT_PASSWORD: 
+2026-11-19T12:01:35.2469410Z   WINDOWS_CERT_PFX: 
+2026-11-19T12:01:35.2469629Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-19T12:01:35.2469879Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-19T12:01:35.2470118Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-19T12:01:35.2470355Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-19T12:01:35.2470604Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-19T12:01:35.2470858Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-19T12:01:35.2471090Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-19T12:01:35.2471319Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-19T12:01:35.2471572Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-19T12:01:35.2471867Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-19T12:01:35.2472137Z   CI_UPLOAD_0: yes
+2026-11-19T12:01:35.2472339Z ##[endgroup]
+2026-11-19T12:01:35.3712787Z (node:91325) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-19T12:01:35.3713910Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-19T12:01:35.3755599Z With the provided path, there will be 1 file uploaded
+2026-11-19T12:01:35.3759301Z Artifact name is valid!
+2026-11-19T12:01:35.3765840Z Root directory input is valid!
+2026-11-19T12:01:35.7419014Z Beginning upload of artifact content to blob storage
+2026-11-19T12:01:35.7619975Z (node:91325) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-19T12:01:35.8040125Z Uploaded bytes 549
+2026-11-19T12:01:35.8191881Z Finished uploading artifact content to blob storage!
+2026-11-19T12:01:35.8192428Z SHA256 digest of uploaded artifact zip is e9105321a51028fcf3b23609ba9408a0c8195facf208cb26f24fe0d0edeadba0
+2026-11-19T12:01:35.8193073Z Finalizing artifact upload
+2026-11-19T12:01:36.1998993Z Artifact perf-linux.zip successfully finalized. Artifact ID 14527527455
+2026-11-19T12:01:36.1999608Z Artifact perf-linux has been successfully uploaded! Final size is 549 bytes. Artifact ID is 14527527455
+2026-11-19T12:01:36.2004366Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44512971433/artifacts/14527527455
+2026-11-19T12:01:36.2202735Z Post job cleanup.
+2026-11-19T12:01:36.2872027Z [command]/usr/bin/git version
+2026-11-19T12:01:36.2903859Z git version 2.56.1
+2026-11-19T12:01:36.2928687Z Temporarily overriding HOME='/home/runner/work/_temp/e225f824-51cb-44fe-82d1-411b96fa84dc' before making global git config changes
+2026-11-19T12:01:36.2929734Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-19T12:01:36.2935522Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-19T12:01:36.2962697Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-19T12:01:36.2987857Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-19T12:01:36.3161534Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-19T12:01:36.3178356Z http.https://github.com/.extraheader
+2026-11-19T12:01:36.3186451Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-19T12:01:36.3211510Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-19T12:01:36.3384192Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-19T12:01:36.3410171Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-19T12:01:36.3709612Z Cleaning up orphan processes
+2026-11-19T12:01:36.4003306Z Terminate orphan process: pid (34217) (java)
+2026-11-19T12:01:36.4135029Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
