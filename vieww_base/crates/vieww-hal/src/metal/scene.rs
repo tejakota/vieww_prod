@@ -36,10 +36,14 @@
 //!   wait can be told from GPU work on the iPhone (PENDING 1.4's open
 //!   question). The macOS runner validates this renderer first — the plan's
 //!   order, not a shortcut.
-//! * **Whole-atlas uploads, except masks.** Glyphs, images and ramps upload
-//!   the whole texture on a version change, as Vulkan's do; masks upload
-//!   only the changed rectangles, `vulkan::scene`'s `record_masks` ported
-//!   to this backend's blits — [`MetalSceneRenderer::upload_masks`].
+//! * **Partial atlas uploads, and a carried grow.** Glyphs, images and
+//!   ramps upload only the rectangles that changed when the atlas can say
+//!   which ones those are (`vulkan::scene`'s `record_glyphs`/`record_images`/
+//!   `record_ramps` on this backend's blits), and a grown atlas carries its
+//!   old texture across with one GPU copy instead of re-sending it —
+//!   [`MetalSceneRenderer::upload_regions`] and
+//!   [`MetalSceneRenderer::resize_with_carry`]. Masks were always partial
+//!   ([`MetalSceneRenderer::upload_masks`]).
 //! * **Host timing.** [`FrameTimings`] is `Instant`-based. Metal's real
 //!   timestamps are counter samples (`MTLCounterSampleBuffer`, which the
 //!   `metal` crate binds) — unported here, so there is no `GpuPassTimes`
@@ -47,6 +51,13 @@
 //!   marks a port would sample at, which is the seam. The numbers say
 //!   where the CPU spent and waited, not where the GPU spent cycles — the
 //!   module docs' own rule for what such numbers may claim.
+//! * **No persistent staging to trim.** Vulkan keeps a staging buffer per
+//!   atlas slot and frees an eight-times-oversized one after a run of
+//!   smaller frames (`STAGING_TRIM_FRAMES`); this backend builds its
+//!   staging per upload and drops it when the blit is encoded, so there is
+//!   nothing idle to free. The *target* trim (`TARGET_TRIM_FRAMES`) is
+//!   ported: a run of frames shallower than the deepest one frees the
+//!   surplus layer targets.
 //! * **One encoder per target segment.** Consecutive ops on one target
 //!   share a render encoder (and its pipeline binds, deduplicated); every
 //!   target switch ends it and the next segment rebinds. Vulkan's render
@@ -112,8 +123,21 @@ pub struct MetalSceneRenderer {
     size: (u32, u32),
     retained: Option<Retained>,
     timings: FrameTimings,
+    /// Bytes the most recent atlas uploads sent, per slot: the whole
+    /// texture after a full upload, the changed rectangles otherwise, zero
+    /// when nothing changed. For tests and measurement — the churn numbers
+    /// the plan's parity suites compare between backends.
+    glyph_upload_bytes: u64,
+    image_upload_bytes: u64,
+    ramp_upload_bytes: u64,
     /// Bytes the most recent [`Self::upload_masks`] sent.
     mask_upload_bytes: u64,
+    /// Frames since a frame used the full depth of `levels` — the idle
+    /// signal that frees the surplus targets; see [`TARGET_TRIM_FRAMES`].
+    idle_target_frames: u32,
+    /// How many idle frames before the target surplus is freed —
+    /// [`TARGET_TRIM_FRAMES`] unless a test narrowed it.
+    target_trim_frames: u32,
 }
 
 /// One atlas texture, and the version last uploaded.
@@ -219,6 +243,14 @@ const SCENE_ATTRIBUTES: [Attribute; 9] = [
 
 /// Every render target and the dummy are premultiplied RGBA16F.
 const TARGET_FORMAT: MTLPixelFormat = MTLPixelFormat::RGBA16Float;
+
+/// How many frames that use fewer layer targets than the deepest frame
+/// before the surplus is freed: ~10 s at 60 Hz. Depth grows when a frame
+/// first nests layers and only ever grew before the trim existed — one
+/// deep-layered frame pinned its targets for the life of the renderer, which
+/// on a phone is the whole process. `L[0]` is always kept, so the retained
+/// damage frame survives a trim.
+const TARGET_TRIM_FRAMES: u32 = 600;
 
 /// One atlas slot's own format — the scene shader's four bindings, as
 /// `vulkan::scene`'s placeholder uploads size them.
@@ -354,7 +386,12 @@ impl MetalSceneRenderer {
             size: (0, 0),
             retained: None,
             timings: FrameTimings::default(),
+            glyph_upload_bytes: 0,
+            image_upload_bytes: 0,
+            ramp_upload_bytes: 0,
             mask_upload_bytes: 0,
+            idle_target_frames: 0,
+            target_trim_frames: TARGET_TRIM_FRAMES,
         };
         // New textures hold nothing: clear the dummy to transparent, and
         // give each atlas slot one zeroed texel of its own format.
@@ -722,6 +759,7 @@ impl MetalSceneRenderer {
             self.scratch.clear();
             self.size = (width, height);
         }
+        let mut grew = false;
         while self.levels.len() < depth {
             let level_texture = new_target(&self.device, width, height, TARGET_FORMAT);
             self.clear_to_transparent(level_texture.as_ref())?;
@@ -729,6 +767,26 @@ impl MetalSceneRenderer {
             let scratch_texture = new_target(&self.device, width, height, TARGET_FORMAT);
             self.clear_to_transparent(scratch_texture.as_ref())?;
             self.scratch.push(scratch_texture);
+            grew = true;
+        }
+        // **The idle shrink** — `vulkan::scene`'s, on this backend's
+        // lifetimes: this renderer never leaves a frame in flight (every
+        // command buffer is committed and waited on before the frame
+        // returns), so the surplus targets are referenced by nothing when
+        // this runs and dropping them needs no settle. `L[0]` is always
+        // kept, so the retained damage frame survives.
+        if grew {
+            self.idle_target_frames = 0;
+        } else if depth >= self.levels.len() {
+            self.idle_target_frames = 0;
+        } else {
+            self.idle_target_frames = self.idle_target_frames.saturating_add(1);
+            if self.idle_target_frames >= self.target_trim_frames && self.levels.len() > 1 {
+                let keep = depth.max(1);
+                self.levels.truncate(keep);
+                self.scratch.truncate(keep);
+                self.idle_target_frames = 0;
+            }
         }
         Ok(())
     }
@@ -753,34 +811,155 @@ impl MetalSceneRenderer {
     }
 
     /// Upload every atlas `planner` holds that changed since the last
-    /// upload — whole-texture for glyphs, images and ramps, only the
-    /// changed rectangles for masks ([`Self::upload_masks`]); see the
-    /// module doc.
+    /// upload — only the changed rectangles for every atlas now, with a
+    /// grown atlas carried rather than re-sent; see the module doc.
     fn upload_planner(&mut self, planner: &Planner) -> Result<(), MetalError> {
-        let atlas = planner.atlas();
-        self.upload_atlas(
-            Slot::Glyphs,
-            atlas.texels(),
-            atlas.side(),
-            atlas.side(),
-            Some(atlas.version()),
-        )?;
-        let images = planner.image_atlas();
-        self.upload_atlas(
-            Slot::Images,
-            images.texels(),
-            images.side(),
-            images.side(),
-            Some(images.version()),
-        )?;
+        self.upload_glyphs(planner.atlas())?;
+        self.upload_images(planner.image_atlas())?;
         self.upload_masks(planner.mask_atlas())?;
-        let ramps = planner.ramp_atlas();
-        self.upload_atlas(
+        self.upload_ramps(planner.ramp_atlas())?;
+        Ok(())
+    }
+
+    /// Bring the glyph texture up to `atlas` the way [`Self::upload_masks`]
+    /// brings the mask texture up: only the rectangles that changed, when
+    /// the atlas can say which ones those are, and a grow carried by one
+    /// GPU copy — `vulkan::scene`'s `record_glyphs`, on this backend's
+    /// primitives. The numbers are that doc's own: one new glyph is a few
+    /// hundred coverage bytes where the whole texture is up to 16 MB, and
+    /// the frames that pay are the almost-steady ones.
+    ///
+    /// # Errors
+    ///
+    /// Metal refusing the copy or the command buffer.
+    fn upload_glyphs(&mut self, atlas: &vieww_gpu::Atlas) -> Result<(), MetalError> {
+        let held = self.atlases[Slot::Glyphs.index()].version;
+        let side = atlas.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Glyphs.index()];
+            a.width == side && a.height == side
+        };
+        self.glyph_upload_bytes = 0;
+        let rects = match atlas.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried** — see `upload_glyphs`'s doc. `Regions`
+                // with a resized texture means the atlas grew (a compaction
+                // would answer `Full`): every texel kept its position, so
+                // one GPU copy carries the old content across and only the
+                // rectangles come from the host.
+                self.resize_with_carry(Slot::Glyphs, side, side);
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Glyphs,
+                    atlas.texels(),
+                    side,
+                    side,
+                    Some(atlas.version()),
+                )?;
+                self.glyph_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(atlas.version());
+        self.glyph_upload_bytes =
+            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, &rects)?;
+        Ok(())
+    }
+
+    /// Bring the image texture up to `images` the same way. An insert's
+    /// rectangle is the image plus its one-texel padding ring (linear
+    /// sampling reads the ring, so it changes with the image); a frame that
+    /// decodes one image sends that image's texels instead of the whole
+    /// (up to 64 MB) texture.
+    ///
+    /// # Errors
+    ///
+    /// Metal refusing the copy or the command buffer.
+    fn upload_images(&mut self, images: &vieww_gpu::ImageAtlas) -> Result<(), MetalError> {
+        let held = self.atlases[Slot::Images.index()].version;
+        let side = images.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Images.index()];
+            a.width == side && a.height == side
+        };
+        self.image_upload_bytes = 0;
+        let rects = match images.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried** — the 64 MB one: a photo app's first
+                // overflow image used to re-send the entire atlas.
+                self.resize_with_carry(Slot::Images, side, side);
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Images,
+                    images.texels(),
+                    side,
+                    side,
+                    Some(images.version()),
+                )?;
+                self.image_upload_bytes = u64::from(side) * u64::from(side) * 4;
+                return Ok(());
+            }
+        };
+        let version = Some(images.version());
+        self.image_upload_bytes =
+            self.upload_regions(Slot::Images, images.texels(), 4, side, version, &rects)?;
+        Ok(())
+    }
+
+    /// Bring the ramp texture up to `ramps` the same way. A new ramp is
+    /// exactly one row — 4 KB, the smallest write of the four atlases — and
+    /// the only unit of ramp churn: a gradient whose stops animate is a new
+    /// row every frame.
+    ///
+    /// # Errors
+    ///
+    /// Metal refusing the copy or the command buffer.
+    fn upload_ramps(&mut self, ramps: &vieww_gpu::RampAtlas) -> Result<(), MetalError> {
+        let held = self.atlases[Slot::Ramps.index()].version;
+        let rows = ramps.rows();
+        let same_size = {
+            let a = &self.atlases[Slot::Ramps.index()];
+            a.width == vieww_gpu::RampAtlas::WIDTH && a.height == rows
+        };
+        self.ramp_upload_bytes = 0;
+        let rects = match ramps.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A row doubling, carried** — the copy is the old rows; the
+                // rectangles are the new ones.
+                self.resize_with_carry(Slot::Ramps, vieww_gpu::RampAtlas::WIDTH, rows);
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Ramps,
+                    as_bytes(ramps.texels()),
+                    vieww_gpu::RampAtlas::WIDTH,
+                    rows,
+                    Some(ramps.version()),
+                )?;
+                self.ramp_upload_bytes =
+                    u64::from(vieww_gpu::RampAtlas::WIDTH) * u64::from(rows) * 16;
+                return Ok(());
+            }
+        };
+        let version = Some(ramps.version());
+        self.ramp_upload_bytes = self.upload_regions(
             Slot::Ramps,
             as_bytes(ramps.texels()),
+            16,
             vieww_gpu::RampAtlas::WIDTH,
-            ramps.rows(),
-            Some(ramps.version()),
+            version,
+            &rects,
         )?;
         Ok(())
     }
@@ -915,22 +1094,51 @@ impl MetalSceneRenderer {
             self.atlases[Slot::Masks.index()].version = version;
             return Ok(());
         }
+        self.mask_upload_bytes =
+            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, &rects)?;
+        Ok(())
+    }
 
+    /// The rectangle half every partial upload shares: `rects` — rectangles
+    /// over a texture `pitch` texels wide of `stride`-byte texels — packed
+    /// into one staging buffer, one blit per rectangle, leaving the texels
+    /// outside them alone. Returns the bytes sent; an empty `rects` only
+    /// stamps `version`, because a blit of nothing is not a no-op a queue
+    /// is required to accept.
+    ///
+    /// The packed rows are `w * stride` bytes wide, which Metal's rule for
+    /// `bytesPerRow` (a multiple of the texture's pixel size) is satisfied
+    /// by construction for every atlas format here: R8 (1), RGBA8 (4) and
+    /// RGBA32F (16) all divide their row bytes.
+    ///
+    /// # Errors
+    ///
+    /// Metal refusing the copy or the command buffer.
+    fn upload_regions(
+        &mut self,
+        slot: Slot,
+        texels: &[u8],
+        stride: usize,
+        pitch: u32,
+        version: Option<u64>,
+        rects: &[[u32; 4]],
+    ) -> Result<u64, MetalError> {
+        if rects.is_empty() {
+            self.atlases[slot.index()].version = version;
+            return Ok(0);
+        }
         // Pack each rectangle's rows contiguously in the staging buffer.
         // Vulkan hands its copy regions to one `cmd_copy_buffer_to_image`;
         // Metal's blit takes one destination origin a call, so the packed
-        // buffer is walked rectangle by rectangle. The pitch and offsets
-        // this produces are legal by Metal's documented rule — a multiple
-        // of the texture's pixel size, which the R8 mask atlas makes 1 —
-        // where a wider format would need padding.
-        let texels = masks.texels();
+        // buffer is walked rectangle by rectangle.
         let mut packed = Vec::new();
         let mut regions = Vec::with_capacity(rects.len());
         for &[x, y, w, h] in rects {
             regions.push((len64(&packed), x, y, w, h));
             for row in y..y + h {
-                let from = (row * side + x) as usize;
-                packed.extend_from_slice(&texels[from..from + w as usize]);
+                let from = (row * pitch + x) as usize * stride;
+                let to = from + w as usize * stride;
+                packed.extend_from_slice(&texels[from..to]);
             }
         }
         let staging = shared_buffer(&self.device, &packed);
@@ -940,14 +1148,14 @@ impl MetalSceneRenderer {
             blit.copy_from_buffer_to_texture(
                 &staging,
                 offset,
-                u64::from(w), // the R8 atlas: a row is as many bytes as texels
+                u64::from(w) * stride as u64,
                 0,
                 MTLSize {
                     width: u64::from(w),
                     height: u64::from(h),
                     depth: 1,
                 },
-                &self.atlases[Slot::Masks.index()].texture,
+                &self.atlases[slot.index()].texture,
                 0,
                 0,
                 MTLOrigin {
@@ -962,9 +1170,47 @@ impl MetalSceneRenderer {
         commands.commit();
         commands.wait_until_completed();
         super::check(commands)?;
-        self.atlases[Slot::Masks.index()].version = version;
-        self.mask_upload_bytes = len64(&packed);
-        Ok(())
+        self.atlases[slot.index()].version = version;
+        Ok(len64(&packed))
+    }
+
+    /// Replace `slot`'s texture with a fresh `width` x `height` one and copy
+    /// the old texture's content into it — `vulkan::scene`'s
+    /// `resize_with_carry`, so a grown atlas spends one GPU copy instead of
+    /// re-sending every texel it already holds. The old texture's lifetime
+    /// ends with this command buffer's completion, which the commit-and-wait
+    /// here has already happened by the time the caller uploads its regions.
+    fn resize_with_carry(&mut self, slot: Slot, width: u32, height: u32) {
+        let atlas = &mut self.atlases[slot.index()];
+        let format = atlas_format(slot);
+        let old = std::mem::replace(
+            &mut atlas.texture,
+            new_target(&self.device, width.max(1), height.max(1), format),
+        );
+        let copy_w = atlas.width.min(width);
+        let copy_h = atlas.height.min(height);
+        let commands = self.queue.new_command_buffer();
+        let blit = commands.new_blit_command_encoder();
+        blit.copy_from_texture(
+            old.as_ref(),
+            0,
+            0,
+            MTLOrigin { x: 0, y: 0, z: 0 },
+            MTLSize {
+                width: u64::from(copy_w),
+                height: u64::from(copy_h),
+                depth: 1,
+            },
+            atlas.texture.as_ref(),
+            0,
+            0,
+            MTLOrigin { x: 0, y: 0, z: 0 },
+        );
+        blit.end_encoding();
+        commands.commit();
+        commands.wait_until_completed();
+        atlas.width = width;
+        atlas.height = height;
     }
 
     /// How many bytes the most recent [`Self::upload_masks`] sent — the
@@ -973,6 +1219,37 @@ impl MetalSceneRenderer {
     #[must_use]
     pub const fn last_mask_upload_bytes(&self) -> u64 {
         self.mask_upload_bytes
+    }
+
+    /// How many bytes the most recent glyph, image and ramp uploads sent —
+    /// [`Self::last_mask_upload_bytes`]'s contract, per slot. For tests and
+    /// measurement: the churn numbers the plan's parity suites compare
+    /// between backends (glyphs about 153 KB against 2.56 MB whole, on the
+    /// churn fixtures).
+    #[must_use]
+    pub const fn last_atlas_upload_bytes(&self) -> (u64, u64, u64) {
+        (
+            self.glyph_upload_bytes,
+            self.image_upload_bytes,
+            self.ramp_upload_bytes,
+        )
+    }
+
+    /// Narrow the idle threshold that frees the renderer's surplus layer
+    /// targets: how many frames of unused depth before they are freed. The
+    /// default ([`TARGET_TRIM_FRAMES`]) is for a production process; a test
+    /// that wants to *see* a trim renders far fewer frames than ten seconds
+    /// of them. There is no staging threshold to narrow — this backend keeps
+    /// no staging between uploads (see the module doc).
+    pub fn set_memory_trim_frames(&mut self, frames: u32) {
+        self.target_trim_frames = frames.max(1);
+    }
+
+    /// How many render targets the renderer holds — `L[n]` and `S[n]`
+    /// together, the dummy excluded. For tests and measurement.
+    #[must_use]
+    pub fn target_count(&self) -> usize {
+        self.levels.len() + self.scratch.len()
     }
 }
 

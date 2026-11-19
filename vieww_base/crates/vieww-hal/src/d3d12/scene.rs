@@ -37,12 +37,16 @@
 //! # What is deliberately simpler than Vulkan's
 //!
 //! As the Metal port's, and for the same reasons: readback frames only (no
-//! swapchain present), whole-atlas uploads, `Instant`-based [`FrameTimings`]
-//! with no timestamp queries, and a region clear drawn through `clear.wgsl`
-//! because D3D12's `ClearRenderTargetView` clears a whole target or nothing.
-//! This backend owns its own direct queue and fence, so it submits and
-//! waits independently of the [`D3d12Device`] that built it — no frame is
-//! ever left in flight.
+//! swapchain present), `Instant`-based [`FrameTimings`] with no timestamp
+//! queries, and a region clear drawn through `clear.wgsl` because D3D12's
+//! `ClearRenderTargetView` clears a whole target or nothing. Atlas uploads
+//! are partial like every backend's — the changed rectangles when the atlas
+//! can name them, a grown texture carried by one GPU copy — and the layer
+//! targets trim after a run of shallower frames; the staging itself is
+//! built per upload and dropped when its list finishes, so there is no
+//! persistent staging to trim. This backend owns its own direct queue and
+//! fence, so it submits and waits independently of the [`D3d12Device`] that
+//! built it — no frame is ever left in flight.
 //!
 //! # Verification
 //!
@@ -123,6 +127,20 @@ pub struct D3d12SceneRenderer {
     size: (u32, u32),
     retained: Option<Retained>,
     timings: FrameTimings,
+    /// Bytes the most recent atlas uploads sent, per slot: the whole
+    /// texture after a full upload, the changed rectangles otherwise, zero
+    /// when nothing changed. For tests and measurement — the churn numbers
+    /// the plan's parity suites compare between backends.
+    glyph_upload_bytes: u64,
+    image_upload_bytes: u64,
+    ramp_upload_bytes: u64,
+    mask_upload_bytes: u64,
+    /// Frames since a frame used the full depth of `levels` — the idle
+    /// signal that frees the surplus targets; see [`TARGET_TRIM_FRAMES`].
+    idle_target_frames: u32,
+    /// How many idle frames before the target surplus is freed —
+    /// [`TARGET_TRIM_FRAMES`] unless a test narrowed it.
+    target_trim_frames: u32,
 }
 
 /// One atlas: the resource and the version last uploaded. Its SRV lives in
@@ -160,6 +178,14 @@ const fn heap_descriptors(posts: u32) -> u32 {
 }
 
 const TARGET_FORMAT: DXGI_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+/// How many frames that use fewer layer targets than the deepest frame
+/// before the surplus is freed: ~10 s at 60 Hz. Depth grows when a frame
+/// first nests layers and only ever grew before the trim existed — one
+/// deep-layered frame pinned its targets for the life of the renderer, which
+/// on a desktop process is the whole session. `L[0]` is always kept, so the
+/// retained damage frame survives a trim.
+const TARGET_TRIM_FRAMES: u32 = 600;
 
 /// The four atlas slots, in the scene shader's binding order 1..=4.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -574,6 +600,12 @@ impl D3d12SceneRenderer {
             size: (0, 0),
             retained: None,
             timings: FrameTimings::default(),
+            glyph_upload_bytes: 0,
+            image_upload_bytes: 0,
+            ramp_upload_bytes: 0,
+            mask_upload_bytes: 0,
+            idle_target_frames: 0,
+            target_trim_frames: TARGET_TRIM_FRAMES,
         };
         for slot in Slot::ALL {
             let format = atlas_format(slot);
@@ -709,6 +741,44 @@ impl D3d12SceneRenderer {
     #[must_use]
     pub const fn last_timings(&self) -> FrameTimings {
         self.timings
+    }
+
+    /// How many bytes the most recent glyph, image and ramp uploads sent —
+    /// the whole texture after a full upload, the changed rectangles
+    /// otherwise, zero when nothing changed. For tests and measurement: the
+    /// churn numbers the plan's parity suites compare between backends
+    /// (glyphs about 153 KB against 2.56 MB whole, on the churn fixtures).
+    #[must_use]
+    pub const fn last_atlas_upload_bytes(&self) -> (u64, u64, u64) {
+        (
+            self.glyph_upload_bytes,
+            self.image_upload_bytes,
+            self.ramp_upload_bytes,
+        )
+    }
+
+    /// How many bytes the most recent mask upload sent — the same contract,
+    /// for the mask slot.
+    #[must_use]
+    pub const fn last_mask_upload_bytes(&self) -> u64 {
+        self.mask_upload_bytes
+    }
+
+    /// Narrow the idle threshold that frees the renderer's surplus layer
+    /// targets: how many frames of unused depth before they are freed. The
+    /// default ([`TARGET_TRIM_FRAMES`]) is for a production process; a test
+    /// that wants to *see* a trim renders far fewer frames than ten seconds
+    /// of them. There is no staging threshold to narrow — this backend
+    /// builds its staging per upload and drops it when the list finishes.
+    pub fn set_memory_trim_frames(&mut self, frames: u32) {
+        self.target_trim_frames = frames.max(1);
+    }
+
+    /// How many render targets the renderer holds — `L[n]` and `S[n]`
+    /// together, the dummy excluded. For tests and measurement.
+    #[must_use]
+    pub fn target_count(&self) -> usize {
+        self.levels.len() + self.scratch.len()
     }
 
     // ── the frame ─────────────────────────────────────────────────────────
@@ -1120,28 +1190,35 @@ impl D3d12SceneRenderer {
             self.size = (width, height);
         }
         if self.levels.len() >= depth {
+            // **The idle shrink** — `vulkan::scene`'s, on this backend's
+            // lifetimes: this renderer owns its queue and fence and waits
+            // for every list before the frame returns, so the surplus
+            // targets are referenced by nothing when this runs and dropping
+            // them needs no settle. The RTV heap is rebuilt smaller with
+            // them (the growth path's helper), because the old heap was
+            // sized for the depth being freed. `L[0]` is always kept, so
+            // the retained damage frame survives.
+            if depth >= self.levels.len() {
+                self.idle_target_frames = 0;
+            } else {
+                self.idle_target_frames = self.idle_target_frames.saturating_add(1);
+                if self.idle_target_frames >= self.target_trim_frames && self.levels.len() > 1 {
+                    let keep = depth.max(1);
+                    self.levels.truncate(keep);
+                    self.scratch.truncate(keep);
+                    self.rebuild_rtv_heap()?;
+                    self.idle_target_frames = 0;
+                }
+            }
             return Ok(());
         }
-        let rtv_heap_desc = D3D12_DESCRIPTOR_HEAP_DESC {
-            Type: D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            NumDescriptors: 2 * u32::try_from(depth).unwrap_or(0),
-            Flags: D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
-            NodeMask: 0,
-        };
-        // SAFETY: creation calls on a live device. The heap is stored — an
-        // RTV must never outlive the heap it lives in.
-        let rtv_heap: ID3D12DescriptorHeap =
-            unsafe { self.device.CreateDescriptorHeap(&rtv_heap_desc)? };
-        self.rtv_heap = rtv_heap.clone();
-        let rtv_increment = unsafe {
-            self.device
-                .GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
-        };
         let (list, allocator) = self.begin()?;
         // The zero-filled staging buffers must outlive the GPU's copy out of
         // them, so they are kept until `finish` below has waited.
         let mut staging = Vec::new();
+        let mut grew = false;
         while self.levels.len() < depth {
+            grew = true;
             let level_resource = committed(
                 &self.device,
                 D3D12_HEAP_TYPE_DEFAULT,
@@ -1181,10 +1258,41 @@ impl D3d12SceneRenderer {
                 state: D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             });
         }
-        // Every target's RTV lives in the heap just created — the targets
-        // kept from a smaller depth included: their old handles pointed into
-        // the heap this one replaced, which is gone. `L[n]` at `2n`, `S[n]`
-        // at `2n + 1`.
+        // Every target's RTV lives in a fresh heap sized for the new depth —
+        // the targets kept from a smaller depth included: their old handles
+        // pointed into the heap this one replaces, which is gone.
+        self.rebuild_rtv_heap()?;
+        // Growth is the opposite of idle.
+        if grew {
+            self.idle_target_frames = 0;
+        }
+        self.finish(&list)?;
+        drop(staging);
+        drop(allocator);
+        Ok(())
+    }
+
+    /// Replace the RTV heap with one sized for the current `levels` and
+    /// `scratch`, and write every target's RTV into it — the growth and the
+    /// trim paths share this, because both leave the old heap's handles
+    /// dangling. `L[n]` at `2n`, `S[n]` at `2n + 1`.
+    fn rebuild_rtv_heap(&mut self) -> Result<(), D3d12Error> {
+        let depth = self.levels.len();
+        let rtv_heap_desc = D3D12_DESCRIPTOR_HEAP_DESC {
+            Type: D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+            NumDescriptors: 2 * u32::try_from(depth).unwrap_or(0),
+            Flags: D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+            NodeMask: 0,
+        };
+        // SAFETY: creation calls on a live device. The heap is stored — an
+        // RTV must never outlive the heap it lives in.
+        let rtv_heap: ID3D12DescriptorHeap =
+            unsafe { self.device.CreateDescriptorHeap(&rtv_heap_desc)? };
+        self.rtv_heap = rtv_heap.clone();
+        let rtv_increment = unsafe {
+            self.device
+                .GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
+        };
         let rtv = |offset: usize| D3D12_CPU_DESCRIPTOR_HANDLE {
             ptr: unsafe { rtv_heap.GetCPUDescriptorHandleForHeapStart() }.ptr
                 + offset * rtv_increment as usize,
@@ -1205,47 +1313,396 @@ impl D3d12SceneRenderer {
                 }
             }
         }
-        self.finish(&list)?;
-        drop(staging);
-        drop(allocator);
         Ok(())
     }
 
     /// Upload every atlas `planner` holds that changed since the last
-    /// upload — whole-texture uploads in v1; see the module doc.
+    /// upload — only the changed rectangles for every atlas, with a grown
+    /// atlas carried rather than re-sent; see the module doc.
     fn upload_planner(&mut self, planner: &Planner) -> Result<(), D3d12Error> {
-        let atlas = planner.atlas();
-        self.upload_atlas(
-            Slot::Glyphs,
-            atlas.texels(),
-            atlas.side(),
-            atlas.side(),
-            Some(atlas.version()),
-        )?;
-        let images = planner.image_atlas();
-        self.upload_atlas(
-            Slot::Images,
-            images.texels(),
-            images.side(),
-            images.side(),
-            Some(images.version()),
-        )?;
-        let masks = planner.mask_atlas();
-        self.upload_atlas(
-            Slot::Masks,
-            masks.texels(),
-            masks.side(),
-            masks.side(),
-            Some(masks.version()),
-        )?;
-        let ramps = planner.ramp_atlas();
-        self.upload_atlas(
+        self.upload_glyphs(planner.atlas())?;
+        self.upload_images(planner.image_atlas())?;
+        self.upload_masks(planner.mask_atlas())?;
+        self.upload_ramps(planner.ramp_atlas())?;
+        Ok(())
+    }
+
+    /// Bring the glyph texture up to `atlas` sending only the rectangles
+    /// that changed, when the atlas can say which ones those are, and
+    /// carrying a grown texture across — `vulkan::scene`'s `record_glyphs`
+    /// on this backend's copies. One new glyph is a few hundred coverage
+    /// bytes where the whole texture is up to 16 MB, and the frames that
+    /// pay are the almost-steady ones: a line of text scrolling in, a font
+    /// fallback appearing.
+    ///
+    /// # Errors
+    ///
+    /// Any D3D12 call failing.
+    fn upload_glyphs(&mut self, atlas: &vieww_gpu::Atlas) -> Result<(), D3d12Error> {
+        let held = self.atlases[Slot::Glyphs.index()].version;
+        let side = atlas.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Glyphs.index()];
+            a.width == side && a.height == side
+        };
+        self.glyph_upload_bytes = 0;
+        let rects = match atlas.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried.** `Regions` with a resized texture means
+                // the atlas grew (a compaction would answer `Full`): every
+                // texel kept its position, so one GPU copy carries the old
+                // texture's content across and only the rectangles come from
+                // the host.
+                self.resize_with_carry(Slot::Glyphs, side, side)?;
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Glyphs,
+                    atlas.texels(),
+                    side,
+                    side,
+                    Some(atlas.version()),
+                )?;
+                self.glyph_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(atlas.version());
+        self.glyph_upload_bytes =
+            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, &rects)?;
+        Ok(())
+    }
+
+    /// Bring the image texture up to `images` the same way. An insert's
+    /// rectangle is the image plus its one-texel padding ring (linear
+    /// sampling reads the ring, so it changes with the image); a frame that
+    /// decodes one image sends that image's texels instead of the whole
+    /// (up to 64 MB) texture.
+    ///
+    /// # Errors
+    ///
+    /// Any D3D12 call failing.
+    fn upload_images(&mut self, images: &vieww_gpu::ImageAtlas) -> Result<(), D3d12Error> {
+        let held = self.atlases[Slot::Images.index()].version;
+        let side = images.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Images.index()];
+            a.width == side && a.height == side
+        };
+        self.image_upload_bytes = 0;
+        let rects = match images.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried** — the 64 MB one: a photo app's first
+                // overflow image used to re-send the entire atlas.
+                self.resize_with_carry(Slot::Images, side, side)?;
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Images,
+                    images.texels(),
+                    side,
+                    side,
+                    Some(images.version()),
+                )?;
+                self.image_upload_bytes = u64::from(side) * u64::from(side) * 4;
+                return Ok(());
+            }
+        };
+        let version = Some(images.version());
+        self.image_upload_bytes =
+            self.upload_regions(Slot::Images, images.texels(), 4, side, version, &rects)?;
+        Ok(())
+    }
+
+    /// Bring the mask texture up to `masks` the same way — `vulkan::scene`'s
+    /// `record_masks`, which this backend skipped in v1. A shape that
+    /// changes every frame adds a new mask every frame, and a whole-texture
+    /// upload on every version change made each of those frames send the
+    /// entire atlas (measured 4.2 MB a frame for one rotating panel, 16.8 MB
+    /// for three, against masks of a few hundred kilobytes).
+    ///
+    /// # Errors
+    ///
+    /// Any D3D12 call failing.
+    fn upload_masks(&mut self, masks: &vieww_gpu::MaskAtlas) -> Result<(), D3d12Error> {
+        let held = self.atlases[Slot::Masks.index()].version;
+        let side = masks.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Masks.index()];
+            a.width == side && a.height == side
+        };
+        self.mask_upload_bytes = 0;
+        let rects = match masks.changes_since(held) {
+            vieww_gpu::MaskChanges::None => return Ok(()),
+            vieww_gpu::MaskChanges::Regions(rects) if same_size => rects,
+            _ => {
+                self.upload_atlas(
+                    Slot::Masks,
+                    masks.texels(),
+                    side,
+                    side,
+                    Some(masks.version()),
+                )?;
+                self.mask_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(masks.version());
+        self.mask_upload_bytes =
+            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, &rects)?;
+        Ok(())
+    }
+
+    /// Bring the ramp texture up to `ramps` the same way. A new ramp is
+    /// exactly one row — 4 KB, the smallest write of the four atlases — and
+    /// the only unit of ramp churn: a gradient whose stops animate is a new
+    /// row every frame.
+    ///
+    /// # Errors
+    ///
+    /// Any D3D12 call failing.
+    fn upload_ramps(&mut self, ramps: &vieww_gpu::RampAtlas) -> Result<(), D3d12Error> {
+        let held = self.atlases[Slot::Ramps.index()].version;
+        let rows = ramps.rows();
+        let same_size = {
+            let a = &self.atlases[Slot::Ramps.index()];
+            a.width == vieww_gpu::RampAtlas::WIDTH && a.height == rows
+        };
+        self.ramp_upload_bytes = 0;
+        let rects = match ramps.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A row doubling, carried** — the copy is the old rows; the
+                // rectangles are the new ones.
+                self.resize_with_carry(Slot::Ramps, vieww_gpu::RampAtlas::WIDTH, rows)?;
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Ramps,
+                    plain_bytes(ramps.texels()),
+                    vieww_gpu::RampAtlas::WIDTH,
+                    rows,
+                    Some(ramps.version()),
+                )?;
+                self.ramp_upload_bytes =
+                    u64::from(vieww_gpu::RampAtlas::WIDTH) * u64::from(rows) * 16;
+                return Ok(());
+            }
+        };
+        let version = Some(ramps.version());
+        self.ramp_upload_bytes = self.upload_regions(
             Slot::Ramps,
             plain_bytes(ramps.texels()),
+            16,
             vieww_gpu::RampAtlas::WIDTH,
-            ramps.rows(),
-            Some(ramps.version()),
+            version,
+            &rects,
         )?;
+        Ok(())
+    }
+
+    /// The rectangle half every partial upload shares: `rects` — rectangles
+    /// over a texture `pitch` texels wide of `stride`-byte texels — packed
+    /// into one staging buffer, one `CopyTextureRegion` per rectangle,
+    /// leaving the texels outside them alone. Returns the texel bytes sent;
+    /// an empty `rects` only stamps `version`, because a copy of no regions
+    /// is not a no-op a queue is required to accept.
+    ///
+    /// D3D12's copy rules shape the packing: a footprint's `RowPitch` must
+    /// be 256-byte aligned and its `Offset` 512-byte aligned, so each
+    /// region's rows are padded to that pitch and each region starts on
+    /// that boundary — the buffer is larger than the texels it carries, and
+    /// only the bytes inside the copied rows are ever read.
+    ///
+    /// # Errors
+    ///
+    /// Any D3D12 call failing.
+    fn upload_regions(
+        &mut self,
+        slot: Slot,
+        texels: &[u8],
+        stride: usize,
+        pitch: u32,
+        version: Option<u64>,
+        rects: &[[u32; 4]],
+    ) -> Result<u64, D3d12Error> {
+        if rects.is_empty() {
+            self.atlases[slot.index()].version = version;
+            return Ok(0);
+        }
+        let format = atlas_format(slot);
+        let row_alignment = 512u64;
+        let mut packed: Vec<u8> = Vec::new();
+        let mut regions = Vec::with_capacity(rects.len());
+        let mut sent = 0u64;
+        for &[x, y, w, h] in rects {
+            // Pad up to the next 512-byte boundary for this region's offset.
+            let pad = (row_alignment - (packed.len() as u64 % row_alignment)) % row_alignment;
+            packed.resize(packed.len() + pad as usize, 0);
+            let offset = packed.len() as u64;
+            let region_pitch = row_pitch(w.max(1) * stride as u32);
+            for row in y..y + h {
+                let from = (row * pitch + x) as usize * stride;
+                let to = from + w as usize * stride;
+                let row_start = packed.len();
+                packed.extend_from_slice(&texels[from..to]);
+                // Pad the row out to the footprint's pitch.
+                packed.resize(row_start + region_pitch as usize, 0);
+            }
+            regions.push((offset, x, y, w, h, region_pitch));
+            sent += u64::from(w) * u64::from(h) * stride as u64;
+        }
+        let staging = self.upload_buffer(&packed)?;
+        let index = slot.index();
+        let resource = self.atlases[index].resource.clone();
+        let (list, allocator) = self.begin()?;
+        // What the last upload left in PIXEL_SHADER_RESOURCE, back to
+        // COPY_DEST for this one.
+        self.transition_resource(
+            &list,
+            &resource,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+        );
+        for &(offset, x, y, w, h, row_pitch) in &regions {
+            let src = D3D12_TEXTURE_COPY_LOCATION {
+                pResource: ManuallyDrop::new(Some(staging.clone())),
+                Type: D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+                Anonymous: D3D12_TEXTURE_COPY_LOCATION_0 {
+                    PlacedFootprint: D3D12_PLACED_SUBRESOURCE_FOOTPRINT {
+                        Offset: offset,
+                        Footprint: D3D12_SUBRESOURCE_FOOTPRINT {
+                            Format: format,
+                            Width: w.max(1),
+                            Height: h.max(1),
+                            Depth: 1,
+                            RowPitch: row_pitch,
+                        },
+                    },
+                },
+            };
+            let dst = D3D12_TEXTURE_COPY_LOCATION {
+                pResource: ManuallyDrop::new(Some(resource.clone())),
+                Type: D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+                Anonymous: D3D12_TEXTURE_COPY_LOCATION_0 {
+                    SubresourceIndex: 0,
+                },
+            };
+            // SAFETY: recording onto an open list with live resources, the
+            // footprint inside the staging buffer's bounds.
+            unsafe { list.CopyTextureRegion(&dst, x, y, 0, &src, None) };
+            drop(ManuallyDrop::into_inner(src.pResource));
+            drop(ManuallyDrop::into_inner(dst.pResource));
+        }
+        self.transition_resource(
+            &list,
+            &resource,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        );
+        self.finish(&list)?;
+        drop(allocator);
+        self.atlases[index].version = version;
+        Ok(sent)
+    }
+
+    /// Replace `slot`'s resource with a fresh `width` x `height` one and copy
+    /// the old resource's content into it — `vulkan::scene`'s
+    /// `resize_with_carry`, so a grown atlas spends one GPU copy instead of
+    /// re-sending every texel it already holds. The SRV is rewritten for the
+    /// new resource; the caller uploads the changed rectangles afterwards.
+    ///
+    /// # Errors
+    ///
+    /// Any D3D12 call failing.
+    fn resize_with_carry(&mut self, slot: Slot, width: u32, height: u32) -> Result<(), D3d12Error> {
+        let index = slot.index();
+        let format = atlas_format(slot);
+        let (old_width, old_height) = (self.atlases[index].width, self.atlases[index].height);
+        let old = self.atlases[index].resource.clone();
+        let fresh = committed(
+            &self.device,
+            D3D12_HEAP_TYPE_DEFAULT,
+            &texture_desc(format, width, height),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+        )?;
+        let (list, allocator) = self.begin()?;
+        // The old texture rests in PIXEL_SHADER_RESOURCE; borrow it as a
+        // copy source, copy the overlap, and rest the fresh one where the
+        // region upload (or the frame) expects to find it.
+        self.transition_resource(
+            &list,
+            &old,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_COPY_SOURCE,
+        );
+        let src = D3D12_TEXTURE_COPY_LOCATION {
+            pResource: ManuallyDrop::new(Some(old.clone())),
+            Type: D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            Anonymous: D3D12_TEXTURE_COPY_LOCATION_0 {
+                SubresourceIndex: 0,
+            },
+        };
+        let dst = D3D12_TEXTURE_COPY_LOCATION {
+            pResource: ManuallyDrop::new(Some(fresh.clone())),
+            Type: D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            Anonymous: D3D12_TEXTURE_COPY_LOCATION_0 {
+                SubresourceIndex: 0,
+            },
+        };
+        // SAFETY: both resources live, same format, subresource 0 to 0.
+        unsafe {
+            list.CopyTextureRegion(
+                &dst,
+                0,
+                0,
+                0,
+                &src,
+                Some(&D3D12_BOX {
+                    left: 0,
+                    top: 0,
+                    front: 0,
+                    right: old_width.min(width).max(1),
+                    bottom: old_height.min(height).max(1),
+                    back: 1,
+                }),
+            );
+        }
+        drop(ManuallyDrop::into_inner(src.pResource));
+        drop(ManuallyDrop::into_inner(dst.pResource));
+        self.transition_resource(
+            &list,
+            &old,
+            D3D12_RESOURCE_STATE_COPY_SOURCE,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        );
+        self.transition_resource(
+            &list,
+            &fresh,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+        );
+        self.finish(&list)?;
+        drop(allocator);
+        self.atlases[index].resource = fresh.clone();
+        self.atlases[index].width = width;
+        self.atlases[index].height = height;
+        srv(
+            &self.device,
+            &self.heap,
+            self.increment,
+            slot.heap_slot(),
+            &fresh,
+            format,
+        );
         Ok(())
     }
 

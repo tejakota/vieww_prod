@@ -53,7 +53,35 @@ cleanup() {
 trap cleanup EXIT
 
 base_sha="$(git -C "$repo" rev-parse --verify "$base^{commit}")"
-git -C "$repo" worktree add --quiet --detach "$work/base" "$base_sha" > /dev/null
+
+# A base whose workspace manifest does not resolve cannot be measured — 0da620f
+# listed a member that did not exist, and every build in its worktree died in
+# `cargo metadata` before compiling anything. Walking back to the nearest
+# ancestor that resolves keeps the gate comparing against a real tree instead
+# of failing on a base nothing can build. `cargo metadata --no-deps` is the
+# exact cheap probe: it is the step that fails on a broken workspace, and it
+# costs under a second, so trying a handful of ancestors adds nothing to a
+# run that already builds both sides.
+base_resolved=no
+for _ in 1 2 3 4 5 6 7 8; do
+    git -C "$repo" worktree remove --force "$work/base" > /dev/null 2>&1 || true
+    if git -C "$repo" worktree add --quiet --detach "$work/base" "$base_sha" 2>/dev/null \
+        && (cd "$work/base/vieww_base" && cargo metadata --no-deps --format-version 1 > /dev/null 2>&1); then
+        base_resolved=yes
+        break
+    fi
+    echo "raster-instructions: base ${base_sha:0:10} does not resolve; stepping back one commit" >&2
+    if ! base_sha="$(git -C "$repo" rev-parse "$base_sha~1" 2>/dev/null)"; then
+        echo "raster-instructions: ran out of ancestors" >&2
+        exit 2
+    fi
+done
+if [ "$base_resolved" != yes ]; then
+    echo "raster-instructions: no ancestor of $base builds a workspace to compare against" >&2
+    exit 2
+fi
+
+# This tree's bench keeps both sides on the same schedule, as before.
 cp "$repo/$bench_rel" "$work/base/$bench_rel"
 
 # count DIR LABEL PHASE -> prints the instruction count of that phase's raster
