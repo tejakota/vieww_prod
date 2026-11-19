@@ -1,0 +1,77 @@
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:DA1C9012-81EC-4C70-B52A-068AEAFBA1DE, OS:18.5, name:iPhone 16 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:DA1C9012-81EC-4C70-B52A-068AEAFBA1DE, OS:18.5, name:iPhone 16 Pro }
+-81EC-4C70-B52A-068AEAFBA1DE -derivedDataPath /var/folders/9d/l02zfgrs7c16twd3wbpdmhkc0000gn/T/maestro_xctestrunner_xcodebuild_output17177407710527911774
+
+2026-11-19 21:02:06.453876+0000 maestro-driver-iosUITests-Runner[64196:175687] [Default] Running tests...
+2026-11-19 21:02:07.092704+0000 maestro-driver-iosUITests-Runner[64196:175687] snapshotKeyHonorModalViews configured to value: (null)
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-11-19 21:02:13.236.
+Test Suite 'maestro-driver-iosUITests.xctest' started at 2026-11-19 21:02:13.239.
+Test Suite 'SwipeRouteHandlerV2ClassificationTests' started at 2026-11-19 21:02:13.240.
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testClassifiedTimeoutPreservesTheRealMessage]' started.
+    t =     0.00s Start Test at 2026-11-19 21:02:13.240
+    t =     0.01s Set Up
+    t =     0.02s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testClassifiedTimeoutPreservesTheRealMessage]' passed (0.018 seconds).
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testMainThreadBusyIsClassifiedAsTimeout]' started.
+    t =     0.00s Start Test at 2026-11-19 21:02:13.259
+    t =     0.00s Set Up
+    t =     0.00s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testMainThreadBusyIsClassifiedAsTimeout]' passed (0.007 seconds).
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testTimeoutMessageWithWrongDomainStaysInternal]' started.
+    t =     0.00s Start Test at 2026-11-19 21:02:13.266
+    t =     0.00s Set Up
+    t =     0.01s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testTimeoutMessageWithWrongDomainStaysInternal]' passed (0.011 seconds).
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testUIQueryTimeoutIsClassifiedAsTimeout]' started.
+    t =     0.00s Start Test at 2026-11-19 21:02:13.339
+    t =     0.00s Set Up
+    t =     0.02s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testUIQueryTimeoutIsClassifiedAsTimeout]' passed (0.021 seconds).
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testUnrelatedXCTFutureErrorStaysInternal]' started.
+    t =     0.00s Start Test at 2026-11-19 21:02:13.365
+    t =     0.01s Set Up
+    t =     0.01s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testUnrelatedXCTFutureErrorStaysInternal]' passed (0.032 seconds).
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testXCTFutureCode1000WithUnrelatedMessageStaysInternal]' started.
+    t =     0.01s Start Test at 2026-11-19 21:02:13.408
+    t =     0.01s Set Up
+    t =     0.06s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testXCTFutureCode1000WithUnrelatedMessageStaysInternal]' passed (0.069 seconds).
+Test Suite 'SwipeRouteHandlerV2ClassificationTests' passed at 2026-11-19 21:02:13.543.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.158 (0.303) seconds
+Test Suite 'maestro_driver_iosUITests' started at 2026-11-19 21:02:13.572.
+    t =      nans Suite Set Up
+Test Case '-[maestro_driver_iosUITests.maestro_driver_iosUITests testHttpServer]' started.
+    t =     0.00s Start Test at 2026-11-19 21:02:13.600
+    t =     0.00s Set Up
+2026-11-19 21:02:13.619397+0000 maestro-driver-iosUITests-Runner[64196:176084] [maestro_driver_iosUITests] Will start HTTP server
+2026-11-19 21:02:14.168838+0000 maestro-driver-iosUITests-Runner[64196:176084] [FlyingFox] starting server 127.0.0.1:50782
+2026-11-19 21:02:14.640539+0000 maestro-driver-iosUITests-Runner[64196:176084] [FlyingFox] <127.0.0.1> open connection
+2026-11-19 21:02:14.948372+0000 maestro-driver-iosUITests-Runner[64196:176090] [FlyingFox] <127.0.0.1> request: GET /status
+2026-11-19 21:02:20.019893+0000 maestro-driver-iosUITests-Runner[64196:176084] [FlyingFox] <127.0.0.1> open connection
+2026-11-19 21:02:20.074724+0000 maestro-driver-iosUITests-Runner[64196:176082] [FlyingFox] <127.0.0.1> request: POST /deviceInfo
+    t =     6.48s Getting device orientation
+2026-11-19 21:02:20.225341+0000 maestro-driver-iosUITests-Runner[64196:175687] Using singleton test manager
+2026-11-19 21:02:20.237065+0000 maestro-driver-iosUITests-Runner[64196:175687] Detected running apps: ["dev.vieww.demo"]
+    t =     6.66s Getting device orientation
+    t =     6.67s Find the Application 'dev.vieww.demo'
+2026-11-19 21:02:20.707380+0000 maestro-driver-iosUITests-Runner[64196:175687] Device orientation is 1
+2026-11-19 21:02:47.012253+0000 maestro-driver-iosUITests-Runner[65005:177927] [Default] Running tests...
+2026-11-19 21:02:47.605506+0000 maestro-driver-iosUITests-Runner[65005:177927] snapshotKeyHonorModalViews configured to value: (null)
+    t =      nans Interface orientation changed to Portrait
+
+Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous launches.
+
+Test Suite 'Selected tests' started at 2026-11-19 21:02:51.460.
+Test Suite 'maestro-driver-iosUITests.xctest' started at 2026-11-19 21:02:51.469.
+Test Suite 'maestro_driver_iosUITests' started at 2026-11-19 21:02:51.470.
+    t =      nans Suite Set Up
+    t =      nans Suite Tear Down
+Test Suite 'maestro_driver_iosUITests' passed at 2026-11-19 21:02:51.473.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.003) seconds
+Test Suite 'maestro-driver-iosUITests.xctest' passed at 2026-11-19 21:02:51.474.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.005) seconds
+Test Suite 'Selected tests' passed at 2026-11-19 21:02:51.474.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.014) seconds
