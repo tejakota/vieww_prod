@@ -2408,22 +2408,35 @@ impl NativeRenderer {
             return;
         }
         // What is left is the clipped cases: a shape with a real clip *mask*
-        // over it, which has to ask the mask per pixel and so keeps the
-        // closure. The gradient still comes from the folded `DeviceRamp`; only
-        // the row constants cannot be hoisted out through `composite_coverage`'s
-        // callback, and a masked shape is a small minority of a frame's draws.
+        // over it. Under a normal blend in gamma space the walk is fused —
+        // `composite_clipped_shape` reads the clip's cached rows in place
+        // (no staging row, no per-pixel closure) and skips the coverage work
+        // on the shape's opaque-interior rows, where a flat colour runs the
+        // SIMD row kernel with the clip as the mask.
         //
-        // A row-kernel version (`composite_clipped_shape`, staging each row's
-        // clip-scaled colour in scratch for `over_masked_row`) was tried and
-        // REVERTED: on the 2-core reference machine it measured *worse* on
-        // the clip-heavy fixtures — `00-fills-rrect-clip` 5.00 -> 5.87 ms
-        // best of three, `00-fills-nested-clips` 4.76 -> 5.44 — where a
-        // frame is hundreds of *small* clipped fills and the staging pass
-        // (two scratch rows written and read back per call) costs more than
-        // the indirect call it removed. The closure's per-pixel work is one
-        // bounds-checked lookup and a `scaled`; the compiler keeps the rest
-        // in registers. Recorded the way `composite_gradient`'s own comment
-        // records its equivalent.
+        // A row-kernel version that *staged* each row's clip-scaled colour in
+        // scratch for `over_masked_row` was tried first and REVERTED: on the
+        // 2-core reference machine it measured *worse* on the clip-heavy
+        // fixtures — `00-fills-rrect-clip` 5.00 -> 5.87 ms best of three,
+        // `00-fills-nested-clips` 4.76 -> 5.44 — because a frame is hundreds
+        // of *small* clipped fills and the staging pass (two scratch rows
+        // written and read back per call) costs more than the indirect call
+        // it removed. The fused form pays no staging at all; the closure's
+        // per-pixel work is one bounds-checked lookup and a `scaled`, which
+        // is what the non-gamma pipelines still run below.
+        let normal = matches!(self.pipeline, ColorPipeline::GammaSpace);
+        if normal {
+            if let Some(clip_mask) = resolved.into_mask() {
+                target.composite_clipped_shape(
+                    mask.view(),
+                    origin,
+                    clip_mask,
+                    flat,
+                    device_ramp.as_ref(),
+                );
+                return;
+            }
+        }
         target.composite_coverage(
             mask.view(),
             origin,

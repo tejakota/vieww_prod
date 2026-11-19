@@ -297,18 +297,33 @@ impl GradientRows<'_> {
             // Once per row, not once per pixel.
             let row = self.ramp.row(y);
             let dst_span = &mut line[self.x_left..self.x_left + self.span];
+            // **The opaque-interior skip** — a row of the shape's own
+            // coverage that is all ones (the interior of a gradient panel,
+            // most of its rows) needs neither the gamma table lookup nor
+            // the scale, and every branch below has only the blend's own
+            // answers to give. The scan costs one pass over the row's
+            // coverage; an edge row pays it back as noise beside its own
+            // table lookups.
+            let interior = mask_row[self.dx_start..self.dx_start + self.span]
+                .iter()
+                .all(|&c| c >= 1.0);
             for (j, dst) in dst_span.iter_mut().enumerate() {
-                // The coverage gamma — see `linear::coverage_alpha` — for
-                // the same reason the flat-fill loop applies it: coverage
-                // is area, alpha is light.
-                let c = super::linear::coverage_alpha_in(self.table, mask_row[self.dx_start + j]);
-                if c <= 0.0 {
-                    continue;
-                }
-                let src = self
-                    .ramp
-                    .at(&row, self.coverage.x0 + self.dx_start as i32 + j as i32, y)
-                    .scaled(c);
+                let src = if interior {
+                    self.ramp
+                        .at(&row, self.coverage.x0 + self.dx_start as i32 + j as i32, y)
+                } else {
+                    // The coverage gamma — see `linear::coverage_alpha` — for
+                    // the same reason the flat-fill loop applies it: coverage
+                    // is area, alpha is light.
+                    let c =
+                        super::linear::coverage_alpha_in(self.table, mask_row[self.dx_start + j]);
+                    if c <= 0.0 {
+                        continue;
+                    }
+                    self.ramp
+                        .at(&row, self.coverage.x0 + self.dx_start as i32 + j as i32, y)
+                        .scaled(c)
+                };
                 if src.a <= 0.0 && self.normal {
                     continue;
                 }
@@ -1277,6 +1292,146 @@ impl Target {
                 rows_ctx.paint(piece, width, 0);
             }
         });
+    }
+
+    /// A shape under a shaped clip, fused: the clip's cached rows are read in
+    /// place — no staging row, no per-pixel closure — and a row whose own
+    /// coverage is all ones (the shape's interior, most of its rows) skips
+    /// the coverage work entirely, so a flat colour runs the SIMD row kernel
+    /// with the clip as the mask and a gradient pays neither the table
+    /// lookup nor the scale. This is the restatement of the closure walk at
+    /// the bottom of `paint_shape`'s clipped branch; the multiply order is
+    /// that walk's own (`colour × clip`, then `× coverage`) so the bytes are
+    /// identical. Normal blend in gamma space only — anything else keeps the
+    /// closure, which handles the exotic pipelines the honest way.
+    pub(crate) fn composite_clipped_shape(
+        &mut self,
+        coverage: MaskView<'_>,
+        origin: (i32, i32),
+        clip: &super::geometry::fill::CoverageMask,
+        flat: Premul,
+        ramp: Option<&DeviceRamp>,
+    ) {
+        if coverage.is_empty() {
+            return;
+        }
+        let (wx0, wy0, wx1, wy1) = self.writable();
+        let dy_start = (wy0 - (coverage.y0 - origin.1)).max(0);
+        let dy_end = (wy1 - (coverage.y0 - origin.1)).min(coverage.height as i32);
+        let dx_start = (wx0 - (coverage.x0 - origin.0)).max(0);
+        let dx_end = (wx1 - (coverage.x0 - origin.0)).min(coverage.width as i32);
+        if dy_start >= dy_end || dx_start >= dx_end {
+            return;
+        }
+        self.mark_ink(
+            coverage.x0 - origin.0 + dx_start,
+            coverage.y0 - origin.1 + dy_start,
+            coverage.x0 - origin.0 + dx_end,
+            coverage.y0 - origin.1 + dy_end,
+        );
+
+        let table = super::linear::coverage_table();
+        let width = self.width as usize;
+        let replaces = flat.a == 1.0;
+        // The clip's own column range for this walk's span, in the clip
+        // mask's coordinates — the mask is rasterised over the shape's
+        // snapped-out region, so the span sits inside it; a shape that
+        // somehow asks past the edge reads the zeros `coverage_at` would.
+        let clip_x0 = coverage.x0 + dx_start - clip.x0;
+        let clip_x1 = coverage.x0 + dx_end - clip.x0;
+        #[expect(clippy::cast_possible_wrap, reason = "a clip's width fits a frame")]
+        let clip_width = clip.width as i32;
+        let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+        let clamped = clip_x0 >= 0 && clip_x1 <= clip_width;
+        for dy in dy_start..dy_end {
+            let y = coverage.y0 + dy;
+            let ty = (y - origin.1) as usize;
+            let mask_row = coverage.row(dy as u32);
+            let clip_dy = y - clip.y0;
+            let dst_span = &mut self.pixels[ty * width
+                + (coverage.x0 - origin.0 + dx_start) as usize
+                ..ty * width + (coverage.x0 - origin.0 + dx_end) as usize];
+            // A row outside the rasterised clip mask reads as zero coverage
+            // everywhere: nothing to composite under a normal blend.
+            if !(0..clip.height as i32).contains(&clip_dy) {
+                continue;
+            }
+            let clip_row =
+                &clip.data[clip_dy as usize * clip.width as usize..][..clip.width as usize];
+            // **The opaque-interior skip** — the same one the gradient walk
+            // takes: a row of the shape's own coverage that is all ones
+            // needs neither the gamma table nor the scale.
+            let interior = clamped
+                && mask_row[dx_start as usize..dx_end as usize]
+                    .iter()
+                    .all(|&c| c >= 1.0);
+            if interior {
+                match ramp {
+                    None => super::simd::over_flat_row(
+                        dst_span,
+                        &clip_row[clip_span.clone()],
+                        flat,
+                        replaces,
+                    ),
+                    Some(ramp) => {
+                        for (j, dst) in dst_span.iter_mut().enumerate() {
+                            // `at_device`, not `at(&row, ..)`: the closure
+                            // walk this replaces computed `t` as
+                            // `(ax·x + ay·y) + c` and the row-cached form
+                            // associates the other way — one ulp apart, which
+                            // is a moved byte at the ramp's quantisation
+                            // edges. The hoist is not worth the drift.
+                            //
+                            // The clip still scales: an interior row is the
+                            // *shape's* coverage at ones, and the clip's edge
+                            // falls wherever it falls — the flat branch says
+                            // the same thing with `over_flat_row`'s mask.
+                            let clip_c = if clamped {
+                                clip_row[clip_span.start + j]
+                            } else {
+                                clip_row.get(clip_span.start + j).copied().unwrap_or(0.0)
+                            };
+                            let src = ramp
+                                .at_device(coverage.x0 + dx_start + j as i32, y)
+                                .scaled(clip_c);
+                            if src.a <= 0.0 {
+                                continue;
+                            }
+                            if src.a == 1.0 {
+                                *dst = src;
+                                continue;
+                            }
+                            *dst = over(src, *dst);
+                        }
+                    }
+                }
+                continue;
+            }
+            for (j, dst) in dst_span.iter_mut().enumerate() {
+                let c = super::linear::coverage_alpha_in(table, mask_row[dx_start as usize + j]);
+                if c <= 0.0 {
+                    continue;
+                }
+                let clip_c = if clamped {
+                    clip_row[clip_span.start + j]
+                } else {
+                    clip_row.get(clip_span.start + j).copied().unwrap_or(0.0)
+                };
+                let colour = match ramp {
+                    Some(ramp) => ramp.at_device(coverage.x0 + dx_start + j as i32, y),
+                    None => flat,
+                };
+                let src = colour.scaled(clip_c).scaled(c);
+                if src.a <= 0.0 {
+                    continue;
+                }
+                if src.a == 1.0 {
+                    *dst = src;
+                    continue;
+                }
+                *dst = over(src, *dst);
+            }
+        }
     }
 
     /// Seed this buffer with a copy of `source`'s pixels underneath this
