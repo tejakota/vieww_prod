@@ -1,14 +1,14 @@
 # 3 · Build — SUCCESS
 
-- branch: `main`  sha: `8fd6d063cca7129d1e89164cba85ea7a5c693a04`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/44495347627
+- branch: `main`  sha: `374379f546e5d2adca11f8bae3f8c83931b9e3c8`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/44503283692
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
 | phase-1 / soma · android | PASS |  |
-| phase-1 / matrix.title | skipped |  |
 | phase-1 / approve | skipped |  |
+| phase-1 / matrix.title | skipped |  |
 | results / publish | running |  |
 | phase-2 | skipped |  |
 | phase-3 | skipped |  |
@@ -55,12 +55,12 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / matrix.title — skipped
-
 ### phase-1 / approve — skipped
 
+### phase-1 / matrix.title — skipped
+
 ### results / publish — running
-- running: Set up job
+- PASS: Set up job
 - running: Collect the run
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
