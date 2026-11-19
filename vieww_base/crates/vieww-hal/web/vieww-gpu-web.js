@@ -272,6 +272,10 @@ export function vieww_gpu_target_create(handle, width, height) {
     usage:
       GPUTextureUsage.RENDER_ATTACHMENT |
       GPUTextureUsage.TEXTURE_BINDING |
+      // The compute blur writes its destination through a storageTexture
+      // binding; rgba16float storage is guaranteed by the core spec, so
+      // every engine that can run the post pipelines can run the blur.
+      GPUTextureUsage.STORAGE_BINDING |
       GPUTextureUsage.COPY_SRC,
   });
   return registerTexture(entry, texture, "target", Math.max(1, width), Math.max(1, height), 8);
@@ -287,6 +291,7 @@ export function vieww_gpu_target_free(handle, target) {
     // Cached bind groups may still name it; drop them all (rebuilding a
     // bind group is cheap, a stale one is a validation error).
     entry.postGroups.clear();
+    if (entry.blurGroups) entry.blurGroups.clear();
     entry.sceneGroupKey = "";
   }
 }
@@ -542,12 +547,39 @@ function layoutsOf(entry) {
       },
     ],
   });
+  // The compute blur's set: `post.wgsl`'s `t_src` at binding 0 and its
+  // storage destination at binding 3, both COMPUTE-visible. The immediates
+  // ride the same 256-byte ring the post passes use, through a bind group
+  // of their own — visibility is part of a bind group layout, so the
+  // fragment one cannot be reused as-is.
+  const blurGroup0 = d.createBindGroupLayout({
+    entries: [
+      { binding: 0, visibility: GPUShaderStage.COMPUTE, texture: { sampleType: "float" } },
+      {
+        binding: 3,
+        visibility: GPUShaderStage.COMPUTE,
+        storageTexture: { access: "write-only", format: "rgba16float" },
+      },
+    ],
+  });
+  const blurGroup1 = d.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: { type: "uniform", hasDynamicOffset: true, minBindingSize: 128 },
+      },
+    ],
+  });
   entry.layouts = {
     sceneGroup,
     postGroup0,
     postGroup1,
+    blurGroup0,
+    blurGroup1,
     scenePipelineLayout: d.createPipelineLayout({ bindGroupLayouts: [sceneGroup] }),
     postPipelineLayout: d.createPipelineLayout({ bindGroupLayouts: [postGroup0, postGroup1] }),
+    blurPipelineLayout: d.createPipelineLayout({ bindGroupLayouts: [blurGroup0, blurGroup1] }),
   };
   return entry.layouts;
 }
@@ -600,6 +632,44 @@ export function vieww_gpu_pipeline_post(handle, wgsl, len, over) {
       });
       entry.pushBindGroup = entry.device.createBindGroup({
         layout: layouts.postGroup1,
+        entries: [{ binding: 0, resource: { buffer: entry.pushBuffer, size: 128 } }],
+      });
+    }
+  });
+}
+
+// The compute blur: `post.wgsl`'s `cs_blur`, one invocation per scanline of
+// the band `push.p[0]` names, 64 to a workgroup — the one-add-one-sub
+// running sum the fragment form could only approximate. The uniform-space
+// variant of the source is what arrives here, so `pc` is the same group 1
+// uniform the post pipelines read, bound through a COMPUTE-visible twin.
+export function vieww_gpu_pipeline_blur(handle, wgsl, len) {
+  const entry = entryOf(handle);
+  if (!entry || !entry.device) return 0;
+  const layouts = layoutsOf(entry);
+  return guarded(entry, () => {
+    const module = entry.device.createShaderModule({ code: text(wgsl, len) });
+    entry.pipelines = entry.pipelines || {};
+    entry.pipelines.blur = entry.device.createComputePipeline({
+      layout: layouts.blurPipelineLayout,
+      compute: { module, entryPoint: "cs_blur" },
+    });
+    // The immediates ring is shared with the post passes; the bind group
+    // is not, because visibility is part of the layout. One ring cursor,
+    // two views of the same bytes.
+    if (!entry.pushBuffer) {
+      entry.pushBuffer = entry.device.createBuffer({
+        size: 256 * 1024,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      });
+      entry.pushBindGroup = entry.device.createBindGroup({
+        layout: layouts.postGroup1,
+        entries: [{ binding: 0, resource: { buffer: entry.pushBuffer, size: 128 } }],
+      });
+    }
+    if (!entry.pushBindGroupCompute) {
+      entry.pushBindGroupCompute = entry.device.createBindGroup({
+        layout: layouts.blurGroup1,
         entries: [{ binding: 0, resource: { buffer: entry.pushBuffer, size: 128 } }],
       });
     }
@@ -777,6 +847,64 @@ export function vieww_gpu_pass_post_draw(handle) {
   const entry = entryOf(handle);
   if (!entry || !entry.openPass) return;
   entry.openPass.draw(3);
+}
+
+// One blur dispatch. The bind group is cached per (src, dst) pair like the
+// post groups; the immediates take the next ring slot exactly as a post
+// bind does — writes to distinct 256-byte regions queue safely ahead of
+// the frame's submit. WebGPU orders the compute pass against the render
+// passes around it itself; there is no barrier to encode, which is the
+// entire reason this backend's port is smaller than Vulkan's.
+function blurBindGroup(entry, src, dst) {
+  if (!entry.blurGroups) entry.blurGroups = new Map();
+  const key = src + "|" + dst;
+  let group = entry.blurGroups.get(key);
+  if (group) return group;
+  const srcHeld = entry.textures.get(src);
+  const dstHeld = entry.textures.get(dst);
+  if (!srcHeld || !dstHeld) {
+    record(entry, `blur bind on unknown texture (${src}/${dst})`);
+    return null;
+  }
+  group = entry.device.createBindGroup({
+    layout: layoutsOf(entry).blurGroup0,
+    entries: [
+      { binding: 0, resource: srcHeld.texture.createView() },
+      { binding: 3, resource: dstHeld.texture.createView() },
+    ],
+  });
+  entry.blurGroups.set(key, group);
+  return group;
+}
+
+export function vieww_gpu_pass_blur(handle, src, dst, push, scanlines) {
+  const entry = entryOf(handle);
+  if (!entry || !entry.device || !entry.encoder || !entry.pipelines || !entry.pipelines.blur) {
+    return;
+  }
+  // A compute pass is its own pass: end whatever render pass is open, the
+  // same way pass_begin does, and leave nothing open behind — the next
+  // pass_begin reopens loading.
+  if (entry.openPass) {
+    entry.openPass.end();
+    entry.openPass = null;
+  }
+  const group0 = blurBindGroup(entry, src, dst);
+  if (!group0) return;
+  const offset = entry.pushCursor * 256;
+  entry.pushCursor = (entry.pushCursor + 1) % 1024;
+  entry.device.queue.writeBuffer(
+    entry.pushBuffer,
+    offset,
+    new Float32Array(needMem().buffer, push, 32)
+  );
+  const pass = entry.encoder.beginComputePass();
+  pass.setPipeline(entry.pipelines.blur);
+  pass.setBindGroup(0, group0);
+  pass.setBindGroup(1, entry.pushBindGroupCompute, [offset]);
+  // cs_blur's workgroup is 64 scanlines wide; one invocation per scanline.
+  pass.dispatchWorkgroups(Math.ceil(scanlines / 64), 1, 1);
+  pass.end();
 }
 
 export function vieww_gpu_clear_regions(handle, rects, count, color) {

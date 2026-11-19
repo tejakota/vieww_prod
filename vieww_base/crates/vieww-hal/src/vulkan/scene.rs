@@ -78,7 +78,9 @@ use ash::vk;
 use vieww_foundation::Color;
 use vieww_gpu::{PixelRect, Planner, ScenePlan, Vertex};
 
-use crate::scene_exec::{frame_passes, PassKind, PostPass, PostPush, Retained, SceneOp, TargetId};
+use crate::scene_exec::{
+    compute_blur_wanted, frame_passes, PassKind, PostPass, PostPush, Retained, SceneOp, TargetId,
+};
 
 use super::present_history::{self, PresentHistory};
 #[cfg(feature = "vulkan-swapchain")]
@@ -650,13 +652,6 @@ enum Bound {
     Scene,
     /// The post pipeline, and whether it is the blending (`over`) one.
     Post(bool),
-}
-
-/// Whether this run wants the compute blur. `VIEWW_GPU_COMPUTE_BLUR=0`
-/// turns it off — the A/B on one device, the same shape as the shadow
-/// pass's `VIEWW_GPU_SHADOW_PASS`.
-fn compute_blur_wanted() -> bool {
-    !std::env::var_os("VIEWW_GPU_COMPUTE_BLUR").is_some_and(|v| v == "0")
 }
 
 /// The compute half of `post.wgsl`: `cs_blur`, one invocation per scanline

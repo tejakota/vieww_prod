@@ -64,8 +64,10 @@ follows is *vieww_prod performance plan: status check and to-do plan*
 3. **The two over-budget fixtures** (PENDING §4.1): AVX2 shipped
    (`3736a4a`, runtime-detected); CI's Linux leg now shows glass at 4.4 ms
    and nested at 4.6 ms — the i5-7200U receipt is what closes it.
-4. **The compute blur's own follow-ups**: the ports' compute plumbing
-   (Metal, D3D12, WebGPU still run the fragment hybrid), and the A73
+4. **The compute blur's own follow-ups**: the ports' compute plumbing —
+   WebGPU is done (the browser parity leg is the referee; the env gate is
+   `scene_exec::compute_blur_wanted`), **Metal and D3D12 still run the
+   fragment hybrid** — and the A73
    stress screen's before/after on Device Farm — 117 ms is the number the
    one-add-one-sub form is owed to halve.
 5. **Windows start-up measurement** (§3.5): the 840 → ~250 ms code landed

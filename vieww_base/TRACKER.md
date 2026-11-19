@@ -11,6 +11,44 @@ buried under a history that only grows, and every gap had to be rediscovered by
 reading to the bottom. The section is still here for continuity, and
 `PENDING.md` is the one to read if the question is "what should I work on".
 
+## 2026-11-20 (the web round): the compute blur reaches WebGPU — the fourth backend's port, one of three
+
+**Context.** The compute blur landed for Vulkan first (`4ab8899`): `cs_blur`
+in `post.wgsl`, one invocation per scanline, one add and one sub per pixel,
+reads O(1) in the radius — with the ports' compute plumbing as the documented
+follow-up. This is the first port: WebGPU, where the plumbing is smallest
+because the pass model has no barriers to encode and the shader needs no
+translation.
+
+**The port.** The browser bridge gained two calls — `pipeline_blur` (the
+`cs_blur` compute pipeline from the uniform-address-space rewrite of
+`post.wgsl`, the same source the post pipelines compile from) and `pass_blur`
+(one dispatch: `src` sampled at binding 0, `dst` written through a
+write-only `rgba16float` storage texture at binding 3, the immediates on the
+same 256-byte ring the post passes share, through a COMPUTE-visible twin of
+their bind group). The renderer takes the compute route for the box modes
+when the pipeline built and `VIEWW_GPU_COMPUTE_BLUR` is not `0` — the
+env gate moved to `scene_exec` (`compute_blur_wanted`) so the four backends
+cannot disagree about what the variable is called. Unlike Vulkan there is no
+direct-frame exclusion (this backend's post passes only ever target
+`L[n]`/`S[n]`; the canvas is written by `present`'s own copy) and no
+storage-feature probe (the pipeline creation *is* the probe; core WebGPU
+guarantees `rgba16float` storage, so every engine that can run the post
+pipelines can run the blur).
+
+**Checked by.** Two new interpreter tests against the mock — a blurred layer
+on a storage-capable bridge dispatches three horizontal and three vertical
+`cs_blur` runs with the band in `p[0]` and the scanline count in the
+dispatch, no blur-mode fragment draw beside them, one submit; a bridge whose
+`pipeline_blur` refuses keeps the fragment hybrid the mock's default always
+asserted. The browser parity driver (`webgpu_parity.py`, headless Chromium)
+is the end-to-end referee: its blur scenes now take the compute route and
+must still hold the 2/255 interior contract against the CPU rasterizer.
+
+**Not ported yet.** Metal and D3D12 still run the fragment hybrid — the
+TODO's open item names them, and the shape to copy is now twice-documented
+(Vulkan's barriers version, WebGPU's barrier-free one).
+
 ## 2026-11-19 (the typing round): a burst of keystrokes lands in full
 
 **Context.** The iOS simulator's XCUITest leg — the a11y suite's typing half —

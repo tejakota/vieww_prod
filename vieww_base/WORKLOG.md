@@ -12,6 +12,24 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
+Last updated: 2026-11-20, after the web round: the compute blur reached
+WebGPU — the fourth backend and the first port of the follow-up the Vulkan
+landing named. The bridge gained `pipeline_blur`/`pass_blur` (the JS shim's
+compute pipeline and one dispatch per scissor band, the immediates on the
+post passes' own ring), the renderer takes the compute route for the box
+modes when the pipeline builds, and the env gate moved to `scene_exec`
+(`compute_blur_wanted`) where all four backends can share it. WebGPU orders
+the compute pass against the render passes itself — no barriers, which is
+why this port is a quarter of Vulkan's size. The mock interpreter tests
+cover both routes (a storage-capable bridge dispatches; a refusing one keeps
+the fragment hybrid), and the browser parity driver is the end-to-end
+referee. Metal and D3D12 still run the fragment hybrid — the TODO's open
+item names them, with two worked examples to copy now. What else remains is
+unchanged: the iPhone present path, the hardware receipts, and the Device
+Farm A/B the blur is owed.
+
+---
+
 Last updated: 2026-11-19, after the typing round: the iOS XCUITest typing
 tests had never passed, and the strings they failed with (`tap to typeeo`
 from `hello`, `tap to typeno ` from `nihao `) named the bug exactly — a burst

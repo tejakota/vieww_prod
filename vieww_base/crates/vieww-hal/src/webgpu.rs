@@ -127,7 +127,9 @@ use std::time::{Duration, Instant};
 use vieww_foundation::Color;
 use vieww_gpu::{PixelRect, Planner, ScenePlan};
 
-use crate::scene_exec::{frame_passes, PostPush, Redrawn, Retained, SceneOp, TargetId};
+use crate::scene_exec::{
+    compute_blur_wanted, frame_passes, PostPush, Redrawn, Retained, SceneOp, TargetId,
+};
 
 /// A start mark — `Instant` where the target has one, nothing where it
 /// does not: `wasm32-unknown-unknown` has no monotonic clock, and its
@@ -183,6 +185,11 @@ pub trait GpuBridge {
     /// Create a post pipeline from WGSL (the uniform-address-space
     /// variant); `over` selects the premultiplied-blend one.
     fn pipeline_post(&mut self, wgsl: &str, over: bool) -> Result<(), String>;
+    /// Create the compute-blur pipeline from WGSL (the uniform-address-space
+    /// variant, `cs_blur` entry point); `Err` when the device refuses it —
+    /// the fragment hybrid runs instead, exactly as a Vulkan device without
+    /// RGBA16F storage falls back.
+    fn pipeline_blur(&mut self, wgsl: &str) -> Result<(), String>;
     /// Begin a frame: a command encoder, the viewport uniform for
     /// `width x height`.
     fn frame_begin(&mut self, width: u32, height: u32);
@@ -203,6 +210,14 @@ pub trait GpuBridge {
     fn pass_post(&mut self, src: u32, aux: u32, over: bool, push: &PostPush);
     /// The full-screen post triangle.
     fn pass_post_draw(&mut self);
+    /// One blur dispatch: `src` read, `dst` written, `push`'s `p[0]`
+    /// carrying this dispatch's write band (`x0, y0, x1, y1`), and
+    /// `scanlines` the band's rows (horizontal) or columns (vertical) —
+    /// one workgroup of 64 scanlines per `ceil(scanlines / 64)` groups.
+    /// Ends any open pass; a compute pass is its own pass on every
+    /// backend, and WebGPU orders it against the passes around it without
+    /// any barrier of ours.
+    fn pass_blur(&mut self, src: u32, dst: u32, push: &PostPush, scanlines: u32);
     /// Clear rectangles (`x, y, w, h` each, already clamped) of the open
     /// target to `color`, between passes — buffer-to-texture copies, the
     /// "no shader, no binding" decision Metal's port made after its
@@ -350,6 +365,12 @@ pub struct WebGpuSceneRenderer<B: GpuBridge> {
     /// targets are freed — [`TARGET_TRIM_FRAMES`] unless a test narrowed
     /// it.
     target_trim_frames: u32,
+    /// Whether the compute blur is available — the `cs_blur` pipeline was
+    /// created and the run has not turned it off. `vulkan::scene`'s
+    /// `blur: Option<BlurCompute>` as a bool: this backend's blur
+    /// resources all live behind the bridge, so there is nothing here to
+    /// hold.
+    blur: bool,
     /// Bytes the most recent glyph, image and ramp uploads sent — zero
     /// when nothing changed, the whole texture after a full upload, the
     /// changed rectangles otherwise. For tests and measurement.
@@ -387,6 +408,16 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
         bridge
             .pipeline_post(&post, true)
             .map_err(WebGpuError::Failed)?;
+        // The compute blur, when the run wants it and the device takes the
+        // pipeline — an engine without rgba16float storage (not one of the
+        // three the certification targets, but the web is wide) answers
+        // `Err` and the fragment hybrid it certified keeps running, the
+        // same fallback a Vulkan device without the format's storage
+        // feature takes. Unlike Vulkan there is no direct-frame exclusion:
+        // this backend's post passes only ever target `L[n]`/`S[n]`, and
+        // the canvas is written by `present`'s own copy — no op stream
+        // writes a surface anyone else owns.
+        let blur = compute_blur_wanted() && bridge.pipeline_blur(&post).is_ok();
 
         // The 1x1 transparent stand-in, and one placeholder texel per
         // atlas slot in that slot's own format — the same bring-up Metal's
@@ -418,6 +449,7 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
             timings: FrameTimings::default(),
             idle_target_frames: 0,
             target_trim_frames: TARGET_TRIM_FRAMES,
+            blur,
             glyph_upload_bytes: 0,
             image_upload_bytes: 0,
             ramp_upload_bytes: 0,
@@ -641,23 +673,65 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
                     self.bridge.pass_draw(*first_index, *index_count);
                 }
                 SceneOp::Post { pass, scissors, .. } => {
-                    if open != Some(pass.into) {
-                        self.bridge.pass_begin(self.texture(pass.into), None);
-                        open = Some(pass.into);
-                    }
-                    // The post bind is per-op by construction (`src` and
-                    // `aux` differ), so it is set every time.
-                    self.bridge.pass_post(
-                        self.texture(pass.src),
-                        self.texture(pass.aux),
-                        pass.over,
-                        &pass.push,
-                    );
-                    for rect in scissors {
-                        if let Some([x, y, w, h]) = scissor(*rect, width, height) {
-                            self.bridge.pass_scissor(x, y, w, h);
+                    // The blur modes' compute route: one dispatch per
+                    // scissor band, the running sum carried along each
+                    // scanline — `vulkan::scene`'s choice, with the same
+                    // shape and for the same reads-are-O(1) reason. There
+                    // is no direct-frame exclusion here (see `new`'s blur
+                    // comment) and no storage-feature probe either: the
+                    // pipeline creation is the probe, and a device that
+                    // refused it never set `self.blur`.
+                    if self.blur
+                        && matches!(
+                            pass.push.args[0],
+                            crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
+                        )
+                    {
+                        let horizontal = pass.push.args[0] < 1.5;
+                        for rect in scissors {
+                            let Some([x, y, w, h]) = scissor(*rect, width, height) else {
+                                continue;
+                            };
+                            let scanlines = if horizontal { h } else { w };
+                            if scanlines == 0 {
+                                continue;
+                            }
+                            let mut push = pass.push;
+                            push.p[0] = [
+                                f32::from(x),
+                                f32::from(y),
+                                f32::from(x + w),
+                                f32::from(y + h),
+                            ];
+                            self.bridge.pass_blur(
+                                self.texture(pass.src),
+                                self.texture(pass.into),
+                                &push,
+                                scanlines,
+                            );
                         }
-                        self.bridge.pass_post_draw();
+                        // The dispatches ended the open pass; the next op
+                        // reopens whatever it needs.
+                        open = None;
+                    } else {
+                        if open != Some(pass.into) {
+                            self.bridge.pass_begin(self.texture(pass.into), None);
+                            open = Some(pass.into);
+                        }
+                        // The post bind is per-op by construction (`src` and
+                        // `aux` differ), so it is set every time.
+                        self.bridge.pass_post(
+                            self.texture(pass.src),
+                            self.texture(pass.aux),
+                            pass.over,
+                            &pass.push,
+                        );
+                        for rect in scissors {
+                            if let Some([x, y, w, h]) = scissor(*rect, width, height) {
+                                self.bridge.pass_scissor(x, y, w, h);
+                            }
+                            self.bridge.pass_post_draw();
+                        }
                     }
                 }
             }
@@ -1138,6 +1212,10 @@ mod device {
         // Create a post pipeline from the uniform-address-space variant of
         // `post.wgsl`; `over` selects the premultiplied-blend one.
         fn vieww_gpu_pipeline_post(handle: u32, wgsl: *const u8, len: u32, over: u32) -> u32;
+        // Create the compute-blur pipeline from the same variant's
+        // `cs_blur` entry point; 1 on success, 0 if the device rejected
+        // it.
+        fn vieww_gpu_pipeline_blur(handle: u32, wgsl: *const u8, len: u32) -> u32;
 
         // ── one frame ────────────────────────────────────────────────────
         // Begin a frame: a command encoder, and the viewport uniform for
@@ -1160,6 +1238,11 @@ mod device {
         fn vieww_gpu_pass_post(handle: u32, src: u32, aux: u32, over: u32, push: *const f32);
         // The full-screen post triangle.
         fn vieww_gpu_pass_post_draw(handle: u32);
+        // One blur dispatch: `src` read, `dst` written, the 128-byte
+        // immediates block at `push` (its `p[0]` is the write band), and
+        // `scanlines` the band's scanline count — the shim dispatches
+        // `ceil(scanlines / 64)` workgroups of `cs_blur`'s 64.
+        fn vieww_gpu_pass_blur(handle: u32, src: u32, dst: u32, push: *const f32, scanlines: u32);
         // Clear `count` rectangles (`x, y, w, h` each, already clamped) of
         // the open target to `color` — between passes.
         fn vieww_gpu_clear_regions(handle: u32, rects: *const u32, count: u32, color: *const f32);
@@ -1281,6 +1364,18 @@ mod device {
                 .ok_or_else(|| shim_string(self.handle, vieww_gpu_failure))
         }
 
+        fn pipeline_blur(&mut self, wgsl: &str) -> Result<(), String> {
+            // SAFETY: the WGSL slice, by pointer and length; the shim's
+            // `cs_blur` compute pipeline.
+            let ok = call_with_str(wgsl, |ptr, len| unsafe {
+                vieww_gpu_pipeline_blur(self.handle, ptr, len)
+            });
+            u32::from(ok == 1)
+                .checked_sub(1)
+                .map(|_| ())
+                .ok_or_else(|| shim_string(self.handle, vieww_gpu_failure))
+        }
+
         fn frame_begin(&mut self, width: u32, height: u32) {
             // SAFETY: the frame's own extents.
             unsafe { vieww_gpu_frame_begin(self.handle, width, height) };
@@ -1337,6 +1432,20 @@ mod device {
         fn pass_post_draw(&mut self) {
             // SAFETY: the full-screen post triangle.
             unsafe { vieww_gpu_pass_post_draw(self.handle) };
+        }
+
+        fn pass_blur(&mut self, src: u32, dst: u32, push: &PostPush, scanlines: u32) {
+            // SAFETY: `push` is `#[repr(C)]` 128 bytes of f32s; the slice
+            // is its own memory, and `scanlines` is the band's own count.
+            unsafe {
+                vieww_gpu_pass_blur(
+                    self.handle,
+                    src,
+                    dst,
+                    std::ptr::from_ref(push).cast(),
+                    scanlines,
+                )
+            };
         }
 
         fn clear_regions(&mut self, rects: &[[u32; 4]], color: &[f32; 4]) {
@@ -1655,6 +1764,23 @@ mod tests {
     struct MockBridge {
         log: Vec<String>,
         readback_ready: bool,
+        /// Whether `pipeline_blur` succeeds — the default `false` plays the
+        /// engine without rgba16float storage, so the tests that predate
+        /// the compute blur keep asserting the fragment hybrid the way
+        /// they always did, and the compute route is opted into by name.
+        blur_pipelines: bool,
+    }
+
+    impl MockBridge {
+        /// A bridge whose device takes the compute pipeline — the
+        /// three certification engines all do; the mock's default is the
+        /// holdout so both routes stay under test.
+        fn with_storage() -> Self {
+            Self {
+                blur_pipelines: true,
+                ..Self::default()
+            }
+        }
     }
 
     /// The calls' names, as the log writes them — shared by the tests, so
@@ -1712,6 +1838,14 @@ mod tests {
             ));
             Ok(())
         }
+        fn pipeline_blur(&mut self, _wgsl: &str) -> Result<(), String> {
+            self.log.push(log_line("pipeline", "blur".into()));
+            if self.blur_pipelines {
+                Ok(())
+            } else {
+                Err("rgba16float is not storable on this device".to_owned())
+            }
+        }
         fn frame_begin(&mut self, width: u32, height: u32) {
             self.log
                 .push(log_line("frame", format!("{width}x{height}")));
@@ -1751,6 +1885,12 @@ mod tests {
         }
         fn pass_post_draw(&mut self) {
             self.log.push(log_line("post_draw", String::new()));
+        }
+        fn pass_blur(&mut self, src: u32, dst: u32, push: &PostPush, scanlines: u32) {
+            self.log.push(log_line(
+                "blur",
+                format!("src{src} dst{dst} mode={} band={:?} lines={scanlines}", push.args[0], push.p[0]),
+            ));
         }
         fn clear_regions(&mut self, rects: &[[u32; 4]], color: &[f32; 4]) {
             self.log.push(log_line(
@@ -2010,6 +2150,168 @@ mod tests {
             .filter(|l| l.starts_with("clear_regions"))
             .count();
         assert!(second_frame >= 1, "the damaged frame clears its regions");
+    }
+
+    /// The compute route: the same blurred layer, dispatched as `cs_blur`
+    /// per scissor band rather than drawn as the fragment hybrid — one
+    /// `blur` line per band, its `p[0]` the band and its `scanlines` the
+    /// band's rows (horizontal) or columns (vertical), and no blur-mode
+    /// `post` left on a device that took the pipeline.
+    #[test]
+    fn a_blurred_layer_dispatches_the_compute_form_when_the_device_takes_it() {
+        let bridge = MockBridge::with_storage();
+        let mut renderer = WebGpuSceneRenderer::new(bridge).expect("pipelines build");
+        let layer = rect(0, 0, 60, 40);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: layer,
+                    backdrop: None,
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: layer,
+                    composite: Some(layer),
+                    filter: Some(FilterOp {
+                        box_radius: Some(2),
+                        color_matrix: None,
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 0.5,
+                },
+            ],
+            1,
+        );
+        let planner = Planner::new();
+        renderer
+            .render_planned(&planner, &plan, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        let log = &renderer.bridge.log;
+        let frame_at = log
+            .iter()
+            .rposition(|line| line.starts_with("frame 64x48"))
+            .expect("a frame begins");
+        let frame = &log[frame_at..];
+        let blurs: Vec<&String> = frame.iter().filter(|l| l.starts_with("blur ")).collect();
+        // Three horizontal and three vertical dispatches — the same
+        // ping-pong the fragment form walked, one dispatch per band.
+        assert_eq!(
+            blurs
+                .iter()
+                .filter(|l| l.contains("mode=1") || l.contains("mode=2"))
+                .count(),
+            6,
+            "three blur ping-pongs as dispatches: {blurs:?}"
+        );
+        // The band and its scanline count: a horizontal dispatch of the
+        // whole 60x40 layer carries the layer's height as its count, a
+        // vertical one its width.
+        assert!(
+            blurs
+                .iter()
+                .filter(|l| l.contains("mode=1"))
+                .all(|l| l.contains("lines=40")),
+            "a horizontal dispatch carries one invocation per row: {blurs:?}"
+        );
+        assert!(
+            blurs
+                .iter()
+                .filter(|l| l.contains("mode=2"))
+                .all(|l| l.contains("lines=60")),
+            "a vertical dispatch carries one invocation per column: {blurs:?}"
+        );
+        assert!(
+            blurs
+                .iter()
+                .all(|l| l.contains("band=[0.0, 0.0, 60.0, 40.0]")),
+            "the band is the scissor the fragment form would have drawn: {blurs:?}"
+        );
+        // No blur-mode post draw survived the route, and the composite is
+        // still the premultiplied OVER it always was.
+        let posts: Vec<&String> = frame.iter().filter(|l| l.starts_with("post ")).collect();
+        assert!(
+            posts
+                .iter()
+                .all(|l| !l.contains("mode=1") && !l.contains("mode=2")),
+            "the fragment hybrid is not run beside the dispatches: {posts:?}"
+        );
+        assert!(
+            posts
+                .iter()
+                .any(|l| l.contains("mode=6") && l.contains("over")),
+            "the composite is a premultiplied OVER"
+        );
+        assert_eq!(
+            frame.iter().filter(|l| l.as_str() == "submit").count(),
+            1,
+            "one submit for the whole frame"
+        );
+    }
+
+    /// A device that refused the compute pipeline keeps the fragment
+    /// hybrid — the mock's default is exactly that holdout, and the
+    /// ping-pong test above asserts its post draws; this pins the refusal
+    /// itself, so the fallback cannot silently become "no blur at all".
+    #[test]
+    fn a_device_without_storage_keeps_the_fragment_hybrid() {
+        let bridge = MockBridge::default();
+        let mut renderer = WebGpuSceneRenderer::new(bridge).expect("pipelines build");
+        let layer = rect(0, 0, 60, 40);
+        let plan = plan(
+            vec![
+                Step::PushLayer {
+                    rect: layer,
+                    backdrop: None,
+                },
+                Step::Draw {
+                    first_run: 0,
+                    run_count: 1,
+                },
+                Step::PopLayer {
+                    rect: layer,
+                    composite: Some(layer),
+                    filter: Some(FilterOp {
+                        box_radius: Some(2),
+                        color_matrix: None,
+                    }),
+                    mask: None,
+                    blend: BlendMode::Normal,
+                    alpha: 0.5,
+                },
+            ],
+            1,
+        );
+        let planner = Planner::new();
+        renderer
+            .render_planned(&planner, &plan, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        let log = &renderer.bridge.log;
+        assert!(
+            log.iter().any(|l| l == "pipeline blur"),
+            "the pipeline was asked for and refused"
+        );
+        let frame_at = log
+            .iter()
+            .rposition(|line| line.starts_with("frame 64x48"))
+            .expect("a frame begins");
+        let frame = &log[frame_at..];
+        assert!(
+            frame.iter().filter(|l| l.starts_with("blur ")).count() == 0,
+            "no dispatch on a refused device"
+        );
+        let posts: Vec<&String> = frame.iter().filter(|l| l.starts_with("post ")).collect();
+        assert!(
+            posts
+                .iter()
+                .filter(|l| l.contains("mode=1") || l.contains("mode=2"))
+                .count()
+                == 6,
+            "the fragment hybrid draws the blur: {posts:?}"
+        );
     }
 
     /// The incomplete-plan refusal — a frame with holes is an error, never

@@ -111,6 +111,17 @@ pub mod mode {
     pub const SHADOW: f32 = 7.0;
 }
 
+/// Whether this run wants the compute blur at all — the one switch every
+/// backend's `cs_blur` route consults. `VIEWW_GPU_COMPUTE_BLUR=0` turns it
+/// off, for an A/B on one device, the same shape as the shadow pass's
+/// `VIEWW_GPU_SHADOW_PASS`. Lived in `vulkan::scene` until the ports came;
+/// now it is here so the four backends cannot disagree about what the
+/// variable is called.
+#[must_use]
+pub fn compute_blur_wanted() -> bool {
+    !std::env::var_os("VIEWW_GPU_COMPUTE_BLUR").is_some_and(|v| v == "0")
+}
+
 /// `post.wgsl`'s blend-mode numbering: `BlendMode`'s declaration order.
 #[must_use]
 pub const fn blend_index(mode: BlendMode) -> f32 {
