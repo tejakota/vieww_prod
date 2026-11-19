@@ -9,11 +9,16 @@ Headless Chromium (or the engine VIEWW_WEB_BROWSER names — the same
 three-engine convention examples/test-web/verify_web.py set) loads the
 webgpu_scene cdylib with crates/vieww-hal/web/vieww-gpu-web.js as its
 "vieww_gpu_web" import module — the raw-import bridge, no wasm-bindgen,
-exactly the shape the audio smoke test drives. The wasm renders the same
-five scenes twice — once on the CPU rasterizer (the byte-certified canvas
+exactly the shape the audio smoke test drives. The wasm renders every
+scene twice — once on the CPU rasterizer (the byte-certified canvas
 path), once through the WebGPU backend — and compares the frames under
 the workspace's performance contract: interiors within 2 per channel,
-disagreements only where the reference itself has an edge.
+disagreements only where the reference itself has an edge. The scene
+list ends with the atlas-diet churn pairs (a text reveal, a second
+image), whose second frames upload atlas regions rather than whole
+textures; `webgpu_partial_frames` counts those, and this script asserts
+the count is nonzero so the partial-upload path is certified as *taken*,
+not merely present.
 
 The page reports one verdict per scene (status / worst / interior / edge /
 exact) plus whether the last frame presented into the canvas. This script
@@ -84,6 +89,7 @@ function finish(state) {
   }
   window.result = { state, scenes, verdicts,
                     presented: ex.webgpu_presented(),
+                    partial: ex.webgpu_partial_frames(),
                     failure: failureText() };
 }
 function tick() {
@@ -178,13 +184,19 @@ def main():
                         "about either")
     if r["presented"] != 1:
         failures.append("the last frame never presented into the canvas")
+    if r["state"] == 1 and r["partial"] < 2:
+        failures.append(
+            f"only {r['partial']} frames took the partial-upload path — the "
+            "churn pairs' reveal frames must, or the atlas diet was never "
+            "exercised")
 
     summary = ", ".join(
         f"s{i}={'pass' if v['status'] == 1 else 'FAIL'}"
         f"(worst {v['worst']}, edge {v['edge']}, "
         f"{'exact' if v['exact'] else 'diff'})"
         for i, v in enumerate(r["verdicts"])) or "no scenes"
-    print(f"webgpu-parity[{ENGINE}]: {summary}; presented={r['presented']}")
+    print(f"webgpu-parity[{ENGINE}]: {summary}; presented={r['presented']}, "
+          f"partial-frames={r['partial']}")
     print("webgpu-parity[" + ENGINE + "]: verdicts " +
           json.dumps(r["verdicts"]))
     for f in failures:

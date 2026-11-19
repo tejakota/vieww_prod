@@ -305,7 +305,9 @@ export function vieww_gpu_atlas(handle, slot, width, height) {
   const texture = entry.device.createTexture({
     format: ATLAS_FORMATS[slot],
     size: [Math.max(1, width), Math.max(1, height), 1],
-    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    // COPY_SRC so a grow can carry the old content across
+    // (vieww_gpu_atlas_copy); the whole-texture writes use COPY_DST.
+    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC,
   });
   const h = registerTexture(
     entry,
@@ -348,6 +350,83 @@ export function vieww_gpu_atlas_write(handle, slot, data, len) {
     { bytesPerRow: stride, rowsPerImage: height },
     [width, height, 1]
   );
+}
+
+// The partial-upload path: `rects` is `count` rectangles of `x, y, w, h`
+// (u32 each, already in texels), and `data` holds each rectangle's rows
+// contiguously, in order, row-major within a rectangle and one rectangle's
+// row stride wide — the Rust side's `upload_regions` packing. Each
+// rectangle is one writeTexture at its own origin, its rows re-laid into a
+// 256-byte-aligned stride exactly the way the whole-texture write does.
+export function vieww_gpu_atlas_write_regions(handle, slot, data, len, rects, count) {
+  const entry = entryOf(handle);
+  if (!entry || !entry.device) return;
+  const held = entry.textures.get(entry.atlases[slot]);
+  if (!held || len === 0 || count === 0) return;
+  const { bpp } = held;
+  const source = bytes(data, len);
+  const words = new Uint32Array(needMem().buffer, rects, count * 4);
+  let at = 0;
+  for (let i = 0; i < count; i++) {
+    const x = words[i * 4], y = words[i * 4 + 1], w = words[i * 4 + 2], h = words[i * 4 + 3];
+    const rowBytes = w * bpp;
+    const take = rowBytes * h;
+    if (at + take > source.length) break; // a corrupt packing stops, not overreads
+    const stride = strideFor(w, bpp);
+    let payload = source.subarray(at, at + take);
+    if (stride !== rowBytes) {
+      const relaid = new Uint8Array(stride * h);
+      for (let row = 0; row < h; row++) {
+        relaid.set(source.subarray(at + row * rowBytes, at + (row + 1) * rowBytes), row * stride);
+      }
+      payload = relaid;
+    }
+    entry.device.queue.writeTexture(
+      { texture: held.texture, origin: [x, y, 0] },
+      payload,
+      { bytesPerRow: stride, rowsPerImage: h },
+      [w, h, 1]
+    );
+    at += take;
+  }
+}
+
+// The grown-atlas carry: replace `slot`'s texture with a fresh
+// `width` x `height` one and copy the old content across with one GPU
+// copy, submitted before whatever region write follows it (the queue
+// orders them). The old texture is destroyed after the copy is encoded;
+// the scene bind group is rebuilt on the next bind because the handle —
+// and the texture it names — changed.
+export function vieww_gpu_atlas_copy(handle, slot, width, height) {
+  const entry = entryOf(handle);
+  if (!entry || !entry.device) return 0;
+  const w = Math.max(1, width), h = Math.max(1, height);
+  const old = entry.atlases[slot];
+  const oldHeld = old ? entry.textures.get(old) : null;
+  const texture = entry.device.createTexture({
+    format: ATLAS_FORMATS[slot],
+    size: [w, h, 1],
+    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC,
+  });
+  if (oldHeld) {
+    const copyW = Math.min(oldHeld.width, w);
+    const copyH = Math.min(oldHeld.height, h);
+    if (copyW > 0 && copyH > 0) {
+      const encoder = entry.device.createCommandEncoder();
+      encoder.copyTextureToTexture(
+        { texture: oldHeld.texture, origin: [0, 0, 0] },
+        { texture, origin: [0, 0, 0] },
+        [copyW, copyH, 1]
+      );
+      entry.device.queue.submit([encoder.finish()]);
+    }
+    oldHeld.texture.destroy();
+    entry.textures.delete(old);
+  }
+  const registered = registerTexture(entry, texture, "atlas", w, h, ATLAS_BPP[slot]);
+  entry.atlases[slot] = registered;
+  entry.sceneGroupKey = ""; // the scene bind group binds all four slots
+  return registered;
 }
 
 export function vieww_gpu_buffer_write(handle, which, data, len) {

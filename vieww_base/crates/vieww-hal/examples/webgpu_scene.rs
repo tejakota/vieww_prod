@@ -31,7 +31,7 @@
 
 use std::cell::RefCell;
 
-use vieww_foundation::{BlendMode, Color, ImageFilter, Offset, Rect, Transform};
+use vieww_foundation::{BlendMode, Color, Image, ImageFilter, Offset, Rect, Transform};
 use vieww_gpu::Planner;
 use vieww_hal::webgpu::WebGpuDevice;
 use vieww_paint::native::NativeRenderer;
@@ -78,6 +78,10 @@ struct Run {
     cpu: Vec<Vec<u8>>,
     verdicts: Vec<Verdict>,
     present: u32,
+    /// Frames whose atlas upload went down the region path — the churn
+    /// pairs must land here, or the diet this run certifies was never
+    /// exercised. Read through `webgpu_partial_frames`.
+    partial_frames: u32,
 }
 
 thread_local! {
@@ -182,6 +186,81 @@ fn scenes() -> Vec<Scene> {
     blur.push_command(Command::PopLayer);
     out.push(blur);
 
+    // The atlas-diet pairs: each second frame adds content the first one
+    // did not have, so its upload goes down the region path the backend
+    // grew in the same change — and its pixels are compared against the
+    // CPU oracle exactly like every other scene's. A corrupted partial
+    // upload cannot hide: the reveal frame would draw the wrong texels.
+    //
+    // Text first: the reveal frame adds glyphs to an atlas the base frame
+    // already filled — the partial glyph upload.
+    let style = vieww_foundation::TextStyle {
+        color: Color::rgba(20, 20, 30, 255),
+        size: 22.0,
+        ..vieww_foundation::TextStyle::default()
+    };
+    let text = |shown: &str| {
+        let mut store = vieww_text::FontStore::embedded_only();
+        let paragraph = vieww_text::Paragraph::layout(
+            &mut store,
+            &[vieww_text::TextSpan::new(shown, style)],
+            1_000.0,
+        );
+        let mut scene = Scene::default();
+        for run in paragraph.runs() {
+            let mut run = run.clone();
+            run.origin = Offset::new(run.origin.dx + 8.0, run.origin.dy + 34.0);
+            run.color = style.color;
+            scene.push_command(Command::DrawGlyphs {
+                run,
+                transform: Transform::IDENTITY,
+                clip: Clip::NONE,
+            });
+        }
+        scene
+    };
+    out.push(text("Hamburgefonstiv 123"));
+    out.push(text("Hamburgefonstiv 123 — the quick brown fox"));
+
+    // Images second: the second frame adds one image to an atlas the
+    // first already holds — the partial image upload (an insert's
+    // rectangle is the image plus its padding ring).
+    let image = |seed: u8| {
+        let (w, h) = (48u32, 48u32);
+        let mut rgba = Vec::with_capacity((w * h * 4) as usize);
+        for y in 0..h {
+            for x in 0..w {
+                let r = (x * 3 + y * 5 + u32::from(seed) * 17) as u8;
+                let g = (x * 7 + y * 11 + u32::from(seed) * 3) as u8;
+                let b = (x * 13 + y * 3 + u32::from(seed) * 29) as u8;
+                rgba.extend_from_slice(&[r, g, b, 255]);
+            }
+        }
+        Image::from_rgba8(rgba, w, h)
+    };
+    let mut images = Scene::default();
+    images.push_command(Command::DrawImage {
+        rect: Rect::new(8.0, 8.0, 56.0, 56.0),
+        image: image(3),
+        transform: Transform::IDENTITY,
+        clip: Clip::NONE,
+    });
+    out.push(images);
+    let mut images = Scene::default();
+    images.push_command(Command::DrawImage {
+        rect: Rect::new(8.0, 8.0, 56.0, 56.0),
+        image: image(3),
+        transform: Transform::IDENTITY,
+        clip: Clip::NONE,
+    });
+    images.push_command(Command::DrawImage {
+        rect: Rect::new(62.0, 26.0, 110.0, 74.0),
+        image: image(9),
+        transform: Transform::IDENTITY,
+        clip: Clip::NONE,
+    });
+    out.push(images);
+
     out
 }
 
@@ -276,6 +355,7 @@ pub extern "C" fn webgpu_step() -> u32 {
             cpu: Vec::new(),
             verdicts: Vec::new(),
             present: 0,
+            partial_frames: 0,
         });
 
         if run.phase != Phase::Running {
@@ -335,6 +415,15 @@ pub extern "C" fn webgpu_step() -> u32 {
                     run.phase = Phase::Failed;
                     run.failure = format!("scene {}: render: {error}", run.index);
                     return phase_code(run.phase);
+                }
+                // The churn accounting, read where it happens: a frame
+                // whose glyph or image upload sent something, but not the
+                // whole texture, went down the region path.
+                let (glyphs, images, _) = renderer.last_atlas_upload_bytes();
+                let glyph_whole = u64::from(run.planner.atlas().side()).pow(2);
+                let image_whole = u64::from(run.planner.image_atlas().side()).pow(2) * 4;
+                if (glyphs > 0 && glyphs < glyph_whole) || (images > 0 && images < image_whole) {
+                    run.partial_frames += 1;
                 }
                 run.submitted = true;
                 return phase_code(run.phase);
@@ -465,6 +554,17 @@ pub extern "C" fn webgpu_presented() -> u32 {
     RUN.with(|cell| {
         let run = cell.borrow();
         run.as_ref().map_or(0, |r| r.present)
+    })
+}
+
+/// How many frames went down the region path — something sent, less than
+/// the whole texture. The churn pairs' reveal frames must be in this
+/// count, or the partial-upload path was never exercised.
+#[unsafe(no_mangle)]
+pub extern "C" fn webgpu_partial_frames() -> u32 {
+    RUN.with(|cell| {
+        let run = cell.borrow();
+        run.as_ref().map_or(0, |r| r.partial_frames)
     })
 }
 

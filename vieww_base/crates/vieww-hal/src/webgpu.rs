@@ -96,8 +96,12 @@
 //!   there is no frame overlap (Vulkan's `set_overlap` exists because its
 //!   readback costs a stall — here the browser's own frame pacing is the
 //!   scheduler).
-//! * **Whole-atlas uploads**, as Metal's port does: a changed atlas version
-//!   re-uploads the whole texture.
+//! * **Partial atlas uploads and the idle target trim**, since the atlas
+//!   diet reached this backend: a frame that packs one new glyph, image or
+//!   ramp sends its own bytes through the bridge's region write (a grow
+//!   carried by one GPU copy), and a run of shallow frames frees the
+//!   surplus layer targets — `vulkan::scene`'s scheme, on queue-ordered
+//!   `writeTexture`/`destroy` instead of barriers.
 //! * **Host timings only** ([`FrameTimings`]): no timestamp queries in v1.
 //!
 //! # Verification
@@ -155,8 +159,22 @@ pub trait GpuBridge {
     /// (Re)create the atlas texture in `slot` (0 glyphs R8, 1 images RGBA8,
     /// 2 masks R8, 3 ramps RGBA32F) at `width x height`; returns its handle.
     fn atlas(&mut self, slot: u32, width: u32, height: u32) -> u32;
-    /// Upload `bytes` of atlas texels, row-major, into `slot`'s texture.
+    /// Upload `bytes` of atlas texels, row-major, into `slot`'s texture —
+    /// the full-upload path.
     fn atlas_write(&mut self, slot: u32, bytes: &[u8]);
+    /// Write only the packed rows of `rects` into `slot`'s texture — the
+    /// partial-upload half of the atlas diet. `bytes` holds each
+    /// rectangle's rows contiguously, in `rects` order, row-major within a
+    /// rectangle and one rectangle's row stride wide (`w` texels — see
+    /// `upload_regions`'s packing): a frame that packs one new glyph,
+    /// image or ramp sends its own bytes, not the texture's.
+    fn atlas_write_regions(&mut self, slot: u32, bytes: &[u8], rects: &[[u32; 4]]);
+    /// Replace `slot`'s texture with a fresh `width x height` one and carry
+    /// the old content across with one GPU copy — the grown-atlas carry:
+    /// every texel kept its position when the atlas grew, so the copy is
+    /// the old content and only the rectangles come from the host.
+    /// Returns the new texture's handle.
+    fn atlas_copy(&mut self, slot: u32, width: u32, height: u32) -> u32;
     /// Write the vertex (`which == 0`) or index (`which == 1`) buffer,
     /// recreating it if its size changed.
     fn buffer_write(&mut self, which: u32, bytes: &[u8]);
@@ -324,7 +342,30 @@ pub struct WebGpuSceneRenderer<B: GpuBridge> {
     size: (u32, u32),
     retained: Option<Retained>,
     timings: FrameTimings,
+    /// Frames since the renderer last drew a plan deeper than the targets
+    /// it holds — the idle signal that frees the surplus. See
+    /// [`TARGET_TRIM_FRAMES`].
+    idle_target_frames: u32,
+    /// How idle a run of shallow frames must be before the surplus layer
+    /// targets are freed — [`TARGET_TRIM_FRAMES`] unless a test narrowed
+    /// it.
+    target_trim_frames: u32,
+    /// Bytes the most recent glyph, image and ramp uploads sent — zero
+    /// when nothing changed, the whole texture after a full upload, the
+    /// changed rectangles otherwise. For tests and measurement.
+    glyph_upload_bytes: u64,
+    image_upload_bytes: u64,
+    ramp_upload_bytes: u64,
+    /// [`Self::glyph_upload_bytes`]'s contract, for the mask atlas.
+    mask_upload_bytes: u64,
 }
+
+/// How many frames of unused target depth pass before the surplus levels
+/// and scratch are freed — `vulkan::scene`'s own 600 (ten seconds at
+/// 60 Hz), for the same reason: deep-layered frames must not thrash the
+/// allocator, and a run of shallow ones must not hold frame-sized textures
+/// for the life of the renderer.
+const TARGET_TRIM_FRAMES: u32 = 600;
 
 impl<B: GpuBridge> WebGpuSceneRenderer<B> {
     /// Create the pipelines, the dummy target and the placeholder atlases.
@@ -375,6 +416,12 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
             size: (0, 0),
             retained: None,
             timings: FrameTimings::default(),
+            idle_target_frames: 0,
+            target_trim_frames: TARGET_TRIM_FRAMES,
+            glyph_upload_bytes: 0,
+            image_upload_bytes: 0,
+            ramp_upload_bytes: 0,
+            mask_upload_bytes: 0,
         })
     }
 
@@ -480,6 +527,47 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
     #[must_use]
     pub const fn last_timings(&self) -> FrameTimings {
         self.timings
+    }
+
+    /// How many render targets the renderer holds — `L[n]` and `S[n]`
+    /// together, the dummy and the atlases excluded. For tests and
+    /// measurement.
+    #[must_use]
+    pub fn target_count(&self) -> usize {
+        self.levels.len() + self.scratch.len()
+    }
+
+    /// Narrow the idle threshold that frees the renderer's surplus layer
+    /// targets: how many frames of unused depth before they are freed. The
+    /// default ([`TARGET_TRIM_FRAMES`]) is for a production process; a test
+    /// that wants to *see* a trim renders far fewer frames than ten seconds
+    /// of them. There is no staging threshold to narrow — this backend
+    /// keeps no staging between uploads (the bridge's writes go straight to
+    /// the queue).
+    pub fn set_memory_trim_frames(&mut self, frames: u32) {
+        self.target_trim_frames = frames.max(1);
+    }
+
+    /// How many bytes the most recent glyph, image and ramp uploads sent —
+    /// [`Self::last_mask_upload_bytes`]'s contract, per slot. For tests and
+    /// measurement: the churn numbers the plan's parity suites compare
+    /// between backends (glyphs about 153 KB against 2.56 MB whole, on the
+    /// churn fixtures).
+    #[must_use]
+    pub const fn last_atlas_upload_bytes(&self) -> (u64, u64, u64) {
+        (
+            self.glyph_upload_bytes,
+            self.image_upload_bytes,
+            self.ramp_upload_bytes,
+        )
+    }
+
+    /// How many bytes the most recent mask upload sent — the whole texture
+    /// after a full upload, the changed rectangles otherwise, zero when
+    /// nothing changed. For tests and measurement.
+    #[must_use]
+    pub const fn last_mask_upload_bytes(&self) -> u64 {
+        self.mask_upload_bytes
     }
 
     // ── the frame ─────────────────────────────────────────────────────────
@@ -597,12 +685,15 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
 
     /// (Re)allocate the levels and scratch to `depth` targets of the frame
     /// size, clearing every fresh one to transparent — a scratch read
-    /// before its first write must see transparent, not undefined bytes.
+    /// before its first write must see transparent, not undefined bytes —
+    /// and free the surplus once a run of shallower frames has gone by
+    /// ([`TARGET_TRIM_FRAMES`]).
     fn ensure_targets(&mut self, width: u32, height: u32, depth: usize) -> Result<(), WebGpuError> {
         if self.size != (width, height) {
             self.clear_targets();
             self.size = (width, height);
         }
+        let mut grew = false;
         while self.levels.len() < depth {
             let level = self.bridge.target_create(width, height);
             self.clear_target(level, width, height);
@@ -610,6 +701,29 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
             let scratch = self.bridge.target_create(width, height);
             self.clear_target(scratch, width, height);
             self.scratch.push(scratch);
+            grew = true;
+        }
+        // **The idle shrink** — `vulkan::scene`'s, on this backend's
+        // lifetimes: one frame is in flight at a time and the shim's
+        // `destroy` is queue-ordered behind the readback that samples those
+        // targets, so the surplus is referenced by nothing this side of the
+        // queue when the frames that follow it run. `L[0]` is always kept,
+        // so the retained damage frame survives. Growth — and a frame that
+        // uses every level there is — is the opposite of idle.
+        if grew || depth >= self.levels.len() {
+            self.idle_target_frames = 0;
+        } else {
+            self.idle_target_frames = self.idle_target_frames.saturating_add(1);
+            if self.idle_target_frames >= self.target_trim_frames && self.levels.len() > 1 {
+                let keep = depth.max(1);
+                for t in self.levels.split_off(keep) {
+                    self.bridge.target_free(t);
+                }
+                for t in self.scratch.split_off(keep) {
+                    self.bridge.target_free(t);
+                }
+                self.idle_target_frames = 0;
+            }
         }
         Ok(())
     }
@@ -633,41 +747,230 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
     }
 
     /// Upload every atlas `planner` holds that changed since the last
-    /// upload — whole-texture uploads, as Metal's port does.
+    /// upload — `metal::scene`'s fold: glyphs, images, masks, then ramps,
+    /// each through its own `changes_since` so a frame that packs one new
+    /// entry sends its own bytes and not the texture's.
     fn upload_planner(&mut self, planner: &Planner) -> Result<(), WebGpuError> {
-        let atlas = planner.atlas();
-        self.upload_atlas(
-            Slot::Glyphs,
-            atlas.texels(),
-            atlas.side(),
-            atlas.side(),
-            Some(atlas.version()),
-        )?;
-        let images = planner.image_atlas();
-        self.upload_atlas(
-            Slot::Images,
-            images.texels(),
-            images.side(),
-            images.side(),
-            Some(images.version()),
-        )?;
-        let masks = planner.mask_atlas();
-        self.upload_atlas(
-            Slot::Masks,
-            masks.texels(),
-            masks.side(),
-            masks.side(),
-            Some(masks.version()),
-        )?;
-        let ramps = planner.ramp_atlas();
-        self.upload_atlas(
+        self.upload_glyphs(planner.atlas())?;
+        self.upload_images(planner.image_atlas())?;
+        self.upload_masks(planner.mask_atlas())?;
+        self.upload_ramps(planner.ramp_atlas())?;
+        Ok(())
+    }
+
+    /// Bring the glyph texture up to `atlas`: only the rectangles that
+    /// changed, when the atlas can say which ones those are, and a grow
+    /// carried by one GPU copy — `vulkan::scene`'s `record_glyphs`, on
+    /// this backend's primitives. The numbers are that doc's own: one new
+    /// glyph is a few hundred coverage bytes where the whole texture is up
+    /// to 16 MB, and the frames that pay are the almost-steady ones.
+    fn upload_glyphs(&mut self, atlas: &vieww_gpu::Atlas) -> Result<(), WebGpuError> {
+        let held = self.atlases[Slot::Glyphs.index()].version;
+        let side = atlas.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Glyphs.index()];
+            a.width == side && a.height == side
+        };
+        self.glyph_upload_bytes = 0;
+        let rects = match atlas.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried** — see `upload_regions`'s doc. `Regions`
+                // with a resized texture means the atlas grew (a compaction
+                // would answer `Full`): every texel kept its position, so
+                // one GPU copy carries the old content across and only the
+                // rectangles come from the host.
+                self.resize_with_carry(Slot::Glyphs, side, side);
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Glyphs,
+                    atlas.texels(),
+                    side,
+                    side,
+                    Some(atlas.version()),
+                )?;
+                self.glyph_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(atlas.version());
+        self.glyph_upload_bytes =
+            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, rects);
+        Ok(())
+    }
+
+    /// Bring the image texture up to `images` the same way. An insert's
+    /// rectangle is the image plus its one-texel padding ring (linear
+    /// sampling reads the ring, so it changes with the image); a frame that
+    /// decodes one image sends that image's texels instead of the whole
+    /// (up to 64 MB) texture.
+    fn upload_images(&mut self, images: &vieww_gpu::ImageAtlas) -> Result<(), WebGpuError> {
+        let held = self.atlases[Slot::Images.index()].version;
+        let side = images.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Images.index()];
+            a.width == side && a.height == side
+        };
+        self.image_upload_bytes = 0;
+        let rects = match images.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A grow, carried** — the 64 MB one: a photo app's first
+                // overflow image used to re-send the entire atlas.
+                self.resize_with_carry(Slot::Images, side, side);
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Images,
+                    images.texels(),
+                    side,
+                    side,
+                    Some(images.version()),
+                )?;
+                self.image_upload_bytes = u64::from(side) * u64::from(side) * 4;
+                return Ok(());
+            }
+        };
+        let version = Some(images.version());
+        self.image_upload_bytes =
+            self.upload_regions(Slot::Images, images.texels(), 4, side, version, rects);
+        Ok(())
+    }
+
+    /// Bring the mask texture up to `masks`, sending only the rectangles
+    /// that changed when the atlas can say which ones those are —
+    /// `vulkan::scene`'s `record_masks` on this backend's primitives. No
+    /// carry on a grow, Metal's port's choice too: a mask atlas that
+    /// resizes is rare enough that the whole texture is the simpler
+    /// answer.
+    fn upload_masks(&mut self, masks: &vieww_gpu::MaskAtlas) -> Result<(), WebGpuError> {
+        let held = self.atlases[Slot::Masks.index()].version;
+        let side = masks.side();
+        let same_size = {
+            let a = &self.atlases[Slot::Masks.index()];
+            a.width == side && a.height == side
+        };
+        self.mask_upload_bytes = 0;
+        let rects = match masks.changes_since(held) {
+            vieww_gpu::MaskChanges::None => return Ok(()),
+            vieww_gpu::MaskChanges::Regions(rects) if same_size => rects,
+            _ => {
+                self.upload_atlas(
+                    Slot::Masks,
+                    masks.texels(),
+                    side,
+                    side,
+                    Some(masks.version()),
+                )?;
+                self.mask_upload_bytes = u64::from(side) * u64::from(side);
+                return Ok(());
+            }
+        };
+        let version = Some(masks.version());
+        self.mask_upload_bytes =
+            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, rects);
+        Ok(())
+    }
+
+    /// Bring the ramp texture up to `ramps` the same way. A new ramp is
+    /// one row of `RampAtlas::WIDTH` texels; a frame that makes one new
+    /// gradient sends that row, not every row the atlas holds.
+    fn upload_ramps(&mut self, ramps: &vieww_gpu::RampAtlas) -> Result<(), WebGpuError> {
+        let held = self.atlases[Slot::Ramps.index()].version;
+        let rows = ramps.rows();
+        let same_size = {
+            let a = &self.atlases[Slot::Ramps.index()];
+            a.width == vieww_gpu::RampAtlas::WIDTH && a.height == rows
+        };
+        self.ramp_upload_bytes = 0;
+        let rects = match ramps.changes_since(held) {
+            vieww_gpu::AtlasChanges::None => return Ok(()),
+            vieww_gpu::AtlasChanges::Regions(rects) if same_size => rects,
+            vieww_gpu::AtlasChanges::Regions(rects) if held.is_some() => {
+                // **A row doubling, carried** — the copy is the old rows; the
+                // rectangles are the new ones.
+                self.resize_with_carry(Slot::Ramps, vieww_gpu::RampAtlas::WIDTH, rows);
+                rects
+            }
+            _ => {
+                self.upload_atlas(
+                    Slot::Ramps,
+                    as_bytes(ramps.texels()),
+                    vieww_gpu::RampAtlas::WIDTH,
+                    rows,
+                    Some(ramps.version()),
+                )?;
+                self.ramp_upload_bytes =
+                    u64::from(vieww_gpu::RampAtlas::WIDTH) * u64::from(rows) * 16;
+                return Ok(());
+            }
+        };
+        let version = Some(ramps.version());
+        self.ramp_upload_bytes = self.upload_regions(
             Slot::Ramps,
             as_bytes(ramps.texels()),
+            16,
             vieww_gpu::RampAtlas::WIDTH,
-            ramps.rows(),
-            Some(ramps.version()),
-        )?;
+            version,
+            rects,
+        );
         Ok(())
+    }
+
+    /// Pack each rectangle's rows contiguously and send them as one region
+    /// write — `vulkan::scene`'s `record_regions` on this backend's
+    /// primitives: the bridge's `writeTexture` takes an origin and a size,
+    /// so the packed buffer is walked rectangle by rectangle on the JS
+    /// side. The rectangles come from `changes_since`, so their rows exist
+    /// in `texels` (the dirty recorder only records writes that happened).
+    /// Returns the bytes sent, for the churn accounting the parity suites
+    /// compare between backends.
+    fn upload_regions(
+        &mut self,
+        slot: Slot,
+        texels: &[u8],
+        stride: usize,
+        pitch: u32,
+        version: Option<u64>,
+        rects: &[[u32; 4]],
+    ) -> u64 {
+        if rects.is_empty() {
+            self.atlases[slot.index()].version = version;
+            return 0;
+        }
+        let mut packed = Vec::new();
+        for &[x, y, w, h] in rects {
+            for row in y..y + h {
+                let from = (row * pitch + x) as usize * stride;
+                let to = from + w as usize * stride;
+                packed.extend_from_slice(&texels[from..to]);
+            }
+        }
+        self.bridge
+            .atlas_write_regions(slot.index() as u32, &packed, rects);
+        self.atlases[slot.index()].version = version;
+        u64::try_from(packed.len()).unwrap_or(u64::MAX)
+    }
+
+    /// Replace `slot`'s texture with a fresh `width` x `height` one and
+    /// copy the old texture's content into it — `vulkan::scene`'s
+    /// `resize_with_carry`, so a grown atlas spends one GPU copy instead of
+    /// re-sending every texel it already holds. The shim's copy is
+    /// submitted before the region write that follows it, and
+    /// `writeTexture` is queue-ordered, so the carry and the rectangles
+    /// land in order.
+    fn resize_with_carry(&mut self, slot: Slot, width: u32, height: u32) {
+        let atlas = &mut self.atlases[slot.index()];
+        atlas.texture = self
+            .bridge
+            .atlas_copy(slot.index() as u32, width.max(1), height.max(1));
+        atlas.width = width;
+        atlas.height = height;
     }
 
     /// Bring one atlas up to `bytes` at `version`: skipped when unchanged,
@@ -808,6 +1111,21 @@ mod device {
         // Upload `len` bytes of atlas texels, row-major, into `slot`'s
         // texture.
         fn vieww_gpu_atlas_write(handle: u32, slot: u32, data: *const u8, len: u32);
+        // Write the packed rows of `count` rectangles (`x, y, w, h` each,
+        // `len` bytes in all — each rectangle's rows contiguous, in order)
+        // into `slot`'s texture at their own origins.
+        fn vieww_gpu_atlas_write_regions(
+            handle: u32,
+            slot: u32,
+            data: *const u8,
+            len: u32,
+            rects: *const u32,
+            count: u32,
+        );
+        // Replace `slot`'s texture with a fresh `width x height` one,
+        // carrying the old content across with one GPU copy; returns the
+        // new texture's handle.
+        fn vieww_gpu_atlas_copy(handle: u32, slot: u32, width: u32, height: u32) -> u32;
         // Write `len` bytes into the vertex (which: 0) or index (1)
         // buffer, recreating either if its size changed.
         fn vieww_gpu_buffer_write(handle: u32, which: u32, data: *const u8, len: u32);
@@ -905,6 +1223,26 @@ mod device {
                     u32::try_from(bytes.len()).unwrap_or(u32::MAX),
                 )
             };
+        }
+
+        fn atlas_write_regions(&mut self, slot: u32, bytes: &[u8], rects: &[[u32; 4]]) {
+            // SAFETY: the packed rows and the rectangles, by their own
+            // lengths.
+            unsafe {
+                vieww_gpu_atlas_write_regions(
+                    self.handle,
+                    slot,
+                    bytes.as_ptr(),
+                    u32::try_from(bytes.len()).unwrap_or(u32::MAX),
+                    rects.as_ptr().cast(),
+                    rects.len() as u32,
+                )
+            };
+        }
+
+        fn atlas_copy(&mut self, slot: u32, width: u32, height: u32) -> u32 {
+            // SAFETY: the slot's fresh extent.
+            unsafe { vieww_gpu_atlas_copy(self.handle, slot, width, height) }
         }
 
         fn buffer_write(&mut self, which: u32, bytes: &[u8]) {
@@ -1221,8 +1559,9 @@ pub use device::{BringUp, ExternBridge, WebGpuDevice};
 mod tests {
     use std::collections::BTreeMap;
 
-    use vieww_foundation::{BlendMode, Color};
+    use vieww_foundation::{BlendMode, Color, Offset, Transform};
     use vieww_gpu::{DrawRun, FilterOp, Step, Unsupported};
+    use vieww_paint::{Clip, Command};
 
     use super::*;
 
@@ -1339,6 +1678,17 @@ mod tests {
         fn atlas_write(&mut self, slot: u32, bytes: &[u8]) {
             self.log
                 .push(log_line("atlas_write", format!("{slot} {}", bytes.len())));
+        }
+        fn atlas_write_regions(&mut self, slot: u32, bytes: &[u8], rects: &[[u32; 4]]) {
+            self.log.push(log_line(
+                "atlas_regions",
+                format!("{slot} {}b {}r", bytes.len(), rects.len()),
+            ));
+        }
+        fn atlas_copy(&mut self, slot: u32, width: u32, height: u32) -> u32 {
+            self.log
+                .push(log_line("atlas_copy", format!("{slot} {width}x{height}")));
+            200 + slot
         }
         fn buffer_write(&mut self, which: u32, bytes: &[u8]) {
             self.log.push(log_line(
@@ -1683,5 +2033,185 @@ mod tests {
             log.iter().filter(|l| l.starts_with("frame 64x48")).count() == 0,
             "a refused plan encodes nothing"
         );
+    }
+
+    /// The idle shrink, pinned with no browser: after a deep frame, a run
+    /// of shallow frames frees the surplus levels and scratch once the
+    /// hysteresis passes — `L[0]` is kept, so the retained damage frame
+    /// survives — and a later deep frame grows back.
+    #[test]
+    fn idle_layer_targets_are_freed_after_the_hysteresis() {
+        let bridge = MockBridge::default();
+        let mut renderer = WebGpuSceneRenderer::new(bridge).expect("pipelines build");
+        renderer.set_memory_trim_frames(3);
+        let planner = Planner::new();
+        let deep = plan(
+            vec![Step::Draw {
+                first_run: 0,
+                run_count: 1,
+            }],
+            3,
+        );
+        let shallow = plan(
+            vec![Step::Draw {
+                first_run: 0,
+                run_count: 1,
+            }],
+            0,
+        );
+        renderer
+            .render_planned(&planner, &deep, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        assert_eq!(renderer.target_count(), 8, "four levels and four scratch");
+        // Two shallow frames: under the threshold, nothing is freed yet.
+        for _ in 0..2 {
+            renderer
+                .render_planned(&planner, &shallow, WIDTH, HEIGHT, CLEAR)
+                .expect("render");
+        }
+        assert_eq!(
+            renderer.target_count(),
+            8,
+            "the hysteresis has not passed yet"
+        );
+        // The third idle frame frees the surplus — keep is one level and
+        // its scratch, `L[0]` included.
+        renderer
+            .render_planned(&planner, &shallow, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        assert_eq!(
+            renderer.target_count(),
+            2,
+            "the surplus is freed once the hysteresis passes"
+        );
+        let freed = renderer
+            .bridge
+            .log
+            .iter()
+            .filter(|l| l.starts_with("free t"))
+            .count();
+        assert_eq!(freed, 6, "three surplus levels and three scratch");
+        // A deep frame again grows back, and the idle count restarted.
+        renderer
+            .render_planned(&planner, &deep, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        assert_eq!(renderer.target_count(), 8, "the depth grows back");
+    }
+
+    /// A steady frame uploads nothing and reuses every target — the mock
+    /// twin of the hardware suites' steady-frame claim, held against the
+    /// encoding itself: no atlas write of any kind, no new target, between
+    /// one frame and the next identical one.
+    #[test]
+    fn a_steady_frame_uploads_nothing_and_reuses_every_target() {
+        let bridge = MockBridge::default();
+        let mut renderer = WebGpuSceneRenderer::new(bridge).expect("pipelines build");
+        let planner = Planner::new();
+        let once = plan(
+            vec![Step::Draw {
+                first_run: 0,
+                run_count: 1,
+            }],
+            1,
+        );
+        renderer
+            .render_planned(&planner, &once, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        let before = renderer.target_count();
+        let log_len = renderer.bridge.log.len();
+        renderer
+            .render_planned(&planner, &once, WIDTH, HEIGHT, CLEAR)
+            .expect("render");
+        let after = renderer.bridge.log[log_len..].to_vec();
+        assert_eq!(renderer.target_count(), before, "no target was made");
+        for kind in ["atlas_write", "atlas_regions", "atlas_copy", "target "] {
+            assert!(
+                !after.iter().any(|l| l.starts_with(kind)),
+                "a steady frame must not {kind}: {after:?}"
+            );
+        }
+        assert_eq!(renderer.last_atlas_upload_bytes(), (0, 0, 0));
+        assert_eq!(renderer.last_mask_upload_bytes(), 0);
+    }
+
+    /// The atlas diet's encoding half, pinned with no browser: a frame
+    /// that reveals one more word sends only the new glyphs' rectangles
+    /// (`atlas_regions`), the first frame's whole texture (`atlas_write`)
+    /// is never repeated, a grow is carried (`atlas_copy`) instead of
+    /// re-sent, and the byte accounting says the same — the numbers the
+    /// browser run certifies pixel for pixel.
+    #[test]
+    fn partial_glyph_uploads_send_their_own_bytes_not_the_texture() {
+        let bridge = MockBridge::default();
+        let mut renderer = WebGpuSceneRenderer::new(bridge).expect("pipelines build");
+        let mut store = vieww_text::FontStore::embedded_only();
+        let style = vieww_foundation::TextStyle {
+            color: Color::rgba(20, 20, 30, 255),
+            size: 24.0,
+            ..vieww_foundation::TextStyle::default()
+        };
+        let mut planner = Planner::new();
+        let mut partial = 0;
+        let mut full = 0;
+        let (mut sent, mut whole) = (0u64, 0u64);
+        for frame in 0..12 {
+            let shown: String = "Hamburgefonstiv — the quick brown fox jumps"
+                .chars()
+                .take(frame * 2 + 1)
+                .collect();
+            let paragraph = vieww_text::Paragraph::layout(
+                &mut store,
+                &[vieww_text::TextSpan::new(shown, style)],
+                1_000.0,
+            );
+            let mut scene = vieww_paint::Scene::default();
+            for run in paragraph.runs() {
+                let mut run = run.clone();
+                run.origin = Offset::new(run.origin.dx + 8.0, run.origin.dy + 40.0);
+                run.color = style.color;
+                scene.push_command(Command::DrawGlyphs {
+                    run,
+                    transform: Transform::IDENTITY,
+                    clip: Clip::NONE,
+                });
+            }
+            let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
+            assert!(plan.is_complete(), "{:?}", plan.unsupported);
+            renderer
+                .render_planned(&planner, &plan, WIDTH, HEIGHT, CLEAR)
+                .expect("render");
+            let side = u64::from(planner.atlas().side());
+            let bytes = renderer.last_atlas_upload_bytes().0;
+            sent += bytes;
+            whole += side * side;
+            match bytes {
+                0 => {}
+                b if b == side * side => full += 1,
+                _ => partial += 1,
+            }
+        }
+        assert!(full >= 1, "the run's first frame is a full upload");
+        assert!(
+            partial >= 5,
+            "partial uploads should be the common case: {partial} partial, {full} full"
+        );
+        assert!(
+            sent * 3 < whole,
+            "partial uploads should send a fraction of whole-texture bytes: {sent} vs {whole}"
+        );
+        let log = &renderer.bridge.log;
+        assert!(
+            log.iter().any(|l| l.starts_with("atlas_regions 0")),
+            "the glyph slot must have taken the region path: {:?}",
+            log.iter()
+                .filter(|l| l.starts_with("atlas"))
+                .take(8)
+                .collect::<Vec<_>>()
+        );
+        let writes = log
+            .iter()
+            .filter(|l| l.starts_with("atlas_write 0"))
+            .count();
+        assert_eq!(writes, full, "whole writes happen only where accounted");
     }
 }
