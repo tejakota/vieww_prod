@@ -945,7 +945,9 @@ and what closed it.
    - `vieww-animation`: `sequence`, `flow`, `animator`, `fcurve`,
      `constraints`, `nla`, `expr`, `channels`, `particle_system`,
      `retarget` and `shared`.
-   - `vieww-mesh`: `gltf` and `modifiers`.
+   - `vieww-mesh`: `gltf`, `modifiers` and `relief` (image to 3D:
+     heightmap embossing and watertight silhouette solids, with optional
+     shading-sculpted bas-relief depth).
    - `vieww-physics`: `rigid` (rotation, SAT, joints with limits and
      motors, CCD, sleeping, queries, character controller), `cloth` and
      `fluid`.

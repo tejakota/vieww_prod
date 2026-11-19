@@ -78,6 +78,7 @@ pub mod csg;
 pub mod gltf;
 pub mod implicit;
 pub mod modifiers;
+pub mod relief;
 
 /// A point in three dimensions.
 pub type Point3 = [f32; 3];

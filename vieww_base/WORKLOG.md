@@ -24,6 +24,34 @@ machine the staging cost more than the dispatch it removed.
 
 ---
 
+## 0. The latest round: image to 3D
+
+`vieww-mesh` gained a `relief` module — two builders that turn a raster
+image into the same `Mesh` the loaders produce:
+
+- `heightmap_relief(spec, image)` — a plane displaced by the picture's
+  shading (luminance, its inverse, or alpha): embossing, terrain,
+  intaglio, with bilinear sampling and box-blur smoothing of the field.
+- `silhouette_solid(spec, image)` — a watertight closed solid grown from
+  the image's alpha silhouette: front and back faces displaced by a
+  sqrt-profiled depth, rim walls walking the boundary counter-clockwise
+  (the walk is what makes the seams pair — every directed edge used
+  exactly once, proven by a test), and an optional `sculpt` factor that
+  modulates depth by the picture's luminance, turning the extrusion into
+  a bas-relief of whatever the image shows.
+
+Why builders and not a `Displace` with a texture: an image is source
+data, not a deformation — the API takes the picture as the primary
+argument, like `lathe` takes a profile. The module doc records the scope
+decision. No changes to any existing API; `vieww-mesh` stays clippy-clean
+under workspace lints, 53 tests green.
+
+The first consumer is Soma (the anatomy explorer example app): its body
+is a `silhouette_solid` over a public-domain muscle illustration, which
+is the feature's proof at real resolution.
+
+---
+
 ## 1. Where things stand
 
 ### The goal of the current stretch

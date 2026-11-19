@@ -1,0 +1,19 @@
+[toolchain]
+# Pinned because vieww Studio's preview loads a compiled library into its own
+# process. A `Box<dyn Widget>` built by a different rustc has a different vtable
+# layout and different `TypeId`s, so crossing that boundary is undefined
+# behaviour rather than a mismatch anything can detect afterwards. The studio
+# refuses to load a library built by a compiler other than its own; this file is
+# what keeps them the same one.
+#
+# An exact version, and not `stable`, because the studio's Toolchains view
+# reports the targets of the studio's own toolchain — this checkout's pin —
+# while a project pinned to `stable` builds with whatever `stable` resolved
+# to on that machine. A user could see every target "ready" and still fail an
+# export because *their* `stable` never had it (B20). Writing the same channel
+# the studio builds with makes the view's answer the project's answer.
+#
+# The number is the channel of the repository's own rust-toolchain.toml, and
+# a test refuses to let the two drift: bumping the repository pin is a commit,
+# and this file is part of that commit.
+channel = "1.98.1"

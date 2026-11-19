@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Read by `xcodebuild -exportArchive`, which is the last step of the .ipa
+  export. `development` produces a build for devices registered to your team —
+  the one an ad-hoc tester can install. Change it to `app-store` when you are
+  submitting, and add a `teamID` if your Apple ID belongs to more than one team,
+  because Xcode cannot guess between two.
+-->
+<plist version="1.0">
+<dict>
+        <key>method</key>
+        <string>development</string>
+        <key>signingStyle</key>
+        <string>automatic</string>
+        <key>stripSwiftSymbols</key>
+        <true/>
+        <key>uploadSymbols</key>
+        <true/>
+</dict>
+</plist>

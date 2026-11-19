@@ -1,0 +1,239 @@
+// !$*UTF8*$!
+{
+        archiveVersion = 1;
+        classes = {
+        };
+        objectVersion = 56;
+        objects = {
+
+/* Begin PBXBuildFile section */
+                D1F59A8C85EEEE6659234D8D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B6FAD52C7B0868ACAA45055 /* main.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+                F0849C4C4D314B4DDBAAAA44 /* soma.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "soma.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+                6B6FAD52C7B0868ACAA45055 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+                AF253DB9DEB0C9E04D7197AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+                7D86787E627054DECBCCAFD2 /* Frameworks */ = {
+                        isa = PBXFrameworksBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+                01E39726D34CAAA78602A960 = {
+                        isa = PBXGroup;
+                        children = (
+                                CB4369B800F1E00EC0EC7688 /* App */,
+                                A4D2F27D69C8ADA3328FE406 /* Products */,
+                        );
+                        sourceTree = "<group>";
+                };
+                CB4369B800F1E00EC0EC7688 /* App */ = {
+                        isa = PBXGroup;
+                        children = (
+                                6B6FAD52C7B0868ACAA45055 /* main.m */,
+                                AF253DB9DEB0C9E04D7197AA /* Info.plist */,
+                        );
+                        path = App;
+                        sourceTree = "<group>";
+                };
+                A4D2F27D69C8ADA3328FE406 /* Products */ = {
+                        isa = PBXGroup;
+                        children = (
+                                F0849C4C4D314B4DDBAAAA44 /* soma.app */,
+                        );
+                        name = Products;
+                        sourceTree = "<group>";
+                };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+                38048CBCA2D93967D017496E /* soma */ = {
+                        isa = PBXNativeTarget;
+                        buildConfigurationList = B24151E77B31CA4DEFAAAECF /* Build configuration list for PBXNativeTarget "soma" */;
+                        buildPhases = (
+                                A7E957F89CAA03339ACD4CE1 /* Sources */,
+                                7D86787E627054DECBCCAFD2 /* Frameworks */,
+                        );
+                        buildRules = (
+                        );
+                        dependencies = (
+                        );
+                        name = "soma";
+                        productName = "soma";
+                        productReference = F0849C4C4D314B4DDBAAAA44 /* soma.app */;
+                        productType = "com.apple.product-type.application";
+                };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+                CB89F43A8E11A967DCDE3E74 /* Project object */ = {
+                        isa = PBXProject;
+                        attributes = {
+                                BuildIndependentTargetsInParallel = 1;
+                                LastUpgradeCheck = 1500;
+                                TargetAttributes = {
+                                        38048CBCA2D93967D017496E = {
+                                                CreatedOnToolsVersion = 15.0;
+                                        };
+                                };
+                        };
+                        buildConfigurationList = 7CDD2CC2B7601C698FB2E5D3 /* Build configuration list for PBXProject "soma" */;
+                        compatibilityVersion = "Xcode 14.0";
+                        developmentRegion = en;
+                        hasScannedForEncodings = 0;
+                        knownRegions = (
+                                en,
+                                Base,
+                        );
+                        mainGroup = 01E39726D34CAAA78602A960;
+                        productRefGroup = A4D2F27D69C8ADA3328FE406 /* Products */;
+                        projectDirPath = "";
+                        projectRoot = "";
+                        targets = (
+                                38048CBCA2D93967D017496E /* soma */,
+                        );
+                };
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+                A7E957F89CAA03339ACD4CE1 /* Sources */ = {
+                        isa = PBXSourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                                D1F59A8C85EEEE6659234D8D /* main.m in Sources */,
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+                298E45A7459FBA1A31ABE906 /* Debug */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                                ALWAYS_SEARCH_USER_PATHS = NO;
+                                ARCHS = arm64;
+                                CLANG_ENABLE_OBJC_ARC = YES;
+                                ENABLE_BITCODE = NO;
+                                GCC_OPTIMIZATION_LEVEL = 0;
+                                ONLY_ACTIVE_ARCH = YES;
+                                SDKROOT = iphoneos;
+                        };
+                        name = Debug;
+                };
+                69A9751000C94DC09B499E92 /* Release */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                                ALWAYS_SEARCH_USER_PATHS = NO;
+                                ARCHS = arm64;
+                                CLANG_ENABLE_OBJC_ARC = YES;
+                                ENABLE_BITCODE = NO;
+                                SDKROOT = iphoneos;
+                                VALIDATE_PRODUCT = YES;
+                        };
+                        name = Release;
+                };
+                8DD1E85D5A6F3AAE2F32210D /* Debug */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                         CODE_SIGN_STYLE = Automatic;
+                                CURRENT_PROJECT_VERSION = 1;
+                                GENERATE_INFOPLIST_FILE = NO;
+                                INFOPLIST_FILE = App/Info.plist;
+                                IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+                                MARKETING_VERSION = 0.1.0;
+                                PRODUCT_BUNDLE_IDENTIFIER = "com.example.soma";
+                                PRODUCT_NAME = "$(TARGET_NAME)";
+                             "RUST_TARGET[sdk=iphoneos*]" = "aarch64-apple-ios";
+                                "RUST_TARGET[sdk=iphonesimulator*]" = "aarch64-apple-ios-sim";
+                                LIBRARY_SEARCH_PATHS = (
+                                        "$(inherited)",
+                                        "$(PROJECT_DIR)/../target/$(RUST_TARGET)/release",
+                                );
+                                OTHER_LDFLAGS = (
+                                        "-lsoma",
+                                        "-lc++",
+                                        "-framework",
+                                        UIKit,
+                                        "-framework",
+                                        Foundation,
+                                        "-framework",
+                                        Metal,
+                                        "-framework",
+                                        QuartzCore,
+                                        "-framework",
+                                        CoreGraphics,
+                                );
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";
+                        };
+                        name = Debug;
+                };
+                3F2F3311616CD384C664ADDA /* Release */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                         CODE_SIGN_STYLE = Automatic;
+                                CURRENT_PROJECT_VERSION = 1;
+                                GENERATE_INFOPLIST_FILE = NO;
+                                INFOPLIST_FILE = App/Info.plist;
+                                IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+                                MARKETING_VERSION = 0.1.0;
+                                PRODUCT_BUNDLE_IDENTIFIER = "com.example.soma";
+                                PRODUCT_NAME = "$(TARGET_NAME)";
+                             "RUST_TARGET[sdk=iphoneos*]" = "aarch64-apple-ios";
+                                "RUST_TARGET[sdk=iphonesimulator*]" = "aarch64-apple-ios-sim";
+                                LIBRARY_SEARCH_PATHS = (
+                                        "$(inherited)",
+                                        "$(PROJECT_DIR)/../target/$(RUST_TARGET)/release",
+                                );
+                                OTHER_LDFLAGS = (
+                                        "-lsoma",
+                                        "-lc++",
+                                        "-framework",
+                                        UIKit,
+                                        "-framework",
+                                        Foundation,
+                                        "-framework",
+                                        Metal,
+                                        "-framework",
+                                        QuartzCore,
+                                        "-framework",
+                                        CoreGraphics,
+                                );
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";
+                        };
+                        name = Release;
+                };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+                7CDD2CC2B7601C698FB2E5D3 /* Build configuration list for PBXProject "soma" */ = {
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                298E45A7459FBA1A31ABE906 /* Debug */,
+                                69A9751000C94DC09B499E92 /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                };
+                B24151E77B31CA4DEFAAAECF /* Build configuration list for PBXNativeTarget "soma" */ = {
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                8DD1E85D5A6F3AAE2F32210D /* Debug */,
+                                3F2F3311616CD384C664ADDA /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                };
+/* End XCConfigurationList section */
+        };
+        rootObject = CB89F43A8E11A967DCDE3E74 /* Project object */;
+}

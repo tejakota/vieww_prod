@@ -1,0 +1,185 @@
+[package]
+name = "soma"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# The umbrella crate: widgets, layout, painting and the element tree.
+vieww = { path = "../../vieww_base/crates/vieww" }
+
+# The 3D layer: the anatomical body is a `vieww_3d::Scene`, rendered by the
+# CPU rasterizer (default features only) so the same code builds for desktop,
+# Android and the browser. The renderer runs at a low internal resolution and
+# the image scales up — that is what keeps the software path smooth.
+vieww-3d = { path = "../../vieww_base/crates/vieww-3d" }
+
+# The body itself is built from a picture: `vieww_mesh::relief` grows a
+# watertight solid from the base illustration's alpha silhouette, sculpted
+# by its shading into a bas-relief (the framework's image-to-3D layer,
+# delivered with this app as `vieww-image-to-3d.patch`).
+vieww-mesh = { path = "../../vieww_base/crates/vieww-mesh" }
+
+# Decoding for that picture (PNG) and for the Cleveland Clinic organ
+# illustrations (JPEG) — the framework's own codecs, so nothing new links
+# into the APK.
+vieww-image = { path = "../../vieww_base/crates/vieww-image" }
+
+# The paint crate with the native rasterizer, matching the studio's own
+# dependency graph — the preview links the project's rlib into the studio's
+# process, and two compilations of one crate with different features have
+# different type identities, which the preview refuses (an ABI guard, not a
+# crash). Same features, one identity, render works.
+vieww-paint = { path = "../../vieww_base/crates/vieww-paint", features = ["native"] }
+
+# The window, the event loop and the GPU surface. Separate from `vieww` because
+# a vieww tree can be driven headlessly — by a test, or by another host — and
+# only an application needs a platform.
+#
+# **Gated off wasm32** (ST-07): there is no window to own and no process to
+# loop in inside a browser — the page is the host — and `vieww-platform-winit`
+# does not build there. The platform for that target is the one in the
+# `cfg(target_arch = "wasm32")` table below, and moving this line back to the
+# plain `[dependencies]` table is what makes `cargo build --target
+# wasm32-unknown-unknown` fail inside winit rather than inside your code.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+vieww-platform-winit = { path = "../../vieww_base/crates/vieww-platform-winit" }
+
+# The browser half, and only it. `vieww` itself compiles everywhere — `native`
+# is a feature nothing here turns on — and the web platform brings its own
+# rasteriser, which is the same CPU one the studio's preview draws with
+# (`examples/test-web` certifies the two produce equal bytes).
+#
+# `wasm-bindgen` is a *library* on this side of the build and a *CLI* on the
+# export side, and the two have to be the same version — see the studio's
+# Web export refusal for the command that installs the matching one.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vieww-platform-web = { path = "../../vieww_base/crates/vieww-platform-web" }
+wasm-bindgen = "0.2"
+
+# `android_main` in `src/lib.rs` reports a failed start through `log`, which on
+# a phone is the only output there is (`vieww-platform-winit` routes it to
+# logcat). Android-only, because nowhere else calls it.
+[target.'cfg(target_os = "android")'.dependencies]
+log = "0.4"
+
+# **One crate, three shapes, and none of them is optional.**
+#
+# `rlib` is the desktop binary below and anything that tests this crate.
+# `cdylib` is Android: the activity loads a shared library and calls
+# `android_main` inside it, so there is no `main` for a binary to be.
+# `staticlib` is iOS: `UIApplicationMain` has to own the process before any
+# window exists, so the entry point is `ios/App/main.m` and this is what it
+# links against.
+#
+# The library's name is what the Android manifest's `android.app.lib_name` and
+# the Xcode project's `-l` flag both say. Renaming it means renaming those.
+[lib]
+name = "soma"
+crate-type = ["rlib", "cdylib", "staticlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "soma"
+path = "src/main.rs"
+
+# **Debug information for your code, not for two hundred dependencies.**
+#
+# Cargo's default is full debug info for everything in the build, and on a
+# graphical application that is most of what the binary weighs. Measured on this
+# very template, before these four lines:
+#
+#     saydemo (debug binary)   260.5 MB
+#       of which .text            17.4 MB   <- the actual code
+#       of which .debug_*        234.0 MB
+#
+# Ninety percent of it was symbols, and almost all of those belonged to
+# dependencies you are not stepping through. `debug = 1` keeps line tables for
+# your own crate — so a panic still names your file and line, and a debugger
+# still breaks where you ask — and the dependency override drops the rest.
+#
+#     saydemo (debug binary)    40.4 MB     <- with these lines
+#
+# Set `debug = 2` here if you need to step *into* a dependency; it is a slower,
+# fatter build and it is occasionally the only way to see what is happening.
+# The headless screenshot tool (`cargo run -p soma --example shots -- <dir>`):
+# PNG output, the native 2D rasterizer, and the frame driver's overflow
+# reporting. Nothing here reaches the app itself, so an APK build never
+# resolves any of it.
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
+vieww-paint = { path = "../../vieww_base/crates/vieww-paint", features = ["native"] }
+vieww-render = { path = "../../vieww_base/crates/vieww-render" }
+
+# The dev profile mirrors the vieww checkout's own, because the studio's
+# preview links this project's library into the studio process and two
+# compilations of a crate with different optimisation settings have
+# different type identities. Same profile, same identity, render works.
+[profile.dev]
+debug = 1
+
+[profile.dev.package."*"]
+opt-level = 2
+debug = false
+
+# The pixel-facing crates, as in the checkout: the rasterizer's inner loops
+# are where "not inlined" is the whole cost.
+[profile.dev.package.vieww-paint]
+opt-level = 3
+[profile.dev.package.vieww-text]
+opt-level = 3
+[profile.dev.package.vieww-effects]
+opt-level = 3
+[profile.dev.package.vieww-foundation]
+opt-level = 3
+[profile.dev.package.vieww-scene]
+opt-level = 2
+[profile.dev.package.vieww-hal]
+opt-level = 2
+
+# **What ships.** The same application as above, built with this profile, is
+# 7.6 MB.
+#
+# `strip` removes the symbol table — a release binary is not something anyone
+# debugs from a backtrace, and the 20 MB it saves is 20 MB every user downloads.
+# `lto = "thin"` lets the optimiser work across crate boundaries, which is where
+# most of a widget tree's inlining is. `codegen-units = 1` gives it the whole
+# crate to look at instead of sixteen slices. `panic = "abort"` removes the
+# unwinding tables: a released GUI application has no `catch_unwind` boundary to
+# unwind *to*, so the machinery is weight with nothing on the other end.
+#
+# Building for iOS or Android? Keep `panic = "abort"` in mind if you add a
+# `catch_unwind` of your own — with it set, a panic ends the process.
+
+
+[package.metadata.android]
+package = "dev.soma.app"
+build_targets = ["aarch64-linux-android"]
+apk_name = "soma"
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "Soma"
+theme = "@android:style/Theme.DeviceDefault.NoActionBar"
+
+[package.metadata.android.application.activity]
+orientation = "portrait"
+config_changes = "orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|density"
+
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+
+
+[profile.dist]
+inherits = "release"
+panic = "abort"
+lto = "fat"
+debug = false
+strip = "symbols"

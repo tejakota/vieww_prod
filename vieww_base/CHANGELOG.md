@@ -13,6 +13,7 @@ tag needs a `## [x.y.z]` section here before it is pushed.
 
 ### Added
 
+- **Image to 3D** (`vieww-mesh::relief`): `heightmap_relief` (a plane displaced by a picture's shading — emboss, terrain, intaglio) and `silhouette_solid` (a watertight, rounded solid grown from an image's alpha silhouette, optionally sculpted by its shading into a bas-relief). The builders take a `vieww-foundation::Image` and return the same `Mesh` the loaders produce. 5 tests, including an edge-pairing proof of watertightness.
 - **Say grows** (ST-20): `an image "…"`, `a scroll view:`, `a set of tabs:` with `a tab "…":`, a `the theme:` block over the host's colour slots, fade and slide transitions that now play, and `rust:` / ```` ```rust ```` blocks passed through verbatim. `compile_with` and `Options::asset_root`; `docs/guide/say.md`.
 - **Studio performance tools** (ST-09): Preview: Performance Overlay (the window's frame times over the previewed screen) and Preview: Attribute This Frame (the screen's text/shadow/rest breakdown, and a cost on every Inspector row). `RenderTree::paint_subtree`, `FrameDriver::render_of`.
 - **Device matrix** (ST-21): the previewed screen on several devices side by side, sharing one state.
