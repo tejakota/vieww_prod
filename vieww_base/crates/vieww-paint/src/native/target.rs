@@ -1341,7 +1341,7 @@ impl Target {
         let clip_x1 = coverage.x0 + dx_end - clip.x0;
         #[expect(clippy::cast_possible_wrap, reason = "a clip's width fits a frame")]
         let clip_width = clip.width as i32;
-        let clip_span = (clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize);
+        let clip_span = clip_x0.max(0) as usize..clip_x1.min(clip_width).max(0) as usize;
         let clamped = clip_x0 >= 0 && clip_x1 <= clip_width;
         for dy in dy_start..dy_end {
             let y = coverage.y0 + dy;
