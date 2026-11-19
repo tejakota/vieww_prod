@@ -28,6 +28,36 @@ item names them, with two worked examples to copy now. What else remains is
 unchanged: the iPhone present path, the hardware receipts, and the Device
 Farm A/B the blur is owed.
 
+**A thorough dispatch's findings (2026-11-19, run 44580710911).** The gate
+this repo runs is the default dispatch — what-this-branch-changed, quick
+depth — which does not start soma, the audio legs or the studio suites. A
+thorough dispatch on the typing fix started them, and three were red for
+reasons that predate the round: **soma's iOS target** no longer compiles
+(`libc` lost `proc_bsdinfo`/`proc_pidinfo` — the upgrade moved it), **the
+audio plugin's Windows bundle** dies on `denormal_bench.c` including
+`dlfcn.h`, and **the Windows audio loopback test** failed exclusive mode on
+the runner (hardware-shaped; it may be flaky). None are this round's; all
+three are real, and the thorough depth is the only thing that runs them —
+worth either fixing or consciously pruning before the next thorough gate.
+
+---
+
+Last updated: 2026-11-20, after the web round: the compute blur reached
+WebGPU — the fourth backend and the first port of the follow-up the Vulkan
+landing named. The bridge gained `pipeline_blur`/`pass_blur` (the JS shim's
+compute pipeline and one dispatch per scissor band, the immediates on the
+post passes' own ring), the renderer takes the compute route for the box
+modes when the pipeline builds, and the env gate moved to `scene_exec`
+(`compute_blur_wanted`) where all four backends can share it. WebGPU orders
+the compute pass against the render passes itself — no barriers, which is
+why this port is a quarter of Vulkan's size. The mock interpreter tests
+cover both routes (a storage-capable bridge dispatches; a refusing one keeps
+the fragment hybrid), and the browser parity driver is the end-to-end
+referee. Metal and D3D12 still run the fragment hybrid — the TODO's open
+item names them, with two worked examples to copy now. What else remains is
+unchanged: the iPhone present path, the hardware receipts, and the Device
+Farm A/B the blur is owed.
+
 ---
 
 Last updated: 2026-11-19, after the typing round: the iOS XCUITest typing
