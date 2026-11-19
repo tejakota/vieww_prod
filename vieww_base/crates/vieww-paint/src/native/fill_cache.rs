@@ -500,8 +500,16 @@ mod tests {
             ]
         };
         let (a, b) = (build(), build());
-        assert_eq!(hash_polylines(&a), hash_polylines(&b), "same content, same key");
-        assert_eq!(hash_polylines(&a), hash_polylines(&a), "stable across calls");
+        assert_eq!(
+            hash_polylines(&a),
+            hash_polylines(&b),
+            "same content, same key"
+        );
+        assert_eq!(
+            hash_polylines(&a),
+            hash_polylines(&a),
+            "stable across calls"
+        );
     }
 
     #[test]
@@ -532,7 +540,10 @@ mod tests {
         });
         assert_ne!(hash_polylines(&base), hash_polylines(&with_polyline));
 
-        let closed = vec![Polyline { points, closed: true }];
+        let closed = vec![Polyline {
+            points,
+            closed: true,
+        }];
         assert_ne!(hash_polylines(&base), hash_polylines(&closed));
     }
 

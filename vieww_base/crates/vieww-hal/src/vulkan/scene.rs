@@ -1422,7 +1422,8 @@ impl SceneRenderer {
             self.texture_mut(slot).staging_idle[flight] = idle;
             if u32::from(idle) >= self.staging_trim_frames {
                 self.settle_slot(flight)?;
-                let old = std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
+                let old =
+                    std::mem::replace(&mut self.texture_mut(slot).staging[flight], Buffer::EMPTY);
                 unsafe { destroy_buffer(&self.device, old) };
                 // Reallocated at exactly what this frame's upload needs —
                 // the size a cold renderer would have chosen — rather than
@@ -1522,7 +1523,10 @@ impl SceneRenderer {
         self.texture_mut(slot).staging_idle = old.staging_idle;
         let fresh_image = self.texture(slot).image;
         self.retired_textures.push(old);
-        let old_image = self.retired_textures.last().map_or(vk::Image::null(), |t| t.image);
+        let old_image = self
+            .retired_textures
+            .last()
+            .map_or(vk::Image::null(), |t| t.image);
         debug_assert!(old_image != vk::Image::null());
         let cmd = self.cmd();
         unsafe {
@@ -3769,14 +3773,13 @@ fn scene_vertex_layout() -> (
     // `k/255` — the same f32s the shader always received, in four bytes
     // instead of sixteen. Every other attribute is f32 (byte offsets now,
     // not float indices, since the colour slot broke the uniform stride).
-    let attribute = |location: u32, format: vk::Format, offset: u32| {
-        vk::VertexInputAttributeDescription {
+    let attribute =
+        |location: u32, format: vk::Format, offset: u32| vk::VertexInputAttributeDescription {
             location,
             binding: 0,
             format,
             offset,
-        }
-    };
+        };
     let f = |n: u32| n * std::mem::size_of::<f32>() as u32;
     (
         vk::VertexInputBindingDescription {

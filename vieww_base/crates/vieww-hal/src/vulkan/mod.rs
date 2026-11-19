@@ -336,9 +336,7 @@ impl VulkanDevice {
     /// prewarm) is behind the same feature.
     #[cfg(feature = "vulkan-swapchain")]
     #[must_use = "a device holds driver state; dropping it runs teardown"]
-    pub fn from_instance_headless(
-        mut instance: self::VulkanInstance,
-    ) -> Result<Self, VulkanError> {
+    pub fn from_instance_headless(mut instance: self::VulkanInstance) -> Result<Self, VulkanError> {
         let (physical_device, queue_family) = {
             let (_entry, raw) = instance.parts();
             Self::pick_physical_device(raw, |pd| Self::find_graphics_family(raw, pd))
@@ -710,17 +708,17 @@ impl Drop for VulkanDevice {
         unsafe {
             if let Ok(mut cache) = self.pipelines_3d.lock() {
                 for (_, cached) in cache.drain() {
-                let Pipelines3d {
-                    vs_module,
-                    fs_module,
-                    set_layout,
-                    layout,
-                    pipeline,
-                } = cached;
-                self.device.destroy_pipeline(pipeline, None);
-                self.device.destroy_pipeline_layout(layout, None);
-                self.device.destroy_descriptor_set_layout(set_layout, None);
-                self.device.destroy_shader_module(vs_module, None);
+                    let Pipelines3d {
+                        vs_module,
+                        fs_module,
+                        set_layout,
+                        layout,
+                        pipeline,
+                    } = cached;
+                    self.device.destroy_pipeline(pipeline, None);
+                    self.device.destroy_pipeline_layout(layout, None);
+                    self.device.destroy_descriptor_set_layout(set_layout, None);
+                    self.device.destroy_shader_module(vs_module, None);
                     self.device.destroy_shader_module(fs_module, None);
                 }
             }
@@ -1995,7 +1993,11 @@ impl VulkanDevice {
                 .attributes
                 .iter()
                 .map(|&(location, format, offset)| {
-                    (location, u32::try_from(format.as_raw()).unwrap_or(0), offset)
+                    (
+                        location,
+                        u32::try_from(format.as_raw()).unwrap_or(0),
+                        offset,
+                    )
                 })
                 .collect(),
             storage: pass.storage.is_some(),
@@ -2137,8 +2139,8 @@ impl VulkanDevice {
             .cull_mode(vk::CullModeFlags::NONE)
             .front_face(vk::FrontFace::COUNTER_CLOCKWISE)
             .line_width(1.0);
-        let multisample =
-            vk::PipelineMultisampleStateCreateInfo::default().rasterization_samples(vk::SampleCountFlags::TYPE_1);
+        let multisample = vk::PipelineMultisampleStateCreateInfo::default()
+            .rasterization_samples(vk::SampleCountFlags::TYPE_1);
         // The depth state is the point of the 3D path: LESS keeps the nearest
         // surface, the same contest the CPU's per-sample depth test runs; the
         // write is the variant's half of the split.

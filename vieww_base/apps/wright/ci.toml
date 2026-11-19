@@ -26,7 +26,7 @@ file = "ci/jobs/installers.toml"
 stage = "build"
 runs_on = "${{ matrix.os }}"
 platforms_from = "matrix.name"
-matrix = { include = [{ name = "windows-x64", os = "windows-2022" }, { name = "macos-universal", os = "macos-14" }, { name = "linux-x64", os = "ubuntu-22.04" }] }
+matrix = { include = [{ name = "windows-x64", os = "windows-2022" }, { name = "macos-universal", os = "macos-15" }, { name = "linux-x64", os = "ubuntu-22.04" }] }
 timeout = 120
 secrets = ["WRIGHT_SECRET_MACOS_NOTARY_KEY", "WRIGHT_SECRET_MACOS_NOTARY_KEY_ID", "WRIGHT_SECRET_MACOS_P12", "WRIGHT_SECRET_MACOS_P12_PASSWORD", "WRIGHT_SECRET_MACOS_SIGNING_IDENTITY", "WRIGHT_SECRET_MACOS_TEAM_ID", "WRIGHT_SECRET_WINDOWS_PFX", "WRIGHT_SECRET_WINDOWS_PFX_PASSWORD"]
 inputs = { version = "{form.version}", publish = "{release.publish}", prerelease = "{form.prerelease}" }
@@ -103,7 +103,7 @@ file = "ci/jobs/models-platforms.toml"
 stage = "check"
 depth = "thorough"
 runs_on = "${{ matrix.os }}"
-matrix = { include = [{ name = "windows-x64", os = "windows-2022" }, { name = "macos-arm64", os = "macos-14" }, { name = "linux-x64", os = "ubuntu-22.04" }] }
+matrix = { include = [{ name = "windows-x64", os = "windows-2022" }, { name = "macos-arm64", os = "macos-15" }, { name = "linux-x64", os = "ubuntu-22.04" }] }
 timeout = 90
 checkout = { fetch-depth = 1 }
 
@@ -122,7 +122,7 @@ title = "macOS — Seatbelt suite (WR-03)"
 file = "ci/jobs/sandbox-macos-seatbelt-suite.toml"
 stage = "check"
 depth = "thorough"
-runs_on = "macos-14"
+runs_on = "macos-15"
 inputs = { profile = "debug" }
 
 [[job]]

@@ -22,7 +22,7 @@ id = "build"
 title = "release build"
 file = "ci/kinds/desktop-app/build.toml"
 row = { package = "{package}", workspace = "{workspace}", platform = "{platform}" }
-per_platform = { linux = "ubuntu-24.04", macos = "macos-14", windows = "windows-2022" }
+per_platform = { linux = "ubuntu-24.04", macos = "macos-15", windows = "windows-2022" }
 stage = "build"
 timeout = 60
 checkout = { persist-credentials = false }

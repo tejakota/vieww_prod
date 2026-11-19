@@ -41,7 +41,7 @@ title = "macOS (Core Audio through BlackHole, CoreMIDI virtual ports)"
 file = "ci/jobs/backends-macos-loopback.toml"
 stage = "check"
 depth = "thorough"
-runs_on = "macos-14"
+runs_on = "macos-15"
 timeout = 45
 
 [[job]]
@@ -144,7 +144,7 @@ title = "iOS bridge (macOS)"
 file = "ci/jobs/mobile-ios.toml"
 stage = "check"
 depth = "thorough"
-runs_on = "macos-14"
+runs_on = "macos-15"
 timeout = 60
 [[job.setup]]
 uses = "cache"

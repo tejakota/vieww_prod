@@ -13,7 +13,7 @@ file = "ci/jobs/suite.toml"
 stage = "check"
 depth = "thorough"
 runs_on = "${{ matrix.os }}"
-matrix = { os = ["ubuntu-24.04", "macos-14", "windows-2022"] }
+matrix = { os = ["ubuntu-24.04", "macos-15", "windows-2022"] }
 timeout = 90
 [[job.setup]]
 uses = "cache"

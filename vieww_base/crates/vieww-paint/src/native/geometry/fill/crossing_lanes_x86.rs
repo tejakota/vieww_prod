@@ -18,8 +18,8 @@
 //! says otherwise.
 
 use core::arch::x86_64::{
-    _mm_add_ps, _mm_div_ps, _mm_loadu_ps, _mm_movelh_ps, _mm_movehl_ps, _mm_mul_ps,
-    _mm_set1_ps, _mm_storeu_ps, _mm_sub_ps, _mm_unpackhi_ps, _mm_unpacklo_ps,
+    _mm_add_ps, _mm_div_ps, _mm_loadu_ps, _mm_movehl_ps, _mm_movelh_ps, _mm_mul_ps, _mm_set1_ps,
+    _mm_storeu_ps, _mm_sub_ps, _mm_unpackhi_ps, _mm_unpacklo_ps,
 };
 
 use super::Edge;

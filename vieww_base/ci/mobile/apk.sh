@@ -72,7 +72,17 @@ fi
 
 marker="$(mktemp)"
 cargo apk build -p vieww-platform-winit "${args[@]}"
-apk="$(find "$root/target" -path '*/apk/*' -name '*.apk' -newer "$marker" -print 2>/dev/null | head -1)"
+# `cargo apk build` leaves two files under target/<profile>/apk/…: the
+# **signed and aligned** `<name>.apk`, and the intermediate
+# `<name>-unaligned.apk` it built it from — unsigned, because signing is the
+# step after alignment. `find | head -1` returned whichever the directory
+# listing hit first, and that was the unsigned one, which an API 34 image
+# refuses with INSTALL_PARSE_FAILED_NO_CERTIFICATES. The intermediate is
+# excluded by name so only an installable APK can be picked.
+apk="$(
+    find "$root/target" -path '*/apk/*' -name '*.apk' ! -name '*-unaligned.apk' \
+        -newer "$marker" -print 2>/dev/null | head -1
+)"
 rm -f "$marker"
 if [ -z "$apk" ]; then
     echo "apk: cargo apk build succeeded but no new .apk was found under target/" >&2

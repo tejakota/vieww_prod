@@ -45,9 +45,8 @@
 //! bridges were.
 
 use core::arch::aarch64::{
-    float32x4_t, uint32x4_t, vaddq_f32, vandq_u32, vbslq_f32, vceqq_f32, vcleq_f32,
-    vdivq_f32, vdupq_laneq_f32, vdupq_n_f32, vdupq_n_u32, vld1q_f32, vmulq_f32, vst1q_f32,
-    vsubq_f32,
+    float32x4_t, uint32x4_t, vaddq_f32, vandq_u32, vbslq_f32, vceqq_f32, vcleq_f32, vdivq_f32,
+    vdupq_laneq_f32, vdupq_n_f32, vdupq_n_u32, vld1q_f32, vmulq_f32, vst1q_f32, vsubq_f32,
 };
 
 use super::Premul;

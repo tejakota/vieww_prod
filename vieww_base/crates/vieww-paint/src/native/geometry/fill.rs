@@ -975,20 +975,20 @@ fn interpolate_active(active: &mut [ActiveEdge], table: &EdgeTable, sy: f32) {
     }
 }
 
+#[cfg(target_arch = "aarch64")]
+mod crossing_lanes_arm;
 /// The four-edge interpolation kernel, per architecture. Same contract as
 /// `native::simd`'s modules: the lanes are the scalar formula, and the
 /// caller's bit test (`edge_interpolation_matches_scalar_lane_for_lane`)
 /// holds it.
 #[cfg(target_arch = "x86_64")]
 mod crossing_lanes_x86;
-#[cfg(target_arch = "aarch64")]
-mod crossing_lanes_arm;
 #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
 mod crossing_lanes {
-    #[cfg(target_arch = "x86_64")]
-    pub(super) use super::crossing_lanes_x86::interpolate4;
     #[cfg(target_arch = "aarch64")]
     pub(super) use super::crossing_lanes_arm::interpolate4;
+    #[cfg(target_arch = "x86_64")]
+    pub(super) use super::crossing_lanes_x86::interpolate4;
 }
 
 /// Walk the rows `rows` into `data` (which covers exactly those rows),
@@ -2557,11 +2557,7 @@ mod crossing_tests {
                 .collect();
             interpolate_active(&mut active, &table, 0.37);
             for (a, sx) in active.iter().zip(scalar_x) {
-                assert_eq!(
-                    canon(a.x),
-                    canon(sx),
-                    "lane {sx:?} against the walk"
-                );
+                assert_eq!(canon(a.x), canon(sx), "lane {sx:?} against the walk");
             }
         }
     }

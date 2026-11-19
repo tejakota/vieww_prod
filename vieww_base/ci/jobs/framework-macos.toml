@@ -41,7 +41,7 @@ run = "cargo test -p vieww-audio --lib -- denormal every_worker_adopts_the_calle
 
 [[step]]
 name = "Metal suite on the runner's GPU"
-env = { VIEWW_REQUIRE_HARDWARE = "gpu", MTL_DEBUG_LAYER = "1", VIEWW_PARITY_OUT = "${{ runner.temp }}/parity", VIEWW_PARITY_ADAPTER = "macos-14 paravirtual GPU" }
+env = { VIEWW_REQUIRE_HARDWARE = "gpu", MTL_DEBUG_LAYER = "1", VIEWW_PARITY_OUT = "${{ runner.temp }}/parity", VIEWW_PARITY_ADAPTER = "macos-15 paravirtual GPU" }
 run = '''
 set +e
 cargo test -p vieww-hal --features metal -- --ignored --test-threads=1 --nocapture

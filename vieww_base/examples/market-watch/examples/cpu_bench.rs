@@ -81,7 +81,13 @@ fn main() {
                 "storm" => Load::Storm,
                 other => panic!("--phase {other}: scroll, live or storm"),
             };
-            vec![full[0], full.iter().copied().find(|(l, _)| *l == wanted).expect("in the schedule")]
+            vec![
+                full[0],
+                full.iter()
+                    .copied()
+                    .find(|(l, _)| *l == wanted)
+                    .expect("in the schedule"),
+            ]
         }
     };
     // Per phase, every run's samples together; the hash must agree run to run.

@@ -341,7 +341,10 @@ impl WordHasher {
     /// The FNV-1a 64 offset basis: the standard starting state, so every
     /// process and every run hashes the same stream to the same key.
     pub(super) const fn new() -> Self {
-        Self { state: 0xcbf2_9ce4_8422_2325, bytes: 0 }
+        Self {
+            state: 0xcbf2_9ce4_8422_2325,
+            bytes: 0,
+        }
     }
 
     /// One FNV-1a step at word granularity: xor the whole 8-byte word

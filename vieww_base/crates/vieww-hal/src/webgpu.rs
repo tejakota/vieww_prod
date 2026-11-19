@@ -1446,7 +1446,7 @@ mod tests {
         ScenePlan {
             vertices: vec![vieww_gpu::Vertex {
                 position: [0.0, 0.0],
-                color: [1.0, 0.0, 0.0, 1.0],
+                color: [255, 0, 0, 255],
                 uv: [0.0; 2],
                 texture_kind: 0.0,
                 params: [0.0; 4],

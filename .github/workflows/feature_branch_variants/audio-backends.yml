@@ -194,9 +194,9 @@ jobs:
 
   macos-loopback:
     name: macOS (Core Audio through BlackHole, CoreMIDI virtual ports)
-    # macos-14: the TCC grant below is the layout this image uses (as in
-    # Mozilla's cubeb CI); a newer image may need its columns updated.
-    runs-on: macos-14
+    # The TCC grant below is the macOS image layout (as in Mozilla's cubeb
+    # CI); a newer image may need its columns updated.
+    runs-on: macos-15
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4

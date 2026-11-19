@@ -2648,11 +2648,9 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
                 (Some(device), _) => {
                     crate::native::offer_prewarmed(crate::native::PrewarmedVulkan::Device(device))
                 }
-                (None, Some(instance)) => {
-                    crate::native::offer_prewarmed(crate::native::PrewarmedVulkan::Instance(
-                        instance,
-                    ))
-                }
+                (None, Some(instance)) => crate::native::offer_prewarmed(
+                    crate::native::PrewarmedVulkan::Instance(instance),
+                ),
                 (None, None) => {}
             }
             crate::startup::mark("vulkan prewarmed");

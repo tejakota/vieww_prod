@@ -301,10 +301,7 @@ impl GradientRows<'_> {
                 // The coverage gamma — see `linear::coverage_alpha` — for
                 // the same reason the flat-fill loop applies it: coverage
                 // is area, alpha is light.
-                let c = super::linear::coverage_alpha_in(
-                    self.table,
-                    mask_row[self.dx_start + j],
-                );
+                let c = super::linear::coverage_alpha_in(self.table, mask_row[self.dx_start + j]);
                 if c <= 0.0 {
                     continue;
                 }
@@ -1037,7 +1034,8 @@ impl Target {
                     // definition of blending.
                     _ => {
                         for (k, px) in dst_run.iter_mut().enumerate() {
-                            let (kr, kg, kb) = (kr_row[start + k], kg_row[start + k], kb_row[start + k]);
+                            let (kr, kg, kb) =
+                                (kr_row[start + k], kg_row[start + k], kb_row[start + k]);
                             let dst = *px;
                             let e_r = c.a * kr;
                             let e_g = c.a * kg;
@@ -1698,7 +1696,11 @@ impl Target {
             // function of the absolute row — the un-clipped `take_rows` never
             // needed to know.
             let mut cov = vec![0.0f32; sx1 - sx0];
-            for (i, (d, s)) in dst.chunks_exact_mut(sw).zip(src.chunks_exact_mut(ow)).enumerate() {
+            for (i, (d, s)) in dst
+                .chunks_exact_mut(sw)
+                .zip(src.chunks_exact_mut(ow))
+                .enumerate()
+            {
                 let y = base_y + i as i32;
                 Self::clip_coverage_row(clip, clip_origin, y, x_start, x_end, &mut cov);
                 let row = &mut s[sx0..sx1];

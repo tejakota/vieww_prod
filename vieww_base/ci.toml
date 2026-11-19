@@ -327,7 +327,7 @@ title = "macOS and iOS (Metal)"
 file = "ci/jobs/framework-macos.toml"
 stage = "check"
 depth = "thorough"
-runs_on = "macos-14"
+runs_on = "macos-15"
 timeout = 90
 [[job.upload]]
 name = "parity-certificate-metal-paravirtual"
@@ -393,7 +393,7 @@ title = "iOS simulator (tests in the sim, a frame on its screen)"
 file = "ci/jobs/framework-ios-simulator.toml"
 stage = "check"
 depth = "thorough"
-runs_on = "macos-14"
+runs_on = "macos-15"
 timeout = 90
 continue_on_error = true
 [[job.upload]]

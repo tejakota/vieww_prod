@@ -896,7 +896,13 @@ struct ChainStep {
 /// everything a backdrop snapshots — which is what marked it.
 fn chain_margins(plan: &ScenePlan) -> Vec<ChainMargin> {
     let steps = plan.steps.len();
-    let mut out = vec![ChainMargin { outer: 0, snapshotted: false }; steps];
+    let mut out = vec![
+        ChainMargin {
+            outer: 0,
+            snapshotted: false
+        };
+        steps
+    ];
     // First walk: the chains, in step order, each layer's own pop-filter
     // reach — which sits on the layer's `PopLayer` step, after all of its
     // nesting, the one fact that makes these pre-computed walks rather than
@@ -951,7 +957,11 @@ fn chain_margins(plan: &ScenePlan) -> Vec<ChainMargin> {
                          the band margins"
                     );
                     if let Some(filter) = filter {
-                        chains.push(ChainStep { at, pushed, pop: true });
+                        chains.push(ChainStep {
+                            at,
+                            pushed,
+                            pop: true,
+                        });
                         snapshotted.push(false);
                         own[pushed] = filter.box_radius.map_or(0, blur_reach);
                     }
@@ -1996,7 +2006,11 @@ mod tests {
             })
             .expect("the layer composites");
         assert_eq!(pass.src, TargetId::Level(1));
-        assert_eq!(scissors, &vec![damage], "the composite is held to the damage");
+        assert_eq!(
+            scissors,
+            &vec![damage],
+            "the composite is held to the damage"
+        );
     }
 
     /// A blur inside a blur: the inner chain's band grows by the outer
@@ -2131,14 +2145,7 @@ mod tests {
             size: (W, H),
             clear: CLEAR,
         });
-        let frame = frame_passes(
-            &plan,
-            W,
-            H,
-            CLEAR,
-            Some(&[rect(0, 0, 20, 20)]),
-            retained,
-        );
+        let frame = frame_passes(&plan, W, H, CLEAR, Some(&[rect(0, 0, 20, 20)]), retained);
         assert!(
             !frame.ops.iter().any(|op| match op {
                 SceneOp::Post { pass, .. } => {

@@ -304,10 +304,7 @@ fn an_image_inside_a_rounded_clip_repaints_identically() {
             pixels.extend_from_slice(&[200, 60, 160, 255]);
         }
         let image = Image::from_rgba8(pixels, 20, 20);
-        scene.draw_image(
-            Rect::new(50.0 + shift, 50.0, 200.0 + shift, 170.0),
-            &image,
-        );
+        scene.draw_image(Rect::new(50.0 + shift, 50.0, 200.0 + shift, 170.0), &image);
         scene.restore();
         scene
     }

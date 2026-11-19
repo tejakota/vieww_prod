@@ -106,7 +106,11 @@ impl Field {
                 *cell = top * (1.0 - ty) + bottom * ty;
             }
         }
-        let mut field = Self { width: grid_w, height: grid_h, values };
+        let mut field = Self {
+            width: grid_w,
+            height: grid_h,
+            values,
+        };
         for _ in 0..blur {
             field.blur();
         }
@@ -238,7 +242,11 @@ pub fn heightmap_relief(spec: &ReliefSpec, image: &Image) -> Mesh {
             // Sample the cell to the vertex's lower-left, clamped: the
             // grid has one more vertex row/column than cells.
             let h = field.get(x.min(gw - 1), y.min(gh - 1)) * spec.strength;
-            mesh.positions.push([-spec.width / 2.0 + u * spec.width, height / 2.0 - v * height, h]);
+            mesh.positions.push([
+                -spec.width / 2.0 + u * spec.width,
+                height / 2.0 - v * height,
+                h,
+            ]);
             mesh.uvs.push([u, v]);
         }
     }
@@ -350,7 +358,11 @@ impl<'a> SolidBuilder<'a> {
     /// source on both faces.
     fn vertex(&mut self, x: usize, y: usize, front: bool) -> u32 {
         let slot = y * (self.gw + 1) + x;
-        let taken = if front { self.front[slot] } else { self.back[slot] };
+        let taken = if front {
+            self.front[slot]
+        } else {
+            self.back[slot]
+        };
         if taken != u32::MAX {
             return taken;
         }
@@ -402,7 +414,9 @@ impl<'a> SolidBuilder<'a> {
         let ba = self.vertex(ax, ay, false);
         let fb = self.vertex(bx, by, true);
         let bb = self.vertex(bx, by, false);
-        self.mesh.indices.extend_from_slice(&[fa, fb, bb, fa, bb, ba]);
+        self.mesh
+            .indices
+            .extend_from_slice(&[fa, fb, bb, fa, bb, ba]);
     }
 }
 
@@ -582,7 +596,11 @@ mod tests {
     #[test]
     fn intaglio_inverts() {
         let up = heightmap_relief(
-            &ReliefSpec { resolution: 8, smoothing: 0, ..ReliefSpec::default() },
+            &ReliefSpec {
+                resolution: 8,
+                smoothing: 0,
+                ..ReliefSpec::default()
+            },
             &gradient_image(),
         );
         let down = heightmap_relief(
@@ -599,7 +617,13 @@ mod tests {
 
     #[test]
     fn solid_is_watertight_and_sized() {
-        let spec = SolidSpec { size: 2.0, depth: 0.1, resolution: 24, smoothing: 2, sculpt: 0.0 };
+        let spec = SolidSpec {
+            size: 2.0,
+            depth: 0.1,
+            resolution: 24,
+            smoothing: 2,
+            sculpt: 0.0,
+        };
         let mesh = silhouette_solid(&spec, &square_image());
         assert!(mesh.triangles() > 0);
         assert!(mesh.has_normals() && mesh.has_uvs());
@@ -617,7 +641,11 @@ mod tests {
         }
         for ((a, b), n) in &directed {
             assert_eq!(*n, 1, "edge {a}->{b} used {n} times");
-            assert_eq!(directed.get(&(*b, *a)), Some(&1), "edge {a}->{b} has no opposite face");
+            assert_eq!(
+                directed.get(&(*b, *a)),
+                Some(&1),
+                "edge {a}->{b} has no opposite face"
+            );
         }
 
         // The heart of the square stands at ±depth; the plan fits in the
@@ -626,12 +654,22 @@ mod tests {
         assert!(max[2] <= spec.depth + 1e-3 && min[2] >= -spec.depth - 1e-3);
         assert!(max[0] - min[0] <= spec.size + 1e-3);
         assert!(max[1] - min[1] <= spec.size + 1e-3);
-        assert!(max[2] > 0.5 * spec.depth, "heart reaches depth, got {}", max[2]);
+        assert!(
+            max[2] > 0.5 * spec.depth,
+            "heart reaches depth, got {}",
+            max[2]
+        );
     }
 
     #[test]
     fn sculpt_recesses_without_puncturing() {
-        let spec = SolidSpec { size: 1.0, depth: 0.3, resolution: 24, smoothing: 1, sculpt: 1.0 };
+        let spec = SolidSpec {
+            size: 1.0,
+            depth: 0.3,
+            resolution: 24,
+            smoothing: 1,
+            sculpt: 1.0,
+        };
         let mesh = silhouette_solid(&spec, &gradient_image());
         let (min, max) = mesh.bounds().expect("bounds");
         // Dark areas sink toward the plane but never through it.

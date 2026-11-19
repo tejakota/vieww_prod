@@ -252,12 +252,7 @@ pub(crate) fn lanes_add(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
         unsafe { neon::lanes_add(a, b) }
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-    [
-        a[0] + b[0],
-        a[1] + b[1],
-        a[2] + b[2],
-        a[3] + b[3],
-    ]
+    [a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]]
 }
 
 /// Four independent `f32` lanes, subtracted lane for lane.
@@ -278,12 +273,7 @@ pub(crate) fn lanes_sub(a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
         unsafe { neon::lanes_sub(a, b) }
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-    [
-        a[0] - b[0],
-        a[1] - b[1],
-        a[2] - b[2],
-        a[3] - b[3],
-    ]
+    [a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]]
 }
 
 /// Four `f32` lanes divided by one scalar, lane for lane. Divided, never
@@ -308,12 +298,7 @@ pub(crate) fn lanes_div_scalar(a: [f32; 4], k: f32) -> [f32; 4] {
         unsafe { neon::lanes_div_scalar(a, k) }
     }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-    [
-        a[0] / k,
-        a[1] / k,
-        a[2] / k,
-        a[3] / k,
-    ]
+    [a[0] / k, a[1] / k, a[2] / k, a[3] / k]
 }
 
 /// A `Premul`'s four channels, added as one register — `a.r + b.r` and
@@ -620,8 +605,8 @@ mod neon;
 mod sse2 {
     use core::arch::x86_64::{
         __m128, _mm_add_ps, _mm_and_ps, _mm_andnot_ps, _mm_castsi128_ps, _mm_cmpeq_ps,
-        _mm_cmple_ps, _mm_div_ps, _mm_loadu_ps, _mm_mul_ps, _mm_or_ps, _mm_set1_epi32,
-        _mm_set1_ps, _mm_setzero_ps, _mm_shuffle_ps, _mm_storeu_ps, _mm_sub_ps,
+        _mm_cmple_ps, _mm_div_ps, _mm_loadu_ps, _mm_mul_ps, _mm_or_ps, _mm_set1_epi32, _mm_set1_ps,
+        _mm_setzero_ps, _mm_shuffle_ps, _mm_storeu_ps, _mm_sub_ps,
     };
 
     use super::Premul;

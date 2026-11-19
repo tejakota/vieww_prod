@@ -93,7 +93,7 @@ file = "ci/jobs/farm-ipa.toml"
 stage = "devices"
 when = "farm.ios"
 if = "inputs.platform != 'android'"
-runs_on = "macos-14"
+runs_on = "macos-15"
 timeout = 90
 main_only = true
 secrets = ["IOS_CERT_P12", "IOS_CERT_PASSWORD", "IOS_IDENTITY", "IOS_PROFILE"]

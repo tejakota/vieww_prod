@@ -97,17 +97,17 @@ members = [
     "apps/viewwstudio/plugins/example",
     "apps/viewwsite",
     "apps/wrightsite",
-    "apps/mytlabs",
-    "apps/soma"
+    "apps/mytlabs"
 ]
 
-# The fuzz harness builds with sanitizers and its own pinned profile;
-# it carries its own workspace table instead.
-# `apps/wright` is its own workspace (it has its own members, its own
-# version line, and its own release train), nested inside this tree. The
-# exclude is what lets `examples/wright_film` depend on the app crate by
-# path: without it, cargo resolves the wright packages' workspace
-# inheritance against THIS workspace and the build refuses to start.
+# `apps/soma` at the repository root is its own workspace, like `apps/wright`
+# and the other root apps: it has its own Cargo.lock and pins its own profiles,
+# and its dependencies reach this one by path (`../../vieww_base/crates/…`),
+# which only resolves from outside it. Listing it here pointed the member
+# lookup at `vieww_base/apps/soma`, which does not exist, and broke
+# `cargo metadata` for the entire workspace — every job, before a single
+# check ran. Root apps become CI projects with their own `ci.toml`
+# (`apps/soma/ci.toml`) instead of workspace members.
 exclude = ["crates/vieww-audio/fuzz", "apps/wright"]
 
 [workspace.package]

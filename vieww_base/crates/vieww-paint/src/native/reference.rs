@@ -3602,14 +3602,18 @@ mod replay_tests {
 
     use crate::canvas::Canvas;
     use crate::scene::Command;
-    use crate::{Scene, Paint, Path};
+    use crate::{Paint, Path, Scene};
     use vieww_foundation::{BlendMode, Color, Rect};
 
     use super::{skippable_layers, ReplayIndex};
 
     /// The old per-region walk, verbatim: returns the applied command
     /// indices in order and the skipped count it accumulated.
-    fn walk_applied(commands: &[Command], ends: &[Option<usize>], region: Rect) -> (Vec<u32>, usize) {
+    fn walk_applied(
+        commands: &[Command],
+        ends: &[Option<usize>],
+        region: Rect,
+    ) -> (Vec<u32>, usize) {
         let mut applied = Vec::new();
         let mut skipped = 0usize;
         let mut index = 0;
@@ -3639,18 +3643,31 @@ mod replay_tests {
     /// every group, and empty-bounds content.
     fn sample_scene() -> Scene {
         let mut scene = Scene::new();
-        scene.fill_rect(Rect::new(0.0, 0.0, 400.0, 300.0), Paint::solid(Color::WHITE));
+        scene.fill_rect(
+            Rect::new(0.0, 0.0, 400.0, 300.0),
+            Paint::solid(Color::WHITE),
+        );
         // Plain group near the top (y 20..90), content inside it.
         scene.push_layer(Rect::new(10.0, 20.0, 200.0, 90.0), 1.0, BlendMode::Normal);
-        scene.fill_rect(Rect::new(30.0, 40.0, 160.0, 80.0), Paint::solid(Color::rgba(0, 0, 0, 255)));
+        scene.fill_rect(
+            Rect::new(30.0, 40.0, 160.0, 80.0),
+            Paint::solid(Color::rgba(0, 0, 0, 255)),
+        );
         scene.pop_layer();
         // Plain group far below (y 400..470): misses every top region.
         scene.push_layer(Rect::new(10.0, 400.0, 200.0, 470.0), 1.0, BlendMode::Normal);
-        scene.fill_rect(Rect::new(30.0, 420.0, 160.0, 460.0), Paint::solid(Color::rgba(0, 0, 0, 255)));
+        scene.fill_rect(
+            Rect::new(30.0, 420.0, 160.0, 460.0),
+            Paint::solid(Color::rgba(0, 0, 0, 255)),
+        );
         scene.pop_layer();
         // Non-plain group: a Multiply blend is never group-skipped, however
         // far away it sits.
-        scene.push_layer(Rect::new(220.0, 400.0, 390.0, 470.0), 1.0, BlendMode::Multiply);
+        scene.push_layer(
+            Rect::new(220.0, 400.0, 390.0, 470.0),
+            1.0,
+            BlendMode::Multiply,
+        );
         scene.fill_path(
             &Path::rounded_rect(Rect::new(230.0, 410.0, 380.0, 460.0), 8.0),
             Paint::solid(Color::rgba(120, 120, 120, 255)),
@@ -3661,9 +3678,16 @@ mod replay_tests {
         scene.draw_shadow(
             Rect::new(50.0, 120.0, 150.0, 170.0),
             10.0,
-            vieww_foundation::Shadow::new(Color::rgba(0, 0, 0, 40), vieww_foundation::Offset::new(0.0, 3.0), 8.0),
+            vieww_foundation::Shadow::new(
+                Color::rgba(0, 0, 0, 40),
+                vieww_foundation::Offset::new(0.0, 3.0),
+                8.0,
+            ),
         );
-        scene.fill_rect(Rect::new(0.0, 480.0, 400.0, 500.0), Paint::solid(Color::BLUE));
+        scene.fill_rect(
+            Rect::new(0.0, 480.0, 400.0, 500.0),
+            Paint::solid(Color::BLUE),
+        );
         scene
     }
 
@@ -3707,8 +3731,8 @@ mod replay_tests {
     /// identity the retained path owes.
     #[test]
     fn damaged_replay_through_the_index_matches_a_full_render() {
-        use crate::Damage;
         use super::super::NativeRenderer;
+        use crate::Damage;
         let scene = sample_scene();
         let mut renderer = NativeRenderer::new();
         let (full, _) = renderer
