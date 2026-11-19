@@ -774,10 +774,9 @@ impl MetalSceneRenderer {
         // command buffer is committed and waited on before the frame
         // returns), so the surplus targets are referenced by nothing when
         // this runs and dropping them needs no settle. `L[0]` is always
-        // kept, so the retained damage frame survives.
-        if grew {
-            self.idle_target_frames = 0;
-        } else if depth >= self.levels.len() {
+        // kept, so the retained damage frame survives. Growth — and a frame
+        // that uses every level there is — is the opposite of idle.
+        if grew || depth >= self.levels.len() {
             self.idle_target_frames = 0;
         } else {
             self.idle_target_frames = self.idle_target_frames.saturating_add(1);
@@ -866,7 +865,7 @@ impl MetalSceneRenderer {
         };
         let version = Some(atlas.version());
         self.glyph_upload_bytes =
-            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, &rects)?;
+            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, rects)?;
         Ok(())
     }
 
@@ -910,7 +909,7 @@ impl MetalSceneRenderer {
         };
         let version = Some(images.version());
         self.image_upload_bytes =
-            self.upload_regions(Slot::Images, images.texels(), 4, side, version, &rects)?;
+            self.upload_regions(Slot::Images, images.texels(), 4, side, version, rects)?;
         Ok(())
     }
 
@@ -959,7 +958,7 @@ impl MetalSceneRenderer {
             16,
             vieww_gpu::RampAtlas::WIDTH,
             version,
-            &rects,
+            rects,
         )?;
         Ok(())
     }
@@ -1095,7 +1094,7 @@ impl MetalSceneRenderer {
             return Ok(());
         }
         self.mask_upload_bytes =
-            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, &rects)?;
+            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, rects)?;
         Ok(())
     }
 

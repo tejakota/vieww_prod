@@ -136,7 +136,7 @@ type PlatformA11y = AccessAdapter;
 ///
 /// `wake()` means *a delivery landed somewhere*: a task's value, a finished
 /// font scan. The loop's `Wake` handler pairs that claim with a count — every
-/// `wake()` increments [`Shared::wake_deliveries`], and the handler takes the
+/// `wake()` increments the shared delivery counter, and the handler takes the
 /// count when the event arrives — so it can tell a wake that carries something
 /// to collect (a frame must run, because `take_pending` and font adoption
 /// happen inside one) from a wake that carries nothing (draw no frame; poll

@@ -1372,7 +1372,7 @@ impl D3d12SceneRenderer {
         };
         let version = Some(atlas.version());
         self.glyph_upload_bytes =
-            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, &rects)?;
+            self.upload_regions(Slot::Glyphs, atlas.texels(), 1, side, version, rects)?;
         Ok(())
     }
 
@@ -1416,7 +1416,7 @@ impl D3d12SceneRenderer {
         };
         let version = Some(images.version());
         self.image_upload_bytes =
-            self.upload_regions(Slot::Images, images.texels(), 4, side, version, &rects)?;
+            self.upload_regions(Slot::Images, images.texels(), 4, side, version, rects)?;
         Ok(())
     }
 
@@ -1455,7 +1455,7 @@ impl D3d12SceneRenderer {
         };
         let version = Some(masks.version());
         self.mask_upload_bytes =
-            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, &rects)?;
+            self.upload_regions(Slot::Masks, masks.texels(), 1, side, version, rects)?;
         Ok(())
     }
 
@@ -1504,7 +1504,7 @@ impl D3d12SceneRenderer {
             16,
             vieww_gpu::RampAtlas::WIDTH,
             version,
-            &rects,
+            rects,
         )?;
         Ok(())
     }
