@@ -326,7 +326,7 @@ pub enum Step {
         alpha: f32,
     },
     /// A blurred rounded-rect shadow, drawn source-over into the current
-    /// target within `scissor`: `color × coverage [× clip]`, one pass.
+    /// target within `scissor`: `color × coverage`, one pass.
     ///
     /// `coverage` is the shadow's *finished* coverage over `patch` — blurred,
     /// complemented for an inset shadow, cropped to the surface — computed
@@ -335,13 +335,19 @@ pub enum Step {
     /// scrolls keeps it. It used to be the unblurred caster, blurred here by
     /// six passes in a cleared scratch target: eight render passes a shadow,
     /// each a whole-target load and store on a tiling GPU, every frame.
+    ///
+    /// A shadow under a shaped clip arrives with the clip already folded
+    /// into `coverage` (`plan_shadow`'s multiply), so there is no second
+    /// mask to carry — which is the whole point: one mask is what a vertex
+    /// holds, so every shadow, clipped or not, can join the geometry run
+    /// as a quad. This step is what `VIEWW_GPU_SHADOW_PASS=1` forces back
+    /// on, for an A/B on one device.
     Shadow {
         patch: PixelRect,
         scissor: PixelRect,
         coverage: MaskRef,
         /// Premultiplied.
         color: [f32; 4],
-        clip: Option<MaskRef>,
     },
 }
 
@@ -802,25 +808,25 @@ fn plan_with(
                     ShadowPlan::Nothing => {}
                     ShadowPlan::Gap => out.plan.note(Unsupported::Shadow),
                     ShadowPlan::Step(step, touched) => {
-                        // **An unclipped shadow is geometry, not a pass.** Its
-                        // step is `color x coverage`, source-over, the coverage
-                        // a mask-atlas region addressed `device - offset =
+                        // **A shadow is geometry, not a pass.** Its step is
+                        // `color x coverage`, source-over, the coverage a
+                        // mask-atlas region addressed `device - offset =
                         // texel` - exactly what a masked solid primitive is in
                         // the scene pipeline (`emit_covered`'s fills use the
                         // same mask slot, the same convention). As a step it
                         // sealed the open geometry run and issued a post draw
                         // of its own: a card list paid one sealed run plus one
                         // shadow draw per card. As a quad it joins the run.
-                        // A shadow that also has a clip needs two masks, which
-                        // a vertex does not carry, so it stays a pass.
-                        // `VIEWW_GPU_SHADOW_PASS=1` keeps every shadow a pass,
-                        // for an A/B on one device.
+                        // A clipped shadow used to stay a pass - two masks
+                        // where a vertex carries one - until `plan_shadow`
+                        // learned to fold the clip into the coverage.
+                        // `VIEWW_GPU_SHADOW_PASS=1` keeps every shadow a
+                        // pass, for an A/B on one device.
                         match &step {
                             Step::Shadow {
                                 patch,
                                 scissor,
                                 coverage,
-                                clip: None,
                                 ..
                             } if !shadow_as_pass() => {
                                 #[expect(clippy::cast_precision_loss, reason = "device pixels")]
@@ -1197,18 +1203,18 @@ impl Planner {
         // Keyed by what the coverage depends on — the shape, the blur, the
         // sub-pixel phase — and not where it is: the same card one scroll
         // step on, or the next card down, is a hit.
-        let key = {
+        let coverage_key = {
             let mut h = std::hash::DefaultHasher::new();
             ("shadow-coverage", placement.key).hash(&mut h);
             MaskKey(h.finish())
         };
-        let slot = match self.masks.get(key) {
+        let slot = match self.masks.get(coverage_key) {
             Some(slot) => slot,
             None => {
                 let Some(coverage) = self.seam.shadow_coverage(&placement, radius, shadow) else {
                     return ShadowPlan::Nothing;
                 };
-                match self.masks.get_or_insert(key, || {
+                match self.masks.get_or_insert(coverage_key, || {
                     Some((
                         coverage.x,
                         coverage.y,
@@ -1234,13 +1240,6 @@ impl Planner {
             x1: x0 + slot.width as i32,
             y1: y0 + slot.height as i32,
         };
-        #[expect(clippy::cast_precision_loss, reason = "texel coordinates < 2^24")]
-        let coverage = MaskRef {
-            offset: [
-                (x0 - slot.atlas_x as i32) as f32,
-                (y0 - slot.atlas_y as i32) as f32,
-            ],
-        };
         // `NativeRenderer` composites the patch through the clip's *mask* only:
         // a rectangle-only clip does not cut a shadow (the patch is confined to
         // the enclosing buffer instead). Mirrored exactly — this planner's job
@@ -1249,21 +1248,94 @@ impl Planner {
         // The coverage is the shadow's whole extent, which can reach past
         // the surface by the blur's reach (the CPU renderer cuts it where it
         // draws it, as this does).
-        let (scissor, clip_mask) = if clip.shapes().is_empty() {
+        let (scissor, coverage, patch) = if clip.shapes().is_empty() {
             let visible = patch.intersect(PixelRect::round_out(local_surface));
             if visible.is_empty() {
                 return ShadowPlan::Nothing;
             }
-            (visible, None)
+            #[expect(clippy::cast_precision_loss, reason = "texel coordinates < 2^24")]
+            let plain = MaskRef {
+                offset: [
+                    (x0 - slot.atlas_x as i32) as f32,
+                    (y0 - slot.atlas_y as i32) as f32,
+                ],
+            };
+            (visible, plain, patch)
         } else {
-            let region = clip_region(clip, patch, local_surface);
-            let Some(region) = region else {
+            let Some(region) = clip_region(clip, patch, local_surface) else {
                 return ShadowPlan::Nothing;
             };
-            match self.clip_mask(clip, region) {
-                Some(mask) => (region, Some(mask)),
-                None => return ShadowPlan::Gap,
-            }
+            // **The clip, folded into the coverage** — `shape_mask`'s
+            // multiply, for a coverage the atlas already holds: the
+            // coverage's bytes and the clip's are read out of the atlas
+            // (the blur is never recomputed on a miss) and inserted as one
+            // mask. One mask where the pass had two is what makes a
+            // clipped shadow a quad: a vertex carries a single mask slot.
+            // The multiply rounds to the nearest 1/255 where the oracle
+            // multiplies exactly in f32 — up to 1/255 apart, inside the
+            // parity contract's 2/255.
+            let key = {
+                let mut h = std::hash::DefaultHasher::new();
+                ("shadow-clipped", placement.key, x0, y0).hash(&mut h);
+                ClipMaskKey(clip, region).hash(&mut h);
+                MaskKey(h.finish())
+            };
+            let combined = match self.masks.get(key) {
+                Some(slot) => slot,
+                None => {
+                    let Some(clip_ref) = self.clip_mask(clip, region) else {
+                        return ShadowPlan::Gap;
+                    };
+                    // The clip's insert may have compacted or grown the
+                    // atlas, which relocates the coverage; its slot is
+                    // re-read so the multiply below addresses the texels
+                    // the coverage occupies *now*. Device positions survive
+                    // a move, atlas positions do not.
+                    let Some(coverage) = self.masks.get(coverage_key) else {
+                        return ShadowPlan::Gap;
+                    };
+                    let mut bytes = Vec::with_capacity((region.width() * region.height()) as usize);
+                    {
+                        let side = self.masks.side() as usize;
+                        let texels = self.masks.texels();
+                        let coverage_at = [
+                            (x0 - coverage.atlas_x as i32) as f32,
+                            (y0 - coverage.atlas_y as i32) as f32,
+                        ];
+                        let read = |offset: [f32; 2], x: i32, y: i32| {
+                            #[expect(clippy::cast_possible_truncation, reason = "integral offsets")]
+                            let (ox, oy) = (offset[0] as i32, offset[1] as i32);
+                            usize::try_from((y - oy) * side as i32 + (x - ox))
+                                .ok()
+                                .and_then(|i| texels.get(i).copied())
+                                .unwrap_or(0)
+                        };
+                        for y in region.y0..region.y1 {
+                            for x in region.x0..region.x1 {
+                                let product = u16::from(read(coverage_at, x, y))
+                                    * u16::from(read(clip_ref.offset, x, y));
+                                #[expect(clippy::cast_possible_truncation, reason = "<= 255")]
+                                let byte = ((product + 127) / 255) as u8;
+                                bytes.push(byte);
+                            }
+                        }
+                    }
+                    match self.masks.get_or_insert(key, || {
+                        Some((region.x0, region.y0, region.width(), region.height(), bytes))
+                    }) {
+                        Some(slot) => slot,
+                        None => return ShadowPlan::Gap,
+                    }
+                }
+            };
+            #[expect(clippy::cast_possible_wrap, reason = "mask extents fit a frame")]
+            let rect = PixelRect {
+                x0: combined.device_x,
+                y0: combined.device_y,
+                x1: combined.device_x + combined.width as i32,
+                y1: combined.device_y + combined.height as i32,
+            };
+            (rect, MaskRef::from(combined), rect)
         };
         let tint = shadow.color;
         let a = f32::from(tint.a) / 255.0;
@@ -1279,7 +1351,6 @@ impl Planner {
                 scissor,
                 coverage,
                 color,
-                clip: clip_mask,
             },
             scissor,
         )
@@ -3014,6 +3085,162 @@ mod tests {
             planner.mask_atlas().version(),
             version,
             "nothing re-uploaded"
+        );
+    }
+
+    /// The clip, folded into the coverage: a card list under a rounded
+    /// viewport clip is still one geometry run — every shadow a masked
+    /// quad, none a sealed run and a post pass — and the atlas holds the
+    /// combined masks (one per distinct clip-to-shadow alignment) where the
+    /// pass fetched coverage and clip separately.
+    #[test]
+    fn clipped_shadows_join_the_geometry_run_with_the_clip_folded_in() {
+        let mut clip = Clip::NONE;
+        clip.add_path(Path::rounded_rect(
+            Rect::new(16.0, 16.0, 184.0, 384.0),
+            24.0,
+        ));
+        let mut cards = Scene::default();
+        for row in 0..4u16 {
+            #[expect(clippy::cast_precision_loss, reason = "four rows")]
+            let top = 60.0 + f32::from(row) * 60.0;
+            cards.push_command(Command::DrawShadow {
+                rect: Rect::new(20.0, top, 180.0, top + 40.0),
+                radius: 8.0,
+                shadow: Shadow::new(Color::BLACK, Offset::new(0.0, 4.0), 10.0),
+                transform: Transform::IDENTITY,
+                clip: clip.clone(),
+                covered: false,
+            });
+        }
+        let mut planner = Planner::new();
+        let plan = planner.plan(&cards, 200.0, 400.0);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        assert_eq!(
+            plan.steps
+                .iter()
+                .filter(|s| matches!(s, Step::Shadow { .. }))
+                .count(),
+            0,
+            "a clipped shadow is a quad, not a pass: {:?}",
+            plan.steps
+        );
+        assert_eq!(
+            plan.steps
+                .iter()
+                .filter(|s| matches!(s, Step::Draw { .. }))
+                .count(),
+            1,
+            "the whole list is one geometry run"
+        );
+        assert!(
+            plan.vertices.len() >= 16,
+            "four shadow quads' worth of vertices"
+        );
+        // The combined masks are their own atlas entries, distinct from the
+        // clip's own and from the plain coverages (which the folded path
+        // never needs).
+        assert!(
+            planner.mask_atlas().len() >= 4,
+            "one combined mask per card: {}",
+            planner.mask_atlas().len()
+        );
+    }
+
+    /// The fold, against the oracle with no GPU: the quad the planner emits
+    /// for a clipped shadow — straight colour × the combined mask,
+    /// source-over — is within the parity contract's 2/255 of
+    /// `NativeRenderer`'s own frame, pixel for pixel. The mask bytes
+    /// (coverage × clip, rounded to the nearest 1/255), the fetch offset
+    /// and the scissor all have to be right at once for this to pass; the
+    /// hardware suites then only re-witness it through a real pipeline.
+    #[test]
+    fn a_clipped_shadow_quad_replays_within_the_parity_contract() {
+        let tint = Color::rgba(10, 20, 40, 140);
+        let mut clip = Clip::NONE;
+        clip.add_path(Path::rounded_rect(
+            Rect::new(16.0, 16.0, 184.0, 144.0),
+            20.0,
+        ));
+        let mut scene = Scene::default();
+        scene.push_command(Command::DrawShadow {
+            rect: Rect::new(40.0, 30.0, 150.0, 110.0),
+            radius: 10.0,
+            shadow: Shadow::new(tint, Offset::new(0.0, 6.0), 16.0),
+            transform: Transform::IDENTITY,
+            clip,
+            covered: false,
+        });
+        let (w, h) = (200u32, 160u32);
+        let base = Color::rgba(236, 238, 242, 255);
+        let want = vieww_paint::native::NativeRenderer::new()
+            .render_to_pixels(&scene, w, h, base)
+            .expect("the oracle renders")
+            .0;
+        #[expect(clippy::cast_precision_loss, reason = "small frame")]
+        let (fw, fh) = (w as f32, h as f32);
+        let mut planner = Planner::new();
+        let plan = planner.plan(&scene, fw, fh);
+        assert!(plan.is_complete(), "{:?}", plan.unsupported);
+        assert!(
+            plan.steps.iter().all(|s| matches!(s, Step::Draw { .. })),
+            "the shadow is geometry: {:?}",
+            plan.steps
+        );
+        let run = &plan.runs[0];
+        let scissor = run.scissor.unwrap_or_else(|| Rect::new(0.0, 0.0, fw, fh));
+        let vertex = plan.vertices.last().expect("the shadow quad");
+        assert!(vertex.mask[2] > 0.5, "masked: {:?}", vertex.mask);
+        #[expect(clippy::cast_possible_truncation, reason = "integral offsets")]
+        let (off_x, off_y) = (vertex.mask[0] as i32, vertex.mask[1] as i32);
+        let color = straight_rgba(tint);
+        let side = planner.mask_atlas().side() as usize;
+        let texels = planner.mask_atlas().texels();
+        let (sx0, sy0) = (scissor.left.floor() as i32, scissor.top.floor() as i32);
+        let (sx1, sy1) = (scissor.right.ceil() as i32, scissor.bottom.ceil() as i32);
+        let mut worst = 0u8;
+        for y in 0..h as i32 {
+            for x in 0..w as i32 {
+                let i = (y as usize * w as usize + x as usize) * 4;
+                // The base, premultiplied (a flat opaque colour).
+                let mut d = [
+                    f32::from(base.r) / 255.0,
+                    f32::from(base.g) / 255.0,
+                    f32::from(base.b) / 255.0,
+                    1.0,
+                ];
+                let inside = x >= sx0 && x < sx1 && y >= sy0 && y < sy1;
+                if inside {
+                    let m = f32::from(texels[((y - off_y) as usize) * side + (x - off_x) as usize])
+                        / 255.0;
+                    let a = f32::from(color[3]) / 255.0 * m;
+                    let src = [
+                        f32::from(color[0]) / 255.0 * a,
+                        f32::from(color[1]) / 255.0 * a,
+                        f32::from(color[2]) / 255.0 * a,
+                        a,
+                    ];
+                    for c in 0..4 {
+                        d[c] = src[c] + d[c] * (1.0 - a);
+                    }
+                }
+                // Straightened, as the oracle writes it.
+                for c in 0..3 {
+                    let value = if d[3] <= f32::EPSILON {
+                        0.0
+                    } else {
+                        d[c] / d[3]
+                    };
+                    let channel = (value * 255.0).round();
+                    let got = want.data()[i + c];
+                    let diff = (channel as i32 - i32::from(got)).unsigned_abs() as u8;
+                    worst = worst.max(diff);
+                }
+            }
+        }
+        assert!(
+            worst <= 2,
+            "the folded shadow must replay within the parity contract: worst {worst}/255"
         );
     }
 

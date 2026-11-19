@@ -568,14 +568,14 @@ pub fn frame_passes(
                 scissor,
                 coverage,
                 color,
-                clip: shadow_clip,
             } => {
                 if patch.is_empty() || scissor.is_empty() {
                     continue;
                 }
-                if depth == 0 && clip.as_deref().is_some_and(|c| !touches(c, scissor)) {
-                    continue;
-                }
+                // A clipped shadow arrives with the clip folded into its
+                // coverage (`plan_shadow`'s multiply), so this pass has one
+                // mask where it used to have two — and the quad the planner
+                // emits by default has exactly the same one.
                 let mut tint = PostPass::new(
                     TargetId::Level(depth),
                     scissor,
@@ -586,9 +586,6 @@ pub fn frame_passes(
                 tint.over = true;
                 tint.push.p[0] = [coverage.offset[0], coverage.offset[1], 1.0, 0.0];
                 tint.push.p[2] = color;
-                if let Some(clip) = shadow_clip {
-                    tint.push.p[1] = [clip.offset[0], clip.offset[1], 1.0, 0.0];
-                }
                 post(&mut ops, &clip, frame, tint, PassKind::Shadows);
             }
         }
@@ -1713,7 +1710,6 @@ mod tests {
                 scissor,
                 coverage: MaskRef { offset: [7.0, 9.0] },
                 color: [0.1, 0.2, 0.3, 0.5],
-                clip: None,
             }],
             0,
         );
