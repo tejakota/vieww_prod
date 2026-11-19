@@ -1,0 +1,604 @@
+===== phase-1 / vieww · quick	log =====
+2026-11-19T16:05:31.2697818Z test paragraph::tests::tracking_takes_the_same_pixels_off_at_any_size ... ok
+2026-11-19T16:05:31.2702979Z test paragraph::tests::wrapping_moves_glyphs_rather_than_dropping_them ... ok
+2026-11-19T16:05:31.2704251Z test paragraph::tests::the_end_of_a_wrapped_line_is_upstream_so_the_caret_stays_on_it ... ok
+2026-11-19T16:05:31.2706546Z test paragraph::tests::end_stops_before_a_hard_line_break ... ok
+2026-11-19T16:05:31.2708161Z test shape_cache::tests::a_bucket_collision_does_not_serve_the_wrong_paragraph ... ok
+2026-11-19T16:05:31.2719599Z test paragraph::tests::a_windows_line_break_counts_as_two_bytes ... ok
+2026-11-19T16:05:31.2720961Z test shape_cache::tests::an_inferred_direction_and_the_same_one_passed_in_are_one_entry ... ok
+2026-11-19T16:05:31.2722507Z test shape_cache::tests::clearing_forgets_everything ... ok
+2026-11-19T16:05:31.2735395Z test shape_cache::tests::a_nan_width_never_matches_itself ... ok
+2026-11-19T16:05:31.2737596Z test shape_cache::tests::every_pressure_level_above_none_drops_the_shaped_paragraphs ... ok
+2026-11-19T16:05:31.2739257Z test shape_cache::tests::no_pressure_keeps_the_shaped_paragraphs ... ok
+2026-11-19T16:05:31.2741226Z test shape_cache::tests::retained_is_a_cache_size_and_shapes_is_cumulative_work ... ok
+2026-11-19T16:05:31.2753559Z test shape_cache::tests::shaping_after_a_trim_is_real_work ... ok
+2026-11-19T16:05:31.2754667Z test shape_cache::tests::changing_any_input_reshapes ... ok
+2026-11-19T16:05:31.2755553Z test shape_cache::tests::the_cache_is_bounded ... ok
+2026-11-19T16:05:31.2765038Z test shape_cache::tests::the_same_paragraph_is_shaped_once ... ok
+2026-11-19T16:05:31.2766452Z test tests::both_ellipsis_modes_report_that_they_elide ... ok
+2026-11-19T16:05:31.2778815Z test shape_cache::tests::a_cached_paragraph_equals_a_freshly_shaped_one ... ok
+2026-11-19T16:05:31.2779230Z 
+2026-11-19T16:05:31.2779363Z failures:
+2026-11-19T16:05:31.2779875Z 
+2026-11-19T16:05:31.2780194Z ---- font::fallback_tests::the_first_frame_cannot_see_a_half_finished_scan stdout ----
+2026-11-19T16:05:31.2780628Z 
+2026-11-19T16:05:31.2781105Z thread 'font::fallback_tests::the_first_frame_cannot_see_a_half_finished_scan' (43455) panicked at crates/vieww-text/src/font.rs:1039:9:
+2026-11-19T16:05:31.2781876Z before the scan finishes there is nothing to adopt
+2026-11-19T16:05:31.2782689Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-11-19T16:05:31.2783050Z 
+2026-11-19T16:05:31.2783061Z 
+2026-11-19T16:05:31.2783188Z failures:
+2026-11-19T16:05:31.2783617Z     font::fallback_tests::the_first_frame_cannot_see_a_half_finished_scan
+2026-11-19T16:05:31.2783958Z 
+2026-11-19T16:05:31.2784290Z test result: FAILED. 105 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+2026-11-19T16:05:31.2784717Z 
+2026-11-19T16:05:31.2789148Z [1m[91merror[0m: test failed, to rerun pass `-p vieww-text --lib`
+2026-11-19T16:05:31.3093010Z     FAILED: tests (workspace) (exit 101)
+2026-11-19T16:05:31.3093755Z 
+2026-11-19T16:05:31.3094613Z ==> web-sys feature audit (the half of ci/check/wasm-check.sh that needs no target)
+2026-11-19T16:05:31.3159957Z ==> auditing web-sys features against the types the crate names
+2026-11-19T16:05:31.3318296Z     every web-sys type the crate names is enabled
+2026-11-19T16:05:31.4194664Z ==> installing wasm32-unknown-unknown
+2026-11-19T16:05:31.4856533Z info: downloading component rust-std
+2026-11-19T16:05:33.2729984Z ==> cargo check -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-19T16:05:33.5136469Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-19T16:05:33.5137912Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-19T16:05:33.5139212Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-19T16:05:33.5140394Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-19T16:05:33.5936927Z [1m[92m    Checking[0m once_cell v1.21.4
+2026-11-19T16:05:33.7136028Z [1m[92m    Checking[0m unicode-segmentation v1.13.3
+2026-11-19T16:05:33.8870479Z [1m[92m   Compiling[0m wasm-bindgen-shared v0.2.129
+2026-11-19T16:05:34.1411206Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-19T16:05:34.3004439Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T16:05:35.4514072Z [1m[92m    Checking[0m core_maths v0.1.1
+2026-11-19T16:05:35.5083840Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-19T16:05:35.6144060Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-19T16:05:36.0934237Z [1m[92m    Checking[0m bitflags v2.13.2
+2026-11-19T16:05:36.2063855Z [1m[92m    Checking[0m cfg-if v1.0.5
+2026-11-19T16:05:36.2753883Z [1m[92m    Checking[0m ttf-parser v0.25.1
+2026-11-19T16:05:36.4097910Z [1m[92m   Compiling[0m rustversion v1.0.23
+2026-11-19T16:05:37.0533409Z [1m[92m    Checking[0m simd-adler32 v0.3.10
+2026-11-19T16:05:37.1506349Z [1m[92m    Checking[0m log v0.4.34
+2026-11-19T16:05:37.2684141Z [1m[92m    Checking[0m zeno v0.3.3
+2026-11-19T16:05:37.4618718Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-19T16:05:37.7413137Z [1m[92m    Checking[0m memmap2 v0.9.11
+2026-11-19T16:05:37.7863978Z [1m[92m    Checking[0m smallvec v1.16.2
+2026-11-19T16:05:37.8274960Z [1m[92m    Checking[0m tinyvec v1.13.3
+2026-11-19T16:05:37.9514055Z [1m[92m    Checking[0m adler2 v2.0.1
+2026-11-19T16:05:38.0106439Z [1m[92m    Checking[0m yazi v0.2.1
+2026-11-19T16:05:38.4984075Z [1m[92m    Checking[0m fontdb v0.23.0
+2026-11-19T16:05:38.7454092Z [1m[92m    Checking[0m unicode-bidi v0.3.18
+2026-11-19T16:05:38.9074217Z [1m[92m    Checking[0m unicode-linebreak v0.1.5
+2026-11-19T16:05:39.0964401Z [1m[92m    Checking[0m linebender_resource_handle v0.1.1
+2026-11-19T16:05:39.1053791Z [1m[92m    Checking[0m rangemap v1.8.0
+2026-11-19T16:05:39.1624139Z [1m[92m   Compiling[0m bumpalo v3.20.3
+2026-11-19T16:05:39.3524090Z [1m[92m    Checking[0m rustc-hash v2.1.3
+2026-11-19T16:05:39.4083932Z [1m[92m    Checking[0m smol_str v0.3.6
+2026-11-19T16:05:39.4431880Z [1m[92m    Checking[0m sys-locale v0.3.2
+2026-11-19T16:05:39.4851264Z [1m[92m    Checking[0m unicode-script v0.5.8
+2026-11-19T16:05:39.5304111Z [1m[92m    Checking[0m self_cell v1.3.0
+2026-11-19T16:05:39.6802549Z [1m[92m    Checking[0m miniz_oxide v0.9.1
+2026-11-19T16:05:39.7785334Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-19T16:05:39.8820761Z [1m[92m   Compiling[0m wasm-bindgen v0.2.129
+2026-11-19T16:05:40.1636548Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-19T16:05:40.3824054Z [1m[92m   Compiling[0m wasm-bindgen-macro-support v0.2.129
+2026-11-19T16:05:41.0454504Z [1m[92m    Checking[0m flate2 v1.1.10
+2026-11-19T16:05:41.4112471Z [1m[92m    Checking[0m miniz_oxide v0.8.9
+2026-11-19T16:05:41.8936248Z [1m[92m    Checking[0m fdeflate v0.3.7
+2026-11-19T16:05:42.2054761Z [1m[92m    Checking[0m futures-core v0.3.34
+2026-11-19T16:05:42.2800744Z [1m[92m    Checking[0m pin-project-lite v0.2.17
+2026-11-19T16:05:42.3235979Z [1m[92m    Checking[0m slab v0.4.12
+2026-11-19T16:05:42.4390708Z [1m[92m    Checking[0m futures-task v0.3.34
+2026-11-19T16:05:42.5293899Z [1m[92m    Checking[0m futures-util v0.3.34
+2026-11-19T16:05:44.4164072Z [1m[92m    Checking[0m png v0.18.1
+2026-11-19T16:05:45.3154327Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-19T16:05:45.4904830Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T16:05:45.5954905Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T16:05:51.2064784Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-19T16:06:00.8584660Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T16:06:06.1283975Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-19T16:06:16.7644580Z [1m[92m   Compiling[0m wasm-bindgen-macro v0.2.129
+2026-11-19T16:06:17.9080625Z [1m[92m    Checking[0m bytemuck v1.25.2
+2026-11-19T16:06:18.0379858Z [1m[92m    Checking[0m font-types v0.12.5
+2026-11-19T16:06:18.0394050Z [1m[92m    Checking[0m font-types v0.11.3
+2026-11-19T16:06:18.2534069Z [1m[92m    Checking[0m read-fonts v0.37.0
+2026-11-19T16:06:18.3619898Z [1m[92m    Checking[0m js-sys v0.3.106
+2026-11-19T16:06:18.3926581Z [1m[92m    Checking[0m read-fonts v0.41.0
+2026-11-19T16:06:23.2116685Z [1m[92m    Checking[0m skrifa v0.44.0
+2026-11-19T16:06:24.5214182Z [1m[92m    Checking[0m harfrust v0.5.2
+2026-11-19T16:06:24.5215889Z [1m[92m    Checking[0m skrifa v0.40.0
+2026-11-19T16:06:25.1294390Z [1m[92m    Checking[0m swash v0.2.10
+2026-11-19T16:06:26.9974625Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T16:06:28.0780382Z [1m[92m    Checking[0m cosmic-text v0.19.0
+2026-11-19T16:06:28.9554037Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T16:06:29.2030666Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T16:06:29.6697674Z [1m[92m    Checking[0m web-sys v0.3.106
+2026-11-19T16:06:30.5973784Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-19T16:06:31.0230401Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-19T16:06:35.9511658Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-19T16:06:36.0977930Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 1m 02s
+2026-11-19T16:06:36.1250408Z ==> cargo clippy -p vieww-platform-web --target wasm32-unknown-unknown
+2026-11-19T16:06:36.4173563Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T16:06:36.4241769Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T16:06:36.4290882Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T16:06:36.4293739Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T16:06:36.5314832Z [1m[92m    Checking[0m vieww-platform v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform)
+2026-11-19T16:06:37.7546834Z [1m[92m    Checking[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-19T16:06:37.7549521Z [1m[92m    Checking[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T16:06:37.7551228Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T16:06:39.1959869Z [1m[92m    Checking[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T16:06:39.1963542Z [1m[92m    Checking[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-19T16:06:40.8005562Z [1m[92m    Checking[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-19T16:06:41.3024313Z [1m[92m    Checking[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-19T16:06:42.3214737Z [1m[92m    Checking[0m vieww-platform-web v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-platform-web)
+2026-11-19T16:06:42.4869777Z [1m[92m    Finished[0m `dev` profile [unoptimized] target(s) in 6.30s
+2026-11-19T16:06:42.5139999Z 
+2026-11-19T16:06:42.5141009Z vieww-platform-web compiles for wasm32-unknown-unknown.
+2026-11-19T16:06:42.5142348Z It has also *run*: examples/test-web mounts this crate's WebApp in a
+2026-11-19T16:06:42.5143407Z headless browser and compares the canvas against a native render,
+2026-11-19T16:06:42.5144156Z byte for byte. Re-certify with that example's build-web.sh + the
+2026-11-19T16:06:42.5144848Z certification runner whenever the web-facing code changes.
+2026-11-19T16:06:42.5154860Z 
+2026-11-19T16:06:42.5155451Z ==> fixture gallery (renders every screen; fails on a layout overflow)
+2026-11-19T16:06:42.8020436Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-19T16:06:42.8022040Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-19T16:06:42.8023725Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-19T16:06:42.8054052Z [1m[92m   Compiling[0m libm v0.2.16
+2026-11-19T16:06:42.8824680Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-19T16:06:42.9566988Z [1m[92m   Compiling[0m autocfg v1.5.1
+2026-11-19T16:06:43.3083094Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-19T16:06:43.4945522Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-19T16:06:43.8144672Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-19T16:06:43.9314769Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-19T16:06:43.9563428Z [1m[92m   Compiling[0m syn v2.0.119
+2026-11-19T16:06:44.9737601Z [1m[92m   Compiling[0m core_maths v0.1.1
+2026-11-19T16:06:45.0294205Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-19T16:06:46.6820564Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-19T16:06:47.8824216Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-19T16:06:48.1651610Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-19T16:06:48.2335058Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-19T16:06:48.5035648Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-19T16:06:48.5414006Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-19T16:06:48.6364020Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-19T16:06:48.6696321Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-19T16:06:49.1144123Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-19T16:06:50.8424059Z [1m[92m   Compiling[0m num-traits v0.2.19
+2026-11-19T16:06:50.8823912Z [1m[92m   Compiling[0m version_check v0.9.5
+2026-11-19T16:06:50.9135051Z [1m[92m   Compiling[0m libc v0.2.189
+2026-11-19T16:06:51.1397472Z [1m[92m   Compiling[0m slotmap v1.1.1
+2026-11-19T16:06:51.2175831Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-19T16:06:51.2514839Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-19T16:06:51.8207683Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-19T16:06:52.7824086Z [1m[92m   Compiling[0m font-types v0.11.3
+2026-11-19T16:06:52.8184242Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-19T16:06:53.2164285Z [1m[92m   Compiling[0m read-fonts v0.37.0
+2026-11-19T16:06:55.5874327Z [1m[92m   Compiling[0m roxmltree v0.20.0
+2026-11-19T16:06:56.7376039Z [1m[92m   Compiling[0m memmap2 v0.9.11
+2026-11-19T16:06:57.0154456Z [1m[92m   Compiling[0m fontconfig-parser v0.5.8
+2026-11-19T16:06:57.7063799Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-19T16:06:59.8333033Z [1m[92m   Compiling[0m smallvec v1.16.2
+2026-11-19T16:07:00.0824646Z [1m[92m   Compiling[0m tinyvec v1.13.3
+2026-11-19T16:07:00.6293972Z [1m[92m   Compiling[0m log v0.4.34
+2026-11-19T16:07:00.7993888Z [1m[92m   Compiling[0m zeno v0.3.3
+2026-11-19T16:07:02.0123887Z [1m[92m   Compiling[0m yazi v0.2.1
+2026-11-19T16:07:03.5664073Z [1m[92m   Compiling[0m swash v0.2.10
+2026-11-19T16:07:12.7925570Z [1m[92m   Compiling[0m harfrust v0.5.2
+2026-11-19T16:07:14.9164267Z [1m[92m   Compiling[0m skrifa v0.40.0
+2026-11-19T16:07:15.9657291Z [1m[92m   Compiling[0m fontdb v0.23.0
+2026-11-19T16:07:17.7953225Z [1m[92m   Compiling[0m vieww-animation v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-animation)
+2026-11-19T16:07:22.0654188Z [1m[92m   Compiling[0m unicode-script v0.5.8
+2026-11-19T16:07:22.5954252Z [1m[92m   Compiling[0m smol_str v0.3.6
+2026-11-19T16:07:22.8784402Z [1m[92m   Compiling[0m foldhash v0.2.0
+2026-11-19T16:07:22.9974210Z [1m[92m   Compiling[0m thiserror v2.0.21
+2026-11-19T16:07:23.2264558Z [1m[92m   Compiling[0m sys-locale v0.3.2
+2026-11-19T16:07:23.4563874Z [1m[92m   Compiling[0m rangemap v1.8.0
+2026-11-19T16:07:23.8234222Z [1m[92m   Compiling[0m rustc-hash v2.1.3
+2026-11-19T16:07:23.8924056Z [1m[92m   Compiling[0m zerocopy v0.8.59
+2026-11-19T16:07:24.1374122Z [1m[92m   Compiling[0m self_cell v1.3.0
+2026-11-19T16:07:24.2033940Z [1m[92m   Compiling[0m unicode-linebreak v0.1.5
+2026-11-19T16:07:24.4444247Z [1m[92m   Compiling[0m linebender_resource_handle v0.1.1
+2026-11-19T16:07:24.5174363Z [1m[92m   Compiling[0m unicode-bidi v0.3.18
+2026-11-19T16:07:25.7974422Z [1m[92m   Compiling[0m cosmic-text v0.19.0
+2026-11-19T16:07:29.8614557Z [1m[92m   Compiling[0m hashbrown v0.17.1
+2026-11-19T16:07:30.5214905Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-19T16:07:30.5414308Z [1m[92m   Compiling[0m zerocopy-derive v0.8.59
+2026-11-19T16:07:31.8414354Z [1m[92m   Compiling[0m thiserror-impl v2.0.21
+2026-11-19T16:07:32.5325053Z [1m[92m   Compiling[0m equivalent v1.0.2
+2026-11-19T16:07:32.5703926Z [1m[92m   Compiling[0m cfg_aliases v0.2.2
+2026-11-19T16:07:32.6134095Z [1m[92m   Compiling[0m naga v30.0.1
+2026-11-19T16:07:32.7876864Z [1m[92m   Compiling[0m indexmap v2.14.2
+2026-11-19T16:07:34.3824885Z [1m[92m   Compiling[0m vieww-text v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-19T16:07:35.9754836Z [1m[92m   Compiling[0m vieww-widget-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget-macros)
+2026-11-19T16:07:36.4404499Z [1m[92m   Compiling[0m unicode-width v0.2.2
+2026-11-19T16:07:36.6694883Z [1m[92m   Compiling[0m rustc-hash v1.1.0
+2026-11-19T16:07:36.7252078Z [1m[92m   Compiling[0m bit-vec v0.9.1
+2026-11-19T16:07:37.0539490Z [1m[92m   Compiling[0m bit-set v0.10.0
+2026-11-19T16:07:37.2293463Z [1m[92m   Compiling[0m naga-types v30.0.1
+2026-11-19T16:07:37.3834049Z [1m[92m   Compiling[0m codespan-reporting v0.13.1
+2026-11-19T16:07:37.7703996Z [1m[92m   Compiling[0m spirv v0.4.0+sdk-1.4.341.0
+2026-11-19T16:07:37.9924578Z [1m[92m   Compiling[0m vieww-widget v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-widget)
+2026-11-19T16:07:38.8234335Z [1m[92m   Compiling[0m half v2.7.1
+2026-11-19T16:07:39.2454230Z [1m[92m   Compiling[0m euclid v0.22.14
+2026-11-19T16:07:39.8643868Z [1m[92m   Compiling[0m arrayvec v0.7.8
+2026-11-19T16:07:40.3804061Z [1m[92m   Compiling[0m lyon_geom v1.0.19
+2026-11-19T16:07:40.9123892Z [1m[92m   Compiling[0m pxfm v0.1.30
+2026-11-19T16:07:46.6444272Z [1m[92m   Compiling[0m zune-core v0.5.3
+2026-11-19T16:07:46.9064023Z [1m[92m   Compiling[0m zune-jpeg v0.5.15
+2026-11-19T16:07:48.5693875Z [1m[92m   Compiling[0m moxcms v0.8.1
+2026-11-19T16:07:52.5194683Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-19T16:07:52.8807913Z [1m[92m   Compiling[0m lyon_path v1.0.19
+2026-11-19T16:07:52.8959838Z [1m[92m   Compiling[0m vieww-gestures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gestures)
+2026-11-19T16:07:53.3524271Z [1m[92m   Compiling[0m byteorder-lite v0.1.0
+2026-11-19T16:07:53.6594423Z [1m[92m   Compiling[0m float_next_after v1.0.0
+2026-11-19T16:07:53.7134726Z [1m[92m   Compiling[0m ash v0.38.0+1.3.281
+2026-11-19T16:07:53.7345230Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio)
+2026-11-19T16:07:53.8115007Z [1m[92m   Compiling[0m lyon_tessellation v1.0.22
+2026-11-19T16:07:53.8274646Z [1m[92m   Compiling[0m image v0.25.10
+2026-11-19T16:07:54.3514581Z [1m[92m   Compiling[0m vieww-element v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-element)
+2026-11-19T16:07:56.3734574Z [1m[92m   Compiling[0m vieww-scene v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-scene)
+2026-11-19T16:07:56.7624428Z [1m[92m   Compiling[0m libloading v0.8.9
+2026-11-19T16:07:56.9374364Z [1m[92m   Compiling[0m vieww-image v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-image)
+2026-11-19T16:08:01.7684511Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-macros)
+2026-11-19T16:08:03.8145173Z [1m[92m   Compiling[0m vieww-video v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-video)
+2026-11-19T16:08:09.6174438Z [1m[92m   Compiling[0m vieww-asset v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-asset)
+2026-11-19T16:08:12.2434557Z [1m[92m   Compiling[0m vieww-render-graph v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-graph)
+2026-11-19T16:08:14.7134576Z [1m[92m   Compiling[0m vieww-render v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render)
+2026-11-19T16:08:18.6755157Z [1m[92m   Compiling[0m vieww-gpu v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-19T16:08:22.7519097Z [1m[92m   Compiling[0m vieww-effects v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-effects)
+2026-11-19T16:08:25.1385119Z [1m[92m   Compiling[0m vieww-embed v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-embed)
+2026-11-19T16:08:25.4154806Z [1m[92m   Compiling[0m vieww-spatial v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-spatial)
+2026-11-19T16:08:25.7687335Z [1m[92m   Compiling[0m vieww-network v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-network)
+2026-11-19T16:08:26.8564639Z [1m[92m   Compiling[0m vieww-mesh v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-mesh)
+2026-11-19T16:08:28.1394450Z [1m[92m   Compiling[0m vieww-physics v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-physics)
+2026-11-19T16:08:28.5249563Z [1m[92m   Compiling[0m weezl v0.1.12
+2026-11-19T16:08:29.6264137Z [1m[92m   Compiling[0m color_quant v1.1.0
+2026-11-19T16:08:29.8994503Z [1m[92m   Compiling[0m fixtures v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/examples/fixtures)
+2026-11-19T16:08:30.0973680Z [1m[92m   Compiling[0m gif v0.14.2
+2026-11-19T16:08:31.9134580Z [1m[92m   Compiling[0m vieww v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww)
+2026-11-19T16:08:31.9754457Z [1m[92m   Compiling[0m vieww-hal v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-19T16:08:33.1815028Z [1m[92m   Compiling[0m vieww-render-planner v0.1.0 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-render-planner)
+2026-11-19T16:08:51.6511374Z [1m[92m    Finished[0m `release` profile [optimized] target(s) in 2m 09s
+2026-11-19T16:08:51.6630600Z [1m[92m     Running[0m `target/release/fixtures /tmp/tmp.Xj5tfPiYtm`
+2026-11-19T16:08:56.2036105Z 
+2026-11-19T16:08:56.2036899Z --- tests (workspace): its diagnostics ---
+2026-11-19T16:08:56.2039369Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so
+2026-11-19T16:08:56.2042016Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/libandroid.so.dwp
+2026-11-19T16:08:56.2044839Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline
+2026-11-19T16:08:56.2046363Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/baseline.dwp
+2026-11-19T16:08:56.2047913Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot
+2026-11-19T16:08:56.2049420Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/snapshot.dwp
+2026-11-19T16:08:56.2050912Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench
+2026-11-19T16:08:56.2052632Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/bench.dwp
+2026-11-19T16:08:56.2053605Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render
+2026-11-19T16:08:56.2054565Z warning: output filename collision at /home/runner/work/vieww_prod/vieww_prod/vieww_base/target/debug/examples/render.dwp
+2026-11-19T16:08:56.2055423Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-dev-fail` or any parent directory
+2026-11-19T16:08:56.2056436Z error: could not find `Cargo.toml` in `/tmp/vieww-cli-cmd-cargo-test` or any parent directory
+2026-11-19T16:08:56.2057124Z thread 'main' (42578) panicked at src/lib.rs:51:24:
+2026-11-19T16:08:56.2057722Z test font::fallback_tests::the_first_frame_cannot_see_a_half_finished_scan ... FAILED
+2026-11-19T16:08:56.2058453Z ---- font::fallback_tests::the_first_frame_cannot_see_a_half_finished_scan stdout ----
+2026-11-19T16:08:56.2059596Z thread 'font::fallback_tests::the_first_frame_cannot_see_a_half_finished_scan' (43455) panicked at crates/vieww-text/src/font.rs:1039:9:
+2026-11-19T16:08:56.2060889Z error: test failed, to rerun pass `-p vieww-text --lib`
+2026-11-19T16:08:56.2061385Z 
+2026-11-19T16:08:56.2061603Z 1 stage(s) failed:
+2026-11-19T16:08:56.2062098Z   - tests (workspace) (exit 101)
+2026-11-19T16:08:56.2064741Z ##[endgroup]
+2026-11-19T16:08:56.2089833Z ##[error]Quick checks failed (exit 1)
+2026-11-19T16:08:56.2184276Z ##[error]Process completed with exit code 1.
+2026-11-19T16:08:56.2400257Z Post job cleanup.
+2026-11-19T16:08:56.3315549Z [command]/usr/bin/git version
+2026-11-19T16:08:56.3374405Z git version 2.56.1
+2026-11-19T16:08:56.3415191Z Temporarily overriding HOME='/home/runner/work/_temp/80529212-042a-46f3-9a9b-b719b88095af' before making global git config changes
+2026-11-19T16:08:56.3416771Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-19T16:08:56.3429160Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-19T16:08:56.3487868Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-19T16:08:56.3543084Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-19T16:08:56.3919021Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-19T16:08:56.3978768Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-19T16:08:56.4328521Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-19T16:08:56.4374363Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-19T16:08:56.4885659Z Cleaning up orphan processes
+2026-11-19T16:08:56.5333722Z Terminate orphan process: pid (35225) (java)
+2026-11-19T16:08:56.5455172Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-ios-simulator	log =====
+2026-11-19T16:00:59.6123750Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestSupport.framework /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks
+2026-11-19T16:00:59.6125420Z 
+2026-11-19T16:00:59.6126710Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks/XCTestCore.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestCore.framework (in target 'ViewwA11yTests' from project 'ViewwA11y')
+2026-11-19T16:00:59.6128140Z     cd /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest
+2026-11-19T16:00:59.6130270Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTestCore.framework /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks
+2026-11-19T16:00:59.6302700Z 
+2026-11-19T16:00:59.6310340Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks/XCTest.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework (in target 'ViewwA11yTests' from project 'ViewwA11y')
+2026-11-19T16:00:59.6313720Z     cd /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest
+2026-11-19T16:00:59.6315940Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/XCTest.framework /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks
+2026-11-19T16:00:59.6318460Z 
+2026-11-19T16:00:59.6320750Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks/XCTAutomationSupport.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework (in target 'ViewwA11yTests' from project 'ViewwA11y')
+2026-11-19T16:00:59.6324340Z     cd /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest
+2026-11-19T16:00:59.6326400Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks
+2026-11-19T16:00:59.6332590Z 
+2026-11-19T16:00:59.6334400Z Copy /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks/Testing.framework /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework (in target 'ViewwA11yTests' from project 'ViewwA11y')
+2026-11-19T16:00:59.6338330Z     cd /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest
+2026-11-19T16:00:59.6341420Z     builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -resolve-src-symlinks /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/Frameworks
+2026-11-19T16:00:59.6649930Z 
+2026-11-19T16:00:59.6654950Z RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/PlugIns/ViewwA11yTests.xctest (in target 'ViewwA11yTests' from project 'ViewwA11y')
+2026-11-19T16:00:59.6658910Z     cd /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest
+2026-11-19T16:00:59.6662530Z     builtin-RegisterExecutionPolicyException /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/PlugIns/ViewwA11yTests.xctest
+2026-11-19T16:00:59.6663570Z 
+2026-11-19T16:00:59.6664540Z Touch /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/PlugIns/ViewwA11yTests.xctest (in target 'ViewwA11yTests' from project 'ViewwA11y')
+2026-11-19T16:00:59.6665830Z     cd /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest
+2026-11-19T16:00:59.6666960Z     /usr/bin/touch -c /Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Build/Products/Debug-iphonesimulator/ViewwA11yTests-Runner.app/PlugIns/ViewwA11yTests.xctest
+2026-11-19T16:00:59.6667750Z 
+2026-11-19T16:05:47.2086720Z 2026-11-19 16:05:46.679512+0000 ViewwA11yTests-Runner[45974:126900] [Default] Running tests...
+2026-11-19T16:05:47.2788510Z 2026-11-19 16:05:46.804659+0000 ViewwA11yTests-Runner[45974:127188] [General] Failed to send CA Event for app launch measurements for ca_event_type: 0 event_name: com.apple.app_launch_measurement.FirstFramePresentationMetric
+2026-11-19T16:05:47.2895710Z 2026-11-19 16:05:46.855842+0000 ViewwA11yTests-Runner[45974:127187] [General] Failed to send CA Event for app launch measurements for ca_event_type: 1 event_name: com.apple.app_launch_measurement.ExtendedLaunchMetrics
+2026-11-19T16:06:01.0254770Z     t =      nans Interface orientation changed to Portrait
+2026-11-19T16:06:01.4082940Z Test Suite 'All tests' started at 2026-11-19 16:06:01.149.
+2026-11-19T16:06:01.4095300Z Test Suite 'ViewwA11yTests.xctest' started at 2026-11-19 16:06:01.150.
+2026-11-19T16:06:01.4101300Z Test Suite 'ViewwA11yTests' started at 2026-11-19 16:06:01.150.
+2026-11-19T16:06:01.4103870Z Test Case '-[ViewwA11yTests.ViewwA11yTests testCJKTypingComposesAndCommits]' started.
+2026-11-19T16:06:01.4105070Z     t =     0.00s Start Test at 2026-11-19 16:06:01.151
+2026-11-19T16:06:02.3553530Z     t =     1.17s Set Up
+2026-11-19T16:06:02.3569490Z     t =     1.18s     Open dev.vieww.demo
+2026-11-19T16:06:02.3640740Z     t =     1.18s         Launch dev.vieww.demo
+2026-11-19T16:06:09.6495310Z     t =     8.40s             Setting up automation session
+2026-11-19T16:06:11.8088940Z     t =    10.12s             Wait for dev.vieww.demo to idle
+2026-11-19T16:06:12.6814770Z     t =    11.50s Waiting 10.0s for Any (First Match) to exist
+2026-11-19T16:06:13.7472210Z     t =    12.57s     Checking `Expect predicate `existsNoRetry == 1` for object Any (First Match)`
+2026-11-19T16:06:13.7580300Z     t =    12.57s         Checking existence of `Any (First Match)`
+2026-11-19T16:06:13.7687040Z     t =    12.62s         Capturing element debug description
+2026-11-19T16:06:14.7527270Z     t =    13.51s     Checking `Expect predicate `existsNoRetry == 1` for object Any (First Match)`
+2026-11-19T16:06:14.7732260Z     t =    13.51s         Checking existence of `Any (First Match)`
+2026-11-19T16:06:14.7869900Z     t =    13.62s Find the Any (First Match)
+2026-11-19T16:06:14.8238470Z     t =    13.65s Tap Any (First Match)
+2026-11-19T16:06:14.8351650Z     t =    13.65s     Wait for dev.vieww.demo to idle
+2026-11-19T16:06:14.8948510Z     t =    13.66s     Find the Any (First Match)
+2026-11-19T16:06:14.9066920Z     t =    13.70s     Check for interrupting elements affecting "tap to type" Other
+2026-11-19T16:06:15.0860860Z     t =    13.93s     Synthesize event
+2026-11-19T16:06:15.5996040Z     t =    14.39s     Wait for dev.vieww.demo to idle
+2026-11-19T16:06:16.2168240Z     t =    14.71s Waiting 5.0s for Keyboard (First Match) to exist
+2026-11-19T16:06:17.2248820Z     t =    15.98s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+2026-11-19T16:06:17.2269630Z     t =    15.98s         Checking existence of `Keyboard (First Match)`
+2026-11-19T16:06:18.3829780Z     t =    16.87s Type 'nihao' into Target Application 'dev.vieww.demo'
+2026-11-19T16:06:18.5427580Z     t =    16.87s     Wait for dev.vieww.demo to idle
+2026-11-19T16:06:18.6343160Z     t =    16.90s     Find the Target Application 'dev.vieww.demo'
+2026-11-19T16:06:19.6806310Z     t =    18.28s     Check for interrupting elements affecting "vieww" Application
+2026-11-19T16:06:20.9077990Z     t =    19.46s     Synthesize event
+2026-11-19T16:06:21.1429550Z     t =    19.54s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+2026-11-19T16:06:22.0142960Z     t =    20.43s     Wait for dev.vieww.demo to idle
+2026-11-19T16:06:22.0501180Z     t =    20.60s Type ' ' into Target Application 'dev.vieww.demo'
+2026-11-19T16:06:22.2146510Z     t =    20.60s     Wait for dev.vieww.demo to idle
+2026-11-19T16:06:22.4640130Z     t =    20.72s     Find the Target Application 'dev.vieww.demo'
+2026-11-19T16:06:22.4644290Z     t =    20.90s     Check for interrupting elements affecting "vieww" Application
+2026-11-19T16:06:22.8426210Z     t =    21.64s     Synthesize event
+2026-11-19T16:06:23.0174500Z     t =    21.70s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+2026-11-19T16:06:23.5296150Z     t =    22.22s     Wait for dev.vieww.demo to idle
+2026-11-19T16:06:23.5894910Z     t =    22.36s Find the Any (First Match)
+2026-11-19T16:06:28.9486830Z /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest/ViewwA11yTests.swift:275: error: -[ViewwA11yTests.ViewwA11yTests testCJKTypingComposesAndCommits] : XCTAssertTrue failed - the field changed but holds 'tap to typeno ' — ASCII, so the keyboard composed nothing: is the pinyin keyboard actually the active one?
+2026-11-19T16:06:28.9627200Z     t =    26.53s Tear Down
+2026-11-19T16:06:34.6336730Z Test Case '-[ViewwA11yTests.ViewwA11yTests testCJKTypingComposesAndCommits]' failed (32.979 seconds).
+2026-11-19T16:06:34.7047160Z Test Case '-[ViewwA11yTests.ViewwA11yTests testDisabledControlsAreDisabledInTheTree]' started.
+2026-11-19T16:06:34.7050900Z     t =     0.00s Start Test at 2026-11-19 16:06:34.130
+2026-11-19T16:06:34.7226610Z     t =     0.15s Set Up
+2026-11-19T16:06:34.8076610Z     t =     0.15s     Open dev.vieww.demo
+2026-11-19T16:06:34.8282550Z     t =     0.15s         Launch dev.vieww.demo
+2026-11-19T16:06:34.9565830Z     t =     0.15s             Terminate dev.vieww.demo:46445
+2026-11-19T16:06:40.4181160Z     t =     6.17s             Setting up automation session
+2026-11-19T16:06:42.8872540Z     t =     7.67s             Wait for dev.vieww.demo to idle
+2026-11-19T16:06:44.3455830Z     t =     8.94s Waiting 5.0s for "Disabled" Button to exist
+2026-11-19T16:06:44.4669140Z     t =    10.02s     Checking `Expect predicate `existsNoRetry == 1` for object "Disabled" Button`
+2026-11-19T16:06:44.7860640Z     t =    10.02s         Checking existence of `"Disabled" Button`
+2026-11-19T16:06:44.9551530Z     t =    10.34s         Capturing element debug description
+2026-11-19T16:06:45.6943160Z     t =    11.00s     Checking `Expect predicate `existsNoRetry == 1` for object "Disabled" Button`
+2026-11-19T16:06:45.8939550Z     t =    11.00s         Checking existence of `"Disabled" Button`
+2026-11-19T16:06:47.3415000Z     t =    12.53s         Capturing element debug description
+2026-11-19T16:06:47.3685070Z     t =    12.95s     Checking `Expect predicate `existsNoRetry == 1` for object "Disabled" Button`
+2026-11-19T16:06:47.4072850Z     t =    12.95s         Checking existence of `"Disabled" Button`
+2026-11-19T16:06:49.0685970Z     t =    13.79s         Capturing element debug description
+2026-11-19T16:06:49.1094130Z     t =    13.94s     Checking `Expect predicate `existsNoRetry == 1` for object "Disabled" Button`
+2026-11-19T16:06:49.1763550Z     t =    13.94s         Checking existence of `"Disabled" Button`
+2026-11-19T16:06:49.3057490Z     t =    14.27s         Capturing element debug description
+2026-11-19T16:06:49.3611730Z     t =    14.27s     Checking existence of `"Disabled" Button`
+2026-11-19T16:06:50.4772150Z     t =    15.89s Collecting debug information to assist test failure triage
+2026-11-19T16:06:50.6209400Z     t =    15.89s     Requesting snapshot of accessibility hierarchy for app with pid 46701
+2026-11-19T16:06:50.6456520Z /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest/ViewwA11yTests.swift:146: -[ViewwA11yTests.ViewwA11yTests testDisabledControlsAreDisabledInTheTree] : Test skipped - no Disabled control in this fixture's tree; enable one to run this
+2026-11-19T16:06:50.7099500Z     t =    16.31s Tear Down
+2026-11-19T16:06:54.6018270Z Test Case '-[ViewwA11yTests.ViewwA11yTests testDisabledControlsAreDisabledInTheTree]' skipped (20.333 seconds).
+2026-11-19T16:06:54.7490290Z Test Case '-[ViewwA11yTests.ViewwA11yTests testEveryPublishedElementCarriesABridgeIdentifier]' started.
+2026-11-19T16:06:54.7618310Z     t =     0.00s Start Test at 2026-11-19 16:06:54.464
+2026-11-19T16:06:55.0113380Z     t =     0.06s Set Up
+2026-11-19T16:06:55.0217600Z     t =     0.06s     Open dev.vieww.demo
+2026-11-19T16:06:55.0230480Z     t =     0.06s         Launch dev.vieww.demo
+2026-11-19T16:06:55.0579970Z     t =     0.06s             Terminate dev.vieww.demo:46701
+2026-11-19T16:06:56.9632930Z     t =     2.31s             Setting up automation session
+2026-11-19T16:07:00.7557250Z     t =     4.32s             Wait for dev.vieww.demo to idle
+2026-11-19T16:07:01.6965230Z     t =     5.97s Waiting 10.0s for "Tap me" Button to exist
+2026-11-19T16:07:01.9598810Z     t =     7.00s     Checking `Expect predicate `existsNoRetry == 1` for object "Tap me" Button`
+2026-11-19T16:07:01.9697830Z     t =     7.00s         Checking existence of `"Tap me" Button`
+2026-11-19T16:07:02.4126250Z     t =     7.81s         Capturing element debug description
+2026-11-19T16:07:02.4714640Z     t =     7.99s     Checking `Expect predicate `existsNoRetry == 1` for object "Tap me" Button`
+2026-11-19T16:07:02.4866740Z     t =     7.99s         Checking existence of `"Tap me" Button`
+2026-11-19T16:07:02.5507780Z     t =     8.04s Get number of matches for: Elements matching predicate 'identifier BEGINSWITH "vieww."'
+2026-11-19T16:07:02.6997000Z     t =     8.18s Waiting 10.0s for Any (First Match) to exist
+2026-11-19T16:07:03.8029310Z     t =     9.27s     Checking `Expect predicate `existsNoRetry == 1` for object Any (First Match)`
+2026-11-19T16:07:03.8178440Z     t =     9.27s         Checking existence of `Any (First Match)`
+2026-11-19T16:07:03.8804140Z     t =     9.40s Tear Down
+2026-11-19T16:07:07.0877450Z Test Case '-[ViewwA11yTests.ViewwA11yTests testEveryPublishedElementCarriesABridgeIdentifier]' passed (12.166 seconds).
+2026-11-19T16:07:07.0882500Z Test Case '-[ViewwA11yTests.ViewwA11yTests testTheButtonIsPresentLabelledAndEnabled]' started.
+2026-11-19T16:07:07.1195520Z     t =     0.00s Start Test at 2026-11-19 16:07:06.630
+2026-11-19T16:07:07.2343930Z     t =     0.08s Set Up
+2026-11-19T16:07:07.2350050Z     t =     0.08s     Open dev.vieww.demo
+2026-11-19T16:07:07.2461410Z     t =     0.08s         Launch dev.vieww.demo
+2026-11-19T16:07:07.2577310Z     t =     0.08s             Terminate dev.vieww.demo:47015
+2026-11-19T16:07:08.7513700Z     t =     2.10s             Setting up automation session
+2026-11-19T16:07:09.5674060Z     t =     2.82s             Wait for dev.vieww.demo to idle
+2026-11-19T16:07:10.6365740Z     t =     3.91s Waiting 10.0s for "Tap me" Button to exist
+2026-11-19T16:07:11.6245320Z     t =     4.98s     Checking `Expect predicate `existsNoRetry == 1` for object "Tap me" Button`
+2026-11-19T16:07:11.6249050Z     t =     4.98s         Checking existence of `"Tap me" Button`
+2026-11-19T16:07:11.6747790Z     t =     5.03s         Capturing element debug description
+2026-11-19T16:07:12.6903810Z     t =     6.00s     Checking `Expect predicate `existsNoRetry == 1` for object "Tap me" Button`
+2026-11-19T16:07:12.7067800Z     t =     6.00s         Checking existence of `"Tap me" Button`
+2026-11-19T16:07:12.7187520Z     t =     6.06s Find the "Tap me" Button
+2026-11-19T16:07:12.8050170Z     t =     6.15s Find the "Tap me" Button
+2026-11-19T16:07:12.8309370Z     t =     6.19s Tear Down
+2026-11-19T16:07:13.0965020Z Test Case '-[ViewwA11yTests.ViewwA11yTests testTheButtonIsPresentLabelledAndEnabled]' passed (6.448 seconds).
+2026-11-19T16:07:13.1068680Z Test Case '-[ViewwA11yTests.ViewwA11yTests testTypingIntoTheFieldCommitsThroughTheKeyboard]' started.
+2026-11-19T16:07:13.1070530Z     t =     0.00s Start Test at 2026-11-19 16:07:13.078
+2026-11-19T16:07:13.2630730Z     t =     0.04s Set Up
+2026-11-19T16:07:13.2735360Z     t =     0.04s     Open dev.vieww.demo
+2026-11-19T16:07:13.2834680Z     t =     0.04s         Launch dev.vieww.demo
+2026-11-19T16:07:13.2936610Z     t =     0.04s             Terminate dev.vieww.demo:47252
+2026-11-19T16:07:14.6521860Z     t =     1.49s             Setting up automation session
+2026-11-19T16:07:15.9175500Z     t =     2.71s             Wait for dev.vieww.demo to idle
+2026-11-19T16:07:17.0289610Z     t =     3.87s Waiting 10.0s for Any (First Match) to exist
+2026-11-19T16:07:18.0203210Z     t =     4.94s     Checking `Expect predicate `existsNoRetry == 1` for object Any (First Match)`
+2026-11-19T16:07:18.0316940Z     t =     4.94s         Checking existence of `Any (First Match)`
+2026-11-19T16:07:18.0421000Z     t =     4.95s         Capturing element debug description
+2026-11-19T16:07:18.9875040Z     t =     5.88s     Checking `Expect predicate `existsNoRetry == 1` for object Any (First Match)`
+2026-11-19T16:07:19.0029850Z     t =     5.88s         Checking existence of `Any (First Match)`
+2026-11-19T16:07:19.0139140Z     t =     5.92s Tap Any (First Match)
+2026-11-19T16:07:19.0272560Z     t =     5.92s     Wait for dev.vieww.demo to idle
+2026-11-19T16:07:19.0394970Z     t =     5.92s     Find the Any (First Match)
+2026-11-19T16:07:19.0677460Z     t =     5.96s     Check for interrupting elements affecting "tap to type" Other
+2026-11-19T16:07:19.2143060Z     t =     6.06s     Synthesize event
+2026-11-19T16:07:19.6574030Z     t =     6.40s     Wait for dev.vieww.demo to idle
+2026-11-19T16:07:19.7212540Z     t =     6.44s Waiting 5.0s for Keyboard (First Match) to exist
+2026-11-19T16:07:20.5891500Z     t =     7.48s     Checking `Expect predicate `existsNoRetry == 1` for object Keyboard (First Match)`
+2026-11-19T16:07:20.6017850Z     t =     7.48s         Checking existence of `Keyboard (First Match)`
+2026-11-19T16:07:20.7806170Z     t =     7.59s Type 'hello' into Target Application 'dev.vieww.demo'
+2026-11-19T16:07:20.8373160Z     t =     7.59s     Wait for dev.vieww.demo to idle
+2026-11-19T16:07:20.8564730Z     t =     7.69s     Find the Target Application 'dev.vieww.demo'
+2026-11-19T16:07:21.0035010Z     t =     7.84s     Check for interrupting elements affecting "vieww" Application
+2026-11-19T16:07:21.0997400Z     t =     7.96s     Synthesize event
+2026-11-19T16:07:21.1231930Z     t =     7.96s         Get number of matches for: Elements containing elements matching predicate 'hasKeyboardFocus == 1'
+2026-11-19T16:07:21.5466150Z     t =     8.36s     Wait for dev.vieww.demo to idle
+2026-11-19T16:07:21.5467970Z     t =     8.37s Find the Any (First Match)
+2026-11-19T16:07:22.7571340Z     t =     9.62s     Find the Any (First Match) (retry 1)
+2026-11-19T16:07:23.9298650Z     t =    10.83s     Find the Any (First Match) (retry 2)
+2026-11-19T16:07:24.1728220Z     t =    10.96s     Collecting debug information to assist test failure triage
+2026-11-19T16:07:24.2414800Z     t =    10.96s         Requesting snapshot of accessibility hierarchy for app with pid 47447
+2026-11-19T16:07:24.2481790Z     t =    11.01s     Requesting snapshot of accessibility hierarchy for app with pid 47447
+2026-11-19T16:07:24.2680860Z     t =    11.07s     Requesting snapshot of accessibility hierarchy for app with pid 47447
+2026-11-19T16:07:24.3042440Z /Users/runner/work/vieww_prod/vieww_prod/vieww_base/ci/mobile/xcuitest/ViewwA11yTests.swift:191: error: -[ViewwA11yTests.ViewwA11yTests testTypingIntoTheFieldCommitsThroughTheKeyboard] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate 'value BEGINSWITH "tap to type"'`, given input App element pid: 47447
+2026-11-19T16:07:24.3214160Z     t =    11.14s Tear Down
+2026-11-19T16:07:24.8834900Z Test Case '-[ViewwA11yTests.ViewwA11yTests testTypingIntoTheFieldCommitsThroughTheKeyboard]' failed (11.456 seconds).
+2026-11-19T16:07:24.8998150Z Test Suite 'ViewwA11yTests' failed at 2026-11-19 16:07:24.534.
+2026-11-19T16:07:24.9014060Z 	 Executed 5 tests, with 1 test skipped and 2 failures (0 unexpected) in 83.381 (83.383) seconds
+2026-11-19T16:07:24.9053340Z Test Suite 'ViewwA11yTests.xctest' failed at 2026-11-19 16:07:24.534.
+2026-11-19T16:07:24.9057830Z 	 Executed 5 tests, with 1 test skipped and 2 failures (0 unexpected) in 83.381 (83.384) seconds
+2026-11-19T16:07:24.9085340Z Test Suite 'All tests' failed at 2026-11-19 16:07:24.534.
+2026-11-19T16:07:24.9108710Z 	 Executed 5 tests, with 1 test skipped and 2 failures (0 unexpected) in 83.381 (83.386) seconds
+2026-11-19T16:08:03.2705860Z 2026-11-19 16:08:03.264 xcodebuild[32733:91923] [MT] IDETestOperationsObserverDebug: 423.560 elapsed -- Testing started completed.
+2026-11-19T16:08:03.2721180Z 2026-11-19 16:08:03.265 xcodebuild[32733:91923] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-11-19T16:08:03.2725180Z 2026-11-19 16:08:03.265 xcodebuild[32733:91923] [MT] IDETestOperationsObserverDebug: 423.561 sec, +423.561 sec -- end
+2026-11-19T16:08:06.0551840Z Failing tests:
+2026-11-19T16:08:06.0664830Z 	ViewwA11yTests.testCJKTypingComposesAndCommits()
+2026-11-19T16:08:06.0689410Z 	ViewwA11yTests.testTypingIntoTheFieldCommitsThroughTheKeyboard()
+2026-11-19T16:08:06.0690160Z 
+2026-11-19T16:08:06.0690700Z ** TEST FAILED **
+2026-11-19T16:08:06.0691120Z 
+2026-11-19T16:08:06.0691180Z 
+2026-11-19T16:08:06.0691510Z Test session results, code coverage, and logs:
+2026-11-19T16:08:06.0692600Z 	/Users/runner/Library/Developer/Xcode/DerivedData/ViewwA11y-bzmmvmchlqrtadgziwafszikmavw/Logs/Test/Test-ViewwA11y-2026.11.19_16-00-30-+0000.xcresult
+2026-11-19T16:08:06.0694490Z 
+2026-11-19T16:08:06.0858920Z Testing started
+2026-11-19T16:08:06.1567990Z a11y-ios: FAIL — xcodebuild test failed — a red suite is a finding about the bridge, not a flake (see the suite's header)
+2026-11-19T16:08:06.1925260Z ##[endgroup]
+2026-11-19T16:08:06.3104910Z ##[error]XCUITest accessibility suite (generated project, FW-10) failed (exit 1)
+2026-11-19T16:08:06.3252220Z ##[group]Screenshot
+2026-11-19T16:08:13.9059510Z Detected file type 'PNG' from extension
+2026-11-19T16:08:14.9116210Z Wrote screenshot to: ../ci-artifacts/ios-simulator.png
+2026-11-19T16:08:14.9221030Z ##[endgroup]
+2026-11-19T16:08:14.9250530Z ##[group]mark: upload ios-simulator
+2026-11-19T16:08:14.9318730Z ##[endgroup]
+2026-11-19T16:08:15.0591990Z ##[error]Process completed with exit code 1.
+2026-11-19T16:08:15.1129090Z ##[group]Run actions/upload-artifact@v4
+2026-11-19T16:08:15.1129470Z with:
+2026-11-19T16:08:15.1129720Z   name: ios-simulator
+2026-11-19T16:08:15.1130150Z   path: ci-artifacts/
+2026-11-19T16:08:15.1130520Z   if-no-files-found: ignore
+2026-11-19T16:08:15.1130810Z   include-hidden-files: false
+2026-11-19T16:08:15.1131050Z   compression-level: 6
+2026-11-19T16:08:15.1131260Z   overwrite: false
+2026-11-19T16:08:15.1131450Z env:
+2026-11-19T16:08:15.1131750Z   CI_INPUTS: ***
+2026-11-19T16:08:15.1132040Z   CI_MATRIX: ***
+2026-11-19T16:08:15.1133050Z   CI_JOB: ***"title": "vieww \u00b7 framework-ios-simulator", "project": "vieww", "id": "framework-ios-simulator", "file": "vieww_base/ci/jobs/framework-ios-simulator.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "ios-simulator", "path": "ci-artifacts/", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-19T16:08:15.1134150Z   CI_PROJECT: vieww
+2026-11-19T16:08:15.1135000Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-19T16:08:15.1152380Z   CI_GITHUB_TOKEN: ***
+2026-11-19T16:08:15.1153060Z   CI_SECRET_NAMES: 
+2026-11-19T16:08:15.1153640Z   CI_HAS_AWS_ROLE: false
+2026-11-19T16:08:15.1154260Z   ANDROID_KEYSTORE: 
+2026-11-19T16:08:15.1154870Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-19T16:08:15.1155520Z   ANDROID_KEY_ALIAS: 
+2026-11-19T16:08:15.1156130Z   ANDROID_KEY_PASSWORD: 
+2026-11-19T16:08:15.1156770Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-19T16:08:15.1157400Z   APPLE_NOTARY_ISSUER: 
+2026-11-19T16:08:15.1158000Z   APPLE_NOTARY_KEY: 
+2026-11-19T16:08:15.1158570Z   APPLE_NOTARY_KEY_ID: 
+2026-11-19T16:08:15.1159160Z   APPLE_P12_PASSWORD: 
+2026-11-19T16:08:15.1159760Z   APPLE_SIGNING_IDENTITY: 
+2026-11-19T16:08:15.1160380Z   AWS_ACCESS_KEY_ID: 
+2026-11-19T16:08:15.1160960Z   AWS_ROLE_ARN: 
+2026-11-19T16:08:15.1161580Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-19T16:08:15.1162200Z   CARGO_REGISTRY_TOKEN: 
+2026-11-19T16:08:15.1162830Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-19T16:08:15.1163500Z   CLOUDFLARE_API_TOKEN: 
+2026-11-19T16:08:15.1164120Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-19T16:08:15.1164740Z   FIREBASE_PROJECT: 
+2026-11-19T16:08:15.1165350Z   FIREBASE_SA_KEY: 
+2026-11-19T16:08:15.1165950Z   IOS_CERT_P12: 
+2026-11-19T16:08:15.1166510Z   IOS_CERT_PASSWORD: 
+2026-11-19T16:08:15.1167100Z   IOS_IDENTITY: 
+2026-11-19T16:08:15.1167650Z   IOS_PROFILE: 
+2026-11-19T16:08:15.1168220Z   WINDOWS_CERT_PASSWORD: 
+2026-11-19T16:08:15.1168830Z   WINDOWS_CERT_PFX: 
+2026-11-19T16:08:15.1169450Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-19T16:08:15.1170170Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-19T16:08:15.1170930Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-19T16:08:15.1171570Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-19T16:08:15.1172330Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-19T16:08:15.1173090Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-19T16:08:15.1173790Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-19T16:08:15.1174540Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-19T16:08:15.1175310Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-19T16:08:15.1176340Z   CI_PY: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python
+2026-11-19T16:08:15.1177480Z   VIEWW_SIM_DEVICE: 4A57FB15-6E7C-49CC-BE93-450B18BD286E
+2026-11-19T16:08:15.1178320Z   CI_UPLOAD_0: yes
+2026-11-19T16:08:15.1178940Z ##[endgroup]
+2026-11-19T16:08:16.0792730Z (node:49785) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-19T16:08:16.0793790Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-19T16:08:16.0929180Z With the provided path, there will be 1 file uploaded
+2026-11-19T16:08:16.0931360Z Artifact name is valid!
+2026-11-19T16:08:16.0931780Z Root directory input is valid!
+2026-11-19T16:08:16.3667930Z Beginning upload of artifact content to blob storage
+2026-11-19T16:08:16.7121380Z (node:49785) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-19T16:08:16.9190740Z Uploaded bytes 3657965
+2026-11-19T16:08:16.9380350Z Finished uploading artifact content to blob storage!
+2026-11-19T16:08:16.9381000Z SHA256 digest of uploaded artifact zip is 650da96bd39a252fedff77d7e39ecba48169cc57400f7a8d0687866b8aaf2ca9
+2026-11-19T16:08:16.9383440Z Finalizing artifact upload
+2026-11-19T16:08:17.3269590Z Artifact ios-simulator.zip successfully finalized. Artifact ID 14548294267
+2026-11-19T16:08:17.3270460Z Artifact ios-simulator has been successfully uploaded! Final size is 3657965 bytes. Artifact ID is 14548294267
+2026-11-19T16:08:17.3276150Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44558153338/artifacts/14548294267
+2026-11-19T16:08:17.3542240Z Post job cleanup.
+2026-11-19T16:08:17.6191600Z [command]/opt/homebrew/bin/git version
+2026-11-19T16:08:17.6990370Z git version 2.56.0
+2026-11-19T16:08:17.7017900Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/6dcce3d3-7dbe-45c5-9b0e-86c4985f1c28/.gitconfig'
+2026-11-19T16:08:17.7031110Z Temporarily overriding HOME='/Users/runner/work/_temp/6dcce3d3-7dbe-45c5-9b0e-86c4985f1c28' before making global git config changes
+2026-11-19T16:08:17.7034220Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-19T16:08:17.7038740Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/vieww_prod/vieww_prod
+2026-11-19T16:08:17.7271750Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-19T16:08:17.7576600Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-19T16:08:17.9818740Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-19T16:08:18.0063300Z http.https://github.com/.extraheader
+2026-11-19T16:08:18.0066960Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-19T16:08:18.0218460Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-19T16:08:18.2160080Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-19T16:08:18.2314640Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-19T16:08:18.4780280Z Cleaning up orphan processes
+2026-11-19T16:08:21.3949810Z Terminate orphan process: pid (46015) (DTServiceHub)
+2026-11-19T16:08:33.8697040Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
