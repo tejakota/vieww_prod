@@ -217,11 +217,11 @@ impl Default for ReliefSpec {
 /// the material's map and the two — geometry and picture — agree by
 /// construction.
 ///
-/// Vertex rows run along +Y to the picture's top, because [`Texture`
-/// sampling] treats v = 0 as the top row: an upright picture stays upright
-/// on an upright plane.
-///
-/// [`Texture` sampling]: vieww_3d::Texture::sample
+/// Vertex rows run along +Y to the picture's top, because vieww-3d's
+/// `Texture::sample` treats v = 0 as the top row (glTF's convention): an
+/// upright picture stays upright on an upright plane. A plain name, not a
+/// link — `vieww-mesh` deliberately does not depend on `vieww-3d`, so
+/// rustdoc cannot resolve one across that boundary.
 #[must_use]
 pub fn heightmap_relief(spec: &ReliefSpec, image: &Image) -> Mesh {
     let aspect = image.height() as f32 / image.width().max(1) as f32;
@@ -426,8 +426,8 @@ impl<'a> SolidBuilder<'a> {
 ///
 /// The alpha is sampled onto a grid and blurred, and the mesh is the solid
 /// between two displaced copies of that field: a front face at `+d(x, y)`
-/// and a back face at `−d(x, y)`, where `d` follows the rounded profile
-/// described on [`SolidBuilder::depth_at`]. Interior cells contribute a
+/// and a back face at `−d(x, y)`, where `d` follows the rounded profile the
+/// builder's private `depth_at` describes. Interior cells contribute a
 /// front quad and a back quad; every edge a solid cell shares with a
 /// non-solid neighbour contributes a rim quad. Each rim walks
 /// counter-clockwise around the solid, so consecutive rims close each
