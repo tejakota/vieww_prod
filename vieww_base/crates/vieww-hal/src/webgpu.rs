@@ -1889,7 +1889,10 @@ mod tests {
         fn pass_blur(&mut self, src: u32, dst: u32, push: &PostPush, scanlines: u32) {
             self.log.push(log_line(
                 "blur",
-                format!("src{src} dst{dst} mode={} band={:?} lines={scanlines}", push.args[0], push.p[0]),
+                format!(
+                    "src{src} dst{dst} mode={} band={:?} lines={scanlines}",
+                    push.args[0], push.p[0]
+                ),
             ));
         }
         fn clear_regions(&mut self, rects: &[[u32; 4]], color: &[f32; 4]) {
