@@ -881,23 +881,20 @@ pub struct Hit {
 }
 
 /// Where a plain-text needle lands in a haystack, for scoring.
-fn find_plain(haystack_lower: &[char], needle_lower: &[char]) -> Option<(usize, bool)> {
-    // Returns (char index, is_word_start).
-    if needle_lower.is_empty() || haystack_lower.len() < needle_lower.len() {
+/// The first occurrence of `needle_lower` in `haystack_lower`: `(byte
+/// index, is_word_start)`. Both sides are already lowercase; a match at 0
+/// is the title's (or description's) very start.
+fn find_plain(haystack_lower: &str, needle_lower: &str) -> Option<(usize, bool)> {
+    if needle_lower.is_empty() {
         return None;
     }
-    'outer: for start in 0..=(haystack_lower.len() - needle_lower.len()) {
-        for (i, n) in needle_lower.iter().enumerate() {
-            if haystack_lower[start + i] != *n {
-                continue 'outer;
-            }
-        }
-        let word_start = start == 0
-            || !haystack_lower[start - 1].is_alphanumeric()
-            || !haystack_lower[start].is_alphanumeric();
-        return Some((start, word_start));
-    }
-    None
+    let start = haystack_lower.find(needle_lower)?;
+    let before_is_word = haystack_lower[..start]
+        .chars()
+        .next_back()
+        .is_some_and(char::is_alphanumeric);
+    let first_is_word = needle_lower.chars().next().is_some_and(char::is_alphanumeric);
+    Some((start, start == 0 || !before_is_word || !first_is_word))
 }
 
 fn kind_boost(kind: char) -> f32 {
@@ -1003,7 +1000,8 @@ pub fn search(db: &Db, query: &str, limit: usize) -> (Vec<Hit>, bool) {
     let regex_failed = is_regex && regex.is_none();
     let effective_regex = regex;
 
-    let needle: Vec<char> = q.to_lowercase().chars().collect();
+    let needle = q.to_lowercase();
+    let needle_chars = needle.chars().count();
     let terms = understand(db, q);
 
     // --- layer 1 + 2: literal and vector scores, in one pass ----------
@@ -1056,8 +1054,9 @@ pub fn search(db: &Db, query: &str, limit: usize) -> (Vec<Hit>, bool) {
                 matched = true;
             }
         } else {
-            let title: Vec<char> = topic.title.to_lowercase().chars().collect();
-            if let Some((at, word_start)) = find_plain(&title, &needle) {
+            // Lowercased once at load (`Db::title_lc`), searched as bytes:
+            // the per-keystroke cost used to be two `Vec<char>` per topic.
+            if let Some((at, word_start)) = find_plain(&db.title_lc[index], &needle) {
                 literal[index] += if at == 0 {
                     3.0
                 } else if word_start {
@@ -1067,9 +1066,8 @@ pub fn search(db: &Db, query: &str, limit: usize) -> (Vec<Hit>, bool) {
                 };
                 matched = true;
             }
-            if !matched || needle.len() > 3 {
-                let desc: Vec<char> = topic.description.to_lowercase().chars().collect();
-                if let Some((at, word_start)) = find_plain(&desc, &needle) {
+            if !matched || needle_chars > 3 {
+                if let Some((at, word_start)) = find_plain(&db.desc_lc[index], &needle) {
                     literal[index] += if at == 0 || word_start { 0.8 } else { 0.45 };
                     matched = true;
                 }

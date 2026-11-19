@@ -27,16 +27,16 @@ use std::rc::Rc;
 
 use vieww::foundation::{Color, Gradient, Size, TextEditingValue};
 use vieww::prelude::*;
+use vieww::ScrollController;
+use vieww_3d::{RenderStats, Scene};
 #[cfg(not(target_arch = "wasm32"))]
 use vieww_platform_winit::App;
-use vieww::{ScrollController};
-use vieww_3d::{RenderStats, Scene};
 
 pub mod anatomy;
 pub mod db;
-pub mod organs;
-pub mod search;
+pub mod safety;
 pub mod screens;
+pub mod search;
 
 use anatomy::{Parts, Placement, Pose, Rig};
 use db::Db;
@@ -137,8 +137,16 @@ pub struct AppState {
     pub results: Signal<Rc<Vec<Hit>>>,
     /// Whether the regex fell back to literal matching.
     pub regex_fallback: Signal<bool>,
-    /// The panel's scroll.
+    /// The results list's scroll.
     pub panel_scroll: ScrollController,
+    /// The open answer's scroll — separate, so moving between the list and
+    /// an answer never carries one's position into the other.
+    pub answer_scroll: ScrollController,
+    /// Topics opened before the current one, for Back.
+    pub history: Signal<Vec<usize>>,
+    /// The query terms the open answer was reached with, for the matched
+    /// passage and the callout's citation.
+    pub answer_terms: Signal<Vec<String>>,
     /// 3D scene handles.
     pub scene: Rc<RefCell<Scene>>,
     pub parts: Parts,
@@ -178,6 +186,9 @@ pub fn build_state(runtime: &vieww::element::Runtime) -> Rc<AppState> {
         results: runtime.signal(Rc::new(Vec::new())),
         regex_fallback: runtime.signal(false),
         panel_scroll: ScrollController::new(runtime, ScrollPhysics::android()),
+        answer_scroll: ScrollController::new(runtime, ScrollPhysics::android()),
+        history: runtime.signal(Vec::new()),
+        answer_terms: runtime.signal(Vec::new()),
         scene,
         parts,
         placements,
@@ -188,12 +199,22 @@ pub fn build_state(runtime: &vieww::element::Runtime) -> Rc<AppState> {
 }
 
 /// Where the floating search should sit for a target at `height` (world
-/// y): high targets leave it low, low targets lift it high, and the band
-/// between glides. This is the "answer and box never fight for pixels"
-/// rule the pose's `pill` spring carries.
+/// y): the head and neck answer low, everything from the chest down
+/// answers high. Two ends, not a blend: a card parked mid-screen covers
+/// whatever the camera centres, so the spring only ever glides between the
+/// ends. This is the "answer and box never fight for pixels" rule.
 fn pill_for_height(height: f32) -> f32 {
-    // Head at ~1.6 answers low; knees at ~0.4 answer high.
-    (1.0 - (height - 0.95) / 0.45).clamp(0.0, 1.0)
+    if height < 1.30 {
+        1.0
+    } else {
+        0.0
+    }
+}
+
+/// Where the framed organ should sit on screen for a card at `pill`: the
+/// opposite end. A card riding high (pill 1) frames the organ low (-1).
+fn bias_for_pill(pill: f32) -> f32 {
+    1.0 - 2.0 * pill
 }
 
 /// Run a query and publish the results, retargeting the camera at the
@@ -204,6 +225,7 @@ pub fn run_search(state: &AppState) {
     let (hits, fell_back) = search::search(&state.db, &text, 24);
     state.regex_fallback.set(fell_back);
     state.results.set(Rc::new(hits));
+    state.panel_scroll.jump_to(0.0);
     if text.trim().is_empty() {
         // Back to the resting body — unless a topic is open, in which case
         // the open topic keeps the camera.
@@ -215,82 +237,134 @@ pub fn run_search(state: &AppState) {
         }
         return;
     }
-    // The camera follows the leading hit. How far it commits depends on how
-    // well the query is matched: a strong title hit pulls a close, crisp
-    // preview; a weak description-only graze keeps its distance.
     // Typing is a new question: whatever topic was open gives way to the
     // results, and the panel rises to hold them.
     state.topic.set(None);
+    state.history.set(Vec::new());
     state.rig.borrow_mut().set_panel(true);
     let results = state.results.get();
     if let Some(top) = results.first() {
         if let Some(topic) = state.db.topics.get(top.topic) {
+            // How far the camera commits depends on how well the query is
+            // matched: a strong title hit pulls a close, crisp preview; a
+            // weak description-only graze keeps its distance.
+            let strength = (top.score / 3.4).clamp(0.35, 1.0);
             if let Some(organ) = topic.organ {
-                let organ = &state.db.organs[organ];
-                let anchor =
-                    vieww_3d::Vec3::new(organ.anchor[0], organ.anchor[1], organ.anchor[2]);
-                let strength = (top.score / 3.4).clamp(0.35, 1.0);
                 // The leading hit's organ is already the target: it takes
-                // the accent and the marker while the person is still
-                // typing, so the body answers the query live.
-                state.selected.set(Some(organ_index(&state, organ.key)));
-                state.rig.borrow_mut().preview(anchor, organ.zoom, strength);
-                state.rig.borrow_mut().set_pill(pill_for_height(organ.anchor[1]));
+                // the accent while the person is still typing, so the body
+                // answers the query live.
+                let p = &state.placements[organ];
+                let pill = pill_for_height(p.anchor.y);
+                state.selected.set(Some(organ));
+                state.rig.borrow_mut().preview(
+                    p.anchor,
+                    p.zoom,
+                    p.extent,
+                    strength,
+                    bias_for_pill(pill),
+                );
+                state.rig.borrow_mut().set_pill(pill);
             } else {
                 // No organ to fly to; hold the whole body but clear up.
                 state.selected.set(None);
-                state
-                    .rig
-                    .borrow_mut()
-                    .preview(vieww_3d::Vec3::new(0.0, 1.02, 0.0), 1.45, 0.45);
+                state.rig.borrow_mut().preview(
+                    vieww_3d::Vec3::new(0.0, 1.02, 0.0),
+                    1.45,
+                    0.75,
+                    strength * 0.45,
+                    0.0,
+                );
                 state.rig.borrow_mut().set_pill(0.35);
             }
         }
     }
 }
 
-/// An organ's index in the table, by key.
-fn organ_index(state: &AppState, key: &str) -> usize {
-    state
-        .db
-        .organs
-        .iter()
-        .position(|o| o.key == key)
-        .unwrap_or(0)
-}
-
-/// Open a topic: fly to its organ, x-ray the shell, raise the panel, and
-/// float the search clear of the organ the answer lives at.
-pub fn select_topic(state: &AppState, index: usize) {
-    let Some(topic) = state.db.topics.get(index) else {
-        return;
-    };
-    state.topic.set(Some(index));
-    state.panel_scroll.jump_to(0.0);
-    match topic.organ {
-        Some(organ) => {
-            let o = &state.db.organs[organ];
-            let anchor = vieww_3d::Vec3::new(o.anchor[0], o.anchor[1], o.anchor[2]);
-            state.selected.set(Some(organ));
-            state.rig.borrow_mut().focus(anchor, o.zoom);
-            state.rig.borrow_mut().set_pill(pill_for_height(o.anchor[1]));
+/// Fly the camera to an organ's 3D element (or the whole body) and float
+/// the card to the other end of the screen.
+fn fly_to(state: &AppState, organ: Option<usize>) {
+    match organ.and_then(|i| state.placements.get(i).map(|p| (i, p))) {
+        Some((i, p)) => {
+            let pill = pill_for_height(p.anchor.y);
+            state.selected.set(Some(i));
+            state
+                .rig
+                .borrow_mut()
+                .focus(p.anchor, p.zoom, p.extent, bias_for_pill(pill));
+            state.rig.borrow_mut().set_pill(pill);
         }
         None => {
             state.selected.set(None);
             state
                 .rig
                 .borrow_mut()
-                .focus(vieww_3d::Vec3::new(0.0, 1.02, 0.0), 1.45);
+                .focus(vieww_3d::Vec3::new(0.0, 1.02, 0.0), 1.45, 0.75, 0.0);
             state.rig.borrow_mut().set_pill(0.35);
         }
     }
     state.rig.borrow_mut().set_panel(true);
 }
 
+/// Open a topic: fly to its organ's 3D element, x-ray the shell, raise the
+/// panel, and float the search clear of the organ the answer lives at.
+pub fn select_topic(state: &AppState, index: usize) {
+    let Some(topic) = state.db.topics.get(index) else {
+        return;
+    };
+    match state.topic.get() {
+        // Back returns through the topics opened from this one.
+        Some(current) if current != index => {
+            let mut h = state.history.get();
+            h.push(current);
+            state.history.set(h);
+        }
+        Some(_) => {}
+        // Reached from the results list: remember the words that found it.
+        None => {
+            let text = state.query.get().text.clone();
+            if !text.trim().is_empty() {
+                state.answer_terms.set(search::tokenize(&text));
+            }
+        }
+    }
+    state.topic.set(Some(index));
+    state.answer_scroll.jump_to(0.0);
+    fly_to(state, topic.organ);
+}
+
+/// Back one step: the previous topic, or the results it was opened from.
+pub fn go_back(state: &AppState) {
+    let mut h = state.history.get();
+    match h.pop() {
+        Some(prev) => {
+            state.history.set(h);
+            state.topic.set(Some(prev));
+            state.answer_scroll.jump_to(0.0);
+            fly_to(state, state.db.topics.get(prev).and_then(|t| t.organ));
+        }
+        None => {
+            state.topic.set(None);
+            if state.query.get().text.trim().is_empty() {
+                clear(state);
+            } else {
+                run_search(state);
+            }
+        }
+    }
+}
+
+/// Start a search from a suggestion chip, as if it had been typed.
+pub fn search_for(state: &AppState, text: &str) {
+    state.query.set(TextEditingValue::new(text.to_owned()));
+    run_search(state);
+}
+
 /// Everything back to the resting body.
 pub fn clear(state: &AppState) {
     state.topic.set(None);
     state.selected.set(None);
+    state.history.set(Vec::new());
+    state.answer_terms.set(Vec::new());
     state.query.set(TextEditingValue::new(String::new()));
     state.results.set(Rc::new(Vec::new()));
     state.regex_fallback.set(false);
@@ -308,7 +382,9 @@ pub fn pick_body(state: &AppState, x: f32, y: f32) {
     let (vw, vh) = state.viewport.get();
     // The 3D buffer runs at RENDER_SCALE of the logical size; the tap is in
     // logical coordinates, so scale it into buffer pixels.
-    let bw = (vw * anatomy::RENDER_SCALE).min(anatomy::MAX_INTERNAL_WIDTH as f32).max(2.0);
+    let bw = (vw * anatomy::RENDER_SCALE)
+        .min(anatomy::MAX_INTERNAL_WIDTH as f32)
+        .max(2.0);
     let bh = bw * vh / vw.max(1.0);
     let sx = x * bw / vw.max(1.0);
     let sy = y * bh / vh.max(1.0);
@@ -316,6 +392,7 @@ pub fn pick_body(state: &AppState, x: f32, y: f32) {
     let hit = raycast(&mut state.scene.borrow_mut(), &ray)
         .into_iter()
         .next();
+    state.rig.borrow_mut().poke();
     let Some(hit) = hit else {
         return;
     };
@@ -343,16 +420,15 @@ pub fn pick_body(state: &AppState, x: f32, y: f32) {
         .topics
         .iter()
         .position(|t| t.kind == 'B' && t.organ == Some(organ));
+    // A tap is a new question, asked with the body instead of words.
+    state.answer_terms.set(Vec::new());
+    state.topic.set(None);
     match page {
         Some(index) => select_topic(state, index),
         None => {
             // No article: still fly there and show what the region is.
-            let o = &state.db.organs[organ];
             state.topic.set(None);
-            state.selected.set(Some(organ));
-            let anchor = vieww_3d::Vec3::new(o.anchor[0], o.anchor[1], o.anchor[2]);
-            state.rig.borrow_mut().focus(anchor, o.zoom);
-            state.rig.borrow_mut().set_panel(true);
+            fly_to(state, Some(organ));
         }
     }
 }
@@ -380,6 +456,7 @@ pub fn mount(driver: &mut vieww::FrameDriver) -> Rc<AppState> {
     let state = build_state(&runtime);
     driver.tickers().add(&state.rig);
     state.panel_scroll.attach(driver.tickers());
+    state.answer_scroll.attach(driver.tickers());
     driver.set_root(root(&state));
     state
 }

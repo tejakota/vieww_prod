@@ -160,6 +160,10 @@ pub struct Db {
     pub terms: TermIndex,
     /// The anatomy graph (section 5).
     pub graph: OrganGraph,
+    /// `topics[i].title`, lowercased once at load, for the literal layer.
+    pub title_lc: Vec<String>,
+    /// `topics[i].description`, lowercased once at load.
+    pub desc_lc: Vec<String>,
     bodies: RefCell<Option<Vec<(usize, &'static str)>>>,
 }
 
@@ -285,11 +289,16 @@ pub fn parse() -> Db {
         }
     }
 
+    let title_lc = topics.iter().map(|t| t.title.to_lowercase()).collect();
+    let desc_lc = topics.iter().map(|t| t.description.to_lowercase()).collect();
+
     Db {
         topics,
         organs,
         terms,
         graph,
+        title_lc,
+        desc_lc,
         bodies: RefCell::new(None),
     }
 }

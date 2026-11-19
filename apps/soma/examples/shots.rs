@@ -15,9 +15,9 @@ use std::rc::Rc;
 use std::time::Duration;
 
 use vieww::foundation::Size;
+use vieww::widget::Theme;
 use vieww::FrameDriver;
 use vieww_paint::native::NativeRenderer;
-use vieww::widget::Theme;
 
 use soma::{build_state, root, run_search, select_topic, AppState};
 
@@ -48,7 +48,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     type_into(&state, "heart");
     reel.advance(&mut driver, 0.9);
-    shot(&mut renderer, &mut driver, &state, &out, "3-searching-heart")?;
+    shot(
+        &mut renderer,
+        &mut driver,
+        &state,
+        &out,
+        "3-searching-heart",
+    )?;
 
     // ---- a topic opens: the panel rises, the flesh goes to glass --------
     let results = state.results.get();
@@ -68,12 +74,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let results = state.results.get();
     let picked = results.first().map(|h| h.topic);
-    println!("    7: hits={} picked={:?} -> {:?}", results.len(), picked, picked.map(|i| (state.db.topics[i].title, state.db.topics[i].organ)));
+    println!(
+        "    7: hits={} picked={:?} -> {:?}",
+        results.len(),
+        picked,
+        picked.map(|i| (state.db.topics[i].title, state.db.topics[i].organ))
+    );
     if let Some(top) = results.first() {
         select_topic(&state, top.topic);
     }
     reel.advance(&mut driver, 1.4);
     shot(&mut renderer, &mut driver, &state, &out, "7-kidney-xray")?;
+
+    // ---- the person takes the camera: a side view of the same organ ------
+    {
+        let mut rig = state.rig.borrow_mut();
+        rig.orbit(-190.0, 0.0);
+        rig.zoom_by(1.25);
+        rig.publish();
+    }
+    reel.advance(&mut driver, 0.2);
+    shot(&mut renderer, &mut driver, &state, &out, "8-side-view")?;
+
+    // ---- a red-flag question: the emergency card leads --------------------
+    soma::clear(&state);
+    type_into(&state, "chest pain");
+    reel.advance(&mut driver, 1.2);
+    shot(&mut renderer, &mut driver, &state, &out, "9-red-flag")?;
+
+    // ---- rest: after the sway window the body stops asking for frames ----
+    soma::clear(&state);
+    reel.advance(&mut driver, 12.0);
+    {
+        use vieww::animation::Ticker;
+        let animating = state.rig.borrow().is_animating();
+        println!("    rest after 12 s: rig still animating = {animating}");
+    }
 
     println!("done: {out}");
 
@@ -114,6 +150,7 @@ fn mount(driver: &mut FrameDriver) -> Rc<AppState> {
     let state = build_state(&runtime);
     driver.tickers().add(&state.rig);
     state.panel_scroll.attach(driver.tickers());
+    state.answer_scroll.attach(driver.tickers());
     driver.set_root(root(&state));
     state
 }
