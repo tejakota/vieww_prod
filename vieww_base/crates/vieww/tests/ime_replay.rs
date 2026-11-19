@@ -127,18 +127,28 @@ impl Harness {
         self.driver.draw_frame();
     }
 
-    /// One input-method event, in — and the rebuild it must be followed by.
+    /// One input-method event, in — and the rebuild a real app does next.
     ///
-    /// Two events in a row without the rebuild between them would apply the
-    /// second to the render object's *stale* value: `handle_ime` computes
-    /// from `self.value`, which only moves when the widget is rebuilt from
-    /// the signal. That is not a wart to route around here; it is the
-    /// controlled-component contract, and a bridge that batches events must
-    /// apply them to the value it holds, not re-dispatch stale ones.
+    /// The rebuild is kept between events to exercise the caller's round trip
+    /// — the signal write, the remount, the fresh object — which is the half
+    /// of the controlled contract this file exists to pin. The framework no
+    /// longer *requires* it between events: consecutive edits now chain
+    /// through the value the object last handed out (see
+    /// `commits_in_one_frame_chain_rather_than_clobber` below), so a bridge
+    /// that delivers a burst inside one frame loses nothing. Both orders are
+    /// therefore tested — this one, with the rebuild, and the burst test
+    /// without it.
     fn ime(&mut self, event: &ImeEvent) -> bool {
         let handled = self.driver.handle_ime(event);
         self.rebuild();
         handled
+    }
+
+    /// An input-method event with **no** rebuild after it — the delivery a
+    /// platform makes when its event loop hands over a whole burst before the
+    /// next frame.
+    fn ime_burst(&mut self, event: &ImeEvent) -> bool {
+        self.driver.handle_ime(event)
     }
 
     fn tap(&mut self, at: Offset) {
@@ -213,6 +223,33 @@ fn session_events_alone_edit_nothing() {
     );
     assert_eq!(harness.value().text, "abc");
     assert_eq!(harness.value().composing, None);
+}
+
+/// Commits delivered inside one frame — no rebuild between them — chain
+/// rather than clobber.
+///
+/// This is the delivery the iOS simulator's suite actually makes
+/// (`typeText` hands a whole burst of keys to the focused field before the
+/// next redraw), and for exactly this reason it is the one a harness drawing
+/// a frame after every event hides. Before the render object chained its own
+/// edits, every event of a burst cloned the same build-time value and each
+/// `on_changed` overwrote the last: only the final commit of a burst
+/// survived.
+#[test]
+fn commits_in_one_frame_chain_rather_than_clobber() {
+    let mut harness = Harness::new("");
+
+    assert!(harness.ime_burst(&ImeEvent::commit("he")));
+    assert!(harness.ime_burst(&ImeEvent::commit("llo")));
+    assert!(harness.ime_burst(&ImeEvent::commit(" world")));
+    // Only now the frame a busy event loop owed.
+    harness.rebuild();
+
+    assert_eq!(
+        harness.value().text,
+        "hello world",
+        "every commit of the burst must survive, in order"
+    );
 }
 
 #[test]

@@ -192,6 +192,22 @@ shared selection, animation and the drawer all work.
 - An unattended run: `ci/mobile/test-lab.sh ios` / the `test-lab-ios` job need
   a `.ipa` signed with a real Apple development identity (`IOS_*` secrets);
   Firebase Test Lab refuses ad-hoc signatures.
+- **Marked-text composition on iOS** (found 2026-11-19, the XCUITest typing
+  round). The suite's CJK test types romaji at a field with the Chinese
+  (Pinyin) keyboard installed and the keystrokes land — after the same day's
+  burst-chaining fix in `RenderEditableText` (TRACKER), every one of them —
+  but as plain ASCII: no
+  composition, no candidate, no hanzi. Either the active input mode is not
+  pinyin on that simulator after all, or the winit UIKit bridge does not
+  implement the marked-text half of the text-entry protocol a composing
+  keyboard needs (`setMarkedText` lives in `UITextInput`, one protocol above
+  the `UIKeyInput` a hardware-keyboard path needs). The test now skips with
+  this item's name when delivery is proven and composition is not, so the
+  gate is red only for lost keystrokes. **Start:** vendor-and-patch winit
+  (`ci/tools/patch-winit.sh` exists for exactly this) with a `UITextInput`
+  conformer on the view, mapping `setMarkedText`/`insertText` to
+  `Ime::Preedit`/`Ime::Commit` — the Android `InputConnection` mapping is
+  the shape to copy.
 
 **Start.** On LambdaTest, type `VIEWW` into Device Logs' filter (or download
 the log) during a run and record the suite's lines here. With an Apple

@@ -1561,6 +1561,10 @@ impl Stopped {
 #[must_use]
 pub fn parse_diagnostics(stderr: &str, file_name: &str) -> Vec<Diagnostic> {
     let mut out = Vec::new();
+    // Whether the record most recently pushed was an error with no span —
+    // a *tool* failure, whose follow-up note is the only place the tool's
+    // own output appears. See the `"note"` arm below.
+    let mut last_error_was_spanless = false;
 
     for line in stderr.lines() {
         let line = line.trim();
@@ -1576,7 +1580,27 @@ pub fn parse_diagnostics(stderr: &str, file_name: &str) -> Vec<Diagnostic> {
             "error" => Severity::Error,
             "warning" => Severity::Warning,
             // "note", "help" and "failure-note" arrive as their own records and
-            // duplicate what the parent already said.
+            // usually duplicate what the parent already said — but not always.
+            // A *tool* failure ("linking with `cc` failed") has no span, and
+            // the note that follows it is the only place the tool's own output
+            // appears: the linker's stderr, without which a link failure is a
+            // message about `cc` and nothing about why. The coverage leg met
+            // exactly that (2026-11-19: two pipeline tests failed on links,
+            // and the dropped note held the whole story). So a note following
+            // a span-less error is folded into that error's help rather than
+            // skipped; a note following a spanned error still is a duplicate.
+            "note" => {
+                let message = record.str_field("message").unwrap_or_default();
+                if last_error_was_spanless {
+                    if let Some(last) = out.last_mut() {
+                        last.help = match last.help.take() {
+                            Some(help) => Some(format!("{help}\n{message}")),
+                            None => Some(message.to_owned()),
+                        };
+                    }
+                }
+                continue;
+            }
             _ => continue,
         };
 
@@ -1593,6 +1617,15 @@ pub fn parse_diagnostics(stderr: &str, file_name: &str) -> Vec<Diagnostic> {
             .unwrap_or(level)
             .to_owned();
         let (line_no, column, end_line, end_column) = primary_span(&record);
+        // `spans` is absent or empty exactly when the error names no code —
+        // the shape of a tool failure, which is what the note arm keys on.
+        // Both spellings occur: an absent key on some paths, an empty array
+        // on others; `primary_span` treats them the same and so does this.
+        last_error_was_spanless = matches!(severity, Severity::Error)
+            && record
+                .get("spans")
+                .and_then(crate::json::Json::as_array)
+                .is_none_or(|spans| spans.is_empty());
 
         out.push(Diagnostic {
             file: file_name.to_string(),
@@ -1729,6 +1762,45 @@ mod tests {
         assert!(
             parse_diagnostics(stderr, "x.rs").is_empty(),
             "neither is a place in the buffer anybody can jump to"
+        );
+    }
+
+    #[test]
+    fn a_tool_failures_note_carries_its_output() {
+        // The shape of the coverage leg's 2026-11-19 failure: an error about
+        // `cc` with no span, and the note behind it holding the linker's own
+        // stderr — the only record that says why the link failed.
+        let stderr = concat!(
+            r#"{"message":"linking with `cc` failed: exit status: 1","code":null,"level":"error","spans":[],"children":[]}"#,
+            "\n",
+            r#"{"message":"ld: cannot allocate read-only table of contents\ncollect2: error: ld returned 1 exit status","level":"note","spans":[],"children":[]}"#,
+        );
+        let parsed = parse_diagnostics(stderr, "lesson.rs");
+        assert_eq!(parsed.len(), 1, "the error is one diagnostic");
+        assert!(
+            parsed[0].help.as_deref().is_some_and(|help| help.contains("ld:")),
+            "the note's linker output rides in the help, where a person \
+             reading the Problems panel finds it: {:?}",
+            parsed[0].help
+        );
+    }
+
+    #[test]
+    fn a_spanned_errors_note_is_still_a_duplicate() {
+        // An error *with* a span owns its note already — the note restates the
+        // span's file and line, and showing it twice in the panel says one
+        // thing twice. The folding is for tool failures only.
+        let stderr = concat!(
+            r#"{"message":"mismatched types","code":{"code":"E0308"},"level":"error","spans":[{"line_start":3,"column_start":9,"is_primary":true}],"children":[]}"#,
+            "\n",
+            r#"{"message":"expected because of this annotation here","level":"note","spans":[{"line_start":1,"column_start":5}],"children":[]}"#,
+        );
+        let parsed = parse_diagnostics(stderr, "x.rs");
+        assert_eq!(parsed.len(), 1);
+        assert!(
+            parsed[0].help.is_none(),
+            "a spanned error's note is not folded in: {:?}",
+            parsed[0].help
         );
     }
 

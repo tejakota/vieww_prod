@@ -11,6 +11,57 @@ buried under a history that only grows, and every gap had to be rediscovered by
 reading to the bottom. The section is still here for continuity, and
 `PENDING.md` is the one to read if the question is "what should I work on".
 
+## 2026-11-19 (the typing round): a burst of keystrokes lands in full
+
+**Context.** The iOS simulator's XCUITest leg — the a11y suite's typing half —
+had never passed, and its failures were not flaky: three runs on 2026-11-19
+failed the same two tests with byte-identical symptoms. `typeText("hello")`
+left the field reading `tap to typeeo`; `typeText("nihao")` + `" "`
+left `tap to typeno `. One survivor per delivery gap.
+
+**The bug.** `RenderEditableText`'s edit paths — `handle_key`, `handle_ime`,
+and `use_clipboard`'s cut/paste — cloned `self.value`, the snapshot taken at
+build time, as the base for every edit. The controlled contract moves that
+snapshot only when the caller writes the edit into a signal and the *next*
+frame's rebuild hands the result back down. A burst of keystrokes inside one
+frame — which is what a platform's event loop delivers, because a frame is
+16 ms and a burst is not — therefore cloned the *same* stale value for every
+key, and each `on_changed` write overwrote the previous one's work. Only the
+last key of each burst survived; the arithmetic of the observed strings
+(`e`+`o` from one split burst, `n`+`o`+space from a burst and its trailing
+separate keystroke) matches exactly. The repo's own `ime_replay` harness had
+documented the hazard and worked around it by drawing a frame between every
+event — a workaround the real event loop cannot afford.
+
+**The fix.** The render object now chains its own edits: a `pending`
+`RefCell<Option<TextEditingValue>>` holds the freshest value the object handed
+out, every edit path reads through `editing()` (pending, else the build-time
+value) and records what it produced through `chained()` before calling the
+handler. The rebuild replaces the object wholesale — `replace_object` swaps
+in a fresh one built from the signal — so `pending` is deliberately *not*
+adopted across rebuilds: the fresh object carries the caller's answer, and
+the object's own guess never outvotes it. A caller that ignores `on_changed`
+still sees its value respected on the next rebuild, exactly as before; a
+caller that transforms the edit still wins; a burst now lands in order.
+
+**Checked by.** `editor.rs`'s two new tests — a five-key burst with no frames
+between the keys asserting `hello` lands in full, and a burst-frame-burst
+sequence asserting the second burst builds on the rebuilt value — plus
+`ime_replay`'s new `commits_in_one_frame_chain_rather_than_clobber`, which
+drives three `Ime::Commit`s through one frame. The suite's existing
+controlled-contract tests (`the_field_holds_no_text_of_its_own` and friends)
+pin the other half: the signal remains the only document.
+
+**The same round.** The studio's `parse_diagnostics` now folds a spanless
+error's follow-up note into its `help` — the coverage leg lost two pipeline
+tests to a `cc` link failure whose only real evidence lived in the note this
+parser dropped. The XCUITest suite's typing assertions now print the whole
+published value set on failure instead of throwing "no matches found", and
+the CJK test skips — naming PENDING's new marked-text item — when every
+keystroke lands as plain ASCII, which is a keyboard-mode or bridge-protocol
+question the suite cannot adjudicate from inside the app, and fails only when
+keystrokes are actually lost.
+
 ## 2026-11-19 (later): the vertex diet's second half and the compute blur — the plan's two remaining code items
 
 **Context.** The performance plan's status check (2026-11-19) left two

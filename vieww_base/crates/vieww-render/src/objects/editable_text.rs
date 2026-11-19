@@ -1,5 +1,5 @@
 use std::any::Any;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::fmt;
 use std::rc::Rc;
 use std::time::Duration;
@@ -190,6 +190,33 @@ pub struct RenderEditableText {
     ///
     /// [`adopt_reports`]: RenderObject::adopt_reports
     last_tap: Cell<Option<(Duration, Offset, u32)>>,
+    /// The freshest value this object's own edits have produced, until the
+    /// next rebuild replaces the object.
+    ///
+    /// **Why this exists: two keystrokes can arrive inside one frame.** `value`
+    /// is a snapshot taken when the widget was built, and it only moves when the
+    /// caller writes the edit into a signal and the rebuild hands the result
+    /// back down — which is the *next* frame, not the keystroke. A burst of
+    /// keys (a phone delivering a typed word, a test harness, a paste spread
+    /// over several key events) therefore used to clone the *same* stale
+    /// `value` for every key in the burst, and each `handler` call overwrote
+    /// the previous one's work: only the last key of the burst survived. The
+    /// iOS simulator's suite met exactly that — `typeText("hello")` landed as
+    /// `tap to typeeo`, and `nihao ` as `tap to typeno `, one survivor per
+    /// delivery gap — which is how the bug was found.
+    ///
+    /// A `RefCell` rather than a `Cell` because `TextEditingValue` is not
+    /// `Copy`, and interior mutability at all because keys and input-method
+    /// events arrive through `&self`.
+    ///
+    /// **Deliberately *not* adopted across rebuilds** — the opposite of the
+    /// three `Cell`s above. A rebuild is the reconciliation point of the
+    /// controlled contract: the fresh object carries what the caller's signal
+    /// says, which is the caller's answer to every pending edit — applied as
+    /// given, transformed, or refused. Carrying `pending` past that would let
+    /// the object's own guess outvote the caller's answer. It lives exactly as
+    /// long as the un-rebuilt window it exists to cover.
+    pending: RefCell<Option<TextEditingValue>>,
     /// The width `shaped` was laid out against.
     ///
     /// Shaping is the expensive part of a text field by a wide margin, and it
@@ -302,6 +329,7 @@ impl RenderEditableText {
             goal_column: Cell::new(None),
             page_lines: DEFAULT_PAGE_LINES,
             last_tap: Cell::new(None),
+            pending: RefCell::new(None),
             shaped_width: f32::NAN,
             multiline: true,
             on_submit: None,
@@ -930,6 +958,33 @@ impl RenderEditableText {
         Some(self.text_position(hit))
     }
 
+    /// The value an edit starts from.
+    ///
+    /// The freshest one this object's own edits have produced when its caller
+    /// has not had a frame to answer in yet ([`pending`](Self::pending)'s whole
+    /// job), else the build-time [`value`](Self::value). Every path that hands
+    /// a value to [`on_changed`](Self::on_changed) reads through here and writes
+    /// the result back, so a burst of keys chains instead of clobbering — see
+    /// the field's own documentation for the contract this preserves.
+    fn editing(&self) -> TextEditingValue {
+        self.pending
+            .borrow()
+            .clone()
+            .unwrap_or_else(|| self.value.clone())
+    }
+
+    /// Record the value an edit produced, as the base the next edit chains
+    /// from until a rebuild replaces this object with the caller's answer.
+    ///
+    /// Called *before* the handler, so a handler that re-enters (a caller
+    /// whose `on_changed` inspects the field, say) already sees the chained
+    /// state — and so an edit whose handler panics still leaves the slot
+    /// holding the value that was handed out, which is the only one any
+    /// re-entrant reader could have observed.
+    fn chained(&self, value: &TextEditingValue) {
+        *self.pending.borrow_mut() = Some(value.clone());
+    }
+
     /// Carry out cut, copy or paste, reporting whether the key was used.
     ///
     /// Separate from `handle_key` because it is the only part of this object that
@@ -959,25 +1014,28 @@ impl RenderEditableText {
                 // And an obscured field never gives its contents away: the
                 // dots on screen are the point, and every platform's password
                 // box refuses copy for the same reason.
-                if self.value.selected_text().is_empty() || self.obscure.is_obscured() {
+                let current = self.editing();
+                if current.selected_text().is_empty() || self.obscure.is_obscured() {
                     return true;
                 }
-                let _ = clipboard.write_text(self.value.selected_text());
+                let _ = clipboard.write_text(current.selected_text());
                 true
             }
             TextIntent::Cut => {
-                if self.value.selected_text().is_empty() || self.obscure.is_obscured() {
+                let current = self.editing();
+                if current.selected_text().is_empty() || self.obscure.is_obscured() {
                     return true;
                 }
-                if clipboard.write_text(self.value.selected_text()).is_err() {
+                if clipboard.write_text(current.selected_text()).is_err() {
                     // The text is *not* deleted if the write failed, or a cut
                     // that could not reach the pasteboard would destroy it.
                     return true;
                 }
-                let mut value = self.value.clone();
+                let mut value = current;
                 // Deletes the selection rather than one grapheme, because there
                 // is one — see `backspace_with_a_selection_deletes_the_selection`.
                 value.delete_backward();
+                self.chained(&value);
                 handler(value);
                 true
             }
@@ -987,10 +1045,11 @@ impl RenderEditableText {
                     // All three mean the same thing to a field.
                     return true;
                 };
-                let mut value = self.value.clone();
+                let mut value = self.editing();
                 // `insert` replaces the selection when there is one, which is
                 // exactly paste's semantics.
                 value.insert(&text);
+                self.chained(&value);
                 handler(value);
                 true
             }
@@ -1247,7 +1306,11 @@ impl RenderObject for RenderEditableText {
         // than nothing happening.
         if !self.multiline && matches!(intent, TextIntent::Newline) {
             if let Some(submit) = &self.on_submit {
-                submit(self.value.text.clone());
+                // `editing()`, not `value`: a submit can follow other edits in
+                // the same un-rebuilt window — Enter arriving in the same burst
+                // as the characters it submits — and the submitted text is
+                // what the field holds now, not what it held a frame ago.
+                submit(self.editing().text);
             }
             return true;
         }
@@ -1262,7 +1325,7 @@ impl RenderObject for RenderEditableText {
             return self.use_clipboard(&intent, handler);
         }
 
-        let mut value = self.value.clone();
+        let mut value = self.editing();
         // Geometry first, logic second. Everything `apply_with_layout` does not
         // recognise falls straight through, and so does an arrow key on a field
         // that has never been laid out — there is no geometry to move through
@@ -1272,6 +1335,13 @@ impl RenderObject for RenderEditableText {
             || (!intent.needs_layout() && value.apply(&intent));
 
         if handled {
+            // Chained *before* the handler, so the next key in the same burst —
+            // before the caller's signal write has become a rebuild — builds on
+            // this value rather than on the snapshot it started from. Without
+            // this, only the last key of a burst survived: every one of them
+            // cloned the same stale `value` and each `handler` call overwrote
+            // the previous one's work.
+            self.chained(&value);
             handler(value);
         }
         handled
@@ -1292,10 +1362,16 @@ impl RenderObject for RenderEditableText {
         if self.read_only {
             return false;
         }
-        let mut value = self.value.clone();
+        // `editing()`, for the same reason `handle_key` gives: an input method
+        // can land a preedit and its commit — or two commits — inside one
+        // frame, and the second must build on the first rather than on the
+        // pre-burst snapshot. The Android bridge never did (its commits arrive
+        // with frames between), which is why this was only found on iOS.
+        let mut value = self.editing();
         if !value.apply_ime(event) {
             return false;
         }
+        self.chained(&value);
         handler(value);
         true
     }

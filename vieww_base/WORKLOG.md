@@ -12,6 +12,27 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
+Last updated: 2026-11-19, after the typing round: the iOS XCUITest typing
+tests had never passed, and the strings they failed with (`tap to typeeo`
+from `hello`, `tap to typeno ` from `nihao `) named the bug exactly — a burst
+of keystrokes cloned the render object's build-time value, so only the last
+key of each burst survived. `RenderEditableText` now chains its own edits
+(`pending`, read through `editing()`, recorded through `chained()`, reset by
+the rebuild that replaces the object), with regression tests in `editor.rs`
+and `ime_replay.rs` that drive bursts without frames between the keys. The
+CJK test now skips — naming PENDING §1.4's new marked-text item — when every
+keystroke lands as plain ASCII and fails only when keystrokes are lost,
+because composition-vs-configuration is not adjudicable from inside the app.
+The studio's `parse_diagnostics` keeps a tool failure's follow-up note (the
+linker's own stderr) in the diagnostic's help, so the next `cc` failure says
+why instead of saying nothing — the coverage leg's one-off link failure
+(2026-11-19 16:50) dropped exactly that note. What remains is in `TODO.md`'s
+open list: the gate must go green on these fixes (watch the ios-simulator and
+coverage legs), the iPhone present path, the hardware receipts, the ports'
+compute plumbing, and the Device Farm A/B the blur is owed.
+
+---
+
 Last updated: 2026-11-19, after the vertex-diet round: the vertex diet's
 second half landed (the flat payload — colour, uv, material, params, extra,
 shape, mask — moved behind a per-draw index into a constants table, a

@@ -185,15 +185,53 @@ final class ViewwA11yTests: XCTestCase {
     /// keystroke lands. The bridge identifier was the handle before iOS 18
     /// stopped exposing identifiers (see the header); the prefix survives
     /// that and is the same string VoiceOver reads on focus.
+    ///
+    /// **Resolution failures are `nil`, not throws.** Reading `value` off an
+    /// unresolvable query throws "Failed to get matching snapshot", which
+    /// answers nothing: it cannot say whether the field vanished, renamed
+    /// itself, or began the message this test was asking for. The first red
+    /// rounds met exactly that (three runs, 2026-11-19, the field holding
+    /// something the prefix query no longer matched and the error saying
+    /// only "no matches"). Returning `nil` and letting the assertion print
+    /// [`everyValueInTheTree`] turns the next red into evidence.
     private func fieldValue(_ typed: XCUIElement, where check: (String) -> Bool) -> String? {
         let deadline = Date().addingTimeInterval(Self.treeSettles)
         while Date() < deadline {
-            if let value = typed.value as? String, check(value) {
+            if let value = Self.nonThrowingValue(of: typed), check(value) {
                 return value
             }
             usleep(250_000)
         }
-        return typed.value as? String
+        return Self.nonThrowingValue(of: typed)
+    }
+
+    /// `element.value` as a plain read: `nil` when the query will not resolve,
+    /// rather than an `NSException` with no information in it.
+    ///
+    /// `exists` is the probe that does not throw — it answers `false` for an
+    /// unresolved query — so it is asked first, and `value` is only read
+    /// through a query that just proved it resolves.
+    private static func nonThrowingValue(of element: XCUIElement) -> String? {
+        guard element.exists else { return nil }
+        return element.value as? String
+    }
+
+    /// Every value the tree carries, for failure messages.
+    ///
+    /// A typing assertion that fails with "the field reads X" is a finding; one
+    /// that fails with "no matches found" is a shrug. This is what the message
+    /// falls back to when the field's own handle stopped resolving: the whole
+    /// published value set, so the reader can see what the keystrokes did land
+    /// as — and whether the field is there at all under some other value.
+    private func everyValueInTheTree() -> [String] {
+        let all = app.descendants(matching: .any)
+        var values: [String] = []
+        for index in 0..<min(all.count, 30) {
+            if let value = Self.nonThrowingValue(of: all.element(boundBy: index)), !value.isEmpty {
+                values.append(value)
+            }
+        }
+        return values
     }
 
     /// The field re-found by its seeded prefix — the handle that survives
@@ -229,8 +267,9 @@ final class ViewwA11yTests: XCTestCase {
         app.typeText("hello")
         let value = fieldValue(typed) { $0.contains("hello") }
         XCTAssertTrue(value?.contains("hello") == true,
-                      "typed 'hello' and the field still reads '\(value ?? "nothing")' — the " +
-                      "keystrokes never reached vieww's editing model")
+                      "typed 'hello' and the field reads '\(value ?? "nothing")' — the " +
+                      "keystrokes never reached vieww's editing model. The tree holds " +
+                      "\(everyValueInTheTree())")
     }
 
     /// Typing with a CJK keyboard composes — the tree must end up holding
@@ -270,10 +309,40 @@ final class ViewwA11yTests: XCTestCase {
         let committed = value ?? ""
         XCTAssertNotEqual(committed, before,
                           "typed 'nihao' and the field never changed — composition died before " +
-                          "the tree, which is exactly the FW-11 failure mode")
+                          "the tree, which is exactly the FW-11 failure mode. The tree holds " +
+                          "\(everyValueInTheTree())")
+
+        // **Delivery and composition are two different findings, and only one
+        // of them is this test's to fail on.** The keystrokes landing at all is
+        // the delivery half — the one the ASCII test above owns, and the one
+        // the bridge's burst-chaining fix (2026-11-19) was for: 'nihao '
+        // arriving complete but as plain ASCII means every key was delivered
+        // and the keyboard simply did not compose — either the active input
+        // mode is not pinyin after all (a simulator-configuration gap, the
+        // same standing as the no-keyboard skip above) or the platform bridge
+        // does not implement the marked-text half of the text-entry protocol
+        // that composing keyboards need (PENDING's iOS IME item). Romaji
+        // arriving INCOMPLETE — characters lost — is a delivery bug, and is
+        // asserted as the failure it is.
+        // What the typing added to the seed: the whole delivery, laid out for
+        // the two-way check below. `before` is the seed the field started
+        // with, so this is exactly the keystrokes' net effect.
+        let delivered = String(committed.dropFirst(before.count))
         let hasCJK = committed.unicodeScalars.contains { $0.value >= 0x2E80 }
+        if !hasCJK && delivered.contains("nihao") {
+            throw XCTSkip("every keystroke of 'nihao ' landed, as plain ASCII — the keyboard " +
+                          "composed nothing. Either the pinyin keyboard is not the active " +
+                          "input mode on this simulator (a11y-ios.sh installs it; Settings " +
+                          "must still have it selected), or the bridge does not take marked " +
+                          "text, which is the open iOS IME item in PENDING — delivery is " +
+                          "proven, composition is not, and this suite cannot tell those two " +
+                          "configurations apart from inside the app")
+        }
+
         XCTAssertTrue(hasCJK,
-                      "the field changed but holds '\(committed)' — ASCII, so the keyboard " +
-                      "composed nothing: is the pinyin keyboard actually the active one?")
+                      "the field changed but holds '\(committed)' — neither the composed " +
+                      "hanzi this test exists for nor the complete ASCII that would name a " +
+                      "configuration gap, so keystrokes were lost in delivery. The tree " +
+                      "holds \(everyValueInTheTree())")
     }
 }

@@ -367,6 +367,87 @@ fn typing_changes_the_text() {
     );
 }
 
+/// A burst of keystrokes inside one frame lands in full, not as whatever the
+/// last one happened to carry.
+///
+/// The iOS simulator's XCUITest suite found this the hard way: `typeText`
+/// delivers a word as one burst of key events, every one of which cloned the
+/// *same* build-time value, and each `on_changed` write overwrote the last —
+/// so `hello` arrived as `eo` and `nihao ` as `no `, one survivor per delivery
+/// gap. A real platform can do the same to a fast typist on a busy frame, so
+/// the property is asserted here without the frames a patient test would draw
+/// between the keys.
+#[test]
+fn a_burst_of_keystrokes_inside_one_frame_lands_in_full() {
+    let (mut driver, editor) = mounted();
+    editor.set_text("");
+    driver.draw_frame_at(Duration::from_millis(1));
+
+    // Deliberately no `draw_frame_at` between the keys: exactly the delivery a
+    // platform makes when its event loop hands the whole burst to the focused
+    // field before the next redraw — which is every burst, because a frame is
+    // 16 ms and a burst is not. The timestamps still advance, as a real
+    // keyboard's do, so nothing about the burst depends on two events sharing
+    // a clock reading.
+    let mut t = 2_u64;
+    for ch in "hello".chars() {
+        assert!(
+            driver.handle_key(&KeyEvent::down(
+                LogicalKey::Character(ch.to_string()),
+                Duration::from_millis(t),
+            )),
+            "the field took '{ch}'"
+        );
+        t += 1;
+    }
+    driver.draw_frame_at(Duration::from_millis(10));
+
+    assert_eq!(
+        editor.value.get().text,
+        "hello",
+        "every keystroke of the burst must survive, in order"
+    );
+}
+
+/// The other half of the burst property: what the burst built is what the
+/// rebuild adopts. A caller who answers the last edit with a *different* value
+/// still wins — the controlled contract — but a caller who simply wrote back
+/// what it was handed must not see the field disagree with its own signal.
+#[test]
+fn a_burst_then_a_frame_then_another_burst_chains_across_both() {
+    let (mut driver, editor) = mounted();
+    editor.set_text("");
+    driver.draw_frame_at(Duration::from_millis(1));
+
+    let mut t = 2_u64;
+    for ch in "abc".chars() {
+        driver.handle_key(&KeyEvent::down(
+            LogicalKey::Character(ch.to_string()),
+            Duration::from_millis(t),
+        ));
+        t += 1;
+    }
+    driver.draw_frame_at(Duration::from_millis(10));
+    assert_eq!(editor.value.get().text, "abc", "the first burst lands");
+
+    // The rebuild has happened; the second burst starts from the value the
+    // rebuild carried, and chains within itself the same way.
+    let mut t = 20_u64;
+    for ch in "defg".chars() {
+        driver.handle_key(&KeyEvent::down(
+            LogicalKey::Character(ch.to_string()),
+            Duration::from_millis(t),
+        ));
+        t += 1;
+    }
+    driver.draw_frame_at(Duration::from_millis(30));
+    assert_eq!(
+        editor.value.get().text,
+        "abcdefg",
+        "the second burst builds on the rebuilt value, not on the first burst's base"
+    );
+}
+
 #[test]
 fn backspace_deletes_a_selection_and_only_when_it_is_pressed() {
     let (mut driver, editor) = mounted();
