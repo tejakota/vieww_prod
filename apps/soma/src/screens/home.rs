@@ -164,25 +164,7 @@ impl Widget for BodyScreen {
 // ---------------------------------------------------------------------------
 
 fn viewport(state: &Rc<AppState>, pose: &anatomy::Pose, vw: f32, vh: f32) -> WidgetNode {
-    // The internal buffer: a fraction of the logical size, width-capped,
-    // and a fifth smaller again in an x-ray close-up — there the see-through
-    // shell covers every pixel, and the frame must still fit 60 Hz.
-    let scale = anatomy::RENDER_SCALE * (1.0 - 0.2 * pose.xray);
-    let bw = ((vw * scale) as u32)
-        .min(anatomy::MAX_INTERNAL_WIDTH)
-        .max(2);
-    let bh = ((bw as f32) * vh / vw.max(1.0)) as u32;
-
-    let image = anatomy::render_frame(
-        &mut state.scene.borrow_mut(),
-        &state.parts,
-        &state.placements,
-        pose,
-        state.selected.get(),
-        bw,
-        bh,
-        Some(&state.stats),
-    );
+    let image = body_frame(state, pose, vw, vh);
 
     // A pinch reports its spread relative to its start; the rig wants the
     // change since the last update.
@@ -250,6 +232,67 @@ fn viewport(state: &Rc<AppState>, pose: &anatomy::Pose, vw: f32, vh: f32) -> Wid
                 organ_callout(state, pose, vw, vh),
             ]))
         .into()
+}
+
+/// The 3D budget per frame, ms: half a 60 Hz frame, leaving the rest for
+/// the card, the composite and the present.
+const BUDGET_MS: f32 = 8.0;
+/// The quality governor's floor (fraction of logical size).
+const MIN_SCALE: f32 = 0.22;
+
+/// The body's image for this frame — reused when nothing it depends on
+/// changed, rendered at the device's own pace when something did.
+///
+/// **The governor.** Each render while moving is timed. Over budget, the
+/// next renders drop a step in resolution; well under, they climb back. A
+/// low-end phone settles low while moving, a flagship stays at full scale;
+/// nothing is tuned per model. **Settling.** When the camera stops, one
+/// render at full scale replaces the motion frame, and the cache holds it.
+fn body_frame(
+    state: &Rc<AppState>,
+    pose: &anatomy::Pose,
+    vw: f32,
+    vh: f32,
+) -> vieww::foundation::Image {
+    use vieww::animation::Ticker;
+    let moving = state.rig.borrow().is_animating();
+    let full = anatomy::RENDER_SCALE * (1.0 - 0.2 * pose.xray);
+    let scale = if moving { state.quality.get().min(full) } else { full };
+    let bw = ((vw * scale) as u32).clamp(2, anatomy::MAX_INTERNAL_WIDTH);
+    let bh = ((bw as f32) * vh / vw.max(1.0)) as u32;
+    let selected = state.selected.get();
+
+    if let Some((p, s, w, h, img)) = state.frame_cache.borrow().as_ref() {
+        if p == pose && *s == selected && *w == bw && *h == bh {
+            return img.clone();
+        }
+    }
+
+    let started = std::time::Instant::now();
+    let image = anatomy::render_frame(
+        &mut state.scene.borrow_mut(),
+        &state.parts,
+        &state.placements,
+        pose,
+        selected,
+        bw,
+        bh,
+        Some(&state.stats),
+    );
+    if moving {
+        let ms = started.elapsed().as_secs_f32() * 1000.0;
+        let q = state.quality.get();
+        let next = if ms > BUDGET_MS {
+            q * 0.85
+        } else if ms < BUDGET_MS * 0.55 {
+            q * 1.05
+        } else {
+            q
+        };
+        state.quality.set(next.clamp(MIN_SCALE, anatomy::RENDER_SCALE));
+    }
+    *state.frame_cache.borrow_mut() = Some((*pose, selected, bw, bh, image.clone()));
+    image
 }
 
 /// The brand and the corpus line, floating at the top.

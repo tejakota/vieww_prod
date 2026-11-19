@@ -41,3 +41,25 @@ cargo run --release --example shots -- /tmp/shots    # 9 shots + frame cost
 cd ../soma-core && cargo test --release              # search + eval gate
 python3 -I tools/cut_organs.py --sheet /tmp/cut.png  # regenerate the cutouts
 ```
+
+## Follow-up: typing was slow on a Redmi Note 7 Pro
+
+Reported on the device after this patch: fast to load, slow from the first
+keystroke on. Measured here, a typed word cost 16.3 ms a frame. Three causes,
+three fixes:
+
+| Cause | Fix | Typing, ms/frame (2-core x86) |
+|---|---|---|
+| Every rebuild re-rasterised the 3D body, even when only the list changed | `body_frame` reuses the last image when pose, selection and size are unchanged | 16.3 → 8.5 |
+| Every letter restarted the camera flight ("k", "ki", "kid" all lead to the kidneys) | a flight starts only when the leading organ changes | (in the above) |
+| Geometry: picture-grown organs at grid 64 were ~7.5k triangles each, ×12 meshes, plus a 28k-triangle body — cost a phone pays at any resolution | organs at grid 32 (~2k), body at 128 (~13k), organs skipped while the shell is opaque | 8.5 → **6.0**; flight 10.8 → **5.0** |
+
+Plus a **quality governor** for low-end and high-end alike: every 3D render
+while moving is timed against an 8 ms budget; over it, the next renders drop
+15% in resolution (floor 0.22 of logical size), well under it they climb 5%.
+When the camera settles, one full-scale render replaces the motion frame and
+the cache holds it. No per-model tuning.
+
+Once the camera has settled, a keystroke costs 0.1 ms a frame (list only).
+Phone numbers are estimates until measured on the device; the GPU 3D path
+(`vieww-3d::gpu`) is the next step if low-end flights still stutter.

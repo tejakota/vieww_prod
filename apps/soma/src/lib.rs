@@ -155,6 +155,13 @@ pub struct AppState {
     pub rig: Rc<RefCell<Rig>>,
     /// The last frame's 3D statistics, for the caption.
     pub stats: Rc<RefCell<RenderStats>>,
+    /// The last 3D frame and what it was rendered for: a rebuild with the
+    /// same pose, selection and size (typing, a scroll, a list update)
+    /// reuses it instead of rasterising the body again.
+    #[allow(clippy::type_complexity)]
+    pub frame_cache: RefCell<Option<(anatomy::Pose, Option<usize>, u32, u32, vieww::foundation::Image)>>,
+    /// The 3D quality governor's render scale, adapted to this device.
+    pub quality: std::cell::Cell<f32>,
     /// The viewport's logical size, for projecting organ callouts.
     pub viewport: Signal<(f32, f32)>,
 }
@@ -195,6 +202,8 @@ pub fn build_state(runtime: &vieww::element::Runtime) -> Rc<AppState> {
         rig,
         stats: Rc::new(RefCell::new(RenderStats::default())),
         viewport: runtime.signal((SURFACE.width, SURFACE.height)),
+        frame_cache: RefCell::new(None),
+        quality: std::cell::Cell::new(anatomy::RENDER_SCALE),
     })
 }
 
@@ -253,17 +262,22 @@ pub fn run_search(state: &AppState) {
                 // The leading hit's organ is already the target: it takes
                 // the accent while the person is still typing, so the body
                 // answers the query live.
-                let p = &state.placements[organ];
-                let pill = pill_for_height(p.anchor.y);
-                state.selected.set(Some(organ));
-                state.rig.borrow_mut().preview(
-                    p.anchor,
-                    p.zoom,
-                    p.extent,
-                    strength,
-                    bias_for_pill(pill),
-                );
-                state.rig.borrow_mut().set_pill(pill);
+                // Only a new organ starts a flight: each letter of "kidney
+                // stone" leads to the same kidneys, and restarting the
+                // flight per keystroke kept the 3D drawing every frame.
+                if state.selected.get() != Some(organ) {
+                    let p = &state.placements[organ];
+                    let pill = pill_for_height(p.anchor.y);
+                    state.selected.set(Some(organ));
+                    state.rig.borrow_mut().preview(
+                        p.anchor,
+                        p.zoom,
+                        p.extent,
+                        strength,
+                        bias_for_pill(pill),
+                    );
+                    state.rig.borrow_mut().set_pill(pill);
+                }
             } else {
                 // No organ to fly to; hold the whole body but clear up.
                 state.selected.set(None);

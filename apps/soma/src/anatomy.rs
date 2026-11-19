@@ -103,7 +103,9 @@ fn build_body() -> (vieww_mesh::Mesh, Material) {
     let spec = vieww_mesh::relief::SolidSpec {
         size: BODY_HEIGHT,
         depth: 0.115,
-        resolution: 192,
+        // 128: ~13k triangles (192 was ~28k). At rest the body is blurred,
+        // in a close-up it is see-through; the extra density was invisible.
+        resolution: 128,
         smoothing: 2,
         sculpt: 0.62,
     };
@@ -283,7 +285,11 @@ fn grown_organ(key: &str, glow: f32) -> Option<(vieww_mesh::Mesh, Material, f32)
     let spec = vieww_mesh::relief::SolidSpec {
         size,
         depth: size * 0.2,
-        resolution: 64,
+        // 32 cells on the long axis: ~2k triangles an organ. 64 was ~7.5k,
+        // and twelve organ meshes at that density tripled the body's
+        // geometry — the per-frame cost a phone pays whatever the output
+        // resolution, because every vertex is transformed every frame.
+        resolution: 32,
         smoothing: 2,
         sculpt: 0.45,
     };
@@ -1115,6 +1121,12 @@ pub fn apply_pose(
 ) {
     let x = pose.xray;
     let shell_opacity = 1.0 - 0.74 * x;
+    // Under an opaque shell the organs cannot be seen: skip them entirely
+    // (their triangles are most of the scene), until the x-ray begins.
+    let organs_visible = x > 0.02;
+    for &id in &parts.organs {
+        scene.node_mut(id).visible = organs_visible;
+    }
     for &id in &parts.body {
         set_opacity(scene, id, shell_opacity);
     }
@@ -1459,7 +1471,7 @@ mod tests {
     fn pictured_organs_grow_from_their_cutouts() {
         for &(key, _, size) in GROWN {
             let (mesh, material, half) = grown_organ(key, 0.5).expect(key);
-            assert!(mesh.triangles() > 200, "{key} grew a real solid");
+            assert!(mesh.triangles() > 150, "{key} grew a real solid");
             assert!(material.map.is_some(), "{key} wears its picture");
             assert!((half - size * 0.5).abs() < 1e-6);
         }
