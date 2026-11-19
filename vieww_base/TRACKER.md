@@ -11,6 +11,91 @@ buried under a history that only grows, and every gap had to be rediscovered by
 reading to the bottom. The section is still here for continuity, and
 `PENDING.md` is the one to read if the question is "what should I work on".
 
+## 2026-11-19 (later): the vertex diet's second half and the compute blur — the plan's two remaining code items
+
+**Context.** The performance plan's status check (2026-11-19) left two
+code items open beyond the platform bring-ups: the vertex diet's second
+half (item 9's (b): pack the flat fields out of the vertex) and the
+compute-pass blur (item 11's follow-up: the one-add-one-sub running sum).
+Both landed on `main` (`af1ddaf`, `4ab8899`, the CI fixes in `f7fb7bc`),
+built and unit-tested on the pinned 1.98.1 with no GPU — the lavapipe,
+macOS, WARP and browser parity legs are the pixel-level referee, and the
+first round of those caught and fixed the three portability misses noted
+below.
+
+**The vertex diet** (`af1ddaf`). A triangle's three vertices always agreed
+on the flat payload — colour, uv, material, params, extra, shape, mask —
+yet each of the (at least four) vertices a draw item emits carried all of
+it: 96 bytes per vertex against the plan's 108-byte figure, the first
+diet's packed colour included. That payload moved behind the third vertex
+attribute, a `u32` index into a per-frame constants table
+(`vieww_gpu::DrawConstants`, six aligned `vec4`s, one entry per draw
+item), uploaded as a storage buffer the vertex stage fetches:
+
+- **The vertex is 20 bytes** — position, the paint-space coordinate, the
+  index — and every value in an entry is the f32 the attribute it replaced
+  decoded to (the colour decoded to `k/255` on the CPU exactly as every
+  backend's UNORM8 did), so the shader's arithmetic is bit-for-bit what it
+  was. A quad now uploads 4×20 + 96 = 176 bytes where 4×108 = 432 bought
+  the same picture.
+- **All four backends**: Vulkan's binding 5 (STORAGE_BUFFER, vertex stage,
+  one table per flight slot, the descriptor rewritten in `upload_geometry`
+  where the slot is settled), Metal's `buffer(5)` plus the new
+  `msl_slots::SIZES_BUFFER` (naga's `Restrict` clamp needs the byte length
+  on MSL the way SPIR-V's `OpArrayLength` gets it free — without the slot,
+  naga *silently omits the entry point*, which is how this first showed up
+  as "MSL missing a vertex function"), D3D12's root SRV at `t5` (naga's
+  HLSL emits a `ByteAddressBuffer` there), WebGPU's read-only-storage
+  binding 5 with a bind group rebuilt only when the table's buffer
+  regrows.
+- **Checked by**: `vieww-gpu`'s 89 tests (the layout tripwire now pins 20
+  bytes and the table's six-vec4 stride; the colour test asserts the
+  decoded f32s), `scene_exec`'s 22, the shader cross-compile suite's 32,
+  clippy `-D warnings` on the CI feature set, and the Windows/iOS targets
+  type-checked against the pinned toolchain.
+
+**The compute blur** (`4ab8899`). The fragment blur's running form could
+only re-derive its window at each pixel (2 reads per slide step from the
+seed, 2r + 1 in the tap loop past `pos ~ r/2`), because a fragment cannot
+hand its neighbour the sum it finished with. `cs_blur` in `post.wgsl`
+takes one compute invocation per scanline of the dispatch's write band,
+seeds the window once at the read region's near edge, and slides — the
+entering tap in, the leaving tap out, one write — so reads per pixel are
+O(1) in the radius. The seed derivation and the slide are the fragment
+form's arithmetic — the CPU kernels' own order, addition for addition —
+so the parity suites' 2/255 referee means what it always meant; both edge
+modes and the true divide are unchanged, and `p0` of the push block
+carries the dispatch's write band (the one thing the fragment path took
+from dynamic scissor state).
+
+- **Vulkan only, first**: the renderer asks the device whether RGBA16F is
+  a storage image and builds the compute pipeline and STORAGE-flagged
+  targets together or neither — a device that says no keeps the fragment
+  hybrid the suites certified, and so does `VIEWW_GPU_COMPUTE_BLUR=0`
+  (the A/B on one device). Direct frames are excluded: their post passes
+  may write the swapchain image, which is nobody's storage target. The
+  dispatches sit between render passes behind image barriers that name the
+  compute stage both ways, and the destination returns to the
+  `SHADER_READ_ONLY_OPTIMAL` every target rests in.
+- **Checked by**: the shader suite (the build script bakes `cs_blur` to
+  SPIR-V with every other entry point), clippy and the unit suites; the
+  lavapipe compositor matrix and the backdrop-blur fixture are the parity
+  referee, and the A73 stress screen's 117 ms is the number the Device
+  Farm run is owed.
+
+**The first CI round's catches, fixed** (`f7fb7bc`): the stale stride
+assert (a runtime landmine the local suites cannot reach — the lavapipe,
+macOS, iOS and Windows legs all found it first), two intra-doc links into
+fields the table moved, and a Windows-only missing `DXGI_FORMAT_R32_UINT`
+import the Linux clippy cannot see. The Windows and iOS targets now
+type-check locally, so the cross leg is a confirmation rather than a
+discovery.
+
+**Not claimed.** No hardware number: the vertex-bytes receipt for the
+card/list fixtures and the A73 before/after are Device Farm work, and the
+ports' compute plumbing (Metal, D3D12, WebGPU still run the fragment
+hybrid) is the follow-up `TODO.md` item 4 names.
+
 ## 2026-10-24: the audit's "deliberately not done" list, done — the traversal extracted, Metal and D3D12 scene renderers, textured and transparent 3D, and split frames executed
 
 **Context.** The four items the 2026-10-23 delivery documented as

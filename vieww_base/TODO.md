@@ -2,7 +2,7 @@
 
 Verified state of each item is in `PENDING.md`; this is the short list.
 
-## Done on 2026-11-19 (main, through the atlas-diet round)
+## Done on 2026-11-19 (main, through the vertex-diet round)
 
 Evidence in `TRACKER.md` and the WORKLOG; the status document this list
 follows is *vieww_prod performance plan: status check and to-do plan*
@@ -30,6 +30,27 @@ follows is *vieww_prod performance plan: status check and to-do plan*
 - **Clipped shadows are quads** — the clip folds into the shadow's
   coverage (one mask where the pass fetched two), so a card list under a
   viewport clip is one geometry run.
+- **C-3's leftovers landed fused** (`72fb565`) — the clip walks read rows
+  and the gradient skips interiors; the clip fixtures 24% and 23% faster,
+  the gallery byte-identical.
+- **The vertex diet's second half** (`af1ddaf`): the flat payload every
+  vertex of a draw carried — colour, uv, material, params, extra, shape,
+  mask — moved behind a per-draw index into a constants table (a storage
+  buffer the vertex stage fetches), and the vertex is 20 bytes against the
+  plan's 108-byte figure. All four backends' attribute tables rewritten;
+  Metal's bounds-check clamp gained the sizes buffer it needed
+  (`msl_slots::SIZES_BUFFER`, without which naga silently drops the entry
+  point). The lavapipe / macOS / WARP / browser parity legs are the
+  pixel-level referee.
+- **The compute blur** (`4ab8899`, Vulkan first): `cs_blur` in
+  `post.wgsl` — one invocation per scanline, the running sum carried from
+  one pixel to the next, one add and one sub per pixel and reads O(1) in
+  the radius, where the fragment hybrid still paid `2r + 1` past a
+  scanline's start. Built when the device reports RGBA16F storage (else
+  the fragment hybrid stays), excluded on direct frames (the swapchain
+  image is nobody's storage target), `VIEWW_GPU_COMPUTE_BLUR=0` for the
+  A/B. Metal/D3D12/WebGPU keep the fragment blur — their compute
+  plumbing is the follow-up this landed the shape for.
 
 ## Open
 
@@ -43,17 +64,17 @@ follows is *vieww_prod performance plan: status check and to-do plan*
 3. **The two over-budget fixtures** (PENDING §4.1): AVX2 shipped
    (`3736a4a`, runtime-detected); CI's Linux leg now shows glass at 4.4 ms
    and nested at 4.6 ms — the i5-7200U receipt is what closes it.
-4. **The vertex diet's second half**: f16 UVs, u16 atlas coordinates, a
-   per-draw uniform index for the repeated fields — 96 bytes today against
-   the plan's ~50%-of-108 target.
-5. **Compute-pass blur** (the G-4 follow-up): the fragment hybrid picks the
-   cheaper form per pixel; the one-add-one-sub running sum per row and
-   column is the documented next step.
-6. **Windows start-up measurement** (§3.5): the 840 → ~250 ms code landed
+4. **The compute blur's own follow-ups**: the ports' compute plumbing
+   (Metal, D3D12, WebGPU still run the fragment hybrid), and the A73
+   stress screen's before/after on Device Farm — 117 ms is the number the
+   one-add-one-sub form is owed to halve.
+5. **Windows start-up measurement** (§3.5): the 840 → ~250 ms code landed
    (`9b82b2b`); the before/after `baseline` trace on the laptop is owed.
-7. **The verification owed on done items** — one Device Farm round (storm
+6. **The verification owed on done items** — one Device Farm round (storm
    attribution, `gpu` vs `gpuserial`, small-damage), one laptop round
    (`fixtures --runs 10 --receipt`, `baseline` with `VIEWW_TRACE_FRAMES=1`),
-   a first-frame timing for the cached 3D pipelines.
-8. **Toolchain** — keep the legs on the pinned 1.98.1; the soma upgrade's
+   a first-frame timing for the cached 3D pipelines, and a vertex-bytes
+   receipt for the card/list fixtures against the 108-byte figure the
+   plan's 50% target names.
+7. **Toolchain** — keep the legs on the pinned 1.98.1; the soma upgrade's
    web dispatch has no web build (`apps/soma/ci.toml` is android+ios only).

@@ -12,6 +12,25 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
+Last updated: 2026-11-19, after the vertex-diet round: the vertex diet's
+second half landed (the flat payload — colour, uv, material, params, extra,
+shape, mask — moved behind a per-draw index into a constants table, a
+storage buffer the vertex stage fetches; 20 bytes per vertex against the
+plan's 108-byte figure, all four backends' tables rewritten, Metal's clamp
+gaining the sizes buffer naga needed), and the compute blur landed for
+Vulkan (`cs_blur`, one invocation per scanline, one add and one sub per
+pixel — built only where the device reports RGBA16F storage, off on direct
+frames, `VIEWW_GPU_COMPUTE_BLUR=0` for the A/B; the ports keep the fragment
+hybrid until their compute plumbing exists). The first CI round on the
+vertex diet caught the stale stride assert (fixed with the blur commit),
+two moved doc links and a Windows-only missing import — all fixed in
+`f7fb7bc`, and the Windows/iOS targets now type-check locally against the
+pinned toolchain. What remains is in `TODO.md`'s open list: the iPhone
+present path, the hardware receipts, the ports' compute plumbing, and the
+Device Farm A/B the blur is owed.
+
+---
+
 Last updated: 2026-11-19, after the status-check round: the gate is green
 again (the macos-15 runners start, the Apple and Windows legs execute, and
 `1 · Check` on `fceec64` was the first all-PASS run since the plan was
