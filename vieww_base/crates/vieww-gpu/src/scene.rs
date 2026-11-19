@@ -3102,7 +3102,6 @@ mod tests {
         ));
         let mut cards = Scene::default();
         for row in 0..4u16 {
-            #[expect(clippy::cast_precision_loss, reason = "four rows")]
             let top = 60.0 + f32::from(row) * 60.0;
             cards.push_command(Command::DrawShadow {
                 rect: Rect::new(20.0, top, 180.0, top + 40.0),
