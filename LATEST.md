@@ -2,10 +2,10 @@
 
 | when (UTC) | workflow / branch | verdict | sha | details |
 |---|---|---|---|---|
+| 2026-11-19T09:24:47Z | 3-build/main | SUCCESS | `8fd6d063cca7` | [summary](3-build/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/44495347627) |
 | 2026-11-19T08:42:27Z | 1-check/main | FAILURE | `c7e805614a2e` | [summary](1-check/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/44482258246) |
 | 2026-11-19T08:11:32Z | 5-housekeeping/main | SUCCESS | `c7e805614a2e` | [summary](5-housekeeping/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/44484066197) |
 | 2026-11-18T16:04:14Z | 2-devices/main | SUCCESS | `ee5a473927c2` | [summary](2-devices/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/44340953404) |
-| 2026-11-14T19:16:26Z | 3-build/main | CANCELLED | `6af52e7bc56e` | [summary](3-build/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43630217142) |
 | 2026-11-11T12:02:38Z | cloud-vm/main | FAILURE | `cbc073a283fc` | [summary](cloud-vm/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43009865183) |
 | 2026-11-11T11:49:36Z | device-machines/main | FAILURE | `4b530c174275` | [summary](device-machines/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/43011466669) |
 | 2026-11-10T15:47:23Z | wright---desktop-installers/main | FAILURE | `66e6cbf7fd52` | [summary](wright---desktop-installers/main/latest/SUMMARY.md) / [run](https://github.com/tejakota/vieww_prod/actions/runs/42839439904) |
