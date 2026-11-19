@@ -995,8 +995,21 @@ mod tests {
     /// refusal-first checks read, with no dependence on what the machine
     /// running the test happens to have installed.
     fn tool_env() -> (Env, PathBuf) {
-        let dir =
-            std::env::temp_dir().join(format!("viewwstudio-update-env-{}", std::process::id()));
+        // A fresh directory per call, not per process. Two tests use this
+        // helper and the harness runs them in parallel threads of one
+        // process, so a pid-keyed directory was one test's
+        // `remove_dir_all` deleting the other's curl stub mid-probe — the
+        // "a plan: Missing curl" panic that came and went with scheduling
+        // luck (twice on 2026-11-19, in quick and in the gate, on code
+        // that had passed the same suite hours before). The counter makes
+        // every call's directory its own; the `remove_dir_all` stays, for
+        // a crashed run's leftovers.
+        static NEXT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(0);
+        let nth = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let dir = std::env::temp_dir().join(format!(
+            "viewwstudio-update-env-{}-{nth}",
+            std::process::id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         let bin = dir.join("bin");
         std::fs::create_dir_all(&bin).expect("mkdir");

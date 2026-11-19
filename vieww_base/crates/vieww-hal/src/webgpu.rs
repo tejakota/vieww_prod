@@ -697,12 +697,11 @@ impl<B: GpuBridge> WebGpuSceneRenderer<B> {
                                 continue;
                             }
                             let mut push = pass.push;
-                            push.p[0] = [
-                                f32::from(x),
-                                f32::from(y),
-                                f32::from(x + w),
-                                f32::from(y + h),
-                            ];
+                            // `as f32`, not `f32::from` — there is no
+                            // `From<u32> for f32` — matching
+                            // `scene_exec`'s own region packing, which
+                            // this mirrors.
+                            push.p[0] = [x as f32, y as f32, (x + w) as f32, (y + h) as f32];
                             self.bridge.pass_blur(
                                 self.texture(pass.src),
                                 self.texture(pass.into),
