@@ -1,66 +1,30 @@
-# 3 · Build — SUCCESS
+# 3 · Build — FAILURE
 
-- branch: `main`  sha: `374379f546e5d2adca11f8bae3f8c83931b9e3c8`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/44503283692
+- branch: `main`  sha: `e25b1b7b5dc45c3155e9bff6449c206e26f03e50`  event: workflow_dispatch
+- run: https://github.com/tejakota/vieww_prod/actions/runs/44504818111
 
 | job | verdict | failed steps |
 |---|---|---|
-| plan / plan | PASS |  |
-| phase-1 / soma · android | PASS |  |
-| phase-1 / approve | skipped |  |
-| phase-1 / matrix.title | skipped |  |
+| plan / plan | FAIL | What runs |
+| phase-1 | skipped |  |
 | results / publish | running |  |
 | phase-2 | skipped |  |
 | phase-3 | skipped |  |
 
 ## Steps
 
-### plan / plan — PASS
+### plan / plan — FAIL
 - PASS: Set up job
 - PASS: Run actions/checkout@v4
 - PASS: Manifests valid, dropdowns in sync
-- PASS: What runs
+- FAIL: What runs
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / soma · android — PASS
-- PASS: Set up job
-- skipped: Long paths (Windows)
-- PASS: Run actions/checkout@v4
-- PASS: Python for the runner (GitHub's machines)
-- PASS: Python for the runner (self-host machines)
-- skipped: Python for the runner (macOS)
-- PASS: Plan this job
-- PASS: Run actions/setup-java@v4
-- skipped: Run actions/setup-node@v4
-- skipped: Run gradle/actions/setup-gradle@v4
-- skipped: Run taiki-e/install-action@v2
-- skipped: Run Swatinem/rust-cache@v2
-- skipped: Run actions/cache@v4
-- skipped: AWS credentials (OIDC role)
-- skipped: AWS credentials (access keys)
-- skipped: Run actions/download-artifact@v4
-- skipped: Run actions/download-artifact@v4
-- PASS: soma · android
-- skipped: Android emulator
-- skipped: Build provenance (Sigstore, keyless)
-- skipped: After
-- PASS: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- skipped: Run actions/upload-artifact@v4
-- PASS: Post Run actions/setup-java@v4
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
-- PASS: Post Run actions/checkout@v4
-- PASS: Complete job
-
-### phase-1 / approve — skipped
-
-### phase-1 / matrix.title — skipped
+### phase-1 — skipped
 
 ### results / publish — running
-- PASS: Set up job
+- running: Set up job
 - running: Collect the run
 - running: Run actions/checkout@v4
 - running: Write to the ci-results branch
@@ -69,4 +33,4 @@
 
 ### phase-3 — skipped
 
-- artifacts: soma-android-apk 
+- artifacts: 
