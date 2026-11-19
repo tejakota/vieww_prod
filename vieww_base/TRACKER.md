@@ -90,6 +90,20 @@ drives three `Ime::Commit`s through one frame. The suite's existing
 controlled-contract tests (`the_field_holds_no_text_of_its_own` and friends)
 pin the other half: the signal remains the only document.
 
+**The follow-up round found the caret (2026-11-19, run 44595787481).** The
+first gate on the fix turned the iOS typing test's failure into evidence
+exactly as designed — "the tree holds `["tap tohello type", "1", "0"]`" —
+which settled three things at once. The chaining works: all five keystrokes
+of `hello` landed, in order, nothing clobbered. The caret sits where the tap
+landed: `field.tap()` taps the element's centre, the middle of the seed
+text, and the field inserts there — correct text-field behaviour the suite's
+seed-prefix handle simply assumed away ("the fixture appends"). And the old
+no-match failures finally have their mechanism: a burst that arrived after
+the tap's rebuild inserted mid-string, so no value began with the seed any
+more. The suite now finds the typed value by what *arrived* — the tree's
+values before typing, then a poll for a value that set does not hold — which
+is agnostic of the caret.
+
 **The same round.** The studio's `parse_diagnostics` now folds a spanless
 error's follow-up note into its `help` — the coverage leg lost two pipeline
 tests to a `cc` link failure whose only real evidence lived in the note this

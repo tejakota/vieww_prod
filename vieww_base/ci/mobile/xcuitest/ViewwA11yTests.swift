@@ -173,38 +173,6 @@ final class ViewwA11yTests: XCTestCase {
     /// existence wait gives a cold launch.
     private static let treeSettles: TimeInterval = 10.0
 
-    /// Poll the field's value until it satisfies `check` or the deadline.
-    ///
-    /// Each read of `value` re-resolves the query, which is what makes a
-    /// poll here see the tree update at all — a cached snapshot would wait
-    /// ten seconds and report the world as it was before the keystroke.
-    ///
-    /// `typed` is the field re-found by its seeded prefix: the seed "tap to
-    /// type" is still the value's prefix after typing (the fixture appends),
-    /// where an exact-value match stops matching the moment the first
-    /// keystroke lands. The bridge identifier was the handle before iOS 18
-    /// stopped exposing identifiers (see the header); the prefix survives
-    /// that and is the same string VoiceOver reads on focus.
-    ///
-    /// **Resolution failures are `nil`, not throws.** Reading `value` off an
-    /// unresolvable query throws "Failed to get matching snapshot", which
-    /// answers nothing: it cannot say whether the field vanished, renamed
-    /// itself, or began the message this test was asking for. The first red
-    /// rounds met exactly that (three runs, 2026-11-19, the field holding
-    /// something the prefix query no longer matched and the error saying
-    /// only "no matches"). Returning `nil` and letting the assertion print
-    /// [`everyValueInTheTree`] turns the next red into evidence.
-    private func fieldValue(_ typed: XCUIElement, where check: (String) -> Bool) -> String? {
-        let deadline = Date().addingTimeInterval(Self.treeSettles)
-        while Date() < deadline {
-            if let value = Self.nonThrowingValue(of: typed), check(value) {
-                return value
-            }
-            usleep(250_000)
-        }
-        return Self.nonThrowingValue(of: typed)
-    }
-
     /// `element.value` as a plain read: `nil` when the query will not resolve,
     /// rather than an `NSException` with no information in it.
     ///
@@ -234,12 +202,38 @@ final class ViewwA11yTests: XCTestCase {
         return values
     }
 
-    /// The field re-found by its seeded prefix — the handle that survives
-    /// typing on every iOS version, identifier or no identifier.
-    private var typedField: XCUIElement {
-        app.descendants(matching: .any)
-            .matching(NSPredicate(format: "value BEGINSWITH %@", "tap to type"))
-            .firstMatch
+    /// The value that typing produced, found by what changed.
+    ///
+    /// The seed-prefix handle this replaced assumed typing appends at the
+    /// end — and the suite's own first green-adjacent run disproved it:
+    /// `field.tap()` taps the element's *centre*, the middle of the seed
+    /// text, and a caret lands there, so `hello` arrived as
+    /// `tap tohello type` — every keystroke, in order, six bytes in. That
+    /// is correct text-field behaviour (the caret goes where the finger
+    /// went); the handle was the bug. Finding the value by *what arrived*
+    /// rather than by where it landed is agnostic of the caret: snapshot
+    /// the tree's values before typing, then poll for a value the snapshot
+    /// does not hold.
+    ///
+    /// The counter and other live values are excluded by the snapshot the
+    /// same way — a value that was already there is not what typing did.
+    private func valueThatArrived(excluding before: Set<String>) -> String? {
+        let deadline = Date().addingTimeInterval(Self.treeSettles)
+        while Date() < deadline {
+            for value in everyValueInTheTree() where !before.contains(value) {
+                return value
+            }
+            usleep(250_000)
+        }
+        // One last scan past the deadline, so a value that landed in the
+        // final poll interval is not reported as never arriving.
+        return everyValueInTheTree().first { !before.contains($0) }
+    }
+
+    /// The tree's values as a set — the "before typing" half of
+    /// [`valueThatArrived`]'s diff.
+    private func valuesBeforeTyping() -> Set<String> {
+        Set(everyValueInTheTree())
     }
 
     /// Typing ASCII into the field commits through the platform's text
@@ -254,7 +248,6 @@ final class ViewwA11yTests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: Self.treeSettles),
                       "the field never reached the accessibility tree — without it there is " +
                       "nothing to type into and nothing to assert on")
-        let typed = typedField
         field.tap()
         // Type into the app, not the element. XCUITest's element.typeText
         // demands that the *element* report keyboard focus, which a custom
@@ -264,10 +257,11 @@ final class ViewwA11yTests: XCTestCase {
         // The keyboard the tap raised delivers to that responder either way.
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5.0),
                       "tapping the field raised no keyboard — vieww never became first responder")
+        let before = valuesBeforeTyping()
         app.typeText("hello")
-        let value = fieldValue(typed) { $0.contains("hello") }
-        XCTAssertTrue(value?.contains("hello") == true,
-                      "typed 'hello' and the field reads '\(value ?? "nothing")' — the " +
+        let landed = valueThatArrived(excluding: before)
+        XCTAssertTrue(landed?.contains("hello") == true,
+                      "typed 'hello' and no new value arrived — the " +
                       "keystrokes never reached vieww's editing model. The tree holds " +
                       "\(everyValueInTheTree())")
     }
@@ -289,8 +283,6 @@ final class ViewwA11yTests: XCTestCase {
     func testCJKTypingComposesAndCommits() throws {
         XCTAssertTrue(field.waitForExistence(timeout: Self.treeSettles),
                       "the field never reached the accessibility tree")
-        let before = field.value as? String ?? ""
-        let typed = typedField
         field.tap()
         // No keyboard at all after a tap that should have raised one: the
         // simulator has no CJK keyboard installed — the setup step in
@@ -303,14 +295,15 @@ final class ViewwA11yTests: XCTestCase {
         // would commit the letters verbatim, which the CJK assertion below
         // then honestly fails on a machine without the right keyboard.
         // Into the app, for the reason the ASCII test gives.
+        let before = valuesBeforeTyping()
         app.typeText("nihao")
         app.typeText(" ")
-        let value = fieldValue(typed) { $0 != before }
-        let committed = value ?? ""
-        XCTAssertNotEqual(committed, before,
-                          "typed 'nihao' and the field never changed — composition died before " +
-                          "the tree, which is exactly the FW-11 failure mode. The tree holds " +
-                          "\(everyValueInTheTree())")
+        guard let committed = valueThatArrived(excluding: before) else {
+            XCTFail("typed 'nihao' and no value changed — composition died before the tree, " +
+                    "which is exactly the FW-11 failure mode. The tree holds " +
+                    "\(everyValueInTheTree())")
+            return
+        }
 
         // **Delivery and composition are two different findings, and only one
         // of them is this test's to fail on.** The keystrokes landing at all is
@@ -323,13 +316,11 @@ final class ViewwA11yTests: XCTestCase {
         // does not implement the marked-text half of the text-entry protocol
         // that composing keyboards need (PENDING's iOS IME item). Romaji
         // arriving INCOMPLETE — characters lost — is a delivery bug, and is
-        // asserted as the failure it is.
-        // What the typing added to the seed: the whole delivery, laid out for
-        // the two-way check below. `before` is the seed the field started
-        // with, so this is exactly the keystrokes' net effect.
-        let delivered = String(committed.dropFirst(before.count))
+        // asserted as the failure it is. The whole value is searched rather
+        // than its tail, because the caret sits where the tap landed — the
+        // seed's middle, as the ASCII test's own finding records.
         let hasCJK = committed.unicodeScalars.contains { $0.value >= 0x2E80 }
-        if !hasCJK && delivered.contains("nihao") {
+        if !hasCJK && committed.contains("nihao") {
             throw XCTSkip("every keystroke of 'nihao ' landed, as plain ASCII — the keyboard " +
                           "composed nothing. Either the pinyin keyboard is not the active " +
                           "input mode on this simulator (a11y-ios.sh installs it; Settings " +
