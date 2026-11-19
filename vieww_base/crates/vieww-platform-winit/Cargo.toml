@@ -23,6 +23,18 @@ categories.workspace = true
 #     cargo test -p vieww-platform-winit --features desktop-services
 desktop-services = ["dep:tray-icon", "dep:global-hotkey", "dep:gtk"]
 
+# Train-time PGO plumbing for the Android example — nothing but the calls
+# into LLVM's profile runtime that an instrumented build (`RUSTFLAGS=
+# "-Cprofile-generate"`) needs to put its counters somewhere a phone can
+# write. `ci/mobile/pgo-android.sh` turns this and the instrumentation on
+# together; the feature alone is inert, and the instrumentation alone has
+# nowhere to write (the process's working directory on Android is not
+# writable, so the counters would be silently dropped).
+#
+# Enabling it without the instrumentation is a link error naming
+# `__llvm_profile_set_filename`, which is its own error message.
+pgo-train = []
+
 [dependencies]
 vieww-foundation.workspace = true
 # The portable half of outbound drag-and-drop (FW-19's DnD-out wiring): the

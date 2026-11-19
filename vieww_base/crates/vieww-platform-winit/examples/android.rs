@@ -36,7 +36,76 @@
 #[cfg(target_os = "android")]
 #[no_mangle]
 fn android_main(android: vieww_platform_winit::AndroidApp) {
+    // Train-time PGO counters, first thing: the sooner the runtime's filename
+    // is pointed at the app's own storage, the less of the start-up path the
+    // profile misses. Inert in every build that is not `--features pgo-train`
+    // — see the module's own docs for why the feature and the instrumentation
+    // are a pair.
+    #[cfg(feature = "pgo-train")]
+    pgo_train::point_counters_at(android.internal_data_path().as_deref());
     demo::main(android);
+    // And the counters written back before the glue can exit the process,
+    // continuous mode or not — a profile that dies with the process trained
+    // nothing.
+    #[cfg(feature = "pgo-train")]
+    pgo_train::write_counters();
+}
+
+/// LLVM's profile runtime, reached from the one place that owns a writable
+/// directory on a phone.
+///
+/// An instrumented build (`-Cprofile-generate`) links these symbols in; a
+/// plain one does not, which is why the whole module sits behind the
+/// `pgo-train` feature that `ci/mobile/pgo-android.sh` enables together with
+/// the instrumentation. The default counter file (`default.profraw` in the
+/// working directory) is unwritable on Android — the app's cwd is not its
+/// data directory — so without this the counters are silently dropped and
+/// the training run trains nothing.
+///
+/// The filename asks for **continuous mode** (`%c`): the counters are
+/// mmap'd into the file and updated as they increment, so the profile
+/// survives the `am force-stop` (a SIGKILL — no atexit, no flush) that ends
+/// a training run. The explicit `write_counters` at exit is the belt to
+/// that braces, for the platforms and paths where `%c` is not honoured.
+#[cfg(all(target_os = "android", feature = "pgo-train"))]
+mod pgo_train {
+    use std::ffi::CString;
+    use std::path::Path;
+
+    extern "C" {
+        fn __llvm_profile_set_filename(name: *const std::os::raw::c_char);
+        fn __llvm_profile_write_file() -> std::os::raw::c_int;
+    }
+
+    /// Point the counters at `dir` (the app's internal data directory, or
+    /// `/data/local/tmp` when the platform has not told the app its own path
+    /// yet — a race Android documents on `getFilesDir`).
+    pub(crate) fn point_counters_at(dir: Option<&Path>) {
+        let dir = dir.unwrap_or_else(|| Path::new("/data/local/tmp"));
+        let file = dir.join("vieww-pgo-%c.profraw");
+        let Ok(name) = CString::new(file.to_string_lossy().as_bytes().to_vec()) else {
+            log::error!(
+                "vieww: the PGO counter path is not a C string: {}",
+                file.display()
+            );
+            return;
+        };
+        // SAFETY: `__llvm_profile_set_filename` keeps its own copy of the
+        // name; the pointer only has to be valid for the call.
+        unsafe { __llvm_profile_set_filename(name.as_ptr()) };
+        log::info!("vieww: PGO counters -> {}", file.display());
+    }
+
+    /// Write the counters out now — the exit-path half of the pair.
+    pub(crate) fn write_counters() {
+        // SAFETY: the runtime's own flush; the return is logged rather than
+        // acted on because there is nothing left to act with at this point
+        // in the process's life.
+        let rc = unsafe { __llvm_profile_write_file() };
+        if rc != 0 {
+            log::error!("vieww: writing the PGO counters failed (rc {rc})");
+        }
+    }
 }
 
 // At the top level rather than inside `demo`: a `#[path]` on a module nested in

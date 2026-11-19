@@ -161,7 +161,27 @@ run = '''
 # cdylib). Without it, cargo-apk sees both the [[bin]] and [lib]
 # targets in packages like three-social-app and upxcale, picks the
 # bin, and panics with "Bin is not compatible with Cdylib".
-cargo apk build -p ${{ matrix.package }} --lib --release
+#
+# A trained aarch64 profile, when one is handed over: PGO is worth
+# 5-15% on the CPU rasterizer's hot loops and a phone's CPU is where
+# that matters most. The profile is trained ON a device (the app
+# itself is the workload — `ci/mobile/pgo-android.sh` on the USB-phone
+# runner builds the instrumented APK, drives the demo and stress
+# screens, and pulls the merged .profdata out), because a profile is
+# per target and per workload, and an x86_64 desktop's fixture gallery
+# is neither. Without one the build is plain release, exactly as
+# before — the profile is an optimisation, not a correctness
+# dependency.
+if [ -n "$VIEWW_ANDROID_PGO_PROFILE" ] && [ -f "$VIEWW_ANDROID_PGO_PROFILE" ]; then
+  echo "building with the trained profile: $VIEWW_ANDROID_PGO_PROFILE"
+  RUSTFLAGS="-Cprofile-use=$VIEWW_ANDROID_PGO_PROFILE" \
+    cargo apk build -p ${{ matrix.package }} --lib --release
+else
+  if [ -n "$VIEWW_ANDROID_PGO_PROFILE" ]; then
+    echo "::warning::VIEWW_ANDROID_PGO_PROFILE is set but '$VIEWW_ANDROID_PGO_PROFILE' does not exist; building plain release"
+  fi
+  cargo apk build -p ${{ matrix.package }} --lib --release
+fi
 '''
 
 [[step]]
