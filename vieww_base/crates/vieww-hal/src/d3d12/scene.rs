@@ -432,8 +432,6 @@ impl D3d12SceneRenderer {
     ///
     /// Any D3D12 call failing, or a shader failing to translate or compile.
     pub fn new(device: &D3d12Device) -> Result<Self, D3d12Error> {
-        let post = vieww_shaders::library::POST_WGSL;
-        let raw = device.raw().clone();
         let queue_desc = D3D12_COMMAND_QUEUE_DESC {
             Type: D3D12_COMMAND_LIST_TYPE_DIRECT,
             Priority: 0,
@@ -441,7 +439,20 @@ impl D3d12SceneRenderer {
             NodeMask: 0,
         };
         // SAFETY: creation calls on a live device.
-        let queue: ID3D12CommandQueue = unsafe { raw.CreateCommandQueue(&queue_desc)? };
+        let queue: ID3D12CommandQueue = unsafe { device.raw().CreateCommandQueue(&queue_desc)? };
+        Self::with_queue(device, queue)
+    }
+
+    /// [`Self::new`] on an existing direct `queue` — a window's
+    /// ([`super::D3d12WindowPresenter::queue`]): its swapchain presents from
+    /// the queue that drew the frame.
+    ///
+    /// # Errors
+    ///
+    /// As [`Self::new`].
+    pub fn with_queue(device: &D3d12Device, queue: ID3D12CommandQueue) -> Result<Self, D3d12Error> {
+        let post = vieww_shaders::library::POST_WGSL;
+        let raw = device.raw().clone();
         // SAFETY: as above.
         let fence: ID3D12Fence = unsafe { raw.CreateFence(0, D3D12_FENCE_FLAG_NONE)? };
 
@@ -852,7 +863,38 @@ impl D3d12SceneRenderer {
         let started = Instant::now();
         self.upload_planner(planner)?;
         self.timings.upload = started.elapsed();
-        self.render_with(plan, width, height, clear, damage)
+        self.render_with(plan, width, height, clear, damage, None)
+    }
+
+    /// Execute a complete `plan` at the window's extent and present it
+    /// through `presenter` — no readback. The renderer must have been built
+    /// on the presenter's queue ([`Self::with_queue`]). `damage` redraws only
+    /// those rectangles of the retained `L[0]`; all of `L[0]` is presented.
+    ///
+    /// # Errors
+    ///
+    /// As [`Self::render_planned`], or presenting failing.
+    pub fn render_planned_to_window(
+        &mut self,
+        planner: &Planner,
+        plan: &ScenePlan,
+        clear: Color,
+        presenter: &mut super::D3d12WindowPresenter,
+        damage: Option<&[PixelRect]>,
+    ) -> Result<Redrawn, D3d12Error> {
+        if !plan.is_complete() {
+            return Err(D3d12Error::Invalid("incomplete plan".into()));
+        }
+        presenter.wait_for_frame();
+        let (width, height) = presenter.extent();
+        self.timings = FrameTimings::default();
+        let started = Instant::now();
+        self.upload_planner(planner)?;
+        self.timings.upload = started.elapsed();
+        let (_, redrawn) =
+            self.render_with(plan, width, height, clear, damage, Some(&mut *presenter))?;
+        presenter.present()?;
+        Ok(redrawn)
     }
 
     /// Where the last frame's wall time went — see [`FrameTimings`].
@@ -918,6 +960,7 @@ impl D3d12SceneRenderer {
         height: u32,
         clear: Color,
         damage: Option<&[PixelRect]>,
+        window: Option<&mut super::D3d12WindowPresenter>,
     ) -> Result<(Vec<u8>, Redrawn), D3d12Error> {
         let width = width.max(1);
         let height = height.max(1);
@@ -1288,6 +1331,25 @@ impl D3d12SceneRenderer {
                     }
                 }
             }
+        }
+
+        // ── the frame out: onto the window's back buffer ────────────────
+        if let Some(presenter) = window {
+            self.transition_state(
+                &list,
+                &mut states,
+                TargetId::Level(0),
+                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            );
+            presenter.record_copy(&list, &self.levels[0].resource)?;
+            self.timings.record = started.elapsed();
+            let submitting = Instant::now();
+            self.finish(&list)?;
+            drop(allocator);
+            self.timings.submit = submitting.elapsed();
+            self.store_target_states(states);
+            self.retained = Some(exec.retained);
+            return Ok((Vec::new(), exec.redrawn));
         }
 
         // ── the frame out: readback ─────────────────────────────────────

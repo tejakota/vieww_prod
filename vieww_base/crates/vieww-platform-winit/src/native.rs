@@ -31,6 +31,11 @@
 //!   go onto a `CAMetalLayer` through `vieww_hal::metal` — no MoltenVK. The
 //!   default for a GPU window on iOS; `VIEWW_PRESENT=metal` on macOS,
 //!   `VIEWW_PRESENT=vulkan` on iOS for the MoltenVK A/B.
+//! - **[`PresentPath::D3d12`]** — Windows: the GPU rasterizer's frames go
+//!   onto a DXGI flip swapchain through `vieww_hal::d3d12`. The default for
+//!   a GPU window on Windows (`VIEWW_PRESENT=vulkan` for the A/B): Vulkan
+//!   woke a hybrid laptop's sleeping GPU for a 19 s first frame and crashed
+//!   on its Intel GPU, where D3D12 passed the full parity matrix.
 //! - **[`PresentPath::Vulkan`]** — a window that asked for the GPU
 //!   (`prefer_gpu`), or set `VIEWW_PRESENT=vulkan`, or whose CPU present could
 //!   not open. Everything below describes this path.
@@ -194,6 +199,9 @@ pub enum PresentPath {
     /// A `CAMetalLayer` (Apple targets), which the Metal scene renderer
     /// draws into. Anywhere else it opens as [`PresentPath::Vulkan`].
     Metal,
+    /// A DXGI swapchain (Windows), which the D3D12 scene renderer draws
+    /// into. Anywhere else it opens as [`PresentPath::Vulkan`].
+    D3d12,
 }
 
 impl PresentPath {
@@ -206,6 +214,8 @@ impl PresentPath {
             Some("vulkan") => Self::Vulkan,
             Some("cpu") => Self::Cpu,
             Some("metal") => Self::Metal,
+            Some("d3d12") => Self::D3d12,
+            _ if prefer_gpu && cfg!(target_os = "windows") => Self::D3d12,
             // The iPhone's GPU path is native Metal, not MoltenVK (PENDING
             // 1.2): MoltenVK's pacing held the GPU path at 16.2 ms there.
             _ if prefer_gpu && cfg!(target_os = "ios") => Self::Metal,
@@ -244,6 +254,10 @@ enum SurfaceKind {
     /// [`vieww_hal::metal::MetalLayerPresenter`].
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     Metal(vieww_hal::metal::MetalLayerPresenter),
+    /// A DXGI swapchain on the window — see
+    /// [`vieww_hal::d3d12::D3d12WindowPresenter`].
+    #[cfg(target_os = "windows")]
+    D3d12(vieww_hal::d3d12::D3d12WindowPresenter),
 }
 
 impl fmt::Debug for SurfaceKind {
@@ -253,6 +267,8 @@ impl fmt::Debug for SurfaceKind {
             Self::Cpu(cpu) => f.debug_tuple("Cpu").field(&cpu.extent).finish(),
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             Self::Metal(layer) => f.debug_tuple("Metal").field(&layer.extent()).finish(),
+            #[cfg(target_os = "windows")]
+            Self::D3d12(window) => f.debug_tuple("D3d12").field(&window.extent()).finish(),
         }
     }
 }
@@ -277,6 +293,8 @@ impl NativeSurface {
             SurfaceKind::Cpu(_) => PresentPath::Cpu,
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             SurfaceKind::Metal(_) => PresentPath::Metal,
+            #[cfg(target_os = "windows")]
+            SurfaceKind::D3d12(_) => PresentPath::D3d12,
         }
     }
 
@@ -288,6 +306,8 @@ impl NativeSurface {
             SurfaceKind::Cpu(cpu) => cpu.extent,
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             SurfaceKind::Metal(layer) => layer.extent(),
+            #[cfg(target_os = "windows")]
+            SurfaceKind::D3d12(window) => window.extent(),
         }
     }
 }
@@ -998,6 +1018,20 @@ pub struct NativeRenderer {
     /// The Metal half, on [`PresentPath::Metal`] — see [`MetalGpu`].
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     metal: Option<MetalGpu>,
+    /// The D3D12 half, on [`PresentPath::D3d12`] — see [`D3d12Gpu`].
+    #[cfg(target_os = "windows")]
+    d3d12: Option<D3d12Gpu>,
+}
+
+/// The D3D12 device a [`PresentPath::D3d12`] window presents through, and
+/// the scene renderer built at the first GPU frame on the window's queue
+/// (once; a failure is remembered).
+#[cfg(target_os = "windows")]
+struct D3d12Gpu {
+    device: vieww_hal::d3d12::D3d12Device,
+    renderer: Option<vieww_hal::d3d12::D3d12SceneRenderer>,
+    planner: GpuPlanner,
+    unavailable: bool,
 }
 
 /// The Metal device a [`PresentPath::Metal`] window presents through, and
@@ -1026,6 +1060,10 @@ impl Drop for NativeRenderer {
         #[cfg(any(target_os = "ios", target_os = "macos"))]
         {
             self.metal = None;
+        }
+        #[cfg(target_os = "windows")]
+        {
+            self.d3d12 = None;
         }
     }
 }
@@ -1118,6 +1156,10 @@ impl NativeRenderer {
         #[cfg(any(target_os = "ios", target_os = "macos"))]
         if let Some(metal) = &self.metal {
             return format!("{} (Metal)", metal.device.info().name);
+        }
+        #[cfg(target_os = "windows")]
+        if let Some(d3d12) = &self.d3d12 {
+            return format!("{} (D3D12)", d3d12.device.info().name);
         }
         self.device.as_ref().map_or_else(
             || "none (CPU present: no GPU driver loaded)".to_owned(),
@@ -1215,7 +1257,60 @@ impl NativeRenderer {
                 }
             }
         }
+        #[cfg(target_os = "windows")]
+        if path == PresentPath::D3d12 {
+            match Self::d3d12_for_window(window, width, height) {
+                Ok(opened) => return Ok(opened),
+                Err(error) => {
+                    eprintln!("vieww: D3D12 present: {error}; presenting through Vulkan instead");
+                }
+            }
+        }
         Self::for_window(window.as_ref(), width, height)
+    }
+
+    /// A [`PresentPath::D3d12`] window: the first hardware D3D12 adapter
+    /// (DXGI's order, which leads with the GPU driving the display) and a
+    /// flip swapchain on the window's `HWND`.
+    #[cfg(target_os = "windows")]
+    fn d3d12_for_window(
+        window: &Arc<Window>,
+        width: u32,
+        height: u32,
+    ) -> Result<(Self, NativeSurface), NativeError> {
+        use raw_window_handle::{HasWindowHandle as _, RawWindowHandle};
+        let handle = window
+            .window_handle()
+            .map_err(|error| NativeError::Device(error.to_string()))?;
+        let RawWindowHandle::Win32(win32) = handle.as_raw() else {
+            return Err(NativeError::Device("not a Win32 window".to_owned()));
+        };
+        let device = vieww_hal::d3d12::D3d12Device::new()
+            .map_err(|error| NativeError::Device(error.to_string()))?;
+        // SAFETY: the window's own HWND from `raw-window-handle`; the window
+        // outlives its surface (the app releases surfaces before windows).
+        let presenter = unsafe {
+            vieww_hal::d3d12::D3d12WindowPresenter::for_hwnd(
+                &device,
+                win32.hwnd.get(),
+                width,
+                height,
+            )
+        }
+        .map_err(|error| NativeError::Device(error.to_string()))?;
+        let mut renderer = Self::with_device(None, CpuRenderer::new());
+        renderer.d3d12 = Some(D3d12Gpu {
+            device,
+            renderer: None,
+            planner: GpuPlanner::new(),
+            unavailable: false,
+        });
+        Ok((
+            renderer,
+            NativeSurface {
+                kind: SurfaceKind::D3d12(presenter),
+            },
+        ))
     }
 
     /// A [`PresentPath::Metal`] window: the system Metal device and a
@@ -1283,6 +1378,8 @@ impl NativeRenderer {
             small_damage: crate::gpu_route::SmallDamage::default(),
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             metal: None,
+            #[cfg(target_os = "windows")]
+            d3d12: None,
         }
     }
 
@@ -1745,6 +1842,13 @@ impl NativeRenderer {
                     .map_err(|error| NativeError::Present(error.to_string()))?;
                 acquired = layer.last_timings().acquire;
             }
+            #[cfg(target_os = "windows")]
+            (SurfaceKind::D3d12(window), _) => {
+                window
+                    .present_pixels(frame)
+                    .map_err(|error| NativeError::Present(error.to_string()))?;
+                acquired = window.last_timings().acquire;
+            }
         }
         self.stages.acquire = acquired;
         self.stages.present = presenting.elapsed().saturating_sub(acquired);
@@ -1780,6 +1884,10 @@ impl NativeRenderer {
                 layer.resize(width, height);
                 Ok(())
             }
+            #[cfg(target_os = "windows")]
+            (SurfaceKind::D3d12(window), _) => window
+                .resize(width, height)
+                .map_err(|error| NativeError::Present(error.to_string())),
         }
     }
 
@@ -1869,6 +1977,25 @@ impl NativeRenderer {
         let on_metal = matches!(surface.kind, SurfaceKind::Metal(_));
         #[cfg(not(any(target_os = "ios", target_os = "macos")))]
         let on_metal = false;
+        #[cfg(target_os = "windows")]
+        let on_d3d12 = matches!(surface.kind, SurfaceKind::D3d12(_));
+        #[cfg(not(target_os = "windows"))]
+        let on_d3d12 = false;
+        #[cfg(target_os = "windows")]
+        if let (Some(gpu), SurfaceKind::D3d12(window)) = (self.d3d12.as_mut(), &surface.kind) {
+            if gpu.renderer.is_none() && !gpu.unavailable {
+                match vieww_hal::d3d12::D3d12SceneRenderer::with_queue(
+                    &gpu.device,
+                    window.queue().clone(),
+                ) {
+                    Ok(renderer) => gpu.renderer = Some(renderer),
+                    Err(error) => {
+                        gpu.unavailable = true;
+                        return Err(NativeError::Device(error.to_string()));
+                    }
+                }
+            }
+        }
         #[cfg(any(target_os = "ios", target_os = "macos"))]
         if let Some(metal) = self
             .metal
@@ -1924,7 +2051,7 @@ impl NativeRenderer {
         // changed; at a reduced one the copies' destinations redraw instead.
         // The Metal renderer carries no scroll copies of its own (it has no
         // `set_pending_copies`): its damage includes the copies' destinations.
-        let carry = render_scale >= 1.0 && !on_metal;
+        let carry = render_scale >= 1.0 && !on_metal && !on_d3d12;
         let mut gpu_copies: Vec<(PixelRect, i32, i32)> = Vec::new();
         let gpu_damage: Option<Vec<PixelRect>> = match damage {
             Some(logical)
@@ -2051,6 +2178,10 @@ impl NativeRenderer {
             }
         } else if let Some(frame) =
             self.present_planned_metal(surface, &scene, base, gpu_damage.as_deref(), &mut fallback)?
+        {
+            return Ok(frame);
+        } else if let Some(frame) =
+            self.present_planned_d3d12(surface, &scene, base, gpu_damage.as_deref(), &mut fallback)?
         {
             return Ok(frame);
         } else if let (
@@ -2474,6 +2605,92 @@ impl NativeRenderer {
     #[cfg(not(any(target_os = "ios", target_os = "macos")))]
     #[allow(clippy::unnecessary_wraps, clippy::unused_self)]
     fn present_planned_metal(
+        &mut self,
+        _surface: &mut NativeSurface,
+        _scene: &Scene,
+        _base: Color,
+        _damage: Option<&[PixelRect]>,
+        _fallback: &mut Option<String>,
+    ) -> Result<Option<PlannedFrame>, NativeError> {
+        Ok(None)
+    }
+}
+
+impl NativeRenderer {
+    /// The [`PresentPath::D3d12`] GPU frame — `present_planned_metal`'s
+    /// shape on the DXGI swapchain (`render_planned_to_window`). `Ok(None)`
+    /// when this is not a D3D12 surface or the plan had gaps.
+    #[cfg(target_os = "windows")]
+    fn present_planned_d3d12(
+        &mut self,
+        surface: &mut NativeSurface,
+        scene: &Scene,
+        base: Color,
+        damage: Option<&[PixelRect]>,
+        fallback: &mut Option<String>,
+    ) -> Result<Option<PlannedFrame>, NativeError> {
+        let (
+            Some(D3d12Gpu {
+                renderer: Some(renderer),
+                planner,
+                ..
+            }),
+            SurfaceKind::D3d12(window),
+        ) = (self.d3d12.as_mut(), &mut surface.kind)
+        else {
+            if matches!(surface.kind, SurfaceKind::D3d12(_)) && self.shadow.is_some() {
+                *fallback = Some("no D3D12 rasterizer".to_owned());
+            }
+            return Ok(None);
+        };
+        let (width, height) = window.extent();
+        let planning = Instant::now();
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "a window is a small number of pixels"
+        )]
+        let plan = planner.plan(scene, width as f32, height as f32);
+        self.stages.plan = planning.elapsed();
+        if !plan.is_complete() {
+            if self.shadow.is_some() {
+                let mut kinds: Vec<&str> = plan.unsupported.keys().map(|k| k.name()).collect();
+                kinds.sort_unstable();
+                *fallback = Some(format!("plan incomplete: {}", kinds.join(", ")));
+            }
+            return Ok(None);
+        }
+        note_gpu_route("d3d12: rendered into L[0] and copied onto the DXGI back buffer");
+        let redrawn = renderer
+            .render_planned_to_window(planner, &plan, base, window, damage)
+            .map_err(|error| NativeError::Render(error.to_string()))?;
+        let t = renderer.last_timings();
+        // This backend waits for its fence every frame, so `submit` is the
+        // GPU's time plus the submission: reported as `wait`, the field
+        // that means "the CPU waited for the GPU".
+        self.stages.gpu = GpuFrameTimings {
+            upload: t.upload,
+            record: t.record,
+            submit: Duration::ZERO,
+            wait: t.submit,
+            readback: Duration::ZERO,
+        };
+        let presented = window.last_timings();
+        self.stages.acquire = presented.acquire;
+        self.stages.present = presented.present;
+        self.record_shadow(scene, (width, height), Executor::Gpu, None);
+        self.gpu_frame_current = Some(1.0);
+        Ok(Some(PlannedFrame {
+            report: SceneReport::default(),
+            drawn_on_gpu: true,
+            presented_directly: true,
+            stages: self.stages,
+            gpu_redrawn: Some(redrawn.pixels(width, height)),
+        }))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    #[allow(clippy::unnecessary_wraps, clippy::unused_self)]
+    fn present_planned_d3d12(
         &mut self,
         _surface: &mut NativeSurface,
         _scene: &Scene,
@@ -3070,13 +3287,18 @@ mod tests {
         // Forced either way by VIEWW_PRESENT.
         assert!(!may_want_vulkan(Some("cpu"), true, true));
         assert!(may_want_vulkan(Some("vulkan"), false, false));
+        // The native paths never want Vulkan's prewarm.
+        assert!(!may_want_vulkan(Some("d3d12"), true, true));
+        assert!(!may_want_vulkan(Some("metal"), true, true));
         // Unforced: only a window that asked for the GPU, or one whose
-        // auto_rasterizer calibration might still pick it.
+        // auto_rasterizer calibration might still pick it — and never on
+        // Windows or iOS, whose GPU windows present natively.
         assert!(!may_want_vulkan(None, false, false));
-        assert!(may_want_vulkan(None, true, false));
-        assert!(may_want_vulkan(None, false, true));
+        let native = cfg!(any(target_os = "windows", target_os = "ios"));
+        assert_eq!(may_want_vulkan(None, true, false), !native);
+        assert_eq!(may_want_vulkan(None, false, true), !native);
         // A value this crate does not know is the caller's choice, not "no".
-        assert!(may_want_vulkan(Some("d3d12"), true, false));
+        assert_eq!(may_want_vulkan(Some("dx11"), true, false), !native);
     }
 
     #[test]
@@ -3199,8 +3421,14 @@ mod tests {
 /// the side of *not* prewarming only when every input says CPU.
 pub(crate) fn may_want_vulkan(present_env: Option<&str>, prefer_gpu: bool, auto: bool) -> bool {
     match present_env {
-        Some("cpu") => false,
+        Some("cpu" | "metal" | "d3d12") => false,
         Some("vulkan") => true,
+        // A GPU window on Windows presents through D3D12 and on iOS through
+        // Metal (`PresentPath::choose`): a Vulkan prewarm there would load
+        // every Vulkan driver for nothing — on a hybrid laptop, waking the
+        // discrete GPU the D3D12 path exists to leave asleep. Should the
+        // native path fail to open, the Vulkan fallback opens unprewarmed.
+        _ if cfg!(any(target_os = "windows", target_os = "ios")) => false,
         _ => prefer_gpu || auto,
     }
 }

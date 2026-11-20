@@ -241,6 +241,11 @@ accesskit_android = { version = "0.9.0", features = ["embedded-dex"] }
 [target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
 vieww-hal = { workspace = true, features = ["vulkan-swapchain", "metal"] }
 
+# The D3D12 present path (`PresentPath::D3d12`): the Windows default for a
+# GPU window — see `src/native.rs`'s module docs for why not Vulkan.
+[target.'cfg(target_os = "windows")'.dependencies]
+vieww-hal = { workspace = true, features = ["vulkan-swapchain", "d3d12"] }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.5"
 objc2-foundation = { version = "0.2", features = ["NSGeometry"] }

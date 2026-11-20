@@ -52,8 +52,10 @@ use super::{sealed, AdapterInfo, Device as HalDevice};
 
 /// The D3D12 scene renderer — [`crate::scene_exec`]'s op stream on this
 /// backend, the port of `vulkan::scene::SceneRenderer` PENDING 1.3 asks for.
+pub mod present;
 pub mod scene;
 
+pub use present::{D3d12WindowPresenter, PresentTimings};
 pub use scene::{D3d12SceneRenderer, FrameTimings};
 use vieww_foundation::Color;
 use vieww_shaders::{hlsl_slots, ParsedShader, ShaderStage};
