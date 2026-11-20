@@ -27,6 +27,10 @@
 //!   `ANativeWindow_lock`, CoreGraphics), and **no GPU driver is loaded at
 //!   all**. Only the rows a frame's damage touched are converted, on platforms
 //!   whose buffers say how old they are (see `CpuPresenter`).
+//! - **[`PresentPath::Metal`]** — Apple targets: the GPU rasterizer's frames
+//!   go onto a `CAMetalLayer` through `vieww_hal::metal` — no MoltenVK. The
+//!   default for a GPU window on iOS; `VIEWW_PRESENT=metal` on macOS,
+//!   `VIEWW_PRESENT=vulkan` on iOS for the MoltenVK A/B.
 //! - **[`PresentPath::Vulkan`]** — a window that asked for the GPU
 //!   (`prefer_gpu`), or set `VIEWW_PRESENT=vulkan`, or whose CPU present could
 //!   not open. Everything below describes this path.
@@ -187,6 +191,9 @@ pub enum PresentPath {
     Cpu,
     /// A Vulkan swapchain, which the GPU rasterizer can draw into.
     Vulkan,
+    /// A `CAMetalLayer` (Apple targets), which the Metal scene renderer
+    /// draws into. Anywhere else it opens as [`PresentPath::Vulkan`].
+    Metal,
 }
 
 impl PresentPath {
@@ -198,9 +205,19 @@ impl PresentPath {
         match std::env::var("VIEWW_PRESENT").ok().as_deref() {
             Some("vulkan") => Self::Vulkan,
             Some("cpu") => Self::Cpu,
+            Some("metal") => Self::Metal,
+            // The iPhone's GPU path is native Metal, not MoltenVK (PENDING
+            // 1.2): MoltenVK's pacing held the GPU path at 16.2 ms there.
+            _ if prefer_gpu && cfg!(target_os = "ios") => Self::Metal,
             _ if prefer_gpu => Self::Vulkan,
             _ => Self::Cpu,
         }
+    }
+
+    /// Whether this path loads a GPU driver (Vulkan or Metal).
+    #[must_use]
+    pub const fn is_gpu(self) -> bool {
+        !matches!(self, Self::Cpu)
     }
 }
 
@@ -223,6 +240,10 @@ enum SurfaceKind {
     /// owns.
     Vulkan(VulkanSwapchain),
     Cpu(CpuPresenter),
+    /// A `CAMetalLayer` on the window's view — see
+    /// [`vieww_hal::metal::MetalLayerPresenter`].
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    Metal(vieww_hal::metal::MetalLayerPresenter),
 }
 
 impl fmt::Debug for SurfaceKind {
@@ -230,6 +251,8 @@ impl fmt::Debug for SurfaceKind {
         match self {
             Self::Vulkan(swapchain) => f.debug_tuple("Vulkan").field(swapchain).finish(),
             Self::Cpu(cpu) => f.debug_tuple("Cpu").field(&cpu.extent).finish(),
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            Self::Metal(layer) => f.debug_tuple("Metal").field(&layer.extent()).finish(),
         }
     }
 }
@@ -252,6 +275,8 @@ impl NativeSurface {
         match self.kind {
             SurfaceKind::Vulkan(_) => PresentPath::Vulkan,
             SurfaceKind::Cpu(_) => PresentPath::Cpu,
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            SurfaceKind::Metal(_) => PresentPath::Metal,
         }
     }
 
@@ -261,6 +286,8 @@ impl NativeSurface {
         match &self.kind {
             SurfaceKind::Vulkan(swapchain) => swapchain.extent(),
             SurfaceKind::Cpu(cpu) => cpu.extent,
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            SurfaceKind::Metal(layer) => layer.extent(),
         }
     }
 }
@@ -968,6 +995,20 @@ pub struct NativeRenderer {
     /// Small-damage frames on a direct-route device take the blit route's
     /// retained damage path instead — see [`crate::gpu_route::SmallDamage`].
     small_damage: crate::gpu_route::SmallDamage,
+    /// The Metal half, on [`PresentPath::Metal`] — see [`MetalGpu`].
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    metal: Option<MetalGpu>,
+}
+
+/// The Metal device a [`PresentPath::Metal`] window presents through, and
+/// the scene renderer built on it at the first GPU frame (once; a failure
+/// is remembered, as [`GpuRaster`]'s is).
+#[cfg(any(target_os = "ios", target_os = "macos"))]
+struct MetalGpu {
+    device: vieww_hal::metal::MetalDevice,
+    renderer: Option<vieww_hal::metal::MetalSceneRenderer>,
+    planner: GpuPlanner,
+    unavailable: bool,
 }
 
 /// The GPU rasterizer goes before the device it was built on.
@@ -982,6 +1023,10 @@ pub struct NativeRenderer {
 impl Drop for NativeRenderer {
     fn drop(&mut self) {
         self.gpu = None;
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        {
+            self.metal = None;
+        }
     }
 }
 
@@ -1070,6 +1115,10 @@ impl NativeRenderer {
     #[must_use]
     pub fn adapter_name(&self) -> String {
         use vieww_hal::Device as _;
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        if let Some(metal) = &self.metal {
+            return format!("{} (Metal)", metal.device.info().name);
+        }
         self.device.as_ref().map_or_else(
             || "none (CPU present: no GPU driver loaded)".to_owned(),
             |device| device.info().name,
@@ -1157,7 +1206,63 @@ impl NativeRenderer {
                 }
             }
         }
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        if path == PresentPath::Metal {
+            match Self::metal_for_window(window, width, height) {
+                Ok(opened) => return Ok(opened),
+                Err(error) => {
+                    eprintln!("vieww: Metal present: {error}; presenting through Vulkan instead");
+                }
+            }
+        }
         Self::for_window(window.as_ref(), width, height)
+    }
+
+    /// A [`PresentPath::Metal`] window: the system Metal device and a
+    /// `CAMetalLayer` on the window's view.
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    fn metal_for_window(
+        window: &Arc<Window>,
+        width: u32,
+        height: u32,
+    ) -> Result<(Self, NativeSurface), NativeError> {
+        use raw_window_handle::{HasWindowHandle as _, RawWindowHandle};
+        let handle = window
+            .window_handle()
+            .map_err(|error| NativeError::Device(error.to_string()))?;
+        let view = match handle.as_raw() {
+            RawWindowHandle::UiKit(uikit) => uikit.ui_view,
+            RawWindowHandle::AppKit(appkit) => appkit.ns_view,
+            _ => return Err(NativeError::Device("not a UIKit/AppKit window".to_owned())),
+        };
+        let device = vieww_hal::metal::MetalDevice::new()
+            .map_err(|error| NativeError::Device(error.to_string()))?;
+        // SAFETY: `view` is the window's own view from `raw-window-handle`;
+        // the window outlives its surface (the app releases surfaces before
+        // windows), and window creation runs on the main thread.
+        let layer = unsafe {
+            vieww_hal::metal::MetalLayerPresenter::for_view(
+                &device,
+                view,
+                width,
+                height,
+                window.scale_factor(),
+            )
+        }
+        .map_err(|error| NativeError::Device(error.to_string()))?;
+        let mut renderer = Self::with_device(None, CpuRenderer::new());
+        renderer.metal = Some(MetalGpu {
+            device,
+            renderer: None,
+            planner: GpuPlanner::new(),
+            unavailable: false,
+        });
+        Ok((
+            renderer,
+            NativeSurface {
+                kind: SurfaceKind::Metal(layer),
+            },
+        ))
     }
 
     fn with_device(device: Option<Rc<VulkanDevice>>, mut cpu: CpuRenderer) -> Self {
@@ -1176,6 +1281,8 @@ impl NativeRenderer {
             gpu_frame_current: None,
             gpu_route: crate::gpu_route::RouteChooser::new(gpu_route_mode()),
             small_damage: crate::gpu_route::SmallDamage::default(),
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            metal: None,
         }
     }
 
@@ -1631,6 +1738,13 @@ impl NativeRenderer {
                     "a Vulkan surface on a renderer with no device".to_owned(),
                 ));
             }
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            (SurfaceKind::Metal(layer), _) => {
+                layer
+                    .present_pixels(frame)
+                    .map_err(|error| NativeError::Present(error.to_string()))?;
+                acquired = layer.last_timings().acquire;
+            }
         }
         self.stages.acquire = acquired;
         self.stages.present = presenting.elapsed().saturating_sub(acquired);
@@ -1661,6 +1775,11 @@ impl NativeRenderer {
                 .recreate(device, width, height)
                 .map_err(|error| NativeError::Present(error.to_string())),
             (SurfaceKind::Vulkan(_), None) => Ok(()),
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            (SurfaceKind::Metal(layer), _) => {
+                layer.resize(width, height);
+                Ok(())
+            }
         }
     }
 
@@ -1746,6 +1865,24 @@ impl NativeRenderer {
                 }
             }
         }
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        let on_metal = matches!(surface.kind, SurfaceKind::Metal(_));
+        #[cfg(not(any(target_os = "ios", target_os = "macos")))]
+        let on_metal = false;
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        if let Some(metal) = self
+            .metal
+            .as_mut()
+            .filter(|m| on_metal && m.renderer.is_none() && !m.unavailable)
+        {
+            match vieww_hal::metal::MetalSceneRenderer::new(&metal.device) {
+                Ok(renderer) => metal.renderer = Some(renderer),
+                Err(error) => {
+                    metal.unavailable = true;
+                    return Err(NativeError::Device(error.to_string()));
+                }
+            }
+        }
 
         // **Lifted to device pixels once, for whichever rasterizer draws.**
         // Until 2026-10-15 a CPU fallback frame was lifted here for the
@@ -1785,7 +1922,9 @@ impl NativeRenderer {
         // At full resolution the GPU carries a scroll's copies itself
         // (`SceneRenderer::set_pending_copies`) and redraws only what
         // changed; at a reduced one the copies' destinations redraw instead.
-        let carry = render_scale >= 1.0;
+        // The Metal renderer carries no scroll copies of its own (it has no
+        // `set_pending_copies`): its damage includes the copies' destinations.
+        let carry = render_scale >= 1.0 && !on_metal;
         let mut gpu_copies: Vec<(PixelRect, i32, i32)> = Vec::new();
         let gpu_damage: Option<Vec<PixelRect>> = match damage {
             Some(logical)
@@ -1910,6 +2049,10 @@ impl NativeRenderer {
             if self.shadow.is_some() {
                 fallback = Some("planner authoritative: cpu".to_owned());
             }
+        } else if let Some(frame) =
+            self.present_planned_metal(surface, &scene, base, gpu_damage.as_deref(), &mut fallback)?
+        {
+            return Ok(frame);
         } else if let (
             Some(GpuRaster { planner, renderer }),
             Some(device),
@@ -2244,6 +2387,101 @@ impl NativeRenderer {
             stages: self.stages,
             gpu_redrawn: None,
         })
+    }
+}
+
+impl NativeRenderer {
+    /// The [`PresentPath::Metal`] GPU frame: plan, and when the plan is
+    /// complete render it into the retained `L[0]` and onto the layer's
+    /// drawable in one submission (`render_planned_to_layer`). `Ok(None)`
+    /// when this is not a Metal surface or the plan had gaps — the caller's
+    /// CPU fallback draws it then, through the same layer. The hybrid
+    /// planner's split frame and the resolution scale are Vulkan-only today.
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    fn present_planned_metal(
+        &mut self,
+        surface: &mut NativeSurface,
+        scene: &Scene,
+        base: Color,
+        damage: Option<&[PixelRect]>,
+        fallback: &mut Option<String>,
+    ) -> Result<Option<PlannedFrame>, NativeError> {
+        let (
+            Some(MetalGpu {
+                renderer: Some(renderer),
+                planner,
+                ..
+            }),
+            SurfaceKind::Metal(layer),
+        ) = (self.metal.as_mut(), &mut surface.kind)
+        else {
+            if matches!(surface.kind, SurfaceKind::Metal(_)) && self.shadow.is_some() {
+                *fallback = Some("no Metal rasterizer".to_owned());
+            }
+            return Ok(None);
+        };
+        let (width, height) = layer.extent();
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "a drawable is a small number of pixels"
+        )]
+        let plan = {
+            let planning = Instant::now();
+            let plan = planner.plan(scene, width as f32, height as f32);
+            self.stages.plan = planning.elapsed();
+            plan
+        };
+        if !plan.is_complete() {
+            if self.shadow.is_some() {
+                let mut kinds: Vec<&str> = plan.unsupported.keys().map(|k| k.name()).collect();
+                kinds.sort_unstable();
+                *fallback = Some(format!("plan incomplete: {}", kinds.join(", ")));
+            }
+            return Ok(None);
+        }
+        note_gpu_route("metal: rendered into L[0] and copied onto the CAMetalLayer drawable");
+        let redrawn = renderer
+            .render_planned_to_layer(planner, &plan, base, layer, damage)
+            .map_err(|error| NativeError::Render(error.to_string()))?;
+        let t = renderer.last_timings();
+        self.stages.gpu = GpuFrameTimings {
+            upload: t.upload,
+            record: t.record,
+            submit: t.submit,
+            wait: Duration::ZERO,
+            readback: Duration::ZERO,
+        };
+        let presented = layer.last_timings();
+        self.stages.acquire = presented.acquire;
+        // The GPU's clock for the latest finished frame (one or two frames
+        // behind this one): the whole command buffer, so it is reported as
+        // `draw` — Metal gives no per-kind split without counter samples.
+        self.stages.gpu_passes = layer.last_gpu_time().map(|gpu| GpuPassTimes {
+            draw: gpu,
+            ..GpuPassTimes::default()
+        });
+        self.record_shadow(scene, (width, height), Executor::Gpu, None);
+        self.gpu_frame_current = Some(1.0);
+        Ok(Some(PlannedFrame {
+            report: SceneReport::default(),
+            drawn_on_gpu: true,
+            presented_directly: true,
+            stages: self.stages,
+            gpu_redrawn: Some(redrawn.pixels(width, height)),
+        }))
+    }
+
+    #[cfg(not(any(target_os = "ios", target_os = "macos")))]
+    #[allow(clippy::unnecessary_wraps, clippy::unused_self)]
+    fn present_planned_metal(
+        &mut self,
+        _surface: &mut NativeSurface,
+        _scene: &Scene,
+        _base: Color,
+        _damage: Option<&[PixelRect]>,
+        _fallback: &mut Option<String>,
+    ) -> Result<Option<PlannedFrame>, NativeError> {
+        Ok(None)
     }
 }
 

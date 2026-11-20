@@ -2697,7 +2697,7 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // `auto_rasterizer` that is the CPU path, kept, rather than an app that
         // will not start.
         let (opened, planned, launch, settled) = match (opened, &calibration) {
-            (Err(error), Some(calibration)) if path == PresentPath::Vulkan => {
+            (Err(error), Some(calibration)) if path.is_gpu() => {
                 log::warn!(
                     "vieww: the GPU path could not be opened ({error}); keeping the CPU path"
                 );

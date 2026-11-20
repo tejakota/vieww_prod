@@ -236,6 +236,11 @@ accesskit_android = { version = "0.9.0", features = ["embedded-dex"] }
 # FW-20's AppKit platform views: a few `msg_send!`s on `NSView`/`NSBox`
 # (`src/platform_views_appkit.rs`). The same `objc2` generation winit 0.30
 # already links on macOS, so nothing new is compiled.
+# The Metal present path (`PresentPath::Metal`, PENDING 1.2): the Metal
+# scene renderer and its `CAMetalLayer` presenter.
+[target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
+vieww-hal = { workspace = true, features = ["vulkan-swapchain", "metal"] }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.5"
 objc2-foundation = { version = "0.2", features = ["NSGeometry"] }

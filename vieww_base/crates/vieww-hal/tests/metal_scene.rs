@@ -24,7 +24,7 @@ mod parity_row;
 
 use vieww_foundation::{Color, Offset, Path, Rect, Transform};
 use vieww_gpu::Planner;
-use vieww_hal::metal::{MetalDevice, MetalSceneRenderer};
+use vieww_hal::metal::{MetalDevice, MetalLayerPresenter, MetalSceneRenderer};
 use vieww_paint::native::NativeRenderer;
 use vieww_paint::{Canvas, Clip, Command, Paint, Scene, Stroke};
 
@@ -1998,4 +1998,91 @@ fn idle_layer_targets_are_freed_after_the_hysteresis() {
         got, want,
         "a deep frame after a shrink must match a renderer that never shrank"
     );
+}
+
+/// PENDING 1.2's window route: frames rendered onto a `CAMetalLayer`
+/// drawable (`render_planned_to_layer`, no readback, left in flight) leave
+/// `L[0]` holding exactly what the readback route would have drawn — read
+/// back afterwards through an empty damage list, which redraws nothing.
+/// Also: a finished layer frame reports its GPU time, the number the
+/// iPhone runs hold to 8.3 ms, and a CPU frame presents through the same
+/// layer.
+#[test]
+#[ignore = "needs a Metal GPU — the framework-checks macOS runner; run with `cargo test --features metal -- --ignored`"]
+fn layer_frames_leave_the_same_pixels_the_readback_draws() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    let base = Color::WHITE;
+    let mut presenter =
+        MetalLayerPresenter::offscreen(&device, WIDTH, HEIGHT).expect("present pipelines build");
+    let mut planner = Planner::new();
+    let mut last = Scene::default();
+    // A few frames, the square moving, damage-redrawn after the first — the
+    // retained path the window takes.
+    for frame in 0..4u32 {
+        let mut scene = Scene::default();
+        fill_rect(
+            &mut scene,
+            Rect::new(0.0, 0.0, 120.0, 90.0),
+            Color::rgba(30, 30, 200, 255),
+        );
+        let x = 10.0 + 15.0 * frame as f32;
+        fill_rect(
+            &mut scene,
+            Rect::new(x, 20.0, x + 30.0, 50.0),
+            Color::rgba(255, 0, 0, 180),
+        );
+        let plan = planner.plan(&scene, WIDTH as f32, HEIGHT as f32);
+        let damage = [vieww_gpu::PixelRect {
+            x0: 0,
+            y0: 10,
+            x1: WIDTH as i32,
+            y1: 60,
+        }];
+        renderer
+            .render_planned_to_layer(
+                &planner,
+                &plan,
+                base,
+                &mut presenter,
+                (frame > 0).then_some(&damage[..]),
+            )
+            .expect("a layer frame renders");
+        last = scene;
+    }
+    presenter.wait_idle();
+    assert!(
+        presenter.last_gpu_time().is_some(),
+        "a finished layer frame reports its GPU time"
+    );
+
+    // What L[0] holds, read back without redrawing anything...
+    let plan = planner.plan(&last, WIDTH as f32, HEIGHT as f32);
+    let (kept, redrawn) = renderer
+        .render_planned_damaged(&planner, &plan, WIDTH, HEIGHT, base, Some(&[]))
+        .expect("the retained frame reads back");
+    assert_eq!(
+        redrawn.pixels(WIDTH, HEIGHT),
+        0,
+        "an empty damage list redraws nothing"
+    );
+    // ...is the readback route's own frame of the same scene, byte for byte.
+    // (A second renderer on the same device: the file's lock is held.)
+    let mut fresh = MetalSceneRenderer::new(&device).expect("a second renderer");
+    let mut fresh_planner = Planner::new();
+    let fresh_plan = fresh_planner.plan(&last, WIDTH as f32, HEIGHT as f32);
+    let whole = fresh
+        .render_planned(&fresh_planner, &fresh_plan, WIDTH, HEIGHT, base)
+        .expect("the readback frame renders");
+    assert_eq!(
+        kept, whole,
+        "the layer route drew what the readback route draws"
+    );
+
+    // A CPU frame through the same layer.
+    presenter
+        .present_pixels(&on_cpu(&last, base))
+        .expect("a CPU frame presents");
+    presenter.wait_idle();
 }

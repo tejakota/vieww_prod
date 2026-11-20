@@ -25,17 +25,15 @@
 //!
 //! # What is deliberately simpler than Vulkan's
 //!
-//! * **No swapchain path.** `render_planned` / `render_planned_damaged` and
-//!   their readback only — no `render_planned_to`, no present history, no
-//!   partial-copy probing, no frame overlap: every frame waits for its own
-//!   command buffer. The window path on macOS still goes through MoltenVK
-//!   (`vieww-platform-winit`'s `PresentPath::Vulkan`) until a Metal surface
-//!   lands there: a `SurfaceKind::Metal` variant over the winit window's
-//!   `CAMetalLayer`, a `VIEWW_PRESENT=metal` arm in `PresentPath::choose`,
-//!   and presents that read `MTLDrawable::presentedTime` so the drawable
-//!   wait can be told from GPU work on the iPhone (PENDING 1.4's open
-//!   question). The macOS runner validates this renderer first — the plan's
-//!   order, not a shortcut.
+//! * **One window route.** [`MetalSceneRenderer::render_planned_to_layer`]
+//!   renders into `L[0]` and copies it onto a `CAMetalLayer` drawable in the
+//!   same command buffer ([`super::present`]), with the frame left in
+//!   flight — no readback. There is no direct (no-`L[0]`) route, no present
+//!   history and no partial-copy probing: `L[0]` is the retained frame and
+//!   every present copies all of it, which is one cheap pass on a tiled GPU.
+//!   `render_planned` / `render_planned_damaged` keep the readback for the
+//!   parity suites. `vieww-platform-winit` selects this route with
+//!   `PresentPath::Metal` (the iOS default; `VIEWW_PRESENT=metal` on macOS).
 //! * **Partial atlas uploads, and a carried grow.** Glyphs, images and
 //!   ramps upload only the rectangles that changed when the atlas can say
 //!   which ones those are (`vulkan::scene`'s `record_glyphs`/`record_images`/
@@ -443,7 +441,38 @@ impl MetalSceneRenderer {
         let started = Instant::now();
         self.upload_planner(planner)?;
         self.timings.upload = started.elapsed();
-        self.render_with(plan, width, height, clear, damage)
+        self.render_with(plan, width, height, clear, damage, None)
+    }
+
+    /// Execute a complete `plan` at the layer's extent and put it on
+    /// `presenter`'s next drawable — no readback, the frame left in flight.
+    /// `damage` redraws only those rectangles of the retained `L[0]`, as in
+    /// [`Self::render_planned_damaged`]; the whole of `L[0]` is presented.
+    /// Any clear alpha: the layer composites premultiplied pixels.
+    ///
+    /// # Errors
+    ///
+    /// As [`Self::render_planned`].
+    pub fn render_planned_to_layer(
+        &mut self,
+        planner: &Planner,
+        plan: &ScenePlan,
+        clear: Color,
+        presenter: &mut super::MetalLayerPresenter,
+        damage: Option<&[PixelRect]>,
+    ) -> Result<Redrawn, MetalError> {
+        if !plan.is_complete() {
+            return Err(MetalError::Invalid("incomplete plan".into()));
+        }
+        let (width, height) = presenter.extent();
+        self.timings = FrameTimings::default();
+        let started = Instant::now();
+        self.upload_planner(planner)?;
+        self.timings.upload = started.elapsed();
+        metal::objc::rc::autoreleasepool(|| {
+            self.render_with(plan, width, height, clear, damage, Some(presenter))
+                .map(|(_, redrawn)| redrawn)
+        })
     }
 
     /// Where the last frame's wall time went — see [`FrameTimings`].
@@ -462,6 +491,7 @@ impl MetalSceneRenderer {
         height: u32,
         clear: Color,
         damage: Option<&[PixelRect]>,
+        layer: Option<&mut super::MetalLayerPresenter>,
     ) -> Result<(Vec<u8>, Redrawn), MetalError> {
         let width = width.max(1);
         let height = height.max(1);
@@ -774,6 +804,18 @@ impl MetalSceneRenderer {
         }
         end_current(&mut encoder);
         self.timings.record = started.elapsed();
+
+        // ── the frame out: onto a drawable, left in flight ──────────────
+        if let Some(presenter) = layer {
+            let submitting = Instant::now();
+            presenter.encode_and_present(commands, self.levels[0].as_ref(), true);
+            // The drawable wait is the presenter's `acquire`, not work.
+            self.timings.submit = submitting
+                .elapsed()
+                .saturating_sub(presenter.last_timings().acquire);
+            self.retained = Some(exec.retained);
+            return Ok((Vec::new(), exec.redrawn));
+        }
 
         // ── the frame out: readback ─────────────────────────────────────
         let started = Instant::now();

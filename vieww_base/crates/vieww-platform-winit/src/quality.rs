@@ -269,14 +269,14 @@ pub(crate) fn apply_cache_budgets(path: crate::native::PresentPath) {
     // 43714067671 / 43722791555) while winning the GPU pass 6-8 ms. The
     // gate therefore follows the path — `set_process_raster_small_masks`'
     // docs in `vieww_paint::native` have the numbers.
-    vieww_paint::native::set_process_raster_small_masks(path == crate::native::PresentPath::Vulkan);
+    vieww_paint::native::set_process_raster_small_masks(path.is_gpu());
     APPLIED.get_or_init(|| {
         let tier = device_facts().tier;
         vieww_paint::native::set_process_cache_budgets(cache_budgets_for(tier));
         let mobile = cfg!(any(target_os = "android", target_os = "ios"));
         let ios = cfg!(target_os = "ios");
         let linux = cfg!(target_os = "linux");
-        let gpu = path == crate::native::PresentPath::Vulkan;
+        let gpu = path.is_gpu();
         if let Some(request) = raster_threads_for(tier, mobile, ios, linux, gpu) {
             vieww_paint::native::set_process_raster_threads(request);
         }

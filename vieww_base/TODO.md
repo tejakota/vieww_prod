@@ -68,10 +68,17 @@ follows is *vieww_prod performance plan: status check and to-do plan*
 
 ## Open
 
-1. **Metal on the iPhone** (PENDING §1.2): a `CAMetalLayer`
-   swapchain/drawable path so iOS windows stop presenting through
-   MoltenVK; `MTLCounterSampleBuffer` timestamps; then the Device Farm
-   numbers (iPhone 14 / 18 Pro Max, GPU time under 8.3 ms at 120 Hz).
+1. **Metal on the iPhone** (PENDING §1.2): *code landed 2026-11-20* —
+   `PresentPath::Metal` (the iOS GPU default; `VIEWW_PRESENT=metal` on
+   macOS, `=vulkan` for the MoltenVK A/B) presents through
+   `vieww_hal::metal::MetalLayerPresenter`: the scene renders into `L[0]`
+   and is copied onto the `CAMetalLayer` drawable in the same command
+   buffer, no readback, frame left in flight; the drawable wait is
+   `acquire`, and the GPU time is the finished command buffer's
+   `GPUEndTime - GPUStartTime` (`gpu_passes.draw`). Owed: the macOS leg's
+   `layer_frames_leave_the_same_pixels_the_readback_draws`, then the
+   iPhone numbers (GPU time under 8.3 ms at 120 Hz) on Device Farm or
+   Firebase Test Lab (`ci/mobile/test-lab.sh ios`).
 2. **D3D12 on a hardware adapter** (PENDING §1.3): run the same suite plus
    `fixtures`/`baseline` on the Kaby Lake laptop's GPU and commit the
    receipt — WARP is correctness, never speed.

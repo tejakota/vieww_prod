@@ -47,6 +47,7 @@ use super::{sealed, AdapterInfo, Device as HalDevice};
 
 /// The Metal scene renderer — [`crate::scene_exec`]'s op stream on this
 /// backend, the port of `vulkan::scene::SceneRenderer` PENDING 1.2 asks for.
+pub mod present;
 pub mod scene;
 
 use metal::{
@@ -57,6 +58,7 @@ use metal::{
     RenderPipelineDescriptor, RenderPipelineState, Texture, TextureDescriptor, TextureRef,
     VertexDescriptor,
 };
+pub use present::{MetalLayerPresenter, PresentTimings, DRAWABLE_FORMAT};
 pub use scene::{FrameTimings, MetalSceneRenderer};
 use vieww_foundation::Color;
 use vieww_shaders::{msl_slots, ParsedShader, ShaderStage};
