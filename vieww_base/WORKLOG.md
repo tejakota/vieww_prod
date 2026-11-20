@@ -37,8 +37,12 @@ dispatches, so a dispatch clobbers the graphics PSO and the Post interpreter's
 bound-dedup then skipped the rebind for a pass whose key matched what was
 bound before the dispatch (WARP's debug layer said it in exactly those words;
 the nested scene hit the collision, the simple blurred layer did not). The
-dispatch now resets `bound` beside `open`. Before that, the same day: **the
-thorough gate's last red job went honestly green** — the Maestro step's fix
+dispatch now resets `bound` beside `open`, and run 34 is the receipt: every
+job green, the nested scene passing on WARP under GPU-based validation, and
+both parity certificates holding — Metal 16 tests / 59 comparisons / 0
+violations / worst 1/255, D3D12 10 / 40 / 0 / 1. Before that, the same day:
+**the thorough gate's last red job went
+honestly green** — the Maestro step's fix
 (a ten-minute `MAESTRO_DRIVER_STARTUP_TIMEOUT`, an honest no-hierarchy
 warning, one retry when the JUnit report says the harness broke) is run 32's
 receipt: the before-dump found "Tap me", the flow passed in 3m 19s, and every
