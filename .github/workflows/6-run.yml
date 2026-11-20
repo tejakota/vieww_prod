@@ -83,7 +83,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          git config --system core.longpaths true 2>$null
+          # Per-user, not --system: the runner's account cannot write Git's
+          # install folder. Through cmd so a refusal never fails the step.
+          cmd /c "git config --global core.longpaths true 2>nul"
+          $global:LASTEXITCODE = 0
           $git = Split-Path (Split-Path (Get-Command git.exe).Source)
           foreach ($dir in @("$git\bin", "$git\usr\bin", "$env:USERPROFILE\.cargo\bin")) {
             if (Test-Path $dir) { Add-Content $env:GITHUB_PATH $dir; Write-Host "PATH += $dir" }
