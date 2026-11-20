@@ -1,4 +1,4 @@
-# Remaining work (updated 2026-11-19)
+# Remaining work (updated 2026-11-20)
 
 Verified state of each item is in `PENDING.md`; this is the short list.
 
@@ -51,6 +51,20 @@ follows is *vieww_prod performance plan: status check and to-do plan*
   image is nobody's storage target), `VIEWW_GPU_COMPUTE_BLUR=0` for the
   A/B. Metal/D3D12/WebGPU keep the fragment blur — their compute
   plumbing is the follow-up this landed the shape for.
+- **The compute blur's ports finished** (WebGPU in the web round, Metal and
+  D3D12 on 2026-11-20): all four backends now dispatch `cs_blur` per
+  scissor band. Metal's `compute_pipeline` and target `ShaderWrite`; D3D12's
+  `cs_5_1`, blur root signature (root constants, one SRV table, one UAV
+  table), `ALLOW_UNORDERED_ACCESS` targets and the heap's blur-pair region.
+  Each suite pins that the pipeline is *built* unless the env opt-out is
+  set, and that the compute and fragment forms agree within 2/255 — the
+  macOS leg (`MTL_DEBUG_LAYER=1`) and the Windows leg (WARP) are the
+  referees.
+- **The thorough gate is honestly green** (run 32, `44665288956`): the
+  Maestro step's fix — a ten-minute `MAESTRO_DRIVER_STARTUP_TIMEOUT`, an
+  honest no-hierarchy warning, one retry when the JUnit report says the
+  harness broke — is the last job's receipt; no job in the thorough
+  dispatch is red.
 
 ## Open
 
@@ -64,12 +78,10 @@ follows is *vieww_prod performance plan: status check and to-do plan*
 3. **The two over-budget fixtures** (PENDING §4.1): AVX2 shipped
    (`3736a4a`, runtime-detected); CI's Linux leg now shows glass at 4.4 ms
    and nested at 4.6 ms — the i5-7200U receipt is what closes it.
-4. **The compute blur's own follow-ups**: the ports' compute plumbing —
-   WebGPU is done (the browser parity leg is the referee; the env gate is
-   `scene_exec::compute_blur_wanted`), **Metal and D3D12 still run the
-   fragment hybrid** — and the A73
-   stress screen's before/after on Device Farm — 117 ms is the number the
-   one-add-one-sub form is owed to halve.
+4. **The compute blur's own follow-ups**: the A73 stress screen's
+   before/after on Device Farm — 117 ms is the number the one-add-one-sub
+   form is owed to halve. (The ports themselves are done: all four backends
+   dispatch `cs_blur`; the gate's macOS and Windows legs referee them.)
 5. **Windows start-up measurement** (§3.5): the 840 → ~250 ms code landed
    (`9b82b2b`); the before/after `baseline` trace on the laptop is owed.
 6. **The verification owed on done items** — one Device Farm round (storm

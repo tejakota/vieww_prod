@@ -50,11 +50,12 @@ use super::{sealed, AdapterInfo, Device as HalDevice};
 pub mod scene;
 
 use metal::{
-    Buffer, CommandQueue, CompileOptions, Device, MTLBlendFactor, MTLBlendOperation, MTLBlitOption,
-    MTLClearColor, MTLIndexType, MTLLoadAction, MTLOrigin, MTLPixelFormat, MTLPrimitiveType,
-    MTLResourceOptions, MTLSize, MTLStorageMode, MTLStoreAction, MTLTextureUsage, MTLVertexFormat,
-    MTLVertexStepFunction, RenderPassDescriptor, RenderPipelineDescriptor, RenderPipelineState,
-    Texture, TextureDescriptor, TextureRef, VertexDescriptor,
+    Buffer, CommandQueue, CompileOptions, ComputePipelineState, Device, MTLBlendFactor,
+    MTLBlendOperation, MTLBlitOption, MTLClearColor, MTLIndexType, MTLLoadAction, MTLOrigin,
+    MTLPixelFormat, MTLPrimitiveType, MTLResourceOptions, MTLSize, MTLStorageMode, MTLStoreAction,
+    MTLTextureUsage, MTLVertexFormat, MTLVertexStepFunction, RenderPassDescriptor,
+    RenderPipelineDescriptor, RenderPipelineState, Texture, TextureDescriptor, TextureRef,
+    VertexDescriptor,
 };
 pub use scene::{FrameTimings, MetalSceneRenderer};
 use vieww_foundation::Color;
@@ -245,6 +246,29 @@ impl MetalDevice {
         }
         self.device
             .new_render_pipeline_state(&desc)
+            .map_err(MetalError::Metal)
+    }
+
+    /// Compile one WGSL compute entry point into a compute pipeline — the
+    /// compute half of [`Self::pipeline`], for `cs_blur` and whatever
+    /// follows it. The slot convention is the same one the render pipelines
+    /// bind under: the immediates at
+    /// [`IMMEDIATES_BUFFER`](vieww_shaders::msl_slots::IMMEDIATES_BUFFER)
+    /// through the encoder's `set_bytes`, each texture at its own binding
+    /// number in the texture index space.
+    ///
+    /// # Errors
+    ///
+    /// Translation, MSL compilation or pipeline creation failing.
+    pub fn compute_pipeline(
+        &self,
+        wgsl: &str,
+        entry: &str,
+    ) -> Result<ComputePipelineState, MetalError> {
+        let parsed = ParsedShader::parse(wgsl).map_err(|e| MetalError::Shader(e.to_string()))?;
+        let cs = self.function(&parsed, entry, ShaderStage::Compute)?;
+        self.device
+            .new_compute_pipeline_state_with_function(&cs)
             .map_err(MetalError::Metal)
     }
 

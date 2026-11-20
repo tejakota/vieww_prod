@@ -73,7 +73,7 @@ use windows::Win32::Graphics::Dxgi::Common::{
 };
 use windows::Win32::System::Threading::{CreateEventW, WaitForSingleObject, INFINITE};
 
-use crate::scene_exec::{frame_passes, Redrawn, Retained, SceneOp, TargetId};
+use crate::scene_exec::{compute_blur_wanted, frame_passes, Redrawn, Retained, SceneOp, TargetId};
 
 use super::{check_size, D3d12Device, D3d12Error};
 
@@ -104,17 +104,28 @@ pub struct D3d12SceneRenderer {
     scene_root: ID3D12RootSignature,
     post_root: ID3D12RootSignature,
     clear_root: ID3D12RootSignature,
+    /// `cs_blur`'s own root signature: the immediates as root constants,
+    /// the source as one SRV table, the destination as one UAV table —
+    /// compute and graphics bind root signatures separately, so this never
+    /// disturbs the three above.
+    blur_root: ID3D12RootSignature,
     scene_pso: ID3D12PipelineState,
     /// `[over][blur]`: the post pipeline for `pass.over` and for a blur
     /// pass (`post.wgsl`'s `fs_blur`) or any other (`fs_no_blur`) — split
     /// because WARP removes the device on the combined `fs_main`.
     post_psos: [[ID3D12PipelineState; 2]; 2],
+    /// `cs_blur` as a compute pipeline — `None` when the run opted the
+    /// compute blur off (`VIEWW_GPU_COMPUTE_BLUR=0`), in which case the
+    /// blur modes keep the `fs_blur` fragment form above.
+    blur_pso: Option<ID3D12PipelineState>,
     clear_pso: ID3D12PipelineState,
-    /// The one shader-visible heap: the atlases, the dummy, and one triplet
-    /// per post pass (see [`TRIPLETS_BASE`]).
+    /// The one shader-visible heap: the atlases, the dummy, one triplet
+    /// per post pass, one pair per blur dispatch (see [`TRIPLETS_BASE`]).
     heap: ID3D12DescriptorHeap,
     /// How many post-pass triplets `heap` has room for.
     heap_posts: u32,
+    /// How many blur-pass pairs `heap` has room for.
+    heap_blurs: u32,
     increment: u32,
     /// The targets' RTVs. Replaced with the targets, so no RTV ever outlives
     /// its heap.
@@ -162,19 +173,21 @@ struct TargetResource {
 }
 
 // The heap: [0..4) the atlases, [4] the dummy, then one `src, aux, masks`
-// triplet *per post pass of the frame*. A shader-visible descriptor is read
-// when the GPU executes the draw, not when the list records it, so one
-// shared triplet rewritten per pass would hand every post pass in the list
-// the last pass's textures. The triplet region grows (the heap is rebuilt)
-// when a frame has more post passes than it holds.
+// triplet *per post pass of the frame*, then one `src, dst` pair *per
+// blur-mode post pass the compute route dispatches*. A shader-visible
+// descriptor is read when the GPU executes the draw or dispatch, not when
+// the list records it, so one shared triplet rewritten per pass would hand
+// every post pass in the list the last pass's textures (the same holds for
+// a blur pair and its UAV). Both regions grow (the heap is rebuilt) when a
+// frame needs more than it holds.
 const ATLAS_SLOTS: u32 = 4;
 const DUMMY_SLOT: u32 = ATLAS_SLOTS;
 const TRIPLETS_BASE: u32 = DUMMY_SLOT + 1;
 /// Post passes the first heap has room for; a frame with more rebuilds it.
 const INITIAL_POST_CAPACITY: u32 = 64;
 
-const fn heap_descriptors(posts: u32) -> u32 {
-    TRIPLETS_BASE + 3 * posts
+const fn heap_descriptors(posts: u32, blurs: u32) -> u32 {
+    TRIPLETS_BASE + 3 * posts + 2 * blurs
 }
 
 const TARGET_FORMAT: DXGI_FORMAT = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -301,6 +314,36 @@ fn gpu_handle(
     }
 }
 
+/// A 2D UAV — `cs_blur`'s write side. `srv`'s twin: the same heap-slot
+/// arithmetic, a `RWTexture2D`'s view instead of a `Texture2D`'s.
+fn uav(
+    device: &ID3D12Device,
+    heap: &ID3D12DescriptorHeap,
+    increment: u32,
+    slot: u32,
+    resource: &ID3D12Resource,
+    format: DXGI_FORMAT,
+) {
+    let mut desc = D3D12_UNORDERED_ACCESS_VIEW_DESC {
+        Format: format,
+        ViewDimension: D3D12_UAV_DIMENSION_TEXTURE2D,
+        ..Default::default()
+    };
+    // A union write of a `Copy` field is safe; only the Texture2D arm of a
+    // Texture2D-dimensional view is ever read.
+    desc.Anonymous.Texture2D = D3D12_TEX2D_UAV {
+        MipSlice: 0,
+        PlaneSlice: 0,
+    };
+    let at = D3D12_CPU_DESCRIPTOR_HANDLE {
+        ptr: unsafe { heap.GetCPUDescriptorHandleForHeapStart() }.ptr
+            + slot as usize * increment as usize,
+    };
+    // SAFETY: a live resource, a fully initialised view desc, and a handle
+    // inside a heap this renderer owns.
+    unsafe { device.CreateUnorderedAccessView(resource, None, Some(&desc), at) };
+}
+
 /// Premultiplied source-over — the scene pipeline's and the blending post
 /// pipeline's blend, `ONE / INV_SRC_ALPHA` on every channel.
 fn premultiplied_over() -> D3D12_RENDER_TARGET_BLEND_DESC {
@@ -370,6 +413,17 @@ fn texture_desc(format: DXGI_FORMAT, width: u32, height: u32) -> D3D12_RESOURCE_
     }
 }
 
+/// A layer target's descriptor — `texture_desc` plus the UAV flag
+/// `cs_blur`'s `RWTexture2D` store needs on the destination. Vulkan's twin
+/// decision (the `STORAGE` usage flag on the target images) is made here
+/// for the same reason: the flag and the compute pipeline are set together
+/// or neither is.
+fn target_texture_desc(format: DXGI_FORMAT, width: u32, height: u32) -> D3D12_RESOURCE_DESC {
+    let mut desc = texture_desc(format, width, height);
+    desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+    desc
+}
+
 impl D3d12SceneRenderer {
     /// Build the root signatures, the pipelines, the heap and the
     /// placeholder atlases.
@@ -392,7 +446,7 @@ impl D3d12SceneRenderer {
         let fence: ID3D12Fence = unsafe { raw.CreateFence(0, D3D12_FENCE_FLAG_NONE)? };
 
         // ── the one heap ──────────────────────────────────────────────────
-        let heap = shader_visible_heap(&raw, INITIAL_POST_CAPACITY)?;
+        let heap = shader_visible_heap(&raw, INITIAL_POST_CAPACITY, INITIAL_POST_CAPACITY)?;
         let increment =
             unsafe { raw.GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) };
 
@@ -454,6 +508,41 @@ impl D3d12SceneRenderer {
             },
         ];
         let post_root = root_signature(device, &post_parameters)?;
+        // The compute blur: the same immediates the fragment post receives
+        // at `b15`, the source as one SRV (t0 — `t_src`'s register), the
+        // destination as one UAV (u3 — `t_dst`'s). Two separate tables so
+        // each range's heap slot is its own base, with no contiguity to
+        // reason about between an SRV and the UAV that follows it.
+        let blur_srv_range = [D3D12_DESCRIPTOR_RANGE {
+            RangeType: D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
+            NumDescriptors: 1,
+            BaseShaderRegister: 0,
+            RegisterSpace: 0,
+            OffsetInDescriptorsFromTableStart: 0,
+        }];
+        let blur_uav_range = [D3D12_DESCRIPTOR_RANGE {
+            RangeType: D3D12_DESCRIPTOR_RANGE_TYPE_UAV,
+            NumDescriptors: 1,
+            BaseShaderRegister: 3,
+            RegisterSpace: 0,
+            OffsetInDescriptorsFromTableStart: 0,
+        }];
+        let table = |range: &[D3D12_DESCRIPTOR_RANGE; 1]| D3D12_ROOT_PARAMETER {
+            ParameterType: D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
+            Anonymous: D3D12_ROOT_PARAMETER_0 {
+                DescriptorTable: D3D12_ROOT_DESCRIPTOR_TABLE {
+                    NumDescriptorRanges: 1,
+                    pDescriptorRanges: range.as_ptr(),
+                },
+            },
+            ShaderVisibility: D3D12_SHADER_VISIBILITY_ALL,
+        };
+        let blur_parameters = [
+            constants_parameter(vieww_shaders::hlsl_slots::IMMEDIATES_REGISTER, 32),
+            table(&blur_srv_range),
+            table(&blur_uav_range),
+        ];
+        let blur_root = root_signature(device, &blur_parameters)?;
         // The clear: the colour at b0, four dwords.
         let clear_parameters = [constants_parameter(0, 4)];
         let clear_root = root_signature(device, &clear_parameters)?;
@@ -520,6 +609,17 @@ impl D3d12SceneRenderer {
             [post_pso(&post_rest, false)?, post_pso(&post_blur, false)?],
             [post_pso(&post_rest, true)?, post_pso(&post_blur, true)?],
         ];
+        // The compute blur — `cs_blur`, the fourth port after Vulkan,
+        // WebGPU and Metal. No capability probe: an RGBA16F UAV *store* (all
+        // `cs_blur` does to `t_dst` — it never loads it) is mandatory on
+        // every D3D12 feature level this backend runs on, so the pipeline
+        // is either built for every adapter or the run opted it off.
+        let blur_pso = if compute_blur_wanted() {
+            let cs = D3d12Device::compile(post, "cs_blur", vieww_shaders::ShaderStage::Compute)?;
+            Some(device.compute_pipeline(&blur_root, &cs)?)
+        } else {
+            None
+        };
         let clear_vs = D3d12Device::compile(
             vieww_shaders::library::CLEAR_WGSL,
             "vs_main",
@@ -580,11 +680,14 @@ impl D3d12SceneRenderer {
             scene_root,
             post_root,
             clear_root,
+            blur_root,
             scene_pso,
             post_psos,
+            blur_pso,
             clear_pso,
             heap,
             heap_posts: INITIAL_POST_CAPACITY,
+            heap_blurs: INITIAL_POST_CAPACITY,
             increment,
             rtv_heap: {
                 // A placeholder until the first frame's targets; a heap must
@@ -664,17 +767,26 @@ impl D3d12SceneRenderer {
         );
     }
 
-    /// Make room in the shader-visible heap for `posts` post-pass triplets,
-    /// rebuilding it (and rewriting its static descriptors) when the current
-    /// one is too small. Every earlier list has been waited for, so the old
-    /// heap has no GPU reader left when it is dropped.
-    fn ensure_post_capacity(&mut self, posts: u32) -> Result<(), D3d12Error> {
-        if posts <= self.heap_posts {
+    /// Make room in the shader-visible heap for `posts` post-pass triplets
+    /// and `blurs` blur-pass pairs, rebuilding it (and rewriting its static
+    /// descriptors) when the current one is too small. Every earlier list
+    /// has been waited for, so the old heap has no GPU reader left when it
+    /// is dropped.
+    fn ensure_post_capacity(&mut self, posts: u32, blurs: u32) -> Result<(), D3d12Error> {
+        if posts <= self.heap_posts && blurs <= self.heap_blurs {
             return Ok(());
         }
-        let capacity = posts.next_power_of_two().max(INITIAL_POST_CAPACITY);
-        self.heap = shader_visible_heap(&self.device, capacity)?;
-        self.heap_posts = capacity;
+        let posts_capacity = posts
+            .next_power_of_two()
+            .max(INITIAL_POST_CAPACITY)
+            .max(self.heap_posts);
+        let blurs_capacity = blurs
+            .next_power_of_two()
+            .max(INITIAL_POST_CAPACITY)
+            .max(self.heap_blurs);
+        self.heap = shader_visible_heap(&self.device, posts_capacity, blurs_capacity)?;
+        self.heap_posts = posts_capacity;
+        self.heap_blurs = blurs_capacity;
         self.write_static_srvs();
         Ok(())
     }
@@ -787,6 +899,15 @@ impl D3d12SceneRenderer {
         self.levels.len() + self.scratch.len()
     }
 
+    /// Whether the compute blur's pipeline was built — the route the blur
+    /// modes dispatch when it is there. For tests and the A/B: the run that
+    /// sets `VIEWW_GPU_COMPUTE_BLUR=0` answers `false` and the fragment
+    /// `fs_blur` takes the blur modes back.
+    #[must_use]
+    pub const fn compute_blur_built(&self) -> bool {
+        self.blur_pso.is_some()
+    }
+
     // ── the frame ─────────────────────────────────────────────────────────
 
     #[allow(clippy::too_many_lines)]
@@ -813,7 +934,29 @@ impl D3d12SceneRenderer {
             .iter()
             .filter(|op| matches!(op, SceneOp::Post { .. }))
             .count();
-        self.ensure_post_capacity(u32::try_from(posts).unwrap_or(u32::MAX))?;
+        // The blur pairs the frame's compute-routed passes need — zero when
+        // the pipeline was never built, and the fragment `fs_blur` answers
+        // instead.
+        let blurs = if self.blur_pso.is_some() {
+            exec.ops
+                .iter()
+                .filter(|op| match op {
+                    SceneOp::Post { pass, .. } => {
+                        matches!(
+                            pass.push.args[0],
+                            crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
+                        )
+                    }
+                    _ => false,
+                })
+                .count()
+        } else {
+            0
+        };
+        self.ensure_post_capacity(
+            u32::try_from(posts).unwrap_or(u32::MAX),
+            u32::try_from(blurs).unwrap_or(u32::MAX),
+        )?;
         let vertex_bytes: &[u8] = plain_bytes(&plan.vertices);
         let index_bytes: &[u8] = plain_bytes(&plan.indices);
         let constants_bytes: &[u8] = plain_bytes(&plan.constants);
@@ -837,6 +980,9 @@ impl D3d12SceneRenderer {
         let mut states = self.target_states();
         // Which triplet the next post pass writes — see `TRIPLETS_BASE`.
         let mut post_index = 0u32;
+        // Which pair the next compute-routed blur pass writes — after the
+        // triplets, one `src` SRV and one `dst` UAV per dispatching pass.
+        let mut blur_index = 0u32;
 
         let viewport_rect = D3D12_VIEWPORT {
             TopLeftX: 0.0,
@@ -955,6 +1101,122 @@ impl D3d12SceneRenderer {
                         scissors,
                         kind: _,
                     } => {
+                        // The blur modes' compute route: one dispatch per
+                        // scissor band, the running sum carried along each
+                        // scanline — the route Vulkan, WebGPU and Metal
+                        // take, with the same `p0`-as-write-band
+                        // convention. No direct-frame exclusion: this
+                        // backend renders to targets and reads back, the
+                        // module doc's own simplification. Compute and
+                        // graphics bind pipeline state and root signatures
+                        // in separate slots, so the dispatch leaves
+                        // `bound` exactly as the fragment path set it, and
+                        // the state transitions around each dispatch order
+                        // its reads and writes against every draw around
+                        // it — a transition barrier is a full dependency.
+                        if self.blur_pso.is_some()
+                            && matches!(
+                                pass.push.args[0],
+                                crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
+                            )
+                        {
+                            let horizontal = pass.push.args[0] < 1.5;
+                            // This pass's own pair: the source's SRV and
+                            // the destination's UAV, written on the CPU
+                            // now, read by the GPU when the finished list
+                            // executes, so no later dispatch may reuse it.
+                            let pair = TRIPLETS_BASE + 3 * self.heap_posts + 2 * blur_index;
+                            blur_index += 1;
+                            srv(
+                                &self.device,
+                                &self.heap,
+                                self.increment,
+                                pair,
+                                self.read_resource(pass.src),
+                                TARGET_FORMAT,
+                            );
+                            uav(
+                                &self.device,
+                                &self.heap,
+                                self.increment,
+                                pair + 1,
+                                &self.target_resource(pass.into).resource,
+                                TARGET_FORMAT,
+                            );
+                            // The reads move to NON_PIXEL_SHADER_RESOURCE —
+                            // a compute stage cannot read a
+                            // PIXEL_SHADER_RESOURCE state — and the write
+                            // to UNORDERED_ACCESS. Both stay there: the
+                            // tracked state hands the next op the barrier
+                            // it needs, and the frame's close finds
+                            // whatever state it finds.
+                            self.transition_state(
+                                &list,
+                                &mut states,
+                                pass.src,
+                                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+                            );
+                            self.transition_state(
+                                &list,
+                                &mut states,
+                                pass.into,
+                                D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                            );
+                            let pso = self.blur_pso.as_ref().expect(
+                                "checked above: a dispatch is only recorded with the pipeline",
+                            );
+                            // SAFETY: as above.
+                            list.SetComputeRootSignature(&self.blur_root);
+                            list.SetPipelineState(pso);
+                            // SAFETY: as above.
+                            list.SetComputeRootDescriptorTable(
+                                1,
+                                gpu_handle(&self.heap, self.increment, pair),
+                            );
+                            list.SetComputeRootDescriptorTable(
+                                2,
+                                gpu_handle(&self.heap, self.increment, pair + 1),
+                            );
+                            for rect in scissors {
+                                let r = scissor_rect(*rect, width, height);
+                                if r.right <= r.left || r.bottom <= r.top {
+                                    continue;
+                                }
+                                let scanlines = if horizontal {
+                                    u32::try_from(r.bottom - r.top).unwrap_or(0)
+                                } else {
+                                    u32::try_from(r.right - r.left).unwrap_or(0)
+                                };
+                                if scanlines == 0 {
+                                    continue;
+                                }
+                                let mut push = pass.push;
+                                #[expect(clippy::cast_precision_loss, reason = "scissor extents")]
+                                let band: [f32; 4] =
+                                    [r.left as f32, r.top as f32, r.right as f32, r.bottom as f32];
+                                push.p[0] = band;
+                                // SAFETY: as above.
+                                list.SetComputeRoot32BitConstants(
+                                    0,
+                                    32,
+                                    std::ptr::from_ref(&push).cast(),
+                                    0,
+                                );
+                                // One invocation per scanline of the band,
+                                // 64 to a group — `cs_blur`'s workgroup
+                                // size, which `[numthreads(64, 1, 1)]`
+                                // declares.
+                                list.Dispatch(scanlines.div_ceil(64), 1, 1);
+                            }
+                            // The dispatch left the destination in
+                            // `UNORDERED_ACCESS`; `open`'s cached binding is
+                            // stale, so the next op must rebind (and
+                            // re-transition) rather than trust it.
+                            open = None;
+                            // The pair is spent; the next op rebinds
+                            // whatever graphics state it needs.
+                            continue;
+                        }
                         // The reads move to PIXEL_SHADER_RESOURCE; the write to
                         // RENDER_TARGET.
                         for read in [pass.src, pass.aux] {
@@ -1237,13 +1499,13 @@ impl D3d12SceneRenderer {
             let level_resource = committed(
                 &self.device,
                 D3D12_HEAP_TYPE_DEFAULT,
-                &texture_desc(TARGET_FORMAT, width, height),
+                &target_texture_desc(TARGET_FORMAT, width, height),
                 D3D12_RESOURCE_STATE_COPY_DEST,
             )?;
             let scratch_resource = committed(
                 &self.device,
                 D3D12_HEAP_TYPE_DEFAULT,
-                &texture_desc(TARGET_FORMAT, width, height),
+                &target_texture_desc(TARGET_FORMAT, width, height),
                 D3D12_RESOURCE_STATE_COPY_DEST,
             )?;
             // Zero-fill both (a committed resource's contents are
@@ -2016,15 +2278,16 @@ fn committed(
     resource.ok_or_else(|| D3d12Error::Api("CreateCommittedResource returned nothing".into()))
 }
 
-/// The shader-visible CBV/SRV/UAV heap, with room for the static slots and
-/// `posts` post-pass triplets.
+/// The shader-visible CBV/SRV/UAV heap, with room for the static slots,
+/// `posts` post-pass triplets and `blurs` blur-pass pairs.
 fn shader_visible_heap(
     device: &ID3D12Device,
     posts: u32,
+    blurs: u32,
 ) -> Result<ID3D12DescriptorHeap, D3d12Error> {
     let desc = D3D12_DESCRIPTOR_HEAP_DESC {
         Type: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-        NumDescriptors: heap_descriptors(posts),
+        NumDescriptors: heap_descriptors(posts, blurs),
         Flags: D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
         NodeMask: 0,
     };

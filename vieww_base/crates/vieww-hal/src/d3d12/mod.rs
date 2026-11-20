@@ -552,6 +552,8 @@ impl D3d12Device {
             .map_err(|e| D3d12Error::Shader(e.to_string()))?;
         let target: &[u8] = if stage == ShaderStage::Vertex {
             b"vs_5_1\0"
+        } else if stage == ShaderStage::Compute {
+            b"cs_5_1\0"
         } else {
             b"ps_5_1\0"
         };
@@ -870,6 +872,32 @@ impl D3d12Device {
         // SAFETY: a fully initialised descriptor whose pointers outlive the
         // call.
         let pso = unsafe { self.device.CreateGraphicsPipelineState(&desc) };
+        drop(ManuallyDrop::into_inner(desc.pRootSignature));
+        Ok(pso?)
+    }
+
+    /// Compile one compute entry point into a pipeline state — the compute
+    /// half of [`Self::pipeline`], for `cs_blur`. The root signature is the
+    /// compute one its caller built (the immediates as root constants plus
+    /// the shader's SRV and UAV tables); there is no blend, rasterizer or
+    /// target format to describe.
+    ///
+    /// # Errors
+    ///
+    /// Pipeline creation failing.
+    pub fn compute_pipeline(
+        &self,
+        root: &ID3D12RootSignature,
+        cs: &ID3DBlob,
+    ) -> Result<ID3D12PipelineState, D3d12Error> {
+        let desc = D3D12_COMPUTE_PIPELINE_STATE_DESC {
+            pRootSignature: ManuallyDrop::new(Some(root.clone())),
+            CS: bytecode(cs),
+            ..Default::default()
+        };
+        // SAFETY: a fully initialised descriptor whose pointers outlive the
+        // call.
+        let pso = unsafe { self.device.CreateComputePipelineState(&desc) };
         drop(ManuallyDrop::into_inner(desc.pRootSignature));
         Ok(pso?)
     }

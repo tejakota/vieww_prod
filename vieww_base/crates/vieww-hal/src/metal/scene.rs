@@ -79,15 +79,17 @@
 use std::time::{Duration, Instant};
 
 use metal::{
-    CommandQueue, Device, MTLBlitOption, MTLClearColor, MTLIndexType, MTLLoadAction, MTLOrigin,
-    MTLPixelFormat, MTLPrimitiveType, MTLResourceOptions, MTLScissorRect, MTLSize, MTLStorageMode,
-    MTLStoreAction, MTLTextureUsage, MTLViewport, RenderPassDescriptor, RenderPipelineState,
-    Texture, TextureDescriptor,
+    CommandQueue, ComputePipelineState, Device, MTLBlitOption, MTLClearColor, MTLIndexType,
+    MTLLoadAction, MTLOrigin, MTLPixelFormat, MTLPrimitiveType, MTLResourceOptions, MTLScissorRect,
+    MTLSize, MTLStorageMode, MTLStoreAction, MTLTextureUsage, MTLViewport, RenderPassDescriptor,
+    RenderPipelineState, Texture, TextureDescriptor,
 };
 use vieww_foundation::Color;
 use vieww_gpu::{PixelRect, Planner, ScenePlan, Vertex};
 
-use crate::scene_exec::{frame_passes, Redrawn, Retained, SceneOp, TargetId};
+use crate::scene_exec::{
+    compute_blur_wanted, frame_passes, PostPush, Redrawn, Retained, SceneOp, TargetId,
+};
 
 use super::{check_size, Attribute, AttributeFormat, Blend, MetalDevice, MetalError};
 
@@ -116,6 +118,11 @@ pub struct MetalSceneRenderer {
     scene_pipeline: RenderPipelineState,
     post_replace: RenderPipelineState,
     post_over: RenderPipelineState,
+    /// `cs_blur` as a compute pipeline — the one-add-one-sub running sum
+    /// the fragment form can only approximate. `None` when the run asked
+    /// the compute blur off (`VIEWW_GPU_COMPUTE_BLUR=0`, the A/B), in which
+    /// case the blur modes keep the fragment hybrid.
+    blur: Option<ComputePipelineState>,
     levels: Vec<Texture>,
     scratch: Vec<Texture>,
     dummy: Texture,
@@ -245,7 +252,14 @@ fn new_target(device: &Device, width: u32, height: u32, format: MTLPixelFormat) 
     desc.set_height(u64::from(height.max(1)));
     desc.set_pixel_format(format);
     desc.set_storage_mode(MTLStorageMode::Private);
-    desc.set_usage(MTLTextureUsage::RenderTarget | MTLTextureUsage::ShaderRead);
+    // `ShaderWrite` is the compute blur's `textureStore`: `cs_blur` writes
+    // its running sums straight into the destination target, which a
+    // `RenderTarget | ShaderRead` texture refuses. Vulkan's twin decision
+    // (the `STORAGE` usage flag, set with the pipeline or not at all) is
+    // made here for the same reason.
+    desc.set_usage(
+        MTLTextureUsage::RenderTarget | MTLTextureUsage::ShaderRead | MTLTextureUsage::ShaderWrite,
+    );
     device.new_texture(&desc)
 }
 
@@ -324,6 +338,16 @@ impl MetalSceneRenderer {
             TARGET_FORMAT,
             Blend::PremultipliedOver,
         )?;
+        // The compute blur — `cs_blur`, the third port of it after Vulkan
+        // and WebGPU. No storage-feature probe the way Vulkan needs one:
+        // every Metal device this renderer targets writes RGBA16F, and a
+        // pipeline that cannot be built is an error this backend reports
+        // rather than a route it silently declines.
+        let blur = if compute_blur_wanted() {
+            Some(device.compute_pipeline(vieww_shaders::library::POST_WGSL, "cs_blur")?)
+        } else {
+            None
+        };
         // Region clears are blits of the clear colour (see `render_with`).
 
         let mut renderer = Self {
@@ -332,6 +356,7 @@ impl MetalSceneRenderer {
             scene_pipeline,
             post_replace,
             post_over,
+            blur,
             levels: Vec::new(),
             scratch: Vec::new(),
             dummy: new_target(device.raw(), 1, 1, TARGET_FORMAT),
@@ -634,37 +659,117 @@ impl MetalSceneRenderer {
                     );
                 }
                 SceneOp::Post { pass, scissors, .. } => {
-                    if open != Some(pass.into) {
-                        end_current(&mut encoder);
-                        bound = Bound::None;
-                        open = Some(pass.into);
-                        encoder = Some(begin_on(self, commands, pass.into, None, width, height));
-                    }
-                    let enc = encoder.expect("a post pass has a target to encode onto");
-                    if bound != Bound::Post(pass.over) {
-                        enc.set_render_pipeline_state(if pass.over {
-                            &self.post_over
-                        } else {
-                            &self.post_replace
-                        });
-                        bound = Bound::Post(pass.over);
-                    }
-                    enc.set_fragment_textures(
-                        0,
-                        &[
-                            Some(self.target(pass.src)),
-                            Some(self.target(pass.aux)),
-                            Some(&self.atlases[Slot::Masks.index()].texture),
-                        ],
-                    );
-                    enc.set_fragment_bytes(
-                        u64::from(vieww_shaders::msl_slots::IMMEDIATES_BUFFER),
-                        128,
-                        std::ptr::from_ref(&pass.push).cast(),
-                    );
-                    for rect in scissors {
-                        enc.set_scissor_rect(scissor(*rect, width, height));
-                        enc.draw_primitives(MTLPrimitiveType::Triangle, 0, 3);
+                    // The blur modes' compute route: one dispatch per scissor
+                    // band, the running sum carried along each scanline —
+                    // `vulkan::scene`'s choice and `webgpu`'s, with the same
+                    // `p0`-as-write-band convention. No direct-frame
+                    // exclusion here: this backend has no presentation path
+                    // to exclude (every frame renders to targets and reads
+                    // back, the module doc's own simplification), and no
+                    // storage-feature probe either — the pipeline is built
+                    // for every device this renderer runs on. Encoders on
+                    // one command buffer are ordered and their writes
+                    // visible to the next, the same guarantee the blit-based
+                    // region clears and the post passes' Load already rest
+                    // on, so a dispatch between two render encoders needs
+                    // no barrier of its own.
+                    if self.blur.is_some()
+                        && matches!(
+                            pass.push.args[0],
+                            crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
+                        )
+                    {
+                        let horizontal = pass.push.args[0] < 1.5;
+                        for rect in scissors {
+                            let r = scissor(*rect, width, height);
+                            if r.width == 0 || r.height == 0 {
+                                continue;
+                            }
+                            let scanlines = if horizontal { r.height } else { r.width };
+                            if scanlines == 0 {
+                                continue;
+                            }
+                            let mut push = pass.push;
+                            #[expect(clippy::cast_precision_loss, reason = "scissor extents")]
+                            let band: [f32; 4] = [
+                                r.x as f32,
+                                r.y as f32,
+                                (r.x + r.width) as f32,
+                                (r.y + r.height) as f32,
+                            ];
+                            push.p[0] = band;
+                            end_current(&mut encoder);
+                            bound = Bound::None;
+                            open = None;
+                            let cs = commands.new_compute_command_encoder();
+                            cs.set_compute_pipeline_state(self.blur.as_ref().expect(
+                                "checked above: a dispatch is only encoded with the pipeline",
+                            ));
+                            // `t_src` at binding 0 and `t_dst` at binding 3 —
+                            // the fragment set's bindings 1 and 2 are not in
+                            // the compute blob, and the immediates ride the
+                            // same `PostPush` the fragment pass receives,
+                            // with `p0` borrowed for this dispatch's band.
+                            cs.set_texture(0, Some(self.target(pass.src)));
+                            cs.set_texture(3, Some(self.target(pass.into)));
+                            cs.set_bytes(
+                                u64::from(vieww_shaders::msl_slots::IMMEDIATES_BUFFER),
+                                u64::try_from(std::mem::size_of::<PostPush>())
+                                    .expect("the immediates block is 128 bytes"),
+                                std::ptr::from_ref(&push).cast(),
+                            );
+                            // One invocation per scanline of the band, 64 to
+                            // a threadgroup — the workgroup size `cs_blur`
+                            // declares and the MSL kernel carries as its
+                            // `max_total_threads_per_threadgroup`.
+                            cs.dispatch_thread_groups(
+                                MTLSize {
+                                    width: u64::from(scanlines.div_ceil(64)),
+                                    height: 1,
+                                    depth: 1,
+                                },
+                                MTLSize {
+                                    width: 64,
+                                    height: 1,
+                                    depth: 1,
+                                },
+                            );
+                            cs.end_encoding();
+                        }
+                    } else {
+                        if open != Some(pass.into) {
+                            end_current(&mut encoder);
+                            bound = Bound::None;
+                            open = Some(pass.into);
+                            encoder =
+                                Some(begin_on(self, commands, pass.into, None, width, height));
+                        }
+                        let enc = encoder.expect("a post pass has a target to encode onto");
+                        if bound != Bound::Post(pass.over) {
+                            enc.set_render_pipeline_state(if pass.over {
+                                &self.post_over
+                            } else {
+                                &self.post_replace
+                            });
+                            bound = Bound::Post(pass.over);
+                        }
+                        enc.set_fragment_textures(
+                            0,
+                            &[
+                                Some(self.target(pass.src)),
+                                Some(self.target(pass.aux)),
+                                Some(&self.atlases[Slot::Masks.index()].texture),
+                            ],
+                        );
+                        enc.set_fragment_bytes(
+                            u64::from(vieww_shaders::msl_slots::IMMEDIATES_BUFFER),
+                            128,
+                            std::ptr::from_ref(&pass.push).cast(),
+                        );
+                        for rect in scissors {
+                            enc.set_scissor_rect(scissor(*rect, width, height));
+                            enc.draw_primitives(MTLPrimitiveType::Triangle, 0, 3);
+                        }
                     }
                 }
             }
@@ -1229,6 +1334,15 @@ impl MetalSceneRenderer {
     #[must_use]
     pub fn target_count(&self) -> usize {
         self.levels.len() + self.scratch.len()
+    }
+
+    /// Whether the compute blur's pipeline was built — the route the blur
+    /// modes dispatch when it is there. For tests and the A/B: the run that
+    /// sets `VIEWW_GPU_COMPUTE_BLUR=0` answers `false` and the fragment
+    /// hybrid takes the blur modes back.
+    #[must_use]
+    pub const fn compute_blur_built(&self) -> bool {
+        self.blur.is_some()
     }
 }
 

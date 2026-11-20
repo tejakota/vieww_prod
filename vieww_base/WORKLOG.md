@@ -12,6 +12,34 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
+Last updated: 2026-11-20, after the compute-blur ports: the one-add-one-sub
+blur reached Metal and D3D12 — the last two of the four backends, closing the
+TODO's open item 4. Both are `cs_blur` driven the way Vulkan and WebGPU drive
+it: one dispatch per scissor band, `p0` carrying the band, the immediates the
+same `PostPush` the fragment pass receives. Metal gained a
+`MetalDevice::compute_pipeline` (naga's MSL for a kernel, bound at
+`IMMEDIATES_BUFFER` through the compute encoder's `set_bytes`) and
+`ShaderWrite` on the layer targets — the twin of Vulkan's `STORAGE` flag;
+encoders on one command buffer are ordered, so no barrier of its own. D3D12
+gained `cs_5_1` in `D3d12Device::compile`, a `compute_pipeline`, a blur root
+signature (root constants at b15, the source one SRV table, the destination
+one UAV table), `ALLOW_UNORDERED_ACCESS` on the targets, and a pair region in
+the heap after the triplets; the state transitions bracketing each dispatch
+are its barriers — a transition is a full dependency. Both keep the fragment
+hybrid for `VIEWW_GPU_COMPUTE_BLUR=0`, and both suites gained the same two
+tests: the pipeline is *built* unless opted out (so a silent fallback cannot
+hide behind green parity), and the compute and fragment forms agree on the
+same blurred layer within 2/255. The macOS and Windows legs are the referees
+(`MTL_DEBUG_LAYER=1` on one, WARP on the other); the cross-checks type-check
+both from here. Before that, the same day: **the thorough gate's last red job
+went honestly green** — the Maestro step's fix (a ten-minute
+`MAESTRO_DRIVER_STARTUP_TIMEOUT`, an honest no-hierarchy warning, one retry
+when the JUnit report says the harness broke) is run 32's receipt: the
+before-dump found "Tap me", the flow passed in 3m 19s, and every job in the
+thorough dispatch is green for the first time since the gate went red. What
+remains is unchanged: the iPhone present path, the hardware receipts, and
+the Device Farm A/B the blur is owed.
+
 Last updated: 2026-11-20, after the maestro-ios round: the thorough gate's
 last red job — `framework-ios-simulator`'s Maestro step — was the harness,
 not the app, and `ci/mobile/maestro.sh` now survives it and says so. Run 31's
@@ -30,7 +58,9 @@ tree is missing", and one retry when the JUnit report carries
 `status="ERROR"` — the harness broke — never when a selector genuinely found
 nothing, with the broken attempt's report kept beside the final one. The job's
 `continue_on_error` still stands, so the gate had been green-while-red; the
-honest green is a run where the step itself passes. (Also removed the web
+honest green is a run where the step itself passes — run 32 (44665288956):
+the before-dump found "Tap me" with the ceiling in place, the flow passed in
+3m 19s, and no job in the thorough dispatch is red. (Also removed the web
 round's entry, which the last session had pasted twice.)
 
 ---

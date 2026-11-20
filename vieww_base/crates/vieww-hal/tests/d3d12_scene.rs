@@ -795,6 +795,130 @@ fn a_backdrop_blur_blurs_what_is_behind_and_keeps_the_foreground_sharp() {
     );
 }
 
+/// The compute blur engages: `cs_blur`'s pipeline is built on a default run,
+/// and the run that opts out (`VIEWW_GPU_COMPUTE_BLUR=0`, the A/B the env
+/// gate exists for) builds none — so the fragment `fs_blur` that renderer
+/// draws is a choice, not a silent fallback. Without this, a pipeline that
+/// stopped compiling would leave the parity suites refereeing the fragment
+/// route while believing they dispatched.
+#[test]
+#[ignore = "needs a D3D12 device — the framework-checks Windows runner (WARP allowed); run with `cargo test --features d3d12 -- --ignored`"]
+fn the_compute_blur_is_built_unless_the_run_opts_out() {
+    let Some((lock, device, renderer)) = try_renderer() else {
+        return;
+    };
+    let built_by_default = renderer.compute_blur_built();
+    drop(renderer);
+    // The env var is read at renderer construction, which every test in
+    // this file holds the device lock for — set and removed inside it, no
+    // other construction can see it.
+    std::env::set_var("VIEWW_GPU_COMPUTE_BLUR", "0");
+    let built_when_opted_out = D3d12SceneRenderer::new(&device)
+        .expect("the pipelines should build")
+        .compute_blur_built();
+    std::env::remove_var("VIEWW_GPU_COMPUTE_BLUR");
+    drop((lock, device));
+    assert!(
+        built_by_default,
+        "a default run builds cs_blur — the blur parity above has been refereeing nothing"
+    );
+    assert!(
+        !built_when_opted_out,
+        "VIEWW_GPU_COMPUTE_BLUR=0 must keep the fragment fs_blur"
+    );
+}
+
+/// The compute form and the fragment hybrid agree on the same blurred
+/// layer: the same scene through a renderer that dispatches `cs_blur` and
+/// one that draws `fs_blur`, every pixel within the parity tolerance. Not
+/// bit-identical by design — the hybrid gathers its window tap-by-tap near a
+/// scanline's start where the compute form seeds and slides (`post.wgsl`'s
+/// own comment: both forms gather the same window, both inside 2/255) — but
+/// a band written to the wrong place, a scanline one pixel off, or a seed
+/// arithmetic error is not a rounding difference and this says so.
+#[test]
+#[ignore = "needs a D3D12 device — the framework-checks Windows runner (WARP allowed); run with `cargo test --features d3d12 -- --ignored`"]
+fn the_compute_blur_and_the_fragment_form_agree() {
+    let Some((_lock, device, mut renderer)) = try_renderer() else {
+        return;
+    };
+    let mut scene = Scene::default();
+    fill(
+        &mut scene,
+        Rect::new(0.0, 0.0, 128.0, 96.0),
+        Color::rgba(245, 245, 250, 255),
+        Clip::NONE,
+    );
+    push_layer(
+        &mut scene,
+        Rect::new(0.0, 0.0, 128.0, 96.0),
+        1.0,
+        BlendMode::Normal,
+        ImageFilter::blur(4.0),
+        Clip::NONE,
+    );
+    fill(
+        &mut scene,
+        Rect::new(32.0, 24.0, 96.0, 72.0),
+        Color::rgba(20, 60, 200, 255),
+        Clip::NONE,
+    );
+    fill(
+        &mut scene,
+        Rect::new(40.0, 40.0, 56.0, 56.0),
+        Color::rgba(250, 250, 0, 255),
+        Clip::NONE,
+    );
+    scene.push_command(Command::PopLayer);
+
+    assert!(renderer.compute_blur_built(), "the default run dispatches");
+    let mut planner = Planner::new();
+    let plan = planner.plan(&scene, CW as f32, CH as f32);
+    let compute = renderer
+        .render_planned(&planner, &plan, CW, CH, Color::WHITE)
+        .expect("the compute route renders");
+
+    std::env::set_var("VIEWW_GPU_COMPUTE_BLUR", "0");
+    let mut fragment_renderer = D3d12SceneRenderer::new(&device)
+        .expect("the pipelines should build without the compute blur");
+    std::env::remove_var("VIEWW_GPU_COMPUTE_BLUR");
+    assert!(
+        !fragment_renderer.compute_blur_built(),
+        "the opt-out keeps the fragment fs_blur"
+    );
+    let fragment = fragment_renderer
+        .render_planned(&planner, &plan, CW, CH, Color::WHITE)
+        .expect("the fragment route renders");
+
+    let mut over = 0usize;
+    let mut worst = (0u8, 0usize, [0u8; 4], [0u8; 4]);
+    for (i, (c, f)) in compute
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .zip(fragment.as_chunks::<4>().0)
+        .enumerate()
+    {
+        let d = (0..4).map(|k| c[k].abs_diff(f[k])).max().unwrap_or(0);
+        if d > 2 {
+            over += 1;
+        }
+        if d > worst.0 {
+            worst = (d, i, [c[0], c[1], c[2], c[3]], [f[0], f[1], f[2], f[3]]);
+        }
+    }
+    eprintln!(
+        "compute-vs-fragment: max channel diff {} at pixel {} compute={:?} fragment={:?}; {over} px over 2",
+        worst.0, worst.1, worst.2, worst.3
+    );
+    assert_eq!(
+        over, 0,
+        "the two blur forms disagree beyond the parity tolerance: worst {} at pixel {} \
+         compute={:?} fragment={:?}",
+        worst.0, worst.1, worst.2, worst.3
+    );
+}
+
 /// A colour-matrix layer: the grayscale matrix over a translucent fill, the
 /// pass mode that carries 20 floats in the immediates block.
 #[test]
