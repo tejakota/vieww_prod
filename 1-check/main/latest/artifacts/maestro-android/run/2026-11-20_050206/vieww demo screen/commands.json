@@ -4,7 +4,7 @@
       "env" : {
         "MAESTRO_DRIVER_STARTUP_TIMEOUT" : "600000",
         "MAESTRO_FILENAME" : "demo",
-        "MAESTRO_DEVICE_UDID" : "DA1C9012-81EC-4C70-B52A-068AEAFBA1DE",
+        "MAESTRO_DEVICE_UDID" : "emulator-5554",
         "MAESTRO_SHARD_ID" : "1",
         "MAESTRO_SHARD_INDEX" : "0"
       },
@@ -13,8 +13,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149364403,
-    "duration" : 50,
+    "timestamp" : 1795150933189,
+    "duration" : 3,
     "sequenceNumber" : 0,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -22,7 +22,7 @@
         "env" : {
           "MAESTRO_DRIVER_STARTUP_TIMEOUT" : "600000",
           "MAESTRO_FILENAME" : "demo",
-          "MAESTRO_DEVICE_UDID" : "DA1C9012-81EC-4C70-B52A-068AEAFBA1DE",
+          "MAESTRO_DEVICE_UDID" : "emulator-5554",
           "MAESTRO_SHARD_ID" : "1",
           "MAESTRO_SHARD_INDEX" : "0"
         },
@@ -43,7 +43,7 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149364455,
+    "timestamp" : 1795150933193,
     "duration" : 1,
     "sequenceNumber" : 1,
     "depth" : 0,
@@ -67,8 +67,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149364457,
-    "duration" : 41284,
+    "timestamp" : 1795150933194,
+    "duration" : 3274,
     "sequenceNumber" : 2,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -104,8 +104,8 @@
   },
   "metadata" : {
     "status" : "SKIPPED",
-    "timestamp" : 1795149405744,
-    "duration" : 8357,
+    "timestamp" : 1795150936471,
+    "duration" : 7268,
     "sequenceNumber" : 3,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -147,8 +147,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149414102,
-    "duration" : 516,
+    "timestamp" : 1795150943739,
+    "duration" : 116,
     "sequenceNumber" : 4,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -173,8 +173,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149414631,
-    "duration" : 358,
+    "timestamp" : 1795150943856,
+    "duration" : 216,
     "sequenceNumber" : 5,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -251,9 +251,9 @@
     }
   },
   "metadata" : {
-    "status" : "SKIPPED",
-    "timestamp" : 1795149414990,
-    "duration" : 1,
+    "status" : "COMPLETED",
+    "timestamp" : 1795150944073,
+    "duration" : 4748,
     "sequenceNumber" : 6,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -313,6 +313,160 @@
         } ],
         "condition" : {
           "platform" : "ANDROID"
+        },
+        "optional" : false
+      }
+    }
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "visible" : {
+          "textRegex" : "1 tap",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1795150944073,
+    "duration" : 105,
+    "sequenceNumber" : 7,
+    "depth" : 1,
+    "evaluatedCommand" : {
+      "assertConditionCommand" : {
+        "condition" : {
+          "visible" : {
+            "textRegex" : "1 tap",
+            "optional" : false
+          }
+        },
+        "optional" : false
+      }
+    }
+  }
+}, {
+  "command" : {
+    "tapOnElement" : {
+      "selector" : {
+        "textRegex" : "Tap me",
+        "optional" : false
+      },
+      "retryIfNoChange" : false,
+      "waitUntilVisible" : false,
+      "longPress" : false,
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1795150944179,
+    "duration" : 2275,
+    "sequenceNumber" : 8,
+    "depth" : 1,
+    "evaluatedCommand" : {
+      "tapOnElement" : {
+        "selector" : {
+          "textRegex" : "Tap me",
+          "optional" : false
+        },
+        "retryIfNoChange" : false,
+        "waitUntilVisible" : false,
+        "longPress" : false,
+        "optional" : false
+      }
+    }
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "visible" : {
+          "textRegex" : "2 taps",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1795150946454,
+    "duration" : 149,
+    "sequenceNumber" : 9,
+    "depth" : 1,
+    "evaluatedCommand" : {
+      "assertConditionCommand" : {
+        "condition" : {
+          "visible" : {
+            "textRegex" : "2 taps",
+            "optional" : false
+          }
+        },
+        "optional" : false
+      }
+    }
+  }
+}, {
+  "command" : {
+    "tapOnElement" : {
+      "selector" : {
+        "textRegex" : "Tap me",
+        "optional" : false
+      },
+      "retryIfNoChange" : false,
+      "waitUntilVisible" : false,
+      "longPress" : false,
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1795150946604,
+    "duration" : 2131,
+    "sequenceNumber" : 10,
+    "depth" : 1,
+    "evaluatedCommand" : {
+      "tapOnElement" : {
+        "selector" : {
+          "textRegex" : "Tap me",
+          "optional" : false
+        },
+        "retryIfNoChange" : false,
+        "waitUntilVisible" : false,
+        "longPress" : false,
+        "optional" : false
+      }
+    }
+  }
+}, {
+  "command" : {
+    "assertConditionCommand" : {
+      "condition" : {
+        "visible" : {
+          "textRegex" : "3 taps",
+          "optional" : false
+        }
+      },
+      "optional" : false
+    }
+  },
+  "metadata" : {
+    "status" : "COMPLETED",
+    "timestamp" : 1795150948735,
+    "duration" : 86,
+    "sequenceNumber" : 11,
+    "depth" : 1,
+    "evaluatedCommand" : {
+      "assertConditionCommand" : {
+        "condition" : {
+          "visible" : {
+            "textRegex" : "3 taps",
+            "optional" : false
+          }
         },
         "optional" : false
       }
@@ -381,10 +535,10 @@
     }
   },
   "metadata" : {
-    "status" : "COMPLETED",
-    "timestamp" : 1795149414993,
-    "duration" : 24837,
-    "sequenceNumber" : 7,
+    "status" : "SKIPPED",
+    "timestamp" : 1795150948821,
+    "duration" : 1,
+    "sequenceNumber" : 12,
     "depth" : 0,
     "evaluatedCommand" : {
       "runFlowCommand" : {
@@ -450,160 +604,6 @@
   }
 }, {
   "command" : {
-    "assertConditionCommand" : {
-      "condition" : {
-        "visible" : {
-          "textRegex" : "Not tapped yet",
-          "optional" : false
-        }
-      },
-      "optional" : false
-    }
-  },
-  "metadata" : {
-    "status" : "COMPLETED",
-    "timestamp" : 1795149414996,
-    "duration" : 505,
-    "sequenceNumber" : 8,
-    "depth" : 1,
-    "evaluatedCommand" : {
-      "assertConditionCommand" : {
-        "condition" : {
-          "visible" : {
-            "textRegex" : "Not tapped yet",
-            "optional" : false
-          }
-        },
-        "optional" : false
-      }
-    }
-  }
-}, {
-  "command" : {
-    "tapOnElement" : {
-      "selector" : {
-        "textRegex" : "Tap me",
-        "optional" : false
-      },
-      "retryIfNoChange" : false,
-      "waitUntilVisible" : false,
-      "longPress" : false,
-      "optional" : false
-    }
-  },
-  "metadata" : {
-    "status" : "COMPLETED",
-    "timestamp" : 1795149415501,
-    "duration" : 12025,
-    "sequenceNumber" : 9,
-    "depth" : 1,
-    "evaluatedCommand" : {
-      "tapOnElement" : {
-        "selector" : {
-          "textRegex" : "Tap me",
-          "optional" : false
-        },
-        "retryIfNoChange" : false,
-        "waitUntilVisible" : false,
-        "longPress" : false,
-        "optional" : false
-      }
-    }
-  }
-}, {
-  "command" : {
-    "assertConditionCommand" : {
-      "condition" : {
-        "visible" : {
-          "textRegex" : "1 tap",
-          "optional" : false
-        }
-      },
-      "optional" : false
-    }
-  },
-  "metadata" : {
-    "status" : "COMPLETED",
-    "timestamp" : 1795149427526,
-    "duration" : 816,
-    "sequenceNumber" : 10,
-    "depth" : 1,
-    "evaluatedCommand" : {
-      "assertConditionCommand" : {
-        "condition" : {
-          "visible" : {
-            "textRegex" : "1 tap",
-            "optional" : false
-          }
-        },
-        "optional" : false
-      }
-    }
-  }
-}, {
-  "command" : {
-    "tapOnElement" : {
-      "selector" : {
-        "textRegex" : "Tap me",
-        "optional" : false
-      },
-      "retryIfNoChange" : false,
-      "waitUntilVisible" : false,
-      "longPress" : false,
-      "optional" : false
-    }
-  },
-  "metadata" : {
-    "status" : "COMPLETED",
-    "timestamp" : 1795149428342,
-    "duration" : 9976,
-    "sequenceNumber" : 11,
-    "depth" : 1,
-    "evaluatedCommand" : {
-      "tapOnElement" : {
-        "selector" : {
-          "textRegex" : "Tap me",
-          "optional" : false
-        },
-        "retryIfNoChange" : false,
-        "waitUntilVisible" : false,
-        "longPress" : false,
-        "optional" : false
-      }
-    }
-  }
-}, {
-  "command" : {
-    "assertConditionCommand" : {
-      "condition" : {
-        "visible" : {
-          "textRegex" : "2 taps",
-          "optional" : false
-        }
-      },
-      "optional" : false
-    }
-  },
-  "metadata" : {
-    "status" : "COMPLETED",
-    "timestamp" : 1795149438325,
-    "duration" : 1447,
-    "sequenceNumber" : 12,
-    "depth" : 1,
-    "evaluatedCommand" : {
-      "assertConditionCommand" : {
-        "condition" : {
-          "visible" : {
-            "textRegex" : "2 taps",
-            "optional" : false
-          }
-        },
-        "optional" : false
-      }
-    }
-  }
-}, {
-  "command" : {
     "tapOnElement" : {
       "selector" : {
         "textRegex" : "Month",
@@ -618,8 +618,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149439830,
-    "duration" : 11462,
+    "timestamp" : 1795150948822,
+    "duration" : 2183,
     "sequenceNumber" : 13,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -651,8 +651,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149451293,
-    "duration" : 856,
+    "timestamp" : 1795150951005,
+    "duration" : 131,
     "sequenceNumber" : 14,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -683,8 +683,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149452184,
-    "duration" : 1478,
+    "timestamp" : 1795150951136,
+    "duration" : 636,
     "sequenceNumber" : 15,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -709,8 +709,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149453679,
-    "duration" : 420,
+    "timestamp" : 1795150951772,
+    "duration" : 127,
     "sequenceNumber" : 16,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -739,8 +739,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149454100,
-    "duration" : 11030,
+    "timestamp" : 1795150951900,
+    "duration" : 2056,
     "sequenceNumber" : 17,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -771,8 +771,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149465130,
-    "duration" : 609,
+    "timestamp" : 1795150953956,
+    "duration" : 128,
     "sequenceNumber" : 18,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -802,8 +802,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149465740,
-    "duration" : 643,
+    "timestamp" : 1795150954084,
+    "duration" : 87,
     "sequenceNumber" : 19,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -832,8 +832,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149466391,
-    "duration" : 691,
+    "timestamp" : 1795150954171,
+    "duration" : 41,
     "sequenceNumber" : 20,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -862,8 +862,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149467082,
-    "duration" : 1918,
+    "timestamp" : 1795150954212,
+    "duration" : 593,
     "sequenceNumber" : 21,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -887,8 +887,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149469002,
-    "duration" : 351,
+    "timestamp" : 1795150954806,
+    "duration" : 44,
     "sequenceNumber" : 22,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -913,8 +913,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149469386,
-    "duration" : 6448,
+    "timestamp" : 1795150954850,
+    "duration" : 1010,
     "sequenceNumber" : 23,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -941,8 +941,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149475834,
-    "duration" : 436,
+    "timestamp" : 1795150955861,
+    "duration" : 138,
     "sequenceNumber" : 24,
     "depth" : 0,
     "evaluatedCommand" : {
@@ -972,8 +972,8 @@
   },
   "metadata" : {
     "status" : "COMPLETED",
-    "timestamp" : 1795149476270,
-    "duration" : 541,
+    "timestamp" : 1795150956000,
+    "duration" : 129,
     "sequenceNumber" : 25,
     "depth" : 0,
     "evaluatedCommand" : {
