@@ -72,7 +72,7 @@ jobs:
       "My machine · Mac (vieww-macos)": ["self-hosted", "vieww-macos"],
       "Android phone on USB (android)": ["self-hosted", "android"]
       }')[inputs.machine] }}
-    timeout-minutes: ${{ inputs.timeout }}
+    timeout-minutes: ${{ fromJSON(inputs.timeout || '60') }}
     steps:
       - uses: actions/checkout@v4
 
