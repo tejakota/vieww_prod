@@ -12,6 +12,29 @@ It sits beside two older files and does not replace them:
 This file is the short version for a new session. When an item here turns out
 to be large, it belongs in `PENDING.md` with a pointer from here.
 
+Last updated: 2026-11-20, after the maestro-ios round: the thorough gate's
+last red job — `framework-ios-simulator`'s Maestro step — was the harness,
+not the app, and `ci/mobile/maestro.sh` now survives it and says so. Run 31's
+artifact holds the whole story: the before-dump died with "iOS driver not
+ready in time" while the driver install kept going underneath it, and the
+empty `hierarchy-before.json` then drew a warning that blamed the app for a
+tree it was publishing — the after-dump found "Tap me" without a fight. The
+flow itself died on `DeviceUnreachableException … Connection refused` after
+xcodebuild restarted the XCUITest runner mid-query ("Restarting after
+unexpected exit, crash, or test timeout"), while the app's own stderr shows
+frames flowing through every minute of it. Three changes: a ten-minute
+`MAESTRO_DRIVER_STARTUP_TIMEOUT` (the error names the variable; it is a
+ceiling, not a wait, and Android's 20-second driver never sees it), a warning
+that separates "no hierarchy at all — the driver did not answer" from "the
+tree is missing", and one retry when the JUnit report carries
+`status="ERROR"` — the harness broke — never when a selector genuinely found
+nothing, with the broken attempt's report kept beside the final one. The job's
+`continue_on_error` still stands, so the gate had been green-while-red; the
+honest green is a run where the step itself passes. (Also removed the web
+round's entry, which the last session had pasted twice.)
+
+---
+
 Last updated: 2026-11-20, after the web round: the compute blur reached
 WebGPU — the fourth backend and the first port of the follow-up the Vulkan
 landing named. The bridge gained `pipeline_blur`/`pass_blur` (the JS shim's
@@ -39,24 +62,6 @@ audio plugin's Windows bundle** dies on `denormal_bench.c` including
 the runner (hardware-shaped; it may be flaky). None are this round's; all
 three are real, and the thorough depth is the only thing that runs them —
 worth either fixing or consciously pruning before the next thorough gate.
-
----
-
-Last updated: 2026-11-20, after the web round: the compute blur reached
-WebGPU — the fourth backend and the first port of the follow-up the Vulkan
-landing named. The bridge gained `pipeline_blur`/`pass_blur` (the JS shim's
-compute pipeline and one dispatch per scissor band, the immediates on the
-post passes' own ring), the renderer takes the compute route for the box
-modes when the pipeline builds, and the env gate moved to `scene_exec`
-(`compute_blur_wanted`) where all four backends can share it. WebGPU orders
-the compute pass against the render passes itself — no barriers, which is
-why this port is a quarter of Vulkan's size. The mock interpreter tests
-cover both routes (a storage-capable bridge dispatches; a refusing one keeps
-the fragment hybrid), and the browser parity driver is the end-to-end
-referee. Metal and D3D12 still run the fragment hybrid — the TODO's open
-item names them, with two worked examples to copy now. What else remains is
-unchanged: the iPhone present path, the hardware receipts, and the Device
-Farm A/B the blur is owed.
 
 ---
 

@@ -38,6 +38,16 @@ if [[ -n "${JAVA_HOME_17_X64:-}" ]]; then export JAVA_HOME="$JAVA_HOME_17_X64"; 
 if [[ -n "${JAVA_HOME_17_arm64:-}" ]]; then export JAVA_HOME="$JAVA_HOME_17_arm64"; fi
 maestro --version
 
+# The XCUITest driver's first start installs it into a freshly booted simulator,
+# and on a cold macos-15 runner that install outlived Maestro's default startup
+# budget: run 31's `maestro hierarchy` (before) died with "iOS driver not ready
+# in time" while the install kept going underneath it, and every later
+# invocation — the after-dump included — found the driver warm and instant.
+# Ten minutes absorbs the slowest install observed; it is a ceiling, not a wait,
+# and Android's driver (up in ~20 s) never sees it. The variable the error
+# names is milliseconds.
+export MAESTRO_DRIVER_STARTUP_TIMEOUT="${MAESTRO_DRIVER_STARTUP_TIMEOUT:-600000}"
+
 device=()
 case "$platform" in
     android)
@@ -103,15 +113,43 @@ fi
 
 if grep -q '"Tap me"' "$out/hierarchy-before.json" 2>/dev/null; then
     echo "maestro.sh: the semantics tree is visible to Maestro (found \"Tap me\")"
+elif [[ ! -s "$out/hierarchy-before.json" ]]; then
+    # An empty dump means the driver never answered, not that the tree is
+    # missing: run 31's before-dump timed out on the driver's first start and
+    # this warning then blamed the app while its stderr showed frames flowing
+    # for the whole run. Say which of the two failed.
+    echo "::warning::maestro.sh: no hierarchy at all — the driver did not answer (see hierarchy-before.err); that, not the tree, is what failed"
 else
     echo "::warning::maestro.sh: \"Tap me\" is NOT in Maestro's hierarchy (app running: $alive) — the flows will fail on lookup, not on behaviour"
 fi
 
 status=0
-maestro "${device[@]}" test \
-    --format junit --output "$out/report.xml" \
-    --test-output-dir "$out/run" \
-    "$here/maestro" || status=$?
+attempt=0
+while :; do
+    attempt=$((attempt + 1))
+    status=0
+    maestro "${device[@]}" test \
+        --format junit --output "$out/report.xml" \
+        --test-output-dir "$out/run" \
+        "$here/maestro" || status=$?
+    [[ "$status" -eq 0 ]] && break
+    # A run the harness broke — not one the app failed — says so in the JUnit
+    # report: the testcase carries status="ERROR" (run 31:
+    # DeviceUnreachableException ... Connection refused after xcodebuild
+    # restarted the XCUITest runner mid-query, "Restarting after unexpected
+    # exit, crash, or test timeout"), where a selector that found nothing is a
+    # plain failure. The app kept rendering through all of it (its stderr), and
+    # the next invocation worked — so retry that breakage once, keeping the
+    # broken attempt's report beside the final one. Never retry a finding about
+    # the app: it would only burn another runner-minute on the same red.
+    if [[ "$attempt" -lt 2 ]] && grep -q 'status="ERROR"' "$out/report.xml" 2>/dev/null; then
+        echo "maestro.sh: attempt $attempt broke the harness, not the app — one retry (report kept as report-attempt-$attempt.xml)"
+        cp "$out/report.xml" "$out/report-attempt-$attempt.xml"
+        sleep 10
+        continue
+    fi
+    break
+done
 
 maestro "${device[@]}" hierarchy > "$out/hierarchy-after.json" 2>/dev/null || true
 exit "$status"
