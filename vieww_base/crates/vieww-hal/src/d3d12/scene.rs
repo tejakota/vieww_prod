@@ -1107,19 +1107,16 @@ impl D3d12SceneRenderer {
                         // take, with the same `p0`-as-write-band
                         // convention. No direct-frame exclusion: this
                         // backend renders to targets and reads back, the
-                        // module doc's own simplification. Compute and
-                        // graphics bind pipeline state and root signatures
-                        // in separate slots, so the dispatch leaves
-                        // `bound` exactly as the fragment path set it, and
-                        // the state transitions around each dispatch order
-                        // its reads and writes against every draw around
-                        // it — a transition barrier is a full dependency.
-                        if self.blur_pso.is_some()
-                            && matches!(
+                        // module doc's own simplification. The state
+                        // transitions around each dispatch order its reads
+                        // and writes against every draw around it — a
+                        // transition barrier is a full dependency.
+                        if let Some(pso) = self.blur_pso.as_ref().filter(|_| {
+                            matches!(
                                 pass.push.args[0],
                                 crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
                             )
-                        {
+                        }) {
                             let horizontal = pass.push.args[0] < 1.5;
                             // This pass's own pair: the source's SRV and
                             // the destination's UAV, written on the CPU
@@ -1161,9 +1158,6 @@ impl D3d12SceneRenderer {
                                 &mut states,
                                 pass.into,
                                 D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                            );
-                            let pso = self.blur_pso.as_ref().expect(
-                                "checked above: a dispatch is only recorded with the pipeline",
                             );
                             // SAFETY: as above.
                             list.SetComputeRootSignature(&self.blur_root);
@@ -1211,10 +1205,18 @@ impl D3d12SceneRenderer {
                             // The dispatch left the destination in
                             // `UNORDERED_ACCESS`; `open`'s cached binding is
                             // stale, so the next op must rebind (and
-                            // re-transition) rather than trust it.
+                            // re-transition) rather than trust it. And
+                            // `SetPipelineState` on a graphics command list
+                            // is one slot for draws *and* dispatches — the
+                            // debug layer's own words for a draw recorded
+                            // against a compute PSO: "will do nothing" — so
+                            // `bound`'s memory of the graphics PSO is stale
+                            // the same way, and the next op rebinds that
+                            // too. (The two root signatures are separate
+                            // slots and the graphics one survived, but an
+                            // op that rebinds the PSO rebinds both.)
                             open = None;
-                            // The pair is spent; the next op rebinds
-                            // whatever graphics state it needs.
+                            bound = Bound::None;
                             continue;
                         }
                         // The reads move to PIXEL_SHADER_RESOURCE; the write to

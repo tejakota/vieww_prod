@@ -673,12 +673,12 @@ impl MetalSceneRenderer {
                     // region clears and the post passes' Load already rest
                     // on, so a dispatch between two render encoders needs
                     // no barrier of its own.
-                    if self.blur.is_some()
-                        && matches!(
+                    if let Some(blur) = self.blur.as_ref().filter(|_| {
+                        matches!(
                             pass.push.args[0],
                             crate::scene_exec::mode::BOX_H | crate::scene_exec::mode::BOX_V
                         )
-                    {
+                    }) {
                         let horizontal = pass.push.args[0] < 1.5;
                         for rect in scissors {
                             let r = scissor(*rect, width, height);
@@ -702,9 +702,7 @@ impl MetalSceneRenderer {
                             bound = Bound::None;
                             open = None;
                             let cs = commands.new_compute_command_encoder();
-                            cs.set_compute_pipeline_state(self.blur.as_ref().expect(
-                                "checked above: a dispatch is only encoded with the pipeline",
-                            ));
+                            cs.set_compute_pipeline_state(blur);
                             // `t_src` at binding 0 and `t_dst` at binding 3 —
                             // the fragment set's bindings 1 and 2 are not in
                             // the compute blob, and the immediates ride the
@@ -724,7 +722,7 @@ impl MetalSceneRenderer {
                             // `max_total_threads_per_threadgroup`.
                             cs.dispatch_thread_groups(
                                 MTLSize {
-                                    width: u64::from(scanlines.div_ceil(64)),
+                                    width: scanlines.div_ceil(64),
                                     height: 1,
                                     depth: 1,
                                 },
