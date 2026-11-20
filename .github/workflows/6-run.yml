@@ -72,8 +72,30 @@ jobs:
       "My machine · Mac (vieww-macos)": ["self-hosted", "vieww-macos"],
       "Android phone on USB (android)": ["self-hosted", "android"]
       }')[inputs.machine] }}
+    # Dispatch inputs arrive as strings; timeout-minutes needs a number.
     timeout-minutes: ${{ fromJSON(inputs.timeout || '60') }}
     steps:
+      # A self-hosted Windows runner often has Git's `cmd` folder on PATH but
+      # not its `bin` (where bash.exe lives), and maybe no rustup: put Git's
+      # bash and ~/.cargo/bin on PATH for every later step, and install
+      # rustup with its Windows installer if it is missing.
+      - name: Windows bootstrap
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          git config --system core.longpaths true 2>$null
+          $git = Split-Path (Split-Path (Get-Command git.exe).Source)
+          foreach ($dir in @("$git\bin", "$git\usr\bin", "$env:USERPROFILE\.cargo\bin")) {
+            if (Test-Path $dir) { Add-Content $env:GITHUB_PATH $dir; Write-Host "PATH += $dir" }
+          }
+          if (-not (Get-Command rustup -ErrorAction SilentlyContinue) -and
+              -not (Test-Path "$env:USERPROFILE\.cargo\bin\rustup.exe")) {
+            $init = Join-Path $env:RUNNER_TEMP "rustup-init.exe"
+            Invoke-WebRequest https://win.rustup.rs/x86_64 -OutFile $init
+            & $init -y --default-toolchain none
+            Add-Content $env:GITHUB_PATH "$env:USERPROFILE\.cargo\bin"
+          }
+
       - uses: actions/checkout@v4
 
       # Reads vieww_base/rust-toolchain.toml (the pinned 1.98.1), so the
@@ -83,7 +105,7 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.workdir }}
         run: |
-          if ! command -v rustup >/dev/null; then
+          if ! command -v rustup >/dev/null && [ "$RUNNER_OS" != Windows ]; then
             curl -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
             echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
             export PATH="$HOME/.cargo/bin:$PATH"
