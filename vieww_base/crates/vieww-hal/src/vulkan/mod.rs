@@ -452,6 +452,36 @@ impl VulkanDevice {
         entry: &ash::Entry,
         extra_extensions: &[*const c_char],
     ) -> Result<ash::Instance, VulkanError> {
+        // **Do not wake a powered-down discrete GPU to ask it a question.**
+        //
+        // On a hybrid laptop the loader loads every installed driver at
+        // instance creation, and the NVIDIA driver powers its GPU up to
+        // answer — on the reference i5-7200U + GeForce 920MX that was 16.1 s
+        // of a 19.3 s cold start (run 44747792744), before a single window
+        // pixel. Under the default low-power policy (`gpu_power`) the NVIDIA
+        // driver is kept out of the instance with the loader's own
+        // `VK_LOADER_DRIVERS_DISABLE` (loader 1.3.234+; older loaders ignore
+        // it). If that leaves no hardware adapter — an NVIDIA-only machine —
+        // the instance is made again with every driver, so a filter can never
+        // cost a machine its only GPU. Never over a value someone set, and
+        // never when `VIEWW_VK_DEVICE` names a device (it may be the NVIDIA).
+        if let Some(pattern) = discrete_driver_filter() {
+            std::env::set_var(LOADER_DRIVERS_DISABLE, pattern);
+            let filtered = Self::create_instance_raw(entry, extra_extensions);
+            std::env::remove_var(LOADER_DRIVERS_DISABLE);
+            match filtered {
+                Ok(instance) if has_hardware_adapter(&instance) => return Ok(instance),
+                Ok(instance) => unsafe { instance.destroy_instance(None) },
+                Err(_) => {}
+            }
+        }
+        Self::create_instance_raw(entry, extra_extensions)
+    }
+
+    fn create_instance_raw(
+        entry: &ash::Entry,
+        extra_extensions: &[*const c_char],
+    ) -> Result<ash::Instance, VulkanError> {
         let app_name = CString::new("vieww-hal").unwrap();
         let app_info = vk::ApplicationInfo::default()
             .application_name(&app_name)
@@ -505,7 +535,12 @@ impl VulkanDevice {
     /// will record as a GPU one. Neither case announces itself, and the second
     /// invalidates any performance claim made on that machine.
     ///
-    /// So: discrete, then integrated, then virtual, then anything else, with
+    /// So: by default (`VIEWW_GPU_POWER=low`) integrated, then discrete — on
+    /// a hybrid laptop the integrated GPU drives the panel, the discrete one
+    /// has to be powered up and copies its frames back through it, and the
+    /// 2026-11-20 laptop run picked a GeForce 920MX for a 19 s first frame;
+    /// `VIEWW_GPU_POWER=high` puts discrete first (a desktop whose monitor
+    /// hangs off the discrete card). Then virtual, then anything else, with
     /// CPU/software implementations last and only if nothing else will do.
     /// `VIEWW_VK_DEVICE` overrides the lot with a case-insensitive substring of
     /// the device name, because a developer with two real GPUs needs to be able
@@ -525,6 +560,7 @@ impl VulkanDevice {
         // answering a surface query, and a stalled startup should say which
         // device it was waiting on. Read per call; this runs once per window.
         let trace = std::env::var_os("VIEWW_TRACE_FRAMES").is_some();
+        let power = gpu_power();
         let mut best: Option<(u32, vk::PhysicalDevice, u32)> = None;
         for pd in physical_devices {
             let props = unsafe { instance.get_physical_device_properties(pd) };
@@ -553,10 +589,12 @@ impl VulkanDevice {
             let rank = if software {
                 0
             } else {
-                match props.device_type {
-                    vk::PhysicalDeviceType::DISCRETE_GPU => 4,
-                    vk::PhysicalDeviceType::INTEGRATED_GPU => 3,
-                    vk::PhysicalDeviceType::VIRTUAL_GPU => 2,
+                match (props.device_type, power) {
+                    (vk::PhysicalDeviceType::DISCRETE_GPU, GpuPower::High)
+                    | (vk::PhysicalDeviceType::INTEGRATED_GPU, GpuPower::Low) => 4,
+                    (vk::PhysicalDeviceType::DISCRETE_GPU, GpuPower::Low)
+                    | (vk::PhysicalDeviceType::INTEGRATED_GPU, GpuPower::High) => 3,
+                    (vk::PhysicalDeviceType::VIRTUAL_GPU, _) => 2,
                     _ => 1,
                 }
             };
@@ -3125,4 +3163,53 @@ fn bytemuck_cast_f32(values: &[f32]) -> &[u8] {
     unsafe {
         std::slice::from_raw_parts(values.as_ptr().cast::<u8>(), std::mem::size_of_val(values))
     }
+}
+
+/// Which kind of GPU a window should prefer — see `pick_physical_device`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum GpuPower {
+    /// Integrated first: the default, and what a hybrid laptop wants.
+    Low,
+    /// Discrete first: `VIEWW_GPU_POWER=high`.
+    High,
+}
+
+fn gpu_power() -> GpuPower {
+    match std::env::var("VIEWW_GPU_POWER").ok().as_deref() {
+        Some("high" | "discrete") => GpuPower::High,
+        _ => GpuPower::Low,
+    }
+}
+
+/// The loader's driver filter (a comma-separated list of globs over driver
+/// manifest file names).
+const LOADER_DRIVERS_DISABLE: &str = "VK_LOADER_DRIVERS_DISABLE";
+
+/// The globs that keep the NVIDIA driver out of a low-power instance —
+/// `nv-vk64.json` on Windows, `nvidia_icd.json` on Linux — or `None` when
+/// the filter must not apply (see `create_instance`).
+fn discrete_driver_filter() -> Option<&'static str> {
+    if !cfg!(any(target_os = "windows", target_os = "linux")) {
+        return None;
+    }
+    if gpu_power() == GpuPower::High
+        || std::env::var_os("VIEWW_VK_DEVICE").is_some()
+        || std::env::var_os(LOADER_DRIVERS_DISABLE).is_some()
+        || std::env::var_os("VK_LOADER_DRIVERS_SELECT").is_some()
+        || std::env::var("VIEWW_VK_KEEP_ALL_DRIVERS").is_ok_and(|v| v == "1")
+    {
+        return None;
+    }
+    Some("*nv-vk*,*nvidia*")
+}
+
+/// Whether `instance` sees any adapter that is not a CPU implementation.
+fn has_hardware_adapter(instance: &ash::Instance) -> bool {
+    let Ok(devices) = (unsafe { instance.enumerate_physical_devices() }) else {
+        return false;
+    };
+    devices.into_iter().any(|pd| {
+        let props = unsafe { instance.get_physical_device_properties(pd) };
+        props.device_type != vk::PhysicalDeviceType::CPU
+    })
 }
