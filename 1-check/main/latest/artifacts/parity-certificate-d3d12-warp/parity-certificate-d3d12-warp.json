@@ -1,8 +1,8 @@
 {
   "format": "vieww.parity-certificate/1",
-  "commit": "8802aa64846c686b857945ced8486eaabc0cb1bf",
-  "generated": "2026-11-20T03:15:18+00:00",
-  "runner": "GitHub Actions 1000003733",
+  "commit": "d0c25b97862ab690321167486f9279eadc4ab673",
+  "generated": "2026-11-20T04:18:55+00:00",
+  "runner": "GitHub Actions 1000003754",
   "oracle": "vieww-paint NativeRenderer (CPU)",
   "backends": [
     {
@@ -13,10 +13,12 @@
       "contract": "interior<=2/255,edges-free",
       "comparisons": 40,
       "tests": 10,
-      "interior_violations": 0,
-      "worst_delta_anywhere": 1,
-      "holds": true,
-      "failed_tests": []
+      "interior_violations": 346,
+      "worst_delta_anywhere": 43,
+      "holds": false,
+      "failed_tests": [
+        "nested_layers_with_mixed_effects_match"
+      ]
     }
   ]
 }

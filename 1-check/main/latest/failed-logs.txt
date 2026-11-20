@@ -1,0 +1,604 @@
+===== phase-1 / vieww · framework-windows	log =====
+2026-11-20T04:18:51.4030215Z ##[group]d3d12_smoke::a_clear_reads_back_as_the_requested_colour
+2026-11-20T04:18:51.8185486Z 
+2026-11-20T04:18:51.8186081Z running 1 test
+2026-11-20T04:18:51.8205767Z d3d12: debug layer and GPU-based validation enabled
+2026-11-20T04:18:51.8665394Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-11-20T04:18:52.1033371Z .
+2026-11-20T04:18:52.1034129Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.28s
+2026-11-20T04:18:52.1034571Z 
+2026-11-20T04:18:52.1178442Z ##[endgroup]
+2026-11-20T04:18:52.1179297Z ##[group]d3d12_smoke::a_mesh_lands_where_it_was_drawn_and_nowhere_else
+2026-11-20T04:18:52.5370523Z 
+2026-11-20T04:18:52.5371082Z running 1 test
+2026-11-20T04:18:52.5390702Z d3d12: debug layer and GPU-based validation enabled
+2026-11-20T04:18:52.6072034Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-11-20T04:18:52.8601735Z .
+2026-11-20T04:18:52.8602594Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.32s
+2026-11-20T04:18:52.8603412Z 
+2026-11-20T04:18:52.8755409Z ##[endgroup]
+2026-11-20T04:18:52.8756335Z ##[group]d3d12_smoke::an_empty_mesh_draws_a_transparent_frame
+2026-11-20T04:18:53.2921157Z 
+2026-11-20T04:18:53.2921713Z running 1 test
+2026-11-20T04:18:53.2941655Z d3d12: debug layer and GPU-based validation enabled
+2026-11-20T04:18:53.3484044Z .
+2026-11-20T04:18:53.3484756Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
+2026-11-20T04:18:53.3485184Z 
+2026-11-20T04:18:53.3636065Z ##[endgroup]
+2026-11-20T04:18:53.3636911Z ##[group]d3d12_smoke::reports_an_adapter
+2026-11-20T04:18:53.7851497Z 
+2026-11-20T04:18:53.7852180Z running 1 test
+2026-11-20T04:18:53.7871089Z d3d12: debug layer and GPU-based validation enabled
+2026-11-20T04:18:53.8324686Z D3D12 adapter: AdapterInfo *** name: "Microsoft Basic Render Driver", backend: "d3d12", device_type: "hardware" *** (needs a D3D12 adapter (VIEWW_D3D12_ALLOW_WARP=1 accepts WARP); run with `cargo test -p vieww-hal --features d3d12 -- --ignored`)
+2026-11-20T04:18:53.8415766Z .
+2026-11-20T04:18:53.8416541Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.06s
+2026-11-20T04:18:53.8417046Z 
+2026-11-20T04:18:53.8564453Z ##[endgroup]
+2026-11-20T04:18:53.8565277Z ##[group]d3d12_smoke::several_frames_on_one_device
+2026-11-20T04:18:54.2851199Z 
+2026-11-20T04:18:54.2851774Z running 1 test
+2026-11-20T04:18:54.2873087Z d3d12: debug layer and GPU-based validation enabled
+2026-11-20T04:18:54.3346671Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-11-20T04:18:54.5700662Z .
+2026-11-20T04:18:54.5701495Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.28s
+2026-11-20T04:18:54.5701935Z 
+2026-11-20T04:18:54.5850078Z ##[endgroup]
+2026-11-20T04:18:54.5851033Z ##[group]d3d12_smoke::the_mesh_path_agrees_with_vulkans_pixel_rule
+2026-11-20T04:18:54.9967577Z 
+2026-11-20T04:18:54.9968346Z running 1 test
+2026-11-20T04:18:54.9988522Z d3d12: debug layer and GPU-based validation enabled
+2026-11-20T04:18:55.0629537Z d3d12 [record] severity 4 id 1016: Device Debug Layer Startup Options: GPU-Based Validation is enabled (disabled by default). This results in new validation not possible during API calls on the CPU, by creating patched shaders that have validation added directly to the shader. However, it can slow things down a lot, especially for applications with numerous PSOs. Time to see the first render frame may take several minutes.
+2026-11-20T04:18:55.2981024Z .
+2026-11-20T04:18:55.2981880Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.30s
+2026-11-20T04:18:55.2982358Z 
+2026-11-20T04:18:55.3133561Z ##[endgroup]
+2026-11-20T04:18:55.7209759Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+2026-11-20T04:18:55.7329301Z [1m[92m     Running[0m unittests src\lib.rs (target\debug\deps\vieww_hal-a74ce4f11fce3cd2.exe)
+2026-11-20T04:18:55.7410307Z 
+2026-11-20T04:18:55.7410899Z running 0 tests
+2026-11-20T04:18:55.7411255Z 
+2026-11-20T04:18:55.7411803Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.00s
+2026-11-20T04:18:55.7412544Z 
+2026-11-20T04:18:55.7533310Z failed: d3d12_scene::nested_layers_with_mixed_effects_match
+2026-11-20T04:18:55.7560822Z ##[endgroup]
+2026-11-20T04:18:55.7609994Z ##[error]D3D12 suite (WARP when there is no hardware adapter) failed (exit 1)
+2026-11-20T04:18:55.7618938Z ##[group]HLSL that FXC refused (numbered, for the failure report)
+2026-11-20T04:18:55.7875794Z ##[endgroup]
+2026-11-20T04:18:55.7889664Z ##[group]Parity certificate (d3d12-warp, FW-26)
+2026-11-20T04:18:55.9619836Z | Backend | Adapter(s) | Contract | Tests | Interior violations | Worst delta (edges incl.) | Holds |
+2026-11-20T04:18:55.9620478Z |---|---|---|---|---|---|---|
+2026-11-20T04:18:55.9620873Z | d3d12 | WARP | interior<=2/255,edges-free | 10 | 346 | 43/255 | NO |
+2026-11-20T04:18:55.9621178Z 
+2026-11-20T04:18:55.9723690Z ##[endgroup]
+2026-11-20T04:18:55.9739223Z ##[error]Parity certificate (d3d12-warp, FW-26) failed (exit 1)
+2026-11-20T04:18:55.9740439Z ##[group]mark: upload parity-certificate-d3d12-warp
+2026-11-20T04:18:56.0016660Z ##[endgroup]
+2026-11-20T04:18:56.0038877Z ##[group]Performance budget (advisory, FW-08)
+2026-11-20T04:18:57.2831384Z perf-baseline: no previous perf-windows/perf-measured.json under ci-results/framework-checks
+2026-11-20T04:22:50.8668664Z 
+2026-11-20T04:22:50.8669862Z fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+2026-11-20T04:22:50.8671802Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-20T04:22:50.8674503Z 00-fills                            840x560      384     3.24ms     3.50ms       8.4        5  384 plain fills — the control
+2026-11-20T04:22:50.8676448Z 00-fills-rounded                    840x560      384     2.06ms     2.24ms       5.4        8  the same fills, rounded — cost of curves
+2026-11-20T04:22:50.8678099Z 00-fills-gradient                   840x560      384     3.51ms     3.68ms       9.1        5  the same fills, gradient-shaded — cost of shading
+2026-11-20T04:22:50.8679490Z 00-fills-rrect-clip                 840x560      384     3.44ms     3.78ms       8.9        5  the same fills under ONE rounded clip
+2026-11-20T04:22:50.8680884Z 00-fills-nested-clips               840x560      384     3.37ms     3.75ms       8.8        5  the same fills, three clips deep
+2026-11-20T04:22:50.8682207Z 00-strokes                          840x560      384    13.11ms    13.97ms      34.1        1  stroke expansion: joins, caps
+2026-11-20T04:22:50.8683786Z 00-curves                           840x560      384    10.32ms    10.60ms      26.9        2  open cubics — the flattener's real workload
+2026-11-20T04:22:50.8685131Z 00-shadows                          840x560      768     6.35ms     9.12ms       8.3        3  384 blurred shadow masks
+2026-11-20T04:22:50.8686416Z 00-layers-flat                      840x560     1152     2.68ms     2.92ms       2.3        6  384 sibling isolated layers
+2026-11-20T04:22:50.8688352Z 00-layers-nested                    840x560       74    15.86ms    16.85ms     214.4        1  24 layers deep — compositor depth
+2026-11-20T04:22:50.8689753Z 00-blend-modes                      840x560       71     3.71ms     3.85ms      52.3        4  12 blend modes over one backdrop
+2026-11-20T04:22:50.8691056Z 00-blurs                            840x560       24     2.37ms     2.62ms      98.9        7  blur at five sigmas, incl. bounds
+2026-11-20T04:22:50.8692289Z 00-transforms                       840x560       97     2.08ms     2.22ms      21.4        8  96 rotated + scaled boxes
+2026-11-20T04:22:50.8693575Z 10-icon-grid                        840x560       46     1.30ms     1.46ms      28.3       13  120 vector icons, four sizes
+2026-11-20T04:22:50.8694957Z 10-icon-strokes                     840x560       46     2.86ms     3.01ms      62.1        6  stroked line-art icons at small sizes
+2026-11-20T04:22:50.8696337Z 11-typography                       840x560       11     1.28ms     1.46ms     116.5       13  a type scale, real glyph outlines
+2026-11-20T04:22:50.8697610Z 11-code-block                       840x560       56     1.12ms     1.24ms      20.0       15  syntax-coloured code — many small runs
+2026-11-20T04:22:50.8698427Z 12-avatar                           840x560       18     4.39ms     4.61ms     243.8        4  one complex layered vector portrait
+2026-11-20T04:22:50.8699198Z 12-avatar-wall                      840x560      362     8.01ms     8.39ms      22.1        2  24 of them, clipped to circles
+2026-11-20T04:22:50.8701009Z 20-settings                         840x560       45     2.12ms     2.38ms      47.1        8  a settings form: rows, switches, chrome
+2026-11-20T04:22:50.8701847Z 21-dashboard                        840x560       39     2.74ms     3.12ms      70.3        6  cards, charts, elevation, gradients
+2026-11-20T04:22:50.8702622Z 22-editor                          1366x679      129     3.91ms     4.53ms      30.3        4  an IDE shell: sidebar, code, panels
+2026-11-20T04:22:50.8703452Z 23-editor-glass                    1366x679      149     8.77ms     9.11ms      58.8        2  the same, with blur, shadows and overlays
+2026-11-20T04:22:50.8704300Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-20T04:22:50.8704930Z 23 fixtures, 108.6 ms of rendering in total
+2026-11-20T04:22:50.8705541Z drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+2026-11-20T04:22:50.8706161Z every fixture renders inside a 60 Hz frame budget
+2026-11-20T04:22:50.8706585Z no fixture's layout overflows
+2026-11-20T04:22:51.4245829Z receipt  : C:/Users/RUNNER~1/AppData/Local/Temp/tmp.CZ7cUMm7wi/receipt.json
+2026-11-20T04:22:51.4246542Z 
+2026-11-20T04:22:51.4246867Z motion                frames       mean      worst   moving   stall  what it covers
+2026-11-20T04:22:51.4247764Z ----------------------------------------------------------------------------------------------------------------------
+2026-11-20T04:22:51.8703673Z 30-fade-in                24     1.77ms     2.14ms     23/23       0  opacity 0 -> 1: the simplest reveal
+2026-11-20T04:22:52.3671297Z 31-stagger                24     2.03ms     3.06ms     15/23       0  five rows revealing in sequence
+2026-11-20T04:22:52.6607801Z 32-splash                 24     1.69ms     2.19ms     21/23       2  a launch splash: scale, rise, fade out
+2026-11-20T04:22:53.3136374Z 33-sheet                  24     5.41ms     9.03ms     14/23       0  a modal sheet over a blurred backdrop
+2026-11-20T04:22:53.7969302Z 34-spinner                24     1.33ms     2.27ms     23/23       0  a continuous sweep — transforms every frame
+2026-11-20T04:22:54.4415385Z 35-shared-element         24     6.24ms    15.77ms     23/23       0  a card expanding into a detail view — the hard transition
+2026-11-20T04:22:54.8573665Z 36-morph                  24     2.34ms     2.96ms     23/23       0  one vector path morphing into another, stroked and filled
+2026-11-20T04:22:54.8696058Z 
+2026-11-20T04:22:54.8697232Z interaction                       damage  full frame    retained  speed-up  identical?
+2026-11-20T04:22:54.8698154Z ------------------------------------------------------------------------------------------------
+2026-11-20T04:22:54.8828614Z light row 4                        8.01%      2.59ms      0.54ms      4.8x  yes
+2026-11-20T04:22:54.8963506Z move the light to row 9           16.03%      2.61ms      0.73ms      3.6x  yes
+2026-11-20T04:22:54.9097140Z clear the selection                8.01%      2.56ms      0.53ms      4.8x  yes
+2026-11-20T04:22:54.9229105Z nothing changes at all            -0.00%      2.56ms      0.28ms      9.2x  yes
+2026-11-20T04:22:54.9886250Z glass: highlight moves             0.72%      9.14ms      3.70ms      2.5x  yes  within 60Hz
+2026-11-20T04:22:55.0273777Z glass: highlight clears            0.72%      9.20ms      3.87ms      2.4x  yes  within 60Hz
+2026-11-20T04:22:55.0303050Z 
+2026-11-20T04:22:55.0303564Z wrote 23 PNGs to C:/Users/RUNNER~1/AppData/Local/Temp/tmp.CZ7cUMm7wi/out
+2026-11-20T04:22:55.1310233Z | class | metric | budget | now | change | verdict (tolerance �10%) |
+2026-11-20T04:22:55.1311033Z |---|---|---|---|---|---|
+2026-11-20T04:22:55.1312289Z perf-budget: no budget and no previous run for class 'windows/x86-64/amd64-family-25-model-1-stepping-1-authenticamd': not gated this time (this run is the baseline for the next)
+2026-11-20T04:22:55.1313914Z perf-budget: nothing gated
+2026-11-20T04:22:55.1392010Z ##[endgroup]
+2026-11-20T04:22:55.1408670Z ##[group]mark: upload perf-windows
+2026-11-20T04:22:55.1697877Z ##[endgroup]
+2026-11-20T04:22:55.1888105Z ##[error]Process completed with exit code 1.
+2026-11-20T04:22:55.2142983Z ##[group]Run actions/upload-artifact@v4
+2026-11-20T04:22:55.2143440Z with:
+2026-11-20T04:22:55.2143712Z   name: parity-certificate-d3d12-warp
+2026-11-20T04:22:55.2144113Z   path: vieww_base/parity-certificate-d3d12-warp.json
+2026-11-20T04:22:55.2144495Z   if-no-files-found: ignore
+2026-11-20T04:22:55.2144784Z   include-hidden-files: false
+2026-11-20T04:22:55.2145075Z   compression-level: 6
+2026-11-20T04:22:55.2145337Z   overwrite: false
+2026-11-20T04:22:55.2145581Z env:
+2026-11-20T04:22:55.2145825Z   CI_INPUTS: ***
+2026-11-20T04:22:55.2146073Z   CI_MATRIX: ***
+2026-11-20T04:22:55.2147670Z   CI_JOB: ***"title": "vieww \u00b7 framework-windows", "project": "vieww", "id": "framework-windows", "file": "vieww_base/ci/jobs/framework-windows.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "parity-certificate-d3d12-warp", "path": "vieww_base/parity-certificate-d3d12-warp.json", "if-no-files-found": "ignore"***, ***"name": "perf-windows", "path": "$*** runner.temp ***/perf", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-20T04:22:55.2149280Z   CI_PROJECT: vieww
+2026-11-20T04:22:55.2150212Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-20T04:22:55.2153603Z   CI_GITHUB_TOKEN: ***
+2026-11-20T04:22:55.2153863Z   CI_SECRET_NAMES: 
+2026-11-20T04:22:55.2154114Z   CI_HAS_AWS_ROLE: false
+2026-11-20T04:22:55.2154375Z   ANDROID_KEYSTORE: 
+2026-11-20T04:22:55.2154641Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-20T04:22:55.2154923Z   ANDROID_KEY_ALIAS: 
+2026-11-20T04:22:55.2155180Z   ANDROID_KEY_PASSWORD: 
+2026-11-20T04:22:55.2155453Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-20T04:22:55.2155721Z   APPLE_NOTARY_ISSUER: 
+2026-11-20T04:22:55.2155981Z   APPLE_NOTARY_KEY: 
+2026-11-20T04:22:55.2156257Z   APPLE_NOTARY_KEY_ID: 
+2026-11-20T04:22:55.2156588Z   APPLE_P12_PASSWORD: 
+2026-11-20T04:22:55.2156932Z   APPLE_SIGNING_IDENTITY: 
+2026-11-20T04:22:55.2157284Z   AWS_ACCESS_KEY_ID: 
+2026-11-20T04:22:55.2157590Z   AWS_ROLE_ARN: 
+2026-11-20T04:22:55.2157933Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-20T04:22:55.2158268Z   CARGO_REGISTRY_TOKEN: 
+2026-11-20T04:22:55.2158624Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-20T04:22:55.2158979Z   CLOUDFLARE_API_TOKEN: 
+2026-11-20T04:22:55.2159308Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-20T04:22:55.2159666Z   FIREBASE_PROJECT: 
+2026-11-20T04:22:55.2159975Z   FIREBASE_SA_KEY: 
+2026-11-20T04:22:55.2160297Z   IOS_CERT_P12: 
+2026-11-20T04:22:55.2160628Z   IOS_CERT_PASSWORD: 
+2026-11-20T04:22:55.2160917Z   IOS_IDENTITY: 
+2026-11-20T04:22:55.2161240Z   IOS_PROFILE: 
+2026-11-20T04:22:55.2161541Z   WINDOWS_CERT_PASSWORD: 
+2026-11-20T04:22:55.2161886Z   WINDOWS_CERT_PFX: 
+2026-11-20T04:22:55.2162234Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-20T04:22:55.2162605Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-20T04:22:55.2163008Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-20T04:22:55.2163366Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-20T04:22:55.2163746Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-20T04:22:55.2164111Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-20T04:22:55.2164392Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-20T04:22:55.2164685Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-20T04:22:55.2164999Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-20T04:22:55.2165390Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-20T04:22:55.2165776Z   CI_UPLOAD_0: yes
+2026-11-20T04:22:55.2166008Z   CI_UPLOAD_1: yes
+2026-11-20T04:22:55.2166246Z ##[endgroup]
+2026-11-20T04:22:55.3998395Z (node:7308) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-20T04:22:55.3999623Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-20T04:22:55.4050879Z With the provided path, there will be 1 file uploaded
+2026-11-20T04:22:55.4059117Z Artifact name is valid!
+2026-11-20T04:22:55.4059712Z Root directory input is valid!
+2026-11-20T04:22:55.7156274Z Beginning upload of artifact content to blob storage
+2026-11-20T04:22:55.7366915Z (node:7308) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-20T04:22:55.9179615Z Uploaded bytes 551
+2026-11-20T04:22:55.9722185Z Finished uploading artifact content to blob storage!
+2026-11-20T04:22:55.9723482Z SHA256 digest of uploaded artifact zip is 90bbfe07a62388a62a3953a7bdd81fd4d493c1ad232ba4b3a20c774894dd8209
+2026-11-20T04:22:55.9725709Z Finalizing artifact upload
+2026-11-20T04:22:56.3895291Z Artifact parity-certificate-d3d12-warp.zip successfully finalized. Artifact ID 14601206604
+2026-11-20T04:22:56.3896585Z Artifact parity-certificate-d3d12-warp has been successfully uploaded! Final size is 551 bytes. Artifact ID is 14601206604
+2026-11-20T04:22:56.3904987Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44672368451/artifacts/14601206604
+2026-11-20T04:22:56.4180372Z ##[group]Run actions/upload-artifact@v4
+2026-11-20T04:22:56.4180792Z with:
+2026-11-20T04:22:56.4181036Z   name: perf-windows
+2026-11-20T04:22:56.4181316Z   path: D:\a\_temp/perf
+2026-11-20T04:22:56.4181601Z   if-no-files-found: ignore
+2026-11-20T04:22:56.4181899Z   include-hidden-files: false
+2026-11-20T04:22:56.4182194Z   compression-level: 6
+2026-11-20T04:22:56.4182458Z   overwrite: false
+2026-11-20T04:22:56.4182697Z env:
+2026-11-20T04:22:56.4182944Z   CI_INPUTS: ***
+2026-11-20T04:22:56.4183193Z   CI_MATRIX: ***
+2026-11-20T04:22:56.4184819Z   CI_JOB: ***"title": "vieww \u00b7 framework-windows", "project": "vieww", "id": "framework-windows", "file": "vieww_base/ci/jobs/framework-windows.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "parity-certificate-d3d12-warp", "path": "vieww_base/parity-certificate-d3d12-warp.json", "if-no-files-found": "ignore"***, ***"name": "perf-windows", "path": "$*** runner.temp ***/perf", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-20T04:22:56.4186433Z   CI_PROJECT: vieww
+2026-11-20T04:22:56.4187347Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-20T04:22:56.4190753Z   CI_GITHUB_TOKEN: ***
+2026-11-20T04:22:56.4191025Z   CI_SECRET_NAMES: 
+2026-11-20T04:22:56.4191277Z   CI_HAS_AWS_ROLE: false
+2026-11-20T04:22:56.4191540Z   ANDROID_KEYSTORE: 
+2026-11-20T04:22:56.4191816Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-20T04:22:56.4192098Z   ANDROID_KEY_ALIAS: 
+2026-11-20T04:22:56.4192356Z   ANDROID_KEY_PASSWORD: 
+2026-11-20T04:22:56.4192668Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-20T04:22:56.4192946Z   APPLE_NOTARY_ISSUER: 
+2026-11-20T04:22:56.4193207Z   APPLE_NOTARY_KEY: 
+2026-11-20T04:22:56.4193457Z   APPLE_NOTARY_KEY_ID: 
+2026-11-20T04:22:56.4193707Z   APPLE_P12_PASSWORD: 
+2026-11-20T04:22:56.4193984Z   APPLE_SIGNING_IDENTITY: 
+2026-11-20T04:22:56.4194258Z   AWS_ACCESS_KEY_ID: 
+2026-11-20T04:22:56.4194516Z   AWS_ROLE_ARN: 
+2026-11-20T04:22:56.4194753Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-20T04:22:56.4195021Z   CARGO_REGISTRY_TOKEN: 
+2026-11-20T04:22:56.4195279Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-20T04:22:56.4195545Z   CLOUDFLARE_API_TOKEN: 
+2026-11-20T04:22:56.4195800Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-20T04:22:56.4196069Z   FIREBASE_PROJECT: 
+2026-11-20T04:22:56.4196305Z   FIREBASE_SA_KEY: 
+2026-11-20T04:22:56.4196537Z   IOS_CERT_P12: 
+2026-11-20T04:22:56.4196961Z   IOS_CERT_PASSWORD: 
+2026-11-20T04:22:56.4197204Z   IOS_IDENTITY: 
+2026-11-20T04:22:56.4197429Z   IOS_PROFILE: 
+2026-11-20T04:22:56.4197659Z   WINDOWS_CERT_PASSWORD: 
+2026-11-20T04:22:56.4197912Z   WINDOWS_CERT_PFX: 
+2026-11-20T04:22:56.4198170Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-20T04:22:56.4198475Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-20T04:22:56.4198778Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-20T04:22:56.4199061Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-20T04:22:56.4199373Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-20T04:22:56.4199686Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-20T04:22:56.4218550Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-20T04:22:56.4219138Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-20T04:22:56.4219769Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-20T04:22:56.4220250Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-20T04:22:56.4220655Z   CI_UPLOAD_0: yes
+2026-11-20T04:22:56.4220917Z   CI_UPLOAD_1: yes
+2026-11-20T04:22:56.4221174Z ##[endgroup]
+2026-11-20T04:22:56.6057282Z (node:6428) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-20T04:22:56.6058149Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-20T04:22:56.6118517Z With the provided path, there will be 1 file uploaded
+2026-11-20T04:22:56.6124240Z Artifact name is valid!
+2026-11-20T04:22:56.6129574Z Root directory input is valid!
+2026-11-20T04:22:56.9263449Z Beginning upload of artifact content to blob storage
+2026-11-20T04:22:56.9467394Z (node:6428) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-20T04:22:57.1416320Z Uploaded bytes 564
+2026-11-20T04:22:57.1998278Z Finished uploading artifact content to blob storage!
+2026-11-20T04:22:57.1999565Z SHA256 digest of uploaded artifact zip is 7e0819c6ac80878793b767b328cf85a53e57e55c8c210d6a272aa81f738c5aca
+2026-11-20T04:22:57.2001912Z Finalizing artifact upload
+2026-11-20T04:22:57.5503287Z Artifact perf-windows.zip successfully finalized. Artifact ID 14600909241
+2026-11-20T04:22:57.5504454Z Artifact perf-windows has been successfully uploaded! Final size is 564 bytes. Artifact ID is 14600909241
+2026-11-20T04:22:57.5513117Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44672368451/artifacts/14600909241
+2026-11-20T04:22:57.5861300Z Post job cleanup.
+2026-11-20T04:22:57.7739331Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-20T04:22:57.8028536Z git version 2.56.1.windows.1
+2026-11-20T04:22:57.8102372Z Temporarily overriding HOME='D:\a\_temp\1445070a-23d1-4417-b1e9-c38c0c06adcf' before making global git config changes
+2026-11-20T04:22:57.8103858Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-20T04:22:57.8116536Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-20T04:22:57.8437324Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-20T04:22:57.8761306Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-20T04:22:58.4026089Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-20T04:22:58.4298163Z http.https://github.com/.extraheader
+2026-11-20T04:22:58.4338692Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-20T04:22:58.4650801Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-20T04:22:58.9983761Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-20T04:22:59.0301833Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-20T04:22:59.5525713Z Cleaning up orphan processes
+2026-11-20T04:22:59.5905278Z Terminate orphan process: pid (1580) (vctip)
+2026-11-20T04:22:59.6043615Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+===== phase-1 / vieww · framework-macos	log =====
+2026-11-20T04:20:12.5668710Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-20T04:20:12.5669090Z 
+2026-11-20T04:20:12.5669700Z [1m[92m     Running[0m tests/vulkan_scene.rs (target/debug/deps/vulkan_scene-8967128d293a7585)
+2026-11-20T04:20:12.5735120Z 
+2026-11-20T04:20:12.5735780Z running 0 tests
+2026-11-20T04:20:12.5736160Z 
+2026-11-20T04:20:12.5737840Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-20T04:20:12.5741480Z 
+2026-11-20T04:20:12.5742080Z [1m[92m     Running[0m tests/vulkan_smoke.rs (target/debug/deps/vulkan_smoke-23a7f769cc80c598)
+2026-11-20T04:20:12.5791520Z 
+2026-11-20T04:20:12.5792560Z running 0 tests
+2026-11-20T04:20:12.5793090Z 
+2026-11-20T04:20:12.5793820Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-20T04:20:12.5794780Z 
+2026-11-20T04:20:12.5796030Z [1m[92m     Running[0m tests/vulkan_text.rs (target/debug/deps/vulkan_text-1a04597267bf46a8)
+2026-11-20T04:20:12.5879540Z 
+2026-11-20T04:20:12.5880940Z running 0 tests
+2026-11-20T04:20:12.5881450Z 
+2026-11-20T04:20:12.5882400Z [1m[92m   Doc-tests[0m vieww_hal
+2026-11-20T04:20:12.5883670Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-20T04:20:12.5884700Z 
+2026-11-20T04:20:12.8822990Z 
+2026-11-20T04:20:12.8832270Z running 0 tests
+2026-11-20T04:20:12.8833230Z 
+2026-11-20T04:20:12.8834100Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-20T04:20:12.8835180Z 
+2026-11-20T04:20:12.9176720Z ##[endgroup]
+2026-11-20T04:20:12.9356690Z ##[group]Parity certificate (metal-paravirtual, FW-26)
+2026-11-20T04:20:13.4156430Z | Backend | Adapter(s) | Contract | Tests | Interior violations | Worst delta (edges incl.) | Holds |
+2026-11-20T04:20:13.4160680Z |---|---|---|---|---|---|---|
+2026-11-20T04:20:13.4162030Z | metal | macos-15 paravirtual GPU | interior<=2/255,edges-free | 16 | 0 | 1/255 | yes |
+2026-11-20T04:20:13.4162990Z 
+2026-11-20T04:20:13.4434690Z ##[endgroup]
+2026-11-20T04:20:13.4493900Z ##[group]mark: upload parity-certificate-metal-paravirtual
+2026-11-20T04:20:13.4583580Z ##[endgroup]
+2026-11-20T04:20:13.4611450Z ##[group]Clippy for the Apple backends
+2026-11-20T04:20:15.5319750Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-foundation)
+2026-11-20T04:20:15.5487950Z [1m[92m   Compiling[0m vieww-shaders v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-shaders)
+2026-11-20T04:20:19.0006450Z [1m[92m    Checking[0m vieww-paint v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-paint)
+2026-11-20T04:20:19.0109200Z [1m[92m    Checking[0m vieww-text v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-text)
+2026-11-20T04:20:21.1040550Z [1m[92m    Checking[0m vieww-gpu v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-gpu)
+2026-11-20T04:20:22.1311930Z [1m[92m    Checking[0m vieww-hal v0.1.0 (/Users/runner/work/vieww_prod/vieww_prod/vieww_base/crates/vieww-hal)
+2026-11-20T04:20:23.1666790Z [1m[91merror[0m[1m: called `expect` on `self.blur` after checking its variant with `is_some`[0m
+2026-11-20T04:20:23.1667990Z    [1m[94m--> [0mcrates/vieww-hal/src/metal/scene.rs:705:59
+2026-11-20T04:20:23.1673200Z     [1m[94m|[0m
+2026-11-20T04:20:23.1673930Z [1m[94m676[0m [1m[94m|[0m                       if self.blur.is_some()
+2026-11-20T04:20:23.1674840Z     [1m[94m|[0m                          [1m[94m-------------------[0m [1m[94mthe check is happening here[0m
+2026-11-20T04:20:23.1675550Z [1m[94m...[0m
+2026-11-20T04:20:23.1676250Z [1m[94m705[0m [1m[94m|[0m                               cs.set_compute_pipeline_state(self.blur.as_ref().expect(
+2026-11-20T04:20:23.1682390Z     [1m[94m|[0m [1m[91m ___________________________________________________________^[0m
+2026-11-20T04:20:23.1683390Z [1m[94m706[0m [1m[94m|[0m [1m[91m|[0m                                 "checked above: a dispatch is only encoded with the pipeline",
+2026-11-20T04:20:23.1684310Z [1m[94m707[0m [1m[94m|[0m [1m[91m|[0m                             ));
+2026-11-20T04:20:23.1684980Z     [1m[94m|[0m [1m[91m|_____________________________^[0m
+2026-11-20T04:20:23.1685600Z     [1m[94m|[0m
+2026-11-20T04:20:23.1687940Z     [1m[94m= [0m[1mhelp[0m: try using `match`
+2026-11-20T04:20:23.1689090Z     [1m[94m= [0m[1mhelp[0m: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#unnecessary_unwrap
+2026-11-20T04:20:23.1710870Z     [1m[94m= [0m[1mnote[0m: `-D clippy::unnecessary-unwrap` implied by `-D warnings`
+2026-11-20T04:20:23.1714900Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[allow(clippy::unnecessary_unwrap)]`
+2026-11-20T04:20:23.1715320Z 
+2026-11-20T04:20:23.1718150Z [1m[91merror[0m[1m: useless conversion to the same type: `u64`[0m
+2026-11-20T04:20:23.1719720Z    [1m[94m--> [0mcrates/vieww-hal/src/metal/scene.rs:727:44
+2026-11-20T04:20:23.1720350Z     [1m[94m|[0m
+2026-11-20T04:20:23.1721180Z [1m[94m727[0m [1m[94m|[0m [1m[94m...[0m                   width: u64::from(scanlines.div_ceil(64)),
+2026-11-20T04:20:23.1723430Z     [1m[94m|[0m                              [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mhelp: consider removing `u64::from()`: `scanlines.div_ceil(64)`[0m
+2026-11-20T04:20:23.1724210Z     [1m[94m|[0m
+2026-11-20T04:20:23.1725030Z     [1m[94m= [0m[1mhelp[0m: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#useless_conversion
+2026-11-20T04:20:23.1726140Z     [1m[94m= [0m[1mnote[0m: `-D clippy::useless-conversion` implied by `-D warnings`
+2026-11-20T04:20:23.1726980Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[allow(clippy::useless_conversion)]`
+2026-11-20T04:20:23.1727460Z 
+2026-11-20T04:20:23.2100130Z [1m[91merror[0m: could not compile `vieww-hal` (lib) due to 2 previous errors
+2026-11-20T04:20:23.2101180Z [1m[33mwarning[0m: build failed, waiting for other jobs to finish...
+2026-11-20T04:20:23.2777940Z [1m[91merror[0m: could not compile `vieww-hal` (lib test) due to 2 previous errors
+2026-11-20T04:20:23.3229680Z ##[endgroup]
+2026-11-20T04:20:23.3365290Z ##[error]Clippy for the Apple backends failed (exit 101)
+2026-11-20T04:20:23.3434780Z ##[group]Performance budget (advisory, FW-08)
+2026-11-20T04:20:25.5547940Z perf-baseline: no previous perf-macos/perf-measured.json under ci-results/framework-checks
+2026-11-20T04:24:02.2907170Z 
+2026-11-20T04:24:02.2913360Z fixture                                 size    cmds      best     worst    us/cmd      fps  what it covers
+2026-11-20T04:24:02.2960770Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-20T04:24:02.2973450Z 00-fills                            840x560      384     2.49ms     9.58ms       6.5        7  384 plain fills — the control  (noisy: worst is over twice best)
+2026-11-20T04:24:02.2974950Z 00-fills-rounded                    840x560      384     1.51ms     4.39ms       3.9       11  the same fills, rounded — cost of curves  (noisy: worst is over twice best)
+2026-11-20T04:24:02.2976130Z 00-fills-gradient                   840x560      384     4.26ms    21.17ms      11.1        4  the same fills, gradient-shaded — cost of shading  (noisy: worst is over twice best)
+2026-11-20T04:24:02.2979000Z 00-fills-rrect-clip                 840x560      384     2.16ms    15.56ms       5.6        8  the same fills under ONE rounded clip  (noisy: worst is over twice best)
+2026-11-20T04:24:02.2980120Z 00-fills-nested-clips               840x560      384     1.97ms     6.51ms       5.1        8  the same fills, three clips deep  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3026060Z 00-strokes                          840x560      384     8.95ms    23.18ms      23.3        2  stroke expansion: joins, caps  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3029290Z 00-curves                           840x560      384     7.69ms    18.61ms      20.0        2  open cubics — the flattener's real workload  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3034230Z 00-shadows                          840x560      768     4.25ms    12.78ms       5.5        4  384 blurred shadow masks  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3038530Z 00-layers-flat                      840x560     1152     1.85ms     5.50ms       1.6        9  384 sibling isolated layers  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3042160Z 00-layers-nested                    840x560       74     8.75ms    16.84ms     118.2        2  24 layers deep — compositor depth
+2026-11-20T04:24:02.3044140Z 00-blend-modes                      840x560       71     3.16ms    10.10ms      44.5        5  12 blend modes over one backdrop  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3046620Z 00-blurs                            840x560       24     2.86ms     8.19ms     119.3        6  blur at five sigmas, incl. bounds  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3052410Z 00-transforms                       840x560       97     1.89ms     3.42ms      19.5        9  96 rotated + scaled boxes
+2026-11-20T04:24:02.3058860Z 10-icon-grid                        840x560       46     1.62ms     3.63ms      35.3       10  120 vector icons, four sizes  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3063490Z 10-icon-strokes                     840x560       46     2.72ms     4.65ms      59.0        6  stroked line-art icons at small sizes
+2026-11-20T04:24:02.3071340Z 11-typography                       840x560       11     2.02ms     3.12ms     183.3        8  a type scale, real glyph outlines
+2026-11-20T04:24:02.3082530Z 11-code-block                       840x560       56     1.45ms     3.09ms      25.9       11  syntax-coloured code — many small runs  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3090770Z 12-avatar                           840x560       18     3.31ms     7.18ms     183.9        5  one complex layered vector portrait  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3095070Z 12-avatar-wall                      840x560      362     4.90ms    15.38ms      13.5        3  24 of them, clipped to circles  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3101300Z 20-settings                         840x560       45     2.36ms     4.23ms      52.4        7  a settings form: rows, switches, chrome
+2026-11-20T04:24:02.3106550Z 21-dashboard                        840x560       39     2.47ms     5.48ms      63.3        7  cards, charts, elevation, gradients  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3113490Z 22-editor                          1366x679      129     3.65ms     5.85ms      28.3        5  an IDE shell: sidebar, code, panels
+2026-11-20T04:24:02.3114380Z 23-editor-glass                    1366x679      149     8.65ms    20.49ms      58.1        2  the same, with blur, shadows and overlays  (noisy: worst is over twice best)
+2026-11-20T04:24:02.3116400Z ----------------------------------------------------------------------------------------------------------------------------------------
+2026-11-20T04:24:02.3119980Z 23 fixtures, 84.9 ms of rendering in total
+2026-11-20T04:24:02.3122920Z drawn across the gallery: 4178 shapes, 2743 glyphs, 449 layers, 394 shadows (0 commands culled)
+2026-11-20T04:24:02.3123480Z every fixture renders inside a 60 Hz frame budget
+2026-11-20T04:24:02.3131510Z no fixture's layout overflows
+2026-11-20T04:24:02.8161480Z receipt  : /var/folders/9d/l02zfgrs7c16twd3wbpdmhkc0000gn/T/tmp.FlZAl7ejyy/receipt.json
+2026-11-20T04:24:02.8162600Z 
+2026-11-20T04:24:02.8163300Z motion                frames       mean      worst   moving   stall  what it covers
+2026-11-20T04:24:02.8166010Z ----------------------------------------------------------------------------------------------------------------------
+2026-11-20T04:24:03.2772390Z 30-fade-in                24     1.18ms     2.03ms     23/23       0  opacity 0 -> 1: the simplest reveal
+2026-11-20T04:24:03.9157060Z 31-stagger                24     1.92ms     4.14ms     15/23       0  five rows revealing in sequence
+2026-11-20T04:24:04.2216350Z 32-splash                 24     1.04ms     2.34ms     21/23       2  a launch splash: scale, rise, fade out
+2026-11-20T04:24:04.9646920Z 33-sheet                  24     6.11ms    15.29ms     14/23       0  a modal sheet over a blurred backdrop
+2026-11-20T04:24:05.5081240Z 34-spinner                24     1.47ms     2.36ms     23/23       0  a continuous sweep — transforms every frame
+2026-11-20T04:24:06.1760480Z 35-shared-element         24     5.10ms     9.67ms     23/23       0  a card expanding into a detail view — the hard transition
+2026-11-20T04:24:06.6478910Z 36-morph                  24     2.49ms     6.30ms     23/23       0  one vector path morphing into another, stroked and filled
+2026-11-20T04:24:06.6625000Z 
+2026-11-20T04:24:06.6625910Z interaction                       damage  full frame    retained  speed-up  identical?
+2026-11-20T04:24:06.6626710Z ------------------------------------------------------------------------------------------------
+2026-11-20T04:24:06.6755200Z light row 4                        8.01%      3.18ms      0.96ms      3.3x  yes
+2026-11-20T04:24:06.6887430Z move the light to row 9           16.03%      1.25ms      0.58ms      2.2x  yes
+2026-11-20T04:24:06.7098460Z clear the selection                8.01%      2.43ms      0.68ms      3.6x  yes
+2026-11-20T04:24:06.7204970Z nothing changes at all            -0.00%      2.61ms      0.25ms     10.5x  yes
+2026-11-20T04:24:06.8065090Z glass: highlight moves             0.72%     11.67ms      3.02ms      3.9x  yes  within 60Hz
+2026-11-20T04:24:06.8569950Z glass: highlight clears            0.72%      8.61ms      4.13ms      2.1x  yes  within 60Hz
+2026-11-20T04:24:06.8671670Z 
+2026-11-20T04:24:06.8774470Z wrote 23 PNGs to /var/folders/9d/l02zfgrs7c16twd3wbpdmhkc0000gn/T/tmp.FlZAl7ejyy/out
+2026-11-20T04:24:07.0262470Z | class | metric | budget | now | change | verdict (tolerance ±10%) |
+2026-11-20T04:24:07.0267930Z |---|---|---|---|---|---|
+2026-11-20T04:24:07.0269650Z perf-budget: no budget and no previous run for class 'macos-15-8-2/aarch64/apple-m1-virtual': not gated this time (this run is the baseline for the next)
+2026-11-20T04:24:07.0271970Z perf-budget: nothing gated
+2026-11-20T04:24:07.0361360Z ##[endgroup]
+2026-11-20T04:24:07.0467930Z ##[group]mark: upload perf-macos
+2026-11-20T04:24:07.0662370Z ##[endgroup]
+2026-11-20T04:24:07.1381910Z ##[error]Process completed with exit code 1.
+2026-11-20T04:24:07.1908180Z ##[group]Run actions/upload-artifact@v4
+2026-11-20T04:24:07.1908520Z with:
+2026-11-20T04:24:07.1908760Z   name: parity-certificate-metal-paravirtual
+2026-11-20T04:24:07.1909160Z   path: vieww_base/parity-certificate-metal-paravirtual.json
+2026-11-20T04:24:07.1909490Z   if-no-files-found: ignore
+2026-11-20T04:24:07.1909740Z   include-hidden-files: false
+2026-11-20T04:24:07.1909980Z   compression-level: 6
+2026-11-20T04:24:07.1910190Z   overwrite: false
+2026-11-20T04:24:07.1910380Z env:
+2026-11-20T04:24:07.1910650Z   CI_INPUTS: ***
+2026-11-20T04:24:07.1910850Z   CI_MATRIX: ***
+2026-11-20T04:24:07.1912360Z   CI_JOB: ***"title": "vieww \u00b7 framework-macos", "project": "vieww", "id": "framework-macos", "file": "vieww_base/ci/jobs/framework-macos.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "parity-certificate-metal-paravirtual", "path": "vieww_base/parity-certificate-metal-paravirtual.json", "if-no-files-found": "ignore"***, ***"name": "perf-macos", "path": "$*** runner.temp ***/perf", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-20T04:24:07.1913720Z   CI_PROJECT: vieww
+2026-11-20T04:24:07.1915150Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-20T04:24:07.1917600Z   CI_GITHUB_TOKEN: ***
+2026-11-20T04:24:07.1917810Z   CI_SECRET_NAMES: 
+2026-11-20T04:24:07.1918010Z   CI_HAS_AWS_ROLE: false
+2026-11-20T04:24:07.1918220Z   ANDROID_KEYSTORE: 
+2026-11-20T04:24:07.1918450Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-20T04:24:07.1918680Z   ANDROID_KEY_ALIAS: 
+2026-11-20T04:24:07.1918890Z   ANDROID_KEY_PASSWORD: 
+2026-11-20T04:24:07.1919110Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-20T04:24:07.1919330Z   APPLE_NOTARY_ISSUER: 
+2026-11-20T04:24:07.1919540Z   APPLE_NOTARY_KEY: 
+2026-11-20T04:24:07.1919750Z   APPLE_NOTARY_KEY_ID: 
+2026-11-20T04:24:07.1919970Z   APPLE_P12_PASSWORD: 
+2026-11-20T04:24:07.1920190Z   APPLE_SIGNING_IDENTITY: 
+2026-11-20T04:24:07.1920410Z   AWS_ACCESS_KEY_ID: 
+2026-11-20T04:24:07.1920610Z   AWS_ROLE_ARN: 
+2026-11-20T04:24:07.1920810Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-20T04:24:07.1921030Z   CARGO_REGISTRY_TOKEN: 
+2026-11-20T04:24:07.1921250Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-20T04:24:07.1921480Z   CLOUDFLARE_API_TOKEN: 
+2026-11-20T04:24:07.1921710Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-20T04:24:07.1921930Z   FIREBASE_PROJECT: 
+2026-11-20T04:24:07.1922120Z   FIREBASE_SA_KEY: 
+2026-11-20T04:24:07.1922320Z   IOS_CERT_P12: 
+2026-11-20T04:24:07.1922510Z   IOS_CERT_PASSWORD: 
+2026-11-20T04:24:07.1922720Z   IOS_IDENTITY: 
+2026-11-20T04:24:07.1922900Z   IOS_PROFILE: 
+2026-11-20T04:24:07.1923100Z   WINDOWS_CERT_PASSWORD: 
+2026-11-20T04:24:07.1923310Z   WINDOWS_CERT_PFX: 
+2026-11-20T04:24:07.1923700Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-20T04:24:07.1924080Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-20T04:24:07.1928760Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-20T04:24:07.1939610Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-20T04:24:07.1940060Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-20T04:24:07.1940390Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-20T04:24:07.1940710Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-20T04:24:07.1940980Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-20T04:24:07.1941260Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-20T04:24:07.1942470Z   CI_PY: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python
+2026-11-20T04:24:07.1943690Z   CI_UPLOAD_0: yes
+2026-11-20T04:24:07.1944460Z   CI_UPLOAD_1: yes
+2026-11-20T04:24:07.1945190Z ##[endgroup]
+2026-11-20T04:24:08.0863340Z (node:17474) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-20T04:24:08.0872100Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-20T04:24:08.0940890Z With the provided path, there will be 1 file uploaded
+2026-11-20T04:24:08.0948930Z Artifact name is valid!
+2026-11-20T04:24:08.0953290Z Root directory input is valid!
+2026-11-20T04:24:08.3300050Z Beginning upload of artifact content to blob storage
+2026-11-20T04:24:08.3464230Z (node:17474) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-20T04:24:08.3893490Z Uploaded bytes 538
+2026-11-20T04:24:08.4138640Z Finished uploading artifact content to blob storage!
+2026-11-20T04:24:08.4140820Z SHA256 digest of uploaded artifact zip is 13dc3c82d7ee9a1b9154b6366a91c5512f6223964e2d9af98b3243bab8c07a84
+2026-11-20T04:24:08.4144070Z Finalizing artifact upload
+2026-11-20T04:24:08.7674070Z Artifact parity-certificate-metal-paravirtual.zip successfully finalized. Artifact ID 14601111768
+2026-11-20T04:24:08.7735100Z Artifact parity-certificate-metal-paravirtual has been successfully uploaded! Final size is 538 bytes. Artifact ID is 14601111768
+2026-11-20T04:24:08.7744210Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44672368451/artifacts/14601111768
+2026-11-20T04:24:08.7897960Z ##[group]Run actions/upload-artifact@v4
+2026-11-20T04:24:08.7898960Z with:
+2026-11-20T04:24:08.7899150Z   name: perf-macos
+2026-11-20T04:24:08.7899380Z   path: /Users/runner/work/_temp/perf
+2026-11-20T04:24:08.7899640Z   if-no-files-found: ignore
+2026-11-20T04:24:08.7900000Z   include-hidden-files: false
+2026-11-20T04:24:08.7900250Z   compression-level: 6
+2026-11-20T04:24:08.7900470Z   overwrite: false
+2026-11-20T04:24:08.7900670Z env:
+2026-11-20T04:24:08.7900890Z   CI_INPUTS: ***
+2026-11-20T04:24:08.7901100Z   CI_MATRIX: ***
+2026-11-20T04:24:08.7902430Z   CI_JOB: ***"title": "vieww \u00b7 framework-macos", "project": "vieww", "id": "framework-macos", "file": "vieww_base/ci/jobs/framework-macos.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "parity-certificate-metal-paravirtual", "path": "vieww_base/parity-certificate-metal-paravirtual.json", "if-no-files-found": "ignore"***, ***"name": "perf-macos", "path": "$*** runner.temp ***/perf", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-20T04:24:08.7903820Z   CI_PROJECT: vieww
+2026-11-20T04:24:08.7904580Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f"
+***
+2026-11-20T04:24:08.7907020Z   CI_GITHUB_TOKEN: ***
+2026-11-20T04:24:08.7907230Z   CI_SECRET_NAMES: 
+2026-11-20T04:24:08.7907440Z   CI_HAS_AWS_ROLE: false
+2026-11-20T04:24:08.7907680Z   ANDROID_KEYSTORE: 
+2026-11-20T04:24:08.7907890Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-20T04:24:08.7908160Z   ANDROID_KEY_ALIAS: 
+2026-11-20T04:24:08.7908430Z   ANDROID_KEY_PASSWORD: 
+2026-11-20T04:24:08.7908660Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-20T04:24:08.7908890Z   APPLE_NOTARY_ISSUER: 
+2026-11-20T04:24:08.7909110Z   APPLE_NOTARY_KEY: 
+2026-11-20T04:24:08.7909520Z   APPLE_NOTARY_KEY_ID: 
+2026-11-20T04:24:08.7909740Z   APPLE_P12_PASSWORD: 
+2026-11-20T04:24:08.7909980Z   APPLE_SIGNING_IDENTITY: 
+2026-11-20T04:24:08.7910300Z   AWS_ACCESS_KEY_ID: 
+2026-11-20T04:24:08.7910520Z   AWS_ROLE_ARN: 
+2026-11-20T04:24:08.7910730Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-20T04:24:08.7910950Z   CARGO_REGISTRY_TOKEN: 
+2026-11-20T04:24:08.7911180Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-20T04:24:08.7911400Z   CLOUDFLARE_API_TOKEN: 
+2026-11-20T04:24:08.7911640Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-20T04:24:08.7911870Z   FIREBASE_PROJECT: 
+2026-11-20T04:24:08.7912080Z   FIREBASE_SA_KEY: 
+2026-11-20T04:24:08.7912280Z   IOS_CERT_P12: 
+2026-11-20T04:24:08.7912790Z   IOS_CERT_PASSWORD: 
+2026-11-20T04:24:08.7913010Z   IOS_IDENTITY: 
+2026-11-20T04:24:08.7913200Z   IOS_PROFILE: 
+2026-11-20T04:24:08.7913400Z   WINDOWS_CERT_PASSWORD: 
+2026-11-20T04:24:08.7915240Z   WINDOWS_CERT_PFX: 
+2026-11-20T04:24:08.7915480Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-20T04:24:08.7915750Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-20T04:24:08.7916030Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-20T04:24:08.7916300Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-20T04:24:08.7916580Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-20T04:24:08.7916910Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-20T04:24:08.7917210Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-20T04:24:08.7917470Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-20T04:24:08.7917740Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-20T04:24:08.7918110Z   CI_PY: /Users/runner/hostedtoolcache/Python/3.12.10/arm64/bin/python
+2026-11-20T04:24:08.7918460Z   CI_UPLOAD_0: yes
+2026-11-20T04:24:08.7918660Z   CI_UPLOAD_1: yes
+2026-11-20T04:24:08.7918990Z ##[endgroup]
+2026-11-20T04:24:09.1573170Z (node:17477) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-20T04:24:09.1676980Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-20T04:24:09.2802470Z With the provided path, there will be 1 file uploaded
+2026-11-20T04:24:09.3004690Z Artifact name is valid!
+2026-11-20T04:24:09.3108920Z Root directory input is valid!
+2026-11-20T04:24:09.3987170Z (node:17477) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-20T04:24:09.4499200Z Beginning upload of artifact content to blob storage
+2026-11-20T04:24:09.4813170Z Uploaded bytes 544
+2026-11-20T04:24:09.4914330Z Finished uploading artifact content to blob storage!
+2026-11-20T04:24:09.5017760Z SHA256 digest of uploaded artifact zip is 6c8ca746fa05e19e3207c7d7c97009e36844b6cf44ad8ecfc389fd5407a16e78
+2026-11-20T04:24:09.5117920Z Finalizing artifact upload
+2026-11-20T04:24:09.7684450Z Artifact perf-macos.zip successfully finalized. Artifact ID 14601291296
+2026-11-20T04:24:09.7685270Z Artifact perf-macos has been successfully uploaded! Final size is 544 bytes. Artifact ID is 14601291296
+2026-11-20T04:24:09.7703710Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/44672368451/artifacts/14601291296
+2026-11-20T04:24:09.8147130Z Post job cleanup.
+2026-11-20T04:24:10.1275040Z [command]/opt/homebrew/bin/git version
+2026-11-20T04:24:10.1510130Z git version 2.56.1
+2026-11-20T04:24:10.1590000Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/78320520-91f8-4da9-b8d3-05ccf8d9c25e/.gitconfig'
+2026-11-20T04:24:10.1600920Z Temporarily overriding HOME='/Users/runner/work/_temp/78320520-91f8-4da9-b8d3-05ccf8d9c25e' before making global git config changes
+2026-11-20T04:24:10.1640950Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-20T04:24:10.1662420Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/vieww_prod/vieww_prod
+2026-11-20T04:24:10.1753730Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-20T04:24:10.2000010Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-20T04:24:10.3980600Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-20T04:24:10.4059890Z http.https://github.com/.extraheader
+2026-11-20T04:24:10.4085980Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-20T04:24:10.4336920Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-20T04:24:10.6264080Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-20T04:24:10.6597640Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-20T04:24:10.9339190Z Cleaning up orphan processes
+2026-11-20T04:24:13.8676650Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
