@@ -1,6 +1,110 @@
 getpwuid_r did not find a match for uid 501
 Timestamp               Ty Process[PID:TID]
-2026-11-19 20:57:06.248 A  vieww[54921:24d4d] (CoreFoundation) Loading Preferences From User Session CFPrefsD
-2026-11-19 20:57:06.251 A  vieww[54921:24d4d] (CoreFoundation) Loading Preferences From User Session CFPrefsD
-2026-11-19 20:57:06.395 A  vieww[54921:24d4d] (CoreFoundation) Updating Key-Value Observers Of Preferences
-2026-11-19 20:57:11.480 Df vieww[54921:24d36] [com.apple.BackBoard:Display] [FBSDisplaySource 1-1] silently connecting raw configuration: <FBSDisplayConfiguration: 0x600003d16a30; Main; mode: "402x874@3x 60Hz p3 SDR">
+2026-11-20 03:34:14.875 A  vieww[55712:24bd5] (CoreFoundation) Updating Key-Value Observers Of Preferences
+2026-11-20 03:34:17.514 Df vieww[55712:24bba] [com.apple.BackBoard:Display] [FBSDisplaySource 1-1] silently connecting raw configuration: <FBSDisplayConfiguration: 0x600003d26760; Main; mode: "402x874@3x 60Hz p3 SDR">
+2026-11-20 03:34:19.474 Df vieww[55712:2735b] [com.apple.dt.xctest:Default] Got availability notification from test daemon.
+2026-11-20 03:34:19.474 Df vieww[55712:2735b] [com.apple.xpc:connection] [0x101431240] activating connection: mach=true listener=false peer=false name=com.apple.dt.xctestd.target
+2026-11-20 03:34:19.476 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Received request for endpoint.
+2026-11-20 03:34:19.477 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Attempting to load /Library/Developer/CoreSimulator/Volumes/iOS_22F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 18.5.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework.
+2026-11-20 03:34:19.531 Df vieww[55712:24bd4] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
+2026-11-20 03:34:19.532 Df vieww[55712:24bd4] [com.apple.xpc:connection] [0x101421a30] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
+2026-11-20 03:34:19.533 Df vieww[55712:24bd4] [com.apple.xpc:connection] [0x101421a30] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-11-20 03:34:19.533 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Sending anonymous endpoint.
+2026-11-20 03:34:19.533 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Setting up target listener.
+2026-11-20 03:34:19.533 Df vieww[55712:24bd4] [com.apple.xpc:connection] [0x10123d8b0] activating connection: mach=false listener=true peer=false name=(anonymous)
+2026-11-20 03:34:19.533 Df vieww[55712:24bd4] [com.apple.xpc:connection] [0x10123d8b0] Channel could not return listener port.
+2026-11-20 03:34:19.538 Df vieww[55712:2735b] [com.apple.dt.xctest:Default] Received client to target connection.
+2026-11-20 03:34:19.538 Df vieww[55712:2735b] [com.apple.dt.automationmode:Default] Returning 1 for enabled state
+2026-11-20 03:34:19.539 Df vieww[55712:2735b] [com.apple.xpc:connection] [0x101230580] activating connection: mach=false listener=false peer=true name=com.apple.xpc.anonymous.0x10123d8b0.peer[59584].0x101230580
+2026-11-20 03:34:19.540 Df vieww[55712:2735b] [com.apple.dt.xctest:Default] Received request to exchange capabilities, remote interface capabilities are: <XCTCapabilities: 0x600000009f80>: {
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+}
+2026-11-20 03:34:19.543 Df vieww[55712:2735b] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-11-20 03:34:19.543 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Evaluating query:
+2026-11-20 03:34:19.543 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-11-20 03:34:19.543 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 55712 for query
+2026-11-20 03:34:19.544 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-11-20 03:34:19.544 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-11-20 03:34:19.545 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-11-20 03:34:19.545 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-11-20 03:34:19.545 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-11-20 03:34:19.545 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-11-20 03:34:19.556 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c59500> {pid=55712} {uid=[ID:4 hash:0x10120bdd0]}
+2026-11-20 03:34:19.565 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-11-20 03:34:19.565 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+    attributes =     (
+        5003,
+        5004,
+        5002,
+        5019,
+        5058,
+        2004
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-11-20 03:34:19.565 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-11-20 03:34:19.574 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c3a1c0> {pid=55712} {uid=[ID:1 hash:0x0]}
+2026-11-20 03:34:19.575 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-11-20 03:34:19.575 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.03s
+2026-11-20 03:34:19.575 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Found main window: Window
+2026-11-20 03:34:19.575 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: AccessKitSubclassOfWinitUIView:UIView 140746078552064
+2026-11-20 03:34:19.575 E  vieww[55712:24bd4] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 52 from class AccessKitSubclassOfWinitUIView:UIView, traits 140746078552064, but AXAutomationType returned 0 which maps to 1
+2026-11-20 03:34:19.575 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] App orientation is 0 (not portrait) and UITextEffectsWindow window Window is not main window
+2026-11-20 03:34:19.575 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Leaving frame unchanged for Window: either already correct or we can't detect it.
+2026-11-20 03:34:19.576 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 55712
+)} (error: (null))
+2026-11-20 03:34:19.576 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c576f0> (error: (null))
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Received request to fetch matches for query:
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Evaluating query:
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Getting root element snapshot
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Getting snapshot for App element pid: 55712 for query
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Query requires iOS snapshot attributes .
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: about to CFRunLoopPerform
+2026-11-20 03:34:23.257 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting with 30.00s responsiveness timeout
+2026-11-20 03:34:23.258 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: inside CFRunLoopPerform
+2026-11-20 03:34:23.258 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[MT]: MT responded in time (won the race to the busy flag)
+2026-11-20 03:34:23.258 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] XCTPerformOnMainRunLoop[not MT]: waiting 60.00s for work to complete
+2026-11-20 03:34:23.258 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Got main window <AXUIElementRef 0x600000c56c40> {pid=55712} {uid=[ID:4 hash:0x10120bdd0]}
+2026-11-20 03:34:23.258 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Capturing hierarchy with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+2026-11-20 03:34:23.258 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Capturing hierarchy with parameters {
+    attributes =     (
+        5003,
+        5004,
+        5002,
+        5019,
+        5058,
+        2004
+    );
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 2147483647;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}
+2026-11-20 03:34:23.258 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Snapshot attributes 5003, 5004, 5002, 5019, 5058, 2004
+2026-11-20 03:34:23.264 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Got snapshot for <AXUIElementRef 0x600000c57030> {pid=55712} {uid=[ID:1 hash:0x0]}
+2026-11-20 03:34:23.264 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Got app orientation 0
+2026-11-20 03:34:23.264 Df vieww[55712:24bba] [com.apple.dt.xctest:Default] Captured accessibility snapshot data in 0.01s
+2026-11-20 03:34:23.265 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Found main window: Window
+2026-11-20 03:34:23.265 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Preferring automation type 1 instead of legacy element type OTHER derived from class/trait: AccessKitSubclassOfWinitUIView:UIView 140746078552064
+2026-11-20 03:34:23.265 E  vieww[55712:24bd4] [com.apple.dt.xctest:Default] Automation type mismatch; legacy system derived element type 52 from class AccessKitSubclassOfWinitUIView:UIView, traits 140746078552064, but AXAutomationType returned 0 which maps to 1
+2026-11-20 03:34:23.265 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] App orientation is 0 (not portrait) and UITextEffectsWindow window Window is not main window
+2026-11-20 03:34:23.265 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Leaving frame unchanged for Window: either already correct or we can't detect it.
+2026-11-20 03:34:23.265 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Query  found matching snapshots: {(
+    Application, pid: 55712
+)} (error: (null))
+2026-11-20 03:34:23.265 Df vieww[55712:24bd4] [com.apple.dt.xctest:Default] Replying to query  with results: <XCTElementQueryResults: 0x600000c1f720> (error: (null))
+2026-11-20 03:34:32.202 Df vieww[55712:2735b] [com.apple.xpc:connection] [0x101230580] invalidated because the client process (pid 59584) either cancelled the connection or exited
+2026-11-20 03:34:32.202 Df vieww[55712:2735b] [com.apple.dt.xctest:Default] Connection from client with pid 59584 was invalidated.
+2026-11-20 03:34:32.311 Df vieww[55712:27358] [com.apple.dt.automationmode:Default] Handling posted change notification (com.apple.dt.automationmode.state-changed)
+2026-11-20 03:34:32.324 Df vieww[55712:27358] [com.apple.dt.automationmode:Default] XAM shared observer connecting to com.apple.dt.automationmode.reader
+2026-11-20 03:34:32.325 Df vieww[55712:27358] [com.apple.xpc:connection] [0x10133bc10] activating connection: mach=true listener=false peer=false name=com.apple.dt.automationmode.reader
+2026-11-20 03:34:32.337 Df vieww[55712:27358] [com.apple.xpc:connection] [0x10133bc10] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-11-20 03:34:32.337 Df vieww[55712:27358] [com.apple.dt.automationmode:Default] Comparing previous enabled state (1) to current enabled state (0)
+2026-11-20 03:34:32.338 Df vieww[55712:2735b] [com.apple.dt.xctest:Default] Automation Mode has been disabled, existing connections will be invalidated.
