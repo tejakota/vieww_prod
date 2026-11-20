@@ -166,12 +166,15 @@ impl D3d12WindowPresenter {
                 Flags: swapchain_flags().0 as u32,
             };
             let hwnd = HWND(hwnd as *mut core::ffi::c_void);
-            let swapchain: IDXGISwapChain1 =
-                factory.CreateSwapChainForHwnd(&queue, hwnd, &desc, None, None)?;
+            let swapchain: IDXGISwapChain1 = factory
+                .CreateSwapChainForHwnd(&queue, hwnd, &desc, None, None)
+                .map_err(|error| D3d12Error::Api(swapchain_error(&error)))?;
             // The window, not DXGI, owns full-screen: no Alt+Enter takeover.
             let _ = factory.MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
             let swapchain: IDXGISwapChain3 = swapchain.cast()?;
-            swapchain.SetMaximumFrameLatency(1)?;
+            swapchain
+                .SetMaximumFrameLatency(1)
+                .map_err(|e| D3d12Error::Api(format!("SetMaximumFrameLatency: {e}")))?;
             let waitable = swapchain.GetFrameLatencyWaitableObject();
 
             let rtv_heap: ID3D12DescriptorHeap =
@@ -618,4 +621,19 @@ fn compile_hlsl(entry: &str, target: &[u8]) -> Result<ID3DBlob, D3d12Error> {
         return Err(D3d12Error::Shader(format!("{entry}: {error}: {log}")));
     }
     code.ok_or_else(|| D3d12Error::Shader(format!("{entry}: no code")))
+}
+
+/// `CreateSwapChainForHwnd`'s error, with what it usually means here.
+fn swapchain_error(error: &windows::core::Error) -> String {
+    // DXGI_ERROR_NOT_CURRENTLY_AVAILABLE
+    let hint = if error.code().0 as u32 == 0x887A_0022 {
+        " — no desktop composition for this window: the process is most likely \
+         running in a non-interactive session (a service, e.g. a CI runner \
+         installed as a Windows service, session 0), where flip-model \
+         swapchains — the only kind D3D12 has — cannot present. Run it from a \
+         logged-in desktop session"
+    } else {
+        ""
+    };
+    format!("CreateSwapChainForHwnd: {error}{hint}")
 }

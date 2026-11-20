@@ -150,7 +150,7 @@ impl fmt::Display for NativeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::NoAdapter => f.write_str("no Vulkan adapter available"),
-            Self::Device(message) => write!(f, "opening a Vulkan device/surface: {message}"),
+            Self::Device(message) => write!(f, "opening a GPU device/surface: {message}"),
             Self::Present(message) => write!(f, "presenting a frame: {message}"),
             Self::Render(message) => write!(f, "rasterising a scene: {message}"),
         }
@@ -1261,9 +1261,25 @@ impl NativeRenderer {
         if path == PresentPath::D3d12 {
             match Self::d3d12_for_window(window, width, height) {
                 Ok(opened) => return Ok(opened),
-                Err(error) => {
-                    eprintln!("vieww: D3D12 present: {error}; presenting through Vulkan instead");
-                }
+                // Not Vulkan: on a hybrid laptop its loader wakes the
+                // discrete GPU (seconds) and its Intel driver crashed — the
+                // reasons D3D12 is the default. The CPU present loads no
+                // GPU driver at all; Vulkan only if that fails too.
+                Err(error) => match CpuPresenter::new(window, width, height) {
+                    Ok(cpu) => {
+                        eprintln!("vieww: D3D12 present: {error}; presenting on the CPU instead");
+                        return Ok((
+                            Self::with_device(None, CpuRenderer::new()),
+                            NativeSurface {
+                                kind: SurfaceKind::Cpu(cpu),
+                            },
+                        ));
+                    }
+                    Err(cpu_error) => eprintln!(
+                        "vieww: D3D12 present: {error}; CPU present: {cpu_error}; presenting \
+                         through Vulkan instead"
+                    ),
+                },
             }
         }
         Self::for_window(window.as_ref(), width, height)
