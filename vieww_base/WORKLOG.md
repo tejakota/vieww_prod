@@ -29,16 +29,22 @@ are its barriers — a transition is a full dependency. Both keep the fragment
 hybrid for `VIEWW_GPU_COMPUTE_BLUR=0`, and both suites gained the same two
 tests: the pipeline is *built* unless opted out (so a silent fallback cannot
 hide behind green parity), and the compute and fragment forms agree on the
-same blurred layer within 2/255. The macOS and Windows legs are the referees
-(`MTL_DEBUG_LAYER=1` on one, WARP on the other); the cross-checks type-check
-both from here. Before that, the same day: **the thorough gate's last red job
-went honestly green** — the Maestro step's fix (a ten-minute
-`MAESTRO_DRIVER_STARTUP_TIMEOUT`, an honest no-hierarchy warning, one retry
-when the JUnit report says the harness broke) is run 32's receipt: the
-before-dump found "Tap me", the flow passed in 3m 19s, and every job in the
-thorough dispatch is green for the first time since the gate went red. What
-remains is unchanged: the iPhone present path, the hardware receipts, and
-the Device Farm A/B the blur is owed.
+same blurred layer within 2/255. The macOS leg passed all 30 Metal tests on
+the first round (the debug layer on, the nested scene included, the A/B
+bit-identical); the Windows round caught the one thing the A/B could not —
+`SetPipelineState` on a graphics command list is *one* slot for draws and
+dispatches, so a dispatch clobbers the graphics PSO and the Post interpreter's
+bound-dedup then skipped the rebind for a pass whose key matched what was
+bound before the dispatch (WARP's debug layer said it in exactly those words;
+the nested scene hit the collision, the simple blurred layer did not). The
+dispatch now resets `bound` beside `open`. Before that, the same day: **the
+thorough gate's last red job went honestly green** — the Maestro step's fix
+(a ten-minute `MAESTRO_DRIVER_STARTUP_TIMEOUT`, an honest no-hierarchy
+warning, one retry when the JUnit report says the harness broke) is run 32's
+receipt: the before-dump found "Tap me", the flow passed in 3m 19s, and every
+job in the thorough dispatch is green for the first time since the gate went
+red. What remains is unchanged: the iPhone present path, the hardware
+receipts, and the Device Farm A/B the blur is owed.
 
 Last updated: 2026-11-20, after the maestro-ios round: the thorough gate's
 last red job — `framework-ios-simulator`'s Maestro step — was the harness,
