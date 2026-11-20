@@ -1,0 +1,173 @@
+# 6 · Run a command — run by hand: Actions → 6 · Run a command → Run workflow.
+#
+# Type any command (`cargo run --release --example fixtures -- --runs 10`,
+# `cargo test -p vieww-hal --features metal -- --ignored`, a script, ...)
+# and pick a machine. One job: check out the ref, install the pinned Rust
+# toolchain, run the command in the chosen folder, upload whatever it
+# wrote under `artifacts_path`. Nothing from ci.toml is involved.
+#
+# The command is passed through an environment variable, never pasted
+# into the script, so quotes, `$`, `&&`, `;` and newlines all reach the
+# shell exactly as typed. Only people with write access can run a
+# workflow, and on your own machines the command runs as the runner user —
+# treat this as a shell on that machine.
+name: "6 · Run a command"
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "Command (several lines OK; e.g. cargo run --release --example fixtures -- --runs 10 --receipt)"
+        type: string
+        required: true
+      machine:
+        description: "Where to run it"
+        type: choice
+        default: "GitHub · Linux"
+        options:
+          - "GitHub · Linux"
+          - "GitHub · Windows"
+          - "GitHub · macOS"
+          - "My machine · Linux (vieww-linux)"
+          - "My machine · Windows (vieww-windows)"
+          - "My machine · Mac (vieww-macos)"
+          - "Android phone on USB (android)"
+      workdir:
+        description: "Folder to run in, from the repository root"
+        type: string
+        default: "vieww_base"
+      shell:
+        description: "Shell (bash works on Windows too, through Git Bash)"
+        type: choice
+        default: bash
+        options: [bash, pwsh]
+      env:
+        description: "Extra environment, one per line or space-separated: VIEWW_TRACE_FRAMES=1 VIEWW_D3D12_ALLOW_WARP=0"
+        type: string
+        default: ""
+      artifacts_path:
+        description: "Files to upload afterwards (glob, from the folder above; empty = none), e.g. receipts/**"
+        type: string
+        default: ""
+      timeout:
+        description: "Timeout, minutes"
+        type: number
+        default: 60
+
+permissions:
+  contents: read
+
+run-name: "6 · Run: ${{ inputs.command }} (${{ inputs.machine }})"
+
+jobs:
+  run:
+    name: ${{ inputs.machine }}
+    runs-on: >-
+      ${{ fromJSON('{
+      "GitHub · Linux": "ubuntu-latest",
+      "GitHub · Windows": "windows-latest",
+      "GitHub · macOS": "macos-15",
+      "My machine · Linux (vieww-linux)": ["self-hosted", "Linux", "X64", "vieww-linux"],
+      "My machine · Windows (vieww-windows)": ["self-hosted", "vieww-windows"],
+      "My machine · Mac (vieww-macos)": ["self-hosted", "vieww-macos"],
+      "Android phone on USB (android)": ["self-hosted", "android"]
+      }')[inputs.machine] }}
+    timeout-minutes: ${{ inputs.timeout }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reads vieww_base/rust-toolchain.toml (the pinned 1.98.1), so the
+      # command builds with the same compiler as every other job.
+      - name: Rust toolchain
+        if: ${{ !startsWith(inputs.machine, 'Android') }}
+        shell: bash
+        working-directory: ${{ inputs.workdir }}
+        run: |
+          if ! command -v rustup >/dev/null; then
+            curl -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+            export PATH="$HOME/.cargo/bin:$PATH"
+          fi
+          rustup show active-toolchain || rustup toolchain install
+          cargo --version
+
+      - name: Cache
+        if: ${{ startsWith(inputs.machine, 'GitHub') }}
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ inputs.workdir }}
+
+      - name: Linux packages
+        if: ${{ inputs.machine == 'GitHub · Linux' }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libvulkan-dev mesa-vulkan-drivers libxkbcommon-dev \
+            libwayland-dev libgtk-3-dev libxdo-dev xvfb >/dev/null
+
+      - name: Extra environment
+        if: ${{ inputs.env != '' }}
+        shell: bash
+        env:
+          EXTRA: ${{ inputs.env }}
+        run: |
+          for kv in $EXTRA; do
+            case "$kv" in
+              *=*) echo "$kv" >> "$GITHUB_ENV"; echo "set ${kv%%=*}" ;;
+              *) echo "::error::'$kv' is not NAME=value"; exit 1 ;;
+            esac
+          done
+
+      - name: Run (bash)
+        if: ${{ inputs.shell == 'bash' }}
+        shell: bash
+        working-directory: ${{ inputs.workdir }}
+        env:
+          CMD: ${{ inputs.command }}
+        run: |
+          echo "::group::command"; printf '%s\n' "$CMD"; echo "::endgroup::"
+          set +e -o pipefail
+          start=$(date +%s)
+          # A display for windowed examples on GitHub's Linux machines.
+          if [ "$RUNNER_OS" = Linux ] && [ -z "${DISPLAY:-}" ] && command -v xvfb-run >/dev/null; then
+            xvfb-run -a bash -eo pipefail -c "$CMD" 2>&1 | tee "$RUNNER_TEMP/output.txt"
+          else
+            bash -eo pipefail -c "$CMD" 2>&1 | tee "$RUNNER_TEMP/output.txt"
+          fi
+          status=$?
+          {
+            echo "### \`$(printf '%s' "$CMD" | head -c 200)\`"
+            echo "Machine: ${{ inputs.machine }} · $(( $(date +%s) - start )) s · exit $status"
+            echo '```'; tail -n 60 "$RUNNER_TEMP/output.txt"; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+      - name: Run (pwsh)
+        if: ${{ inputs.shell == 'pwsh' }}
+        shell: pwsh
+        working-directory: ${{ inputs.workdir }}
+        env:
+          CMD: ${{ inputs.command }}
+        run: |
+          Write-Host "::group::command"; Write-Host $env:CMD; Write-Host "::endgroup::"
+          $sw = [Diagnostics.Stopwatch]::StartNew()
+          $out = Join-Path $env:RUNNER_TEMP "output.txt"
+          & ([ScriptBlock]::Create($env:CMD)) *>&1 | Tee-Object -FilePath $out
+          $code = if ($?) { 0 } elseif ($LASTEXITCODE) { $LASTEXITCODE } else { 1 }
+          $head = $env:CMD.Substring(0, [Math]::Min(200, $env:CMD.Length))
+          Add-Content $env:GITHUB_STEP_SUMMARY "### ``$head``"
+          Add-Content $env:GITHUB_STEP_SUMMARY "Machine: ${{ inputs.machine }} · $([int]$sw.Elapsed.TotalSeconds) s · exit $code"
+          Add-Content $env:GITHUB_STEP_SUMMARY '```'
+          Get-Content $out -Tail 60 | Add-Content $env:GITHUB_STEP_SUMMARY
+          Add-Content $env:GITHUB_STEP_SUMMARY '```'
+          exit $code
+
+      - name: Upload output
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-output-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/output.txt
+            ${{ inputs.artifacts_path != '' && format('{0}/{1}', inputs.workdir, inputs.artifacts_path) || '' }}
+          if-no-files-found: warn
+          retention-days: 14

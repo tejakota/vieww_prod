@@ -1,6 +1,6 @@
 # Workflows
 
-Five workflows, all run by hand (Actions → pick one → **Run workflow**):
+Six workflows, all run by hand (Actions → pick one → **Run workflow**):
 
 | Workflow | For |
 |---|---|
@@ -9,6 +9,7 @@ Five workflows, all run by hand (Actions → pick one → **Run workflow**):
 | `3-build.yml` — **3 · Build** | installable builds per platform, as artifacts |
 | `4-release.yml` — **4 · Release** | rehearse, gate and build, or publish (after approval) |
 | `5-housekeeping.yml` — **5 · Housekeeping** | refresh goldens and reference models |
+| `6-run.yml` — **6 · Run a command** | one command you type (`cargo run …`, `cargo test …`, a script) on a machine you pick; output in the summary and as an artifact |
 
 The files starting with `_` are engines with no Run button: `_plan.yml`
 (reads the form and the projects' `ci.toml` files), `_job.yml` (runs the
