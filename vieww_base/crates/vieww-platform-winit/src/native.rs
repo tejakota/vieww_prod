@@ -2677,6 +2677,47 @@ impl NativeRenderer {
             return Ok(None);
         }
         note_gpu_route("d3d12: rendered into L[0] and copied onto the DXGI back buffer");
+        // Diagnostic switches for the HD 620 window-frame page fault (run
+        // 45192304132); each isolates one part of the frame.
+        // `VIEWW_D3D12_FULL_REDRAW=1`: no damage — every frame clears and
+        // redraws L[0] in full, so the region-clear/retained path is out.
+        let damage = if env_on("VIEWW_D3D12_FULL_REDRAW") {
+            None
+        } else {
+            damage
+        };
+        // `VIEWW_D3D12_READBACK_PRESENT=1`: render through the readback
+        // route (the one the 27-test parity suite runs) and present the
+        // pixels as a CPU frame — the scene list then never touches the
+        // swapchain.
+        if env_on("VIEWW_D3D12_READBACK_PRESENT") {
+            let rendered = renderer
+                .render_planned_damaged(planner, &plan, width, height, base, damage)
+                .and_then(|(pixels, redrawn)| window.present_pixels(&pixels).map(|()| redrawn));
+            match rendered {
+                Ok(redrawn) => {
+                    self.stages.acquire = window.last_timings().acquire;
+                    self.stages.present = window.last_timings().present;
+                    self.gpu_frame_current = Some(1.0);
+                    return Ok(Some(PlannedFrame {
+                        report: SceneReport::default(),
+                        drawn_on_gpu: true,
+                        presented_directly: false,
+                        stages: self.stages,
+                        gpu_redrawn: Some(redrawn.pixels(width, height)),
+                    }));
+                }
+                Err(error) => {
+                    eprintln!("vieww: the D3D12 GPU renderer failed (readback route): {error}");
+                    if let Some(gpu) = self.d3d12.as_mut() {
+                        gpu.renderer = None;
+                        gpu.unavailable = true;
+                    }
+                    self.gpu_frame_current = None;
+                    return Ok(None);
+                }
+            }
+        }
         let redrawn = match renderer.render_planned_to_window(planner, &plan, base, window, damage)
         {
             Ok(redrawn) => redrawn,
@@ -3791,4 +3832,9 @@ pub(crate) fn may_want_d3d12(present_env: Option<&str>, prefer_gpu: bool, auto: 
         Some(_) => false,
         None => prefer_gpu || auto,
     }
+}
+
+#[cfg(target_os = "windows")]
+fn env_on(name: &str) -> bool {
+    std::env::var(name).is_ok_and(|v| v == "1")
 }

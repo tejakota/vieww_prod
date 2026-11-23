@@ -169,7 +169,15 @@ fn enable_debug_layer() {
                 // GPU-based validation too: resource states and descriptors
                 // checked as the GPU runs, which the CPU-side layer cannot
                 // see (WARP supports it).
-                if let Ok(debug1) = debug.cast::<ID3D12Debug1>() {
+                // `VIEWW_D3D12_GBV=0` keeps the CPU-side layer and skips
+                // GPU-based validation: GBV patches every shader and clamps
+                // out-of-range accesses, which slowed the HD 620 enough that
+                // the window frame fault it was asked to find never
+                // happened (run 45166600808 vs 45192304132).
+                let gbv = !std::env::var("VIEWW_D3D12_GBV").is_ok_and(|v| v == "0");
+                if !gbv {
+                    eprintln!("d3d12: debug layer enabled (GPU-based validation off)");
+                } else if let Ok(debug1) = debug.cast::<ID3D12Debug1>() {
                     // SAFETY: as above, before any device exists.
                     unsafe { debug1.SetEnableGPUBasedValidation(true) };
                     eprintln!("d3d12: debug layer and GPU-based validation enabled");
