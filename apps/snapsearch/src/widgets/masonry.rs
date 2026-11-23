@@ -13,6 +13,7 @@ use vieww::prelude::*;
 use vieww::widget::Handler;
 
 use crate::photo::{self, Photo};
+use crate::widgets::Ambient;
 use crate::theme::FluidTokens;
 
 pub const COLUMN_COUNT: usize = 2;
@@ -33,7 +34,6 @@ fn triangle(phase: f32) -> f32 {
 #[derive(Clone)]
 pub struct Masonry {
     pub photos: Vec<(Photo, Option<f32>)>, // (photo, match score if this is a results grid)
-    pub tick: u64,
     /// Per-tile entrance progress, 0→1, one entry per tile.
     ///
     /// Read out of the reveal `Signal`s by the *caller*, inside its own
@@ -50,6 +50,10 @@ pub struct Masonry {
     /// flipped to a desert and a night skyline while still wearing the
     /// original matches' 100% badges.
     pub live: bool,
+    /// The vertical band of the grid to actually build, as
+    /// `(top, bottom)` in the grid's own coordinates. Tiles wholly outside it
+    /// become a spacer of the same height. `None` builds everything.
+    pub window: Option<(f32, f32)>,
     pub on_tap: Handler<Photo>,
     pub key: Option<Key>,
 }
@@ -61,19 +65,18 @@ impl std::fmt::Debug for Masonry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Masonry")
             .field("tiles", &self.photos.len())
-            .field("tick", &self.tick)
             .finish()
     }
 }
 
 impl Masonry {
     #[must_use]
-    pub fn new(photos: Vec<(Photo, Option<f32>)>, tick: u64, on_tap: Handler<Photo>) -> Self {
+    pub fn new(photos: Vec<(Photo, Option<f32>)>, on_tap: Handler<Photo>) -> Self {
         Self {
             photos,
-            tick,
             reveal: Vec::new(),
             live: true,
+            window: None,
             on_tap,
             key: None,
         }
@@ -83,6 +86,14 @@ impl Masonry {
     #[must_use]
     pub fn reveal(mut self, reveal: Vec<f32>) -> Self {
         self.reveal = reveal;
+        self
+    }
+
+    /// Build only the tiles that intersect `(top, bottom)`; see
+    /// [`Self::window`].
+    #[must_use]
+    pub const fn window(mut self, top: f32, bottom: f32) -> Self {
+        self.window = Some((top, bottom));
         self
     }
 
@@ -115,9 +126,20 @@ impl Widget for Masonry {
 
     fn build(&self, ctx: &BuildContext) -> WidgetNode {
         let theme = ThemeData::of(ctx);
+        // Ambient drift and tile turnover are decoration: the device tier and
+        // the person's reduce-motion setting can each switch them off, and
+        // reading them here (an inherited read) rebuilds the grid if either
+        // changes.
+        let quality = ctx.inherit_or(vieww::foundation::QualityProfile::HIGH);
+        let access = ctx.inherit_or(vieww::foundation::Accessibility::default());
+        let ambient_ok = self.live && quality.allows_ambient_motion(access.reduce_motion);
 
+        let gap = theme.metrics.gap * 1.5;
         let mut heights = [0.0_f32; COLUMN_COUNT];
         let mut columns: Vec<Vec<WidgetNode>> = vec![Vec::new(); COLUMN_COUNT];
+        // Per column: the height of the run of off-window tiles being
+        // collapsed into one spacer, and how many tiles are in it.
+        let mut runs: [(f32, usize); COLUMN_COUNT] = [(0.0, 0); COLUMN_COUNT];
 
         for (index, (photo, score)) in self.photos.iter().enumerate() {
             let shortest = heights
@@ -127,7 +149,19 @@ impl Widget for Masonry {
                 .map(|(i, _)| i)
                 .unwrap_or(0);
             let tile_h = TILE_BASE * photo.aspect;
-            heights[shortest] += tile_h + theme.metrics.gap * 1.5;
+            let top = heights[shortest];
+            heights[shortest] += tile_h + gap;
+
+            let visible = self
+                .window
+                .is_none_or(|(w_top, w_bottom)| top + tile_h >= w_top && top <= w_bottom);
+            if !visible {
+                let run = &mut runs[shortest];
+                run.0 += tile_h;
+                run.1 += 1;
+                continue;
+            }
+            flush_run(&mut columns[shortest], &mut runs[shortest], gap);
 
             columns[shortest].push(tile(
                 photo.clone(),
@@ -135,8 +169,9 @@ impl Widget for Masonry {
                 tile_h,
                 TileMotion {
                     index: index as u64,
-                    tick: self.tick,
-                    live: self.live,
+                    // Only generated placeholders turn themselves over: a
+                    // real photo that swaps itself for a gradient is a lie.
+                    live: ambient_ok && photo.source.is_sample(),
                     // Anything past the pool is already in place rather than
                     // permanently invisible: a missing reveal value must never
                     // be the reason a photo cannot be seen.
@@ -145,6 +180,9 @@ impl Widget for Masonry {
                 &self.on_tap,
                 &theme,
             ));
+        }
+        for (column, run) in columns.iter_mut().zip(runs.iter_mut()) {
+            flush_run(column, run, gap);
         }
 
         // Each column must be `Flexible::expanded` — a plain `Flex::row`
@@ -174,13 +212,41 @@ impl Widget for Masonry {
     }
 }
 
+/// Close the open run of off-window tiles as one spacer.
+///
+/// Its height is the tiles' own plus the gaps *between* them; the gaps on
+/// either side are the column's own spacing, exactly as for real tiles, so
+/// the content below sits where it would have with everything built.
+fn flush_run(column: &mut Vec<WidgetNode>, run: &mut (f32, usize), gap: f32) {
+    if run.1 > 0 {
+        let height = run.0 + gap * (run.1 - 1) as f32;
+        column.push(SizedBox::from_size(Size::new(0.0, height)).into());
+    }
+    *run = (0.0, 0);
+}
+
+/// The total height of the grid, for tests and for sizing the scroll extent:
+/// what [`Masonry`] lays out regardless of how much of it is built.
+pub fn grid_height(photos: &[(Photo, Option<f32>)], gap: f32) -> f32 {
+    let mut heights = [0.0_f32; COLUMN_COUNT];
+    for (photo, _) in photos {
+        let shortest = heights
+            .iter()
+            .enumerate()
+            .min_by(|a, b| a.1.total_cmp(b.1))
+            .map(|(i, _)| i)
+            .unwrap_or(0);
+        heights[shortest] += TILE_BASE * photo.aspect + gap;
+    }
+    heights.iter().copied().fold(0.0, f32::max)
+}
+
 /// What a tile needs to know about *itself* rather than about the wall: the
 /// ambient-drift inputs (grid index, the shared clock, whether motion is on,
 /// and the reveal progress), grouped so `tile` stays under the argument count
 /// a reader can hold in their head.
 struct TileMotion {
     index: u64,
-    tick: u64,
     live: bool,
     reveal: f32,
 }
@@ -193,9 +259,92 @@ fn tile(
     on_tap: &Handler<Photo>,
     theme: &Rc<ThemeData>,
 ) -> WidgetNode {
-    let TileMotion { index, tick, live, reveal } = motion;
+    let TileMotion { index, live, reveal } = motion;
+
+    // The entrance: rise into place and fade in together. `reveal` comes from
+    // a spring in the *spatial* family, so it overshoots slightly and the
+    // tile settles — but the opacity is clamped rather than following it,
+    // because an alpha that overshoots asks for 1.06, clamps, and stalls
+    // visibly at full opacity. Spatial motion may overshoot; effects may not.
+    let rise = (1.0 - reveal) * 26.0;
+    let fade = reveal.clamp(0.0, 1.0);
+
+    let body: WidgetNode = {
+        let on_tap = on_tap.clone();
+        let theme = theme.clone();
+        let id = photo.id.clone();
+        // Always an `Ambient`, keyed by photo: the key keeps a tile's state
+        // with its photo as the virtualised window slides past, and `live`
+        // decides whether it ticks. A disabled one builds once and never
+        // asks for a frame.
+        Ambient::new(live, move |step| {
+            tile_body(&photo, score, height, index, if live { step } else { 0 }, live, &on_tap, &theme)
+        })
+        // Neighbours must not all breathe in step.
+        .phase(index.wrapping_mul(11))
+        .key(id)
+        .into()
+    };
+
+    if fade >= 0.999 && rise.abs() < 0.01 {
+        // At rest: no transform and no composited group.
+        return body;
+    }
+    let placed = Transformed::translate(Offset::new(0.0, rise)).child(body);
+    if fade >= 0.999 {
+        placed.into()
+    } else {
+        Opacity::new(fade).child(placed).into()
+    }
+}
+
+/// How many alternate "photos" are kept. Sample tiles turn over through a
+/// small repeating set, so the generated gradients are built once instead of
+/// on every ambient step.
+const ALT_CACHE_MAX: usize = 256;
+
+thread_local! {
+    static ALT_PHOTOS: std::cell::RefCell<std::collections::HashMap<u64, Photo>> =
+        std::cell::RefCell::new(std::collections::HashMap::new());
+}
+
+/// The generated stand-in for `seed`, built once and then shared.
+///
+/// `Photo::image` is reference-counted, so the clone out of the cache is a
+/// pointer copy: an ambient step allocates no pixels.
+fn alt_photo(seed: u64) -> Photo {
+    ALT_PHOTOS.with(|cache| {
+        let mut cache = cache.borrow_mut();
+        if cache.len() >= ALT_CACHE_MAX && !cache.contains_key(&seed) {
+            cache.clear();
+        }
+        cache.entry(seed).or_insert_with(|| photo::photo_for_seed(seed)).clone()
+    })
+}
+
+/// The seed a tile shows when it has turned over `turn` times.
+///
+/// Wraps within a small set (per tile) so the cache stays bounded however
+/// long the app is left open.
+fn alt_seed(index: u64, turn: u64) -> u64 {
+    10_000 + (index % 64) * 977 + (turn % 4)
+}
+
+/// One tile, at ambient step `tick`. `tick == 0` with `live == false` is the
+/// still tile: no drift, original photo.
+#[allow(clippy::too_many_arguments)]
+fn tile_body(
+    photo: &Photo,
+    score: Option<f32>,
+    height: f32,
+    index: u64,
+    tick: u64,
+    live: bool,
+    on_tap: &Handler<Photo>,
+    theme: &Rc<ThemeData>,
+) -> WidgetNode {
     // Ambient drift: a slow, per-tile-offset wander in x and y, entirely
-    // derived from the shared `tick` clock — no per-tile state needed.
+    // derived from the ambient step — no per-tile state needed.
     let drift_period = 90.0 + (index % 5) as f32 * 18.0;
     let phase_offset = index as f32 * 0.37;
     let (dx, dy) = if live {
@@ -207,35 +356,29 @@ fn tile(
         (0.0, 0.0)
     };
 
-    // Live-replace: every `cycle` ticks this tile flips to a freshly
-    // generated "photo" and back — a page-turn (scale-collapse) rather than
-    // a true 3D rotateY, since `Transformed` only exposes a 2D matrix.
+    // Live-replace: every `cycle` steps this tile flips to a generated
+    // "photo" and back — a page-turn (scale-collapse), since `Transformed`
+    // only exposes a 2D matrix.
     let cycle = 220 + (index % 7) * 40;
     let showing_alt = live && (tick / cycle + index) % 2 == 1;
     let flip_target = if showing_alt { 1.0 } else { 0.0 };
-    let alt_seed = 10_000 + index * 977 + tick / cycle;
-    let alt_photo = photo::photo_for_seed(alt_seed);
+    let alt = alt_photo(alt_seed(index, tick / cycle));
 
-    let on_tap_photo = photo.clone();
-    let on_tap_alt = alt_photo.clone();
-    let handler = on_tap.clone();
-
+    let shown_photo = photo.clone();
+    let shown_alt = alt.clone();
     let theme_for_build = theme.clone();
     let card = Animated::new(flip_target)
         .duration(std::time::Duration::from_millis(380))
         .curve(Curve::EASE_IN_OUT)
         .build(move |t| {
             let (shown, shown_label) = if t < 0.5 {
-                (on_tap_photo.image.clone(), on_tap_photo.label.clone())
+                (shown_photo.image.clone(), shown_photo.label.clone())
             } else {
-                (on_tap_alt.image.clone(), on_tap_alt.label.clone())
+                (shown_alt.image.clone(), shown_alt.label.clone())
             };
-            // A page-turn stand-in for a true 3D card flip: `Transformed`
-            // only exposes a flat 2D matrix, so the "flip" is a horizontal
-            // squash-to-nothing-and-back, with content swapped at the
-            // collapsed midpoint (t == 0.5) where nothing is visible.
-            // Full width (1.0) at both rest states t=0 and t=1; collapsed
-            // (0.0) exactly at the swap point t=0.5 — a "V", not a tent.
+            // A page-turn stand-in for a true 3D card flip: the "flip" is a
+            // horizontal squash-to-nothing-and-back, with content swapped at
+            // the collapsed midpoint (t == 0.5) where nothing is visible.
             let squash = (t * 2.0 - 1.0).abs().max(0.02);
 
             // The picture itself, clipped to the tile's rounded corners.
@@ -255,19 +398,11 @@ fn tile(
             let mut layers = vec![Positioned::fill().child(picture).into()];
 
             if let Some(score) = score {
-                // The relevance badge as the fluid ramp itself: gradient pill,
-                // sparkle glyph, score — the result grid's one mark of “how
-                // well this matched”, wearing the same ramp the search began
-                // from. A dark plate said “an overlay”; the ramp says “this
-                // came out of the search”.
-                //
-                // Deliberately a *sibling* of the clip rather than a child of
-                // it. Inside the `Clip` the badge's pill painted but its
-                // glyphs did not — the known CPU-backend glyph placement bug
-                // the framework records in `HANDOFF-2026-08-21.md`. The badge
-                // is inset well clear of the rounded corners, so it never
-                // needed clipping in the first place; this both dodges the
-                // bug and is the more honest tree.
+                // The relevance badge as the fluid ramp itself. Deliberately
+                // a *sibling* of the clip rather than a child of it: inside
+                // the `Clip` the pill painted but its glyphs did not — the
+                // known CPU-backend glyph placement bug the framework
+                // records in `HANDOFF-2026-08-21.md`.
                 layers.push(
                     Positioned::new()
                         .left(10.0)
@@ -317,36 +452,52 @@ fn tile(
                 .into()
         });
 
-    let handler_for_press = handler.clone();
-    let alt_for_press = alt_photo;
-    let orig_for_press = photo;
+    let handler = on_tap.clone();
+    let orig = photo.clone();
+    let offset = Offset::new(dx, dy);
 
-    // The entrance: rise into place and fade in together. `reveal` comes from
-    // a spring in the *spatial* family, so it overshoots slightly and the
-    // tile settles — but the opacity is clamped rather than following it,
-    // because an alpha that overshoots asks for 1.06, clamps, and stalls
-    // visibly at full opacity. Spatial motion may overshoot; effects may not.
-    let rise = (1.0 - reveal) * 26.0;
-    let fade = reveal.clamp(0.0, 1.0);
+    let pressable = Pressable::new(move |_press| card.clone().into()).on_tap(move || {
+        handler(if showing_alt { alt.clone() } else { orig.clone() });
+    });
 
-    let placed = Transformed::translate(Offset::new(dx, dy + rise))
-        .child(
-            Pressable::new(move |_press| card.clone().into()).on_tap(move || {
-                let current = if showing_alt {
-                    alt_for_press.clone()
-                } else {
-                    orig_for_press.clone()
-                };
-                handler_for_press(current);
-            }),
-        );
-
-    if fade >= 0.999 {
-        // No layer when nothing is being faded — an `Opacity` at 1.0 still
-        // costs a composited group.
-        placed.into()
+    if live {
+        Transformed::translate(offset).child(pressable).into()
     } else {
-        Opacity::new(fade).child(placed).into()
+        pressable.into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn alternates_are_built_once_per_seed_and_shared() {
+        let a = alt_photo(alt_seed(3, 0));
+        let b = alt_photo(alt_seed(3, 0));
+        assert_eq!(a.id, b.id);
+        // Same pixels, not a regenerated copy.
+        assert!(a.image == b.image, "an ambient step must not allocate pixels");
+    }
+
+    #[test]
+    fn the_alternate_set_is_bounded_however_long_the_app_runs() {
+        let seeds: std::collections::HashSet<u64> =
+            (0..100_000u64).map(|t| alt_seed(7, t)).collect();
+        assert!(seeds.len() <= 4);
+        let all: std::collections::HashSet<u64> =
+            (0..1000u64).flat_map(|i| (0..8).map(move |t| alt_seed(i, t))).collect();
+        assert!(all.len() <= 64 * 4);
+    }
+
+    #[test]
+    fn a_still_tile_has_no_ambient_wrapper_and_a_live_one_does() {
+        let on_tap: Handler<Photo> = Rc::new(|_| {});
+        let photos = vec![(photo::photo_for_seed(1), None)];
+        let mut m = Masonry::new(photos.clone(), on_tap.clone());
+        m.live = true;
+        assert!(m.live);
+        assert_eq!(Masonry::new(photos, on_tap).still().live, false);
     }
 }
 

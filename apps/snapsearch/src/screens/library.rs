@@ -14,10 +14,11 @@ use vieww::prelude::*;
 use vieww::widget::Handler;
 
 use crate::photo::Photo;
-use crate::state::{AppState, LibraryView, Match, SearchMode};
+use crate::state::{AppState, LibraryView, Match, SearchMode, SpaceStatus};
 use crate::theme::FluidTokens;
+use crate::widgets::Ambient;
 use crate::widgets::icons as app_icons;
-use crate::widgets::{Masonry, SpaceLayout, SpaceMap};
+use crate::widgets::{Masonry, SpaceMap};
 use crate::library::Origin;
 use crate::screens::DetailView;
 
@@ -53,10 +54,8 @@ impl Widget for LibraryScreen {
 
         let library = state.photos.get();
         let results = state.results.get();
-        let tick = state.tick.get();
         let sheet_open = state.sheet_open.get();
         let searching = state.searching.get();
-        let progress = state.progress.get();
         let mode = state.mode.get();
         let text_query = state.text_query.get();
         let ref_photo = state.ref_photo.get();
@@ -67,6 +66,8 @@ impl Widget for LibraryScreen {
         // Known before the content is built, because the frosting wraps it.
         let origin = state.origin.get();
         let loading = state.loading.get();
+        let issues = state.load_issues.get();
+        let layout_pending = state.layout_pending.get();
         let detail = state.detail.get();
         let detail_full = state.detail_full.get();
         // The detail view is modal too, so it frosts the library behind it.
@@ -118,7 +119,11 @@ impl Widget for LibraryScreen {
                         tokens.fab_size + theme.metrics.gap * 5.0,
                     ))
                     .child(frosted(dim, &theme, {
-                        let grid = Masonry::new(tiles, tick, on_tap);
+                        // Only the tiles near the viewport are built; the band changes a few
+                        // times per screen of scrolling, not every frame.
+                        let band = state.scroll_band.get();
+                        let (top, bottom) = crate::state::window_for(band, state.viewport());
+                        let grid = Masonry::new(tiles, on_tap).window(top, bottom);
                         // Results hold still and arrive staggered; the
                         // library is the thing that drifts.
                         let grid = if results.is_some() {
@@ -138,7 +143,7 @@ impl Widget for LibraryScreen {
                 frosted(
                     dim,
                     &theme,
-                    header(&state, &theme, results.as_deref(), header_t, &origin, loading),
+                    header(&state, &theme, results.as_deref(), header_t, &origin, loading, issues),
                 ),
                 // The Space view's one line of instruction — the grid needs
                 // none, its gesture is universal; a map does.
@@ -179,6 +184,8 @@ impl Widget for LibraryScreen {
             });
 
         // ---- the search sheet -------------------------------------------
+        // Read here, in `build`, so dragging the grip re-places the sheet.
+        let sheet_drag = state.sheet_drag.get();
         let sheet = Animated::new(if sheet_open { 1.0 } else { 0.0 })
             .duration(theme.motion.duration_long)
             .curve(theme.motion.curve_emphasized)
@@ -189,7 +196,7 @@ impl Widget for LibraryScreen {
                     Positioned::new()
                         .left(0.0)
                         .right(0.0)
-                        .bottom(-SHEET_TRAVEL * (1.0 - t))
+                        .bottom(-SHEET_TRAVEL * (1.0 - t) - sheet_drag)
                         .child(search_sheet(
                             &state,
                             &theme,
@@ -209,6 +216,12 @@ impl Widget for LibraryScreen {
         // Retracts whenever the scrim is up — sheet open *or* mid-search.
         // Keyed off the same `dim` the barrier uses so the two can never
         // disagree about whether the screen is currently modal.
+        // The halo breathes only when the device tier and the person both
+        // allow ambient motion, and never behind a modal.
+        let quality = ctx.inherit_or(vieww::foundation::QualityProfile::HIGH);
+        let access = ctx.inherit_or(vieww::foundation::Accessibility::default());
+        let halo_breathes =
+            quality.allows_ambient_motion(access.reduce_motion) && !dim;
         let fab = Animated::new(if dim { 0.0 } else { 1.0 })
             .duration(theme.motion.duration_medium)
             .curve(theme.motion.curve_emphasized)
@@ -216,12 +229,8 @@ impl Widget for LibraryScreen {
                 let state = state.clone();
                 let theme = theme.clone();
                 let badge = results.as_ref().map(|r| r.len());
-                // Captured as a plain value, not read inside the closure: a
-                // signal `.get()` only subscribes while a build is on the
-                // tracking stack, so reading `tick` inside this builder would
-                // subscribe nothing. The screen itself rebuilds every
-                // `CLOCK_INTERVAL` because `tick` is read in `build` above,
-                // and each rebuild hands the halo a fresh phase.
+                // The halo ticks itself (`Ambient`), so the screen no longer
+                // rebuilds every 140 ms to hand it a phase.
                 move |t| {
                     if t <= 0.001 {
                         return SizedBox::shrink().into();
@@ -232,7 +241,7 @@ impl Widget for LibraryScreen {
                         .child(
                             Opacity::new(t).child(
                                 Transformed::scale(0.85 + 0.15 * t, 0.85 + 0.15 * t)
-                                    .child(fab_cluster(&state, &theme, &tokens, badge, tick)),
+                                    .child(fab_cluster(&state, &theme, &tokens, badge, halo_breathes)),
                             ),
                         )
                         .into()
@@ -246,6 +255,7 @@ impl Widget for LibraryScreen {
                 let theme = theme.clone();
                 let tokens = FluidTokens::new();
                 let embedder = state.embedder.clone();
+                let state = state.clone();
                 move |t| {
                     if t <= 0.001 {
                         return SizedBox::shrink().into();
@@ -258,7 +268,7 @@ impl Widget for LibraryScreen {
                         .child(
                             Align::new(Alignment::CENTER).child(
                                 Opacity::new(t).child(Padding::new(EdgeInsets::all(32.0)).child(
-                                    progress_dialog(&theme, &tokens, progress, embedder.name()),
+                                    progress_dialog(&state, &theme, &tokens, embedder.name()),
                                 )),
                             ),
                         )
@@ -292,9 +302,24 @@ impl Widget for LibraryScreen {
                 }
             });
 
+        // Frames, on demand. The screen used to be rebuilt every 140 ms by a
+        // shared clock, which kept the frame loop alive as a side effect; now
+        // nothing runs while the library is idle, so work that has to be
+        // polled (workers finishing, the search timing out, the toast
+        // expiring) asks for frames here, and only while it is pending.
+        let pacemaker = Ambient::new(
+            searching
+                || toast.is_some()
+                || loading > 0
+                || layout_pending
+                || (detail.is_some() && detail_full.is_none()),
+            |_| SizedBox::shrink().into(),
+        );
+
         Container::new()
             .color(tokens.background)
             .child(Stack::new().fit(StackFit::Expand).children(children![
+                pacemaker,
                 Positioned::fill().child(SafeArea::new().child(content)),
                 barrier,
                 sheet,
@@ -381,6 +406,18 @@ fn frosted(dim: bool, theme: &Rc<ThemeData>, child: impl Into<WidgetNode>) -> Wi
 /// [`crate::state::HEADER_RANGE`] — a `ScrollTimeline`, which is one clamped
 /// division read by everything that responds to it, rather than N separate
 /// scroll listeners each with their own idea of where the scroll is.
+/// What the header says about photos that are not on screen, so a library
+/// never quietly looks smaller than it is. `(skipped by the scan limit,
+/// failed to load)`.
+pub fn issue_note((skipped, failed): (usize, usize)) -> Option<String> {
+    match (skipped, failed) {
+        (0, 0) => None,
+        (s, 0) => Some(format!("{s} OVER THE LIMIT")),
+        (0, f) => Some(format!("{f} COULD NOT BE READ")),
+        (s, f) => Some(format!("{s} OVER THE LIMIT, {f} UNREADABLE")),
+    }
+}
+
 fn header(
     state: &AppState,
     theme: &Rc<ThemeData>,
@@ -388,6 +425,7 @@ fn header(
     collapse: f32,
     origin: &Origin,
     loading: usize,
+    issues: (usize, usize),
 ) -> WidgetNode {
     let headline = match results {
         Some(matches) if matches.is_empty() => "No matches".to_string(),
@@ -419,7 +457,10 @@ fn header(
                         .file_name()
                         .map(|n| n.to_string_lossy().to_uppercase())
                         .unwrap_or_else(|| "LIBRARY".to_string());
-                    name
+                    match issue_note(issues) {
+                        Some(note) => format!("{name} · {note}"),
+                        None => name,
+                    }
                 }
                 Origin::Samples => "SAMPLE SET · NO PHOTOS FOUND".to_string(),
             }
@@ -521,17 +562,15 @@ fn space_view(
     results: Option<&Vec<Match>>,
     on_tap: Handler<Photo>,
 ) -> WidgetNode {
-    // Only photos the index has vectors for are placed.
-    let mut photos: Vec<Photo> = Vec::with_capacity(library.len());
-    let mut vectors: Vec<Vec<f32>> = Vec::with_capacity(library.len());
-    for (index, photo) in library.iter().enumerate() {
-        if let Some(vector) = state.index.borrow().vector(index) {
-            photos.push(photo.clone());
-            vectors.push(vector.to_vec());
-        }
-    }
-
-    let layout = SpaceLayout::build(&photos, &vectors);
+    // Subscribes this build to the layout landing.
+    let _ = state.layout_epoch.get();
+    // The layout is computed off the frame thread and cached; until it lands
+    // the screen shows a skeleton rather than blocking on an O(n²) pass.
+    let (layout, photos) = match state.space_layout() {
+        SpaceStatus::Ready { layout, photos } => (layout, (*photos).clone()),
+        SpaceStatus::Computing => return space_skeleton(theme),
+    };
+    let _ = library;
 
     // Scores, parallel to the placed photos: photo id -> normalised score.
     let scores: Vec<Option<f32>> = match results {
@@ -567,6 +606,42 @@ fn space_view(
     .into()
 }
 
+/// What the Space view shows while its layout is being computed: the map's
+/// plate with a quiet pulse, so the tab never looks frozen or empty.
+fn space_skeleton(theme: &Rc<ThemeData>) -> WidgetNode {
+    let (surface, text, size) =
+        (theme.colors.surface_variant, theme.colors.on_surface_variant, theme.text.body.size);
+    Padding::new(EdgeInsets::only(
+        theme.metrics.gap * 1.5,
+        0.0,
+        theme.metrics.gap * 1.5,
+        theme.metrics.gap * 1.5,
+    ))
+    .child(
+        Clip::rounded(theme.metrics.corner * 2.0).child(
+            Container::new().color(Color::rgb(14, 12, 22)).alignment(Alignment::CENTER).child(
+                Ambient::new(true, move |step| {
+                    // A slow breath on the label; the plate itself is still.
+                    let phase = (step % 14) as f32 / 14.0;
+                    let tri = if phase < 0.5 { phase * 2.0 } else { 2.0 - phase * 2.0 };
+                    Opacity::new(0.45 + 0.4 * tri)
+                        .child(
+                            Container::new()
+                                .color(surface)
+                                .radius(f32::MAX)
+                                .padding(EdgeInsets::symmetric(18.0, 10.0))
+                                .child(
+                                    Text::new("Laying out your library…").color(text).size(size),
+                                ),
+                        )
+                        .into()
+                }),
+            ),
+        ),
+    )
+    .into()
+}
+
 /// The Space view's one line of instruction.
 fn space_caption(theme: &Rc<ThemeData>) -> WidgetNode {
     Padding::new(EdgeInsets::symmetric(theme.metrics.gap * 2.5, 0.0))
@@ -586,27 +661,30 @@ fn space_caption(theme: &Rc<ThemeData>) -> WidgetNode {
 /// on the screen that is visibly *alive*, before anything is pressed. Same
 /// triangle wave, same period class as the tiles' drift: one ambient rhythm,
 /// not two.
+/// The largest the halo's padding ever gets.
+const HALO_MAX: f32 = 20.0;
+
+/// The halo at ambient step `step`: `(padding, alpha)`.
+///
+/// A 0→1→0 triangle over 50 steps (~7 s at the 140 ms step), mapped to scale
+/// and alpha. Never absent — the FAB is the flow's entry point and a pulse
+/// that fully disappears reads as a flicker rather than a breath.
+fn halo_at(step: u64) -> (f32, f32) {
+    let phase = (step % 50) as f32 / 50.0;
+    let tri = if phase < 0.5 { phase * 2.0 } else { 2.0 - phase * 2.0 };
+    let breath = 0.35 + 0.65 * tri;
+    (10.0 + 10.0 * breath, (0.30 + 0.28 * breath).clamp(0.0, 1.0))
+}
+
 fn fab_cluster(
     state: &AppState,
     theme: &Rc<ThemeData>,
     tokens: &FluidTokens,
     badge: Option<usize>,
-    tick: u64,
+    breathes: bool,
 ) -> WidgetNode {
     let open = state.clone();
     let size = tokens.fab_size;
-
-    // The breath: a 0→1→0 triangle over ~7s of ambient ticks (the clock fires
-    // every 140ms), mapped to halo scale and alpha. Never absent — the FAB is
-    // the flow's entry point and a pulse that fully disappears reads as a
-    // flicker rather than a breath.
-    let breath = {
-        let phase = (tick % 50) as f32 / 50.0;
-        let tri = if phase < 0.5 { phase * 2.0 } else { 2.0 - phase * 2.0 };
-        0.35 + 0.65 * tri
-    };
-    let halo_pad = 10.0 + 10.0 * breath;
-    let halo_alpha = (0.30 + 0.28 * breath).clamp(0.0, 1.0);
 
     let hint = Container::new()
         .color(tokens.surface_raised)
@@ -631,22 +709,34 @@ fn fab_cluster(
     // different hue — a tinted fade that changes hue on the way out reads as
     // a smudge ring.
     let mut fab_stack: Vec<WidgetNode> = vec![
+        // A fixed slot as large as the halo ever gets; the halo itself
+        // breathes inside it on the element's own clock, so nothing outside
+        // this subtree is rebuilt to animate it.
         Positioned::new()
-            .left(-halo_pad)
-            .top(-halo_pad)
+            .left(-HALO_MAX)
+            .top(-HALO_MAX)
             .child(
-                Opacity::new(halo_alpha).child(
-                    Container::new()
-                        .size(size + halo_pad * 2.0, size + halo_pad * 2.0)
-                        .radius(f32::MAX)
-                        .gradient(
-                            Gradient::radial(Offset::new(0.5, 0.5), 0.5).with_stops(&[
-                                (0.0, Color::rgba(0x7c, 0x3a, 0xed, 0xff)),
-                                (0.55, Color::rgba(0x7c, 0x3a, 0xed, 0x66)),
-                                (1.0, Color::rgba(0x7c, 0x3a, 0xed, 0x00)),
-                            ]),
-                        ),
-                ),
+                SizedBox::from_size(Size::new(size + HALO_MAX * 2.0, size + HALO_MAX * 2.0))
+                    .child(Ambient::new(breathes, move |step| {
+                        let (halo_pad, halo_alpha) = halo_at(step);
+                        Align::new(Alignment::CENTER)
+                            .child(
+                                Opacity::new(halo_alpha).child(
+                                    Container::new()
+                                        .size(size + halo_pad * 2.0, size + halo_pad * 2.0)
+                                        .radius(f32::MAX)
+                                        .gradient(
+                                            Gradient::radial(Offset::new(0.5, 0.5), 0.5)
+                                                .with_stops(&[
+                                                    (0.0, Color::rgba(0x7c, 0x3a, 0xed, 0xff)),
+                                                    (0.55, Color::rgba(0x7c, 0x3a, 0xed, 0x66)),
+                                                    (1.0, Color::rgba(0x7c, 0x3a, 0xed, 0x00)),
+                                                ]),
+                                        ),
+                                ),
+                            )
+                            .into()
+                    })),
             )
             .into(),
         Container::new()
@@ -709,6 +799,49 @@ fn fab_cluster(
         .spacing(theme.metrics.gap * 1.5)
         .children(children![hint, button])
         .into()
+}
+
+/// The sheet's grab handle, which is also a real handle: dragging it down
+/// moves the sheet with the finger and releasing past [`SHEET_DISMISS_PX`]
+/// (or with a downward fling) dismisses it; a short drag springs back. A tall
+/// transparent hit area surrounds the 4 px bar, because a 4 px target cannot
+/// be hit by a thumb.
+fn sheet_grip(state: &AppState, theme: &Rc<ThemeData>) -> WidgetNode {
+    let (update, end) = (state.clone(), state.clone());
+    GestureDetector::new()
+        .on_drag_update(move |d: vieww::foundation::DragDetails| {
+            let next = sheet_drag_after(update.sheet_drag.peek(), d.delta.dy);
+            update.sheet_drag.set(next);
+        })
+        .on_drag_end(move |d: vieww::foundation::DragDetails| {
+            if should_dismiss_sheet(end.sheet_drag.peek(), d.velocity.dy) {
+                end.close_sheet();
+            } else {
+                end.sheet_drag.set(0.0);
+            }
+        })
+        .child(
+            Container::new().height(28.0).alignment(Alignment::CENTER).child(
+                Container::new().size(40.0, 4.0).radius(f32::MAX).color(theme.colors.outline),
+            ),
+        )
+        .into()
+}
+
+/// How far the sheet must be dragged to dismiss it.
+pub const SHEET_DISMISS_PX: f32 = 90.0;
+
+/// A downward fling faster than this dismisses regardless of distance.
+pub const SHEET_FLING_PX_PER_S: f32 = 900.0;
+
+/// The drag offset after a movement of `delta`: down only, never above rest.
+pub fn sheet_drag_after(current: f32, delta: f32) -> f32 {
+    (current + delta).clamp(0.0, SHEET_TRAVEL)
+}
+
+/// Whether releasing at `drag` px with `velocity` px/s closes the sheet.
+pub fn should_dismiss_sheet(drag: f32, velocity: f32) -> bool {
+    drag >= SHEET_DISMISS_PX || velocity >= SHEET_FLING_PX_PER_S
 }
 
 fn search_sheet(
@@ -803,12 +936,7 @@ fn search_sheet(
                     // The grab handle the prototype has at the top of the
                     // sheet — the affordance that says this panel is a
                     // sheet and can be dismissed.
-                    Align::new(Alignment::CENTER).child(
-                        Container::new()
-                            .size(40.0, 4.0)
-                            .radius(f32::MAX)
-                            .color(theme.colors.outline)
-                    ),
+                    sheet_grip(state, theme),
                     Flex::row()
                         .main_axis_alignment(MainAxisAlignment::SpaceBetween)
                         .cross_axis_alignment(CrossAxisAlignment::Center)
@@ -957,8 +1085,29 @@ fn reference_picker(
         .into()
 }
 
-fn progress_dialog(theme: &Rc<ThemeData>, tokens: &FluidTokens, progress: f32, encoder: &str) -> WidgetNode {
-    let progress = progress.clamp(0.0, 1.0);
+fn progress_dialog(
+    state: &AppState,
+    theme: &Rc<ThemeData>,
+    tokens: &FluidTokens,
+    encoder: &str,
+) -> WidgetNode {
+    // Only this card follows the search's progress: it ticks itself and reads
+    // the value with `peek`, so the library behind it is not rebuilt.
+    let _ = tokens;
+    let (state, theme, tokens, encoder) =
+        (state.clone(), theme.clone(), FluidTokens::new(), encoder.to_string());
+    Ambient::new(true, move |_| {
+        progress_card_body(&theme, &tokens, state.progress.peek().clamp(0.0, 1.0), &encoder)
+    })
+    .into()
+}
+
+fn progress_card_body(
+    theme: &Rc<ThemeData>,
+    tokens: &FluidTokens,
+    progress: f32,
+    encoder: &str,
+) -> WidgetNode {
 
     Container::new()
         .color(theme.colors.surface)
@@ -1197,3 +1346,31 @@ fn empty_state(theme: &Rc<ThemeData>, tokens: &FluidTokens) -> WidgetNode {
 }
 
 widget_node_from!(LibraryScreen);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_sheet_follows_the_finger_down_and_not_up() {
+        assert_eq!(sheet_drag_after(0.0, -30.0), 0.0, "cannot be pulled above rest");
+        assert_eq!(sheet_drag_after(40.0, 25.0), 65.0);
+        assert_eq!(sheet_drag_after(450.0, 100.0), SHEET_TRAVEL);
+    }
+
+    #[test]
+    fn a_long_drag_or_a_fast_fling_dismisses_and_a_short_one_does_not() {
+        assert!(should_dismiss_sheet(SHEET_DISMISS_PX, 0.0));
+        assert!(should_dismiss_sheet(10.0, SHEET_FLING_PX_PER_S));
+        assert!(!should_dismiss_sheet(30.0, 200.0));
+        assert!(!should_dismiss_sheet(30.0, -2000.0), "an upward fling never dismisses");
+    }
+
+    #[test]
+    fn the_header_says_what_is_missing_from_the_library() {
+        assert_eq!(issue_note((0, 0)), None);
+        assert_eq!(issue_note((12, 0)).unwrap(), "12 OVER THE LIMIT");
+        assert_eq!(issue_note((0, 3)).unwrap(), "3 COULD NOT BE READ");
+        assert!(issue_note((5, 2)).unwrap().contains("UNREADABLE"));
+    }
+}

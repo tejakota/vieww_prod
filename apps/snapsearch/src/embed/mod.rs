@@ -125,6 +125,10 @@ pub struct Entry {
 #[derive(Debug, Default, Clone)]
 pub struct EmbeddingIndex {
     entries: Vec<Entry>,
+    /// Bumped by every change. Anything derived from the index — the Space
+    /// layout above all — keys its cache on this, so it is recomputed when
+    /// the index changed and never when it did not.
+    version: u64,
 }
 
 impl EmbeddingIndex {
@@ -147,12 +151,18 @@ impl EmbeddingIndex {
                 vector: embedder.embed_image(&photo.image),
             })
             .collect();
-        Self { entries }
+        Self { entries, version: 1 }
     }
 
     /// Drop everything — a rescan replacing one library with another.
     pub fn clear(&mut self) {
         self.entries.clear();
+        self.version += 1;
+    }
+
+    /// Changes whenever an entry is added or the index is cleared.
+    pub const fn version(&self) -> u64 {
+        self.version
     }
 
     pub fn insert(&mut self, id: impl Into<String>, vector: Vec<f32>) {
@@ -160,6 +170,7 @@ impl EmbeddingIndex {
             id: id.into(),
             vector,
         });
+        self.version += 1;
     }
 
     pub fn len(&self) -> usize {

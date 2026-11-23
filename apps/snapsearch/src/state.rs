@@ -18,6 +18,7 @@ use vieww::foundation::Storage;
 use crate::embed::{Embedder, EmbeddingIndex};
 use crate::library::{self, Loader, Origin};
 use crate::photo::{self, Photo};
+use crate::widgets::SpaceLayout;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SearchMode {
@@ -33,6 +34,28 @@ pub enum LibraryView {
     /// The Space map — similarity-shaped, photos placed by their
     /// embeddings through a force layout, matches ringed in viridis.
     Space,
+}
+
+/// Where the Space layout stands.
+pub enum SpaceStatus {
+    /// Laid out: the photos it placed, parallel to its positions.
+    Ready { layout: Rc<SpaceLayout>, photos: Rc<Vec<Photo>> },
+    /// Being computed on a worker (or waiting for the library to finish
+    /// loading) — the screen shows a skeleton, not a frozen frame.
+    Computing,
+}
+
+/// What a layout was computed from: the index's version and how many photos
+/// it placed. Equal keys mean an identical layout, so the cache can answer
+/// without recomputing.
+type LayoutKey = (u64, usize);
+
+#[derive(Default)]
+struct LayoutCache {
+    ready: Option<(LayoutKey, Rc<SpaceLayout>, Rc<Vec<Photo>>)>,
+    /// The key being computed and the photos the job was started with, so
+    /// its result pairs with exactly the photos it placed.
+    in_flight: Option<(LayoutKey, Rc<Vec<Photo>>)>,
 }
 
 /// A photo and how well it matched, `0.0..=1.0`.
@@ -129,6 +152,33 @@ pub struct AppState {
 
     search_started: Rc<Cell<Option<Instant>>>,
     toast_shown_at: Rc<Cell<u64>>,
+
+    /// The Space layout and the job that is making the next one.
+    layout: Rc<RefCell<LayoutCache>>,
+    layout_rx: Rc<std::sync::mpsc::Receiver<(LayoutKey, SpaceLayout)>>,
+    layout_tx: std::sync::mpsc::Sender<(LayoutKey, SpaceLayout)>,
+    /// True while a layout job is out. Read by the screen so it keeps asking
+    /// for frames until the result can be collected.
+    pub layout_pending: Signal<bool>,
+    /// Bumped when a layout lands, so the Space view rebuilds.
+    pub layout_epoch: Signal<u64>,
+
+    /// `(skipped by the scan limit, files that failed to load)`.
+    pub load_issues: Signal<(usize, usize)>,
+
+    /// The query's embedding, computed on a worker. `search_id` ties a
+    /// result to the search that asked for it, so a stale one is ignored.
+    search_rx: Rc<std::sync::mpsc::Receiver<(u64, Vec<Vec<f32>>)>>,
+    search_tx: std::sync::mpsc::Sender<(u64, Vec<Vec<f32>>)>,
+    search_id: Rc<Cell<u64>>,
+    search_queries: Rc<RefCell<Option<Vec<Vec<f32>>>>>,
+
+    /// How far the search sheet has been dragged down (logical px).
+    pub sheet_drag: Signal<f32>,
+
+    /// How far the library is scrolled and how tall its viewport is,
+    /// quantised to bands so the grid rebuilds once per band, not per frame.
+    pub scroll_band: Signal<i64>,
 }
 
 /// How far the library scrolls before the header is fully collapsed.
@@ -137,13 +187,9 @@ pub const HEADER_RANGE: f32 = 150.0;
 /// How long between one result tile appearing and the next.
 pub const REVEAL_STAGGER_MS: u64 = 45;
 
-/// How long the search animation runs before results appear.
-///
-/// The local encoder answers in well under a millisecond, so this is
-/// deliberate pacing rather than measured work: a result grid that
-/// swaps instantly reads as "nothing happened". With CLIP the query
-/// encode is real work and lands inside this same window.
-const SEARCH_DURATION_SECS: f32 = 1.1;
+/// The shortest a search takes on screen, so results never arrive as a one-frame flash.
+const SEARCH_MIN_SECS: f32 = 0.25;
+
 
 /// How many ticks a toast stays up.
 const TOAST_TICKS: u64 = 12;
@@ -160,6 +206,8 @@ impl AppState {
         storage: Option<Rc<dyn Storage>>,
     ) -> Self {
         let (full_tx, full_rx) = std::sync::mpsc::channel();
+        let (layout_tx, layout_rx) = std::sync::mpsc::channel();
+        let (search_tx, search_rx) = std::sync::mpsc::channel();
         // Opens on nothing. Either a scan fills it with real photos, or
         // `fall_back_to_samples` puts the generated set in — and the header
         // says which.
@@ -206,6 +254,18 @@ impl AppState {
             index,
             search_started: Rc::new(Cell::new(None)),
             toast_shown_at: Rc::new(Cell::new(0)),
+            layout: Rc::new(RefCell::new(LayoutCache::default())),
+            layout_rx: Rc::new(layout_rx),
+            layout_tx,
+            layout_pending: runtime.signal(false),
+            layout_epoch: runtime.signal(0),
+            load_issues: runtime.signal((0, 0)),
+            search_rx: Rc::new(search_rx),
+            search_tx,
+            search_id: Rc::new(Cell::new(0)),
+            search_queries: Rc::new(RefCell::new(None)),
+            sheet_drag: runtime.signal(0.0),
+            scroll_band: runtime.signal(0),
         }
     }
 
@@ -227,6 +287,7 @@ impl AppState {
         loader.failures.clear();
         loader.enqueue(paths);
         self.loading.set(loader.outstanding());
+        self.load_issues.set((loader.skipped, 0));
     }
 
     /// Nothing to read — show the generated set, and be clear about it.
@@ -271,7 +332,16 @@ impl AppState {
     /// library is still being read.
     pub fn pump_loader(&self) {
         self.pump_detail();
+        self.poll_layout();
+        self.poll_search();
         let ready = self.loader.borrow_mut().pump();
+        {
+            let loader = self.loader.borrow();
+            let issues = (loader.skipped, loader.failures.len());
+            if self.load_issues.peek() != issues {
+                self.load_issues.set(issues);
+            }
+        }
         if ready.is_empty() {
             let outstanding = self.loader.borrow().outstanding();
             if self.loading.peek() != outstanding {
@@ -352,6 +422,7 @@ impl AppState {
     }
 
     pub fn open_sheet(&self) {
+        self.sheet_drag.set(0.0);
         self.sheet_open.set(true);
     }
 
@@ -380,6 +451,51 @@ impl AppState {
         self.searching.set(true);
         self.progress.set(0.0);
         self.search_started.set(Some(Instant::now()));
+
+        // Embed the query on a worker: with CLIP this is real work, and the
+        // progress bar follows it rather than a timer.
+        let id = self.search_id.get() + 1;
+        self.search_id.set(id);
+        *self.search_queries.borrow_mut() = None;
+        let embedder = self.embedder.clone();
+        let tx = self.search_tx.clone();
+        let job: Box<dyn FnOnce() + Send> = match self.mode.peek() {
+            SearchMode::Text => {
+                let text = self.text_query.peek();
+                Box::new(move || {
+                    let _ = tx.send((id, embedder.embed_query(&text)));
+                })
+            }
+            SearchMode::Photo => {
+                let image = self.ref_photo.peek().map(|p| p.image);
+                Box::new(move || {
+                    let queries = image
+                        .map(|img| vec![embedder.embed_image(&img)])
+                        .unwrap_or_default();
+                    let _ = tx.send((id, queries));
+                })
+            }
+        };
+        self.spawner.spawn(job);
+    }
+
+    fn poll_search(&self) {
+        while let Ok((id, queries)) = self.search_rx.try_recv() {
+            if id == self.search_id.get() {
+                *self.search_queries.borrow_mut() = Some(queries);
+            }
+        }
+    }
+
+    /// Rank the library against already-encoded queries.
+    fn rank(&self, queries: &[Vec<f32>]) -> Vec<Match> {
+        let library = self.photos.peek();
+        self.index
+            .borrow()
+            .search_any(queries, MAX_RESULTS, self.embedder.min_similarity())
+            .into_iter()
+            .filter_map(|(i, score)| library.get(i).map(|photo| (photo.clone(), score)))
+            .collect()
     }
 
     pub fn clear_search(&self) {
@@ -401,7 +517,6 @@ impl AppState {
     /// Pure apart from reading the signals, and public so tests can check
     /// retrieval without driving the UI.
     pub fn matches_for_query(&self) -> Vec<Match> {
-        let library = self.photos.peek();
         let queries = match self.mode.peek() {
             SearchMode::Text => self.embedder.embed_query(&self.text_query.peek()),
             SearchMode::Photo => match self.ref_photo.peek() {
@@ -409,17 +524,15 @@ impl AppState {
                 None => return Vec::new(),
             },
         };
-
-        self.index
-            .borrow()
-            .search_any(&queries, MAX_RESULTS, self.embedder.min_similarity())
-            .into_iter()
-            .filter_map(|(i, score)| library.get(i).map(|photo| (photo.clone(), score)))
-            .collect()
+        self.rank(&queries)
     }
 
     fn finish_search(&self) {
-        let matches = self.matches_for_query();
+        let queries = self.search_queries.borrow_mut().take();
+        let matches = match queries {
+            Some(queries) => self.rank(&queries),
+            None => self.matches_for_query(),
+        };
         let count = matches.len();
         self.results.set(Some(Rc::new(matches)));
         self.searching.set(false);
@@ -447,8 +560,18 @@ impl AppState {
     /// Every frame and deliberately un-throttled, unlike [`Self::advance_clock`]:
     /// a header that collapses in 140ms steps reads as stuttering, and this
     /// is one clamped division.
+    /// The scroll viewport's height, or a default before it has been laid out.
+    pub fn viewport(&self) -> f32 {
+        let v = self.scroll.viewport();
+        if v > 1.0 { v } else { DEFAULT_VIEWPORT }
+    }
+
     pub fn sync_scroll(&self) {
         self.header.update(self.scroll.offset());
+        let band = band_of(self.scroll.offset(), self.viewport());
+        if self.scroll_band.peek() != band {
+            self.scroll_band.set(band);
+        }
     }
 
     /// Called every frame from the app's `before_frame` hook, throttled by
@@ -465,15 +588,138 @@ impl AppState {
 
         if self.searching.peek() {
             if let Some(started) = self.search_started.get() {
-                let t = (started.elapsed().as_secs_f32() / SEARCH_DURATION_SECS).min(1.0);
-                self.progress.set(t);
-                if t >= 1.0 {
+                self.poll_search();
+                let elapsed = started.elapsed().as_secs_f32();
+                let done = self.search_queries.borrow().is_some();
+                let next = search_progress(elapsed, done);
+                // Never backwards.
+                if next > self.progress.peek() {
+                    self.progress.set(next);
+                }
+                if done && elapsed >= SEARCH_MIN_SECS {
+                    self.progress.set(1.0);
                     self.search_started.set(None);
                     self.finish_search();
                 }
             }
         }
     }
+
+    // ---------------------------------------------------------- Space layout
+
+    /// The Space layout for the library as it is now.
+    ///
+    /// Cached on `(index version, photos placed)`: asking again with nothing
+    /// changed is a lookup. A change starts one job on the worker pool and
+    /// answers [`SpaceStatus::Computing`] until it lands — the O(n²) neighbour
+    /// search and 400 force ticks never run on the frame thread. While the
+    /// library is still loading it waits rather than recomputing a map that
+    /// is about to change.
+    pub fn space_layout(&self) -> SpaceStatus {
+        let photos = self.photos.peek();
+        let key: LayoutKey = {
+            let index = self.index.borrow();
+            (index.version(), photos.len().min(index.len()))
+        };
+        let placed = key.1;
+
+        {
+            let cache = self.layout.borrow();
+            if let Some((ready_key, layout, placed_photos)) = &cache.ready {
+                if *ready_key == key {
+                    return SpaceStatus::Ready {
+                        layout: layout.clone(),
+                        photos: placed_photos.clone(),
+                    };
+                }
+            }
+            if cache.in_flight.as_ref().is_some_and(|(k, _)| *k == key) {
+                return SpaceStatus::Computing;
+            }
+        }
+        if placed == 0 || !self.loader.borrow().is_idle() {
+            return SpaceStatus::Computing;
+        }
+
+        let placed_photos: Rc<Vec<Photo>> = Rc::new(photos.iter().take(placed).cloned().collect());
+        let images: Vec<crate::photo::Image_> =
+            placed_photos.iter().map(|p| p.image.clone()).collect();
+        let vectors: Vec<Vec<f32>> = {
+            let index = self.index.borrow();
+            (0..placed).filter_map(|i| index.vector(i).map(<[f32]>::to_vec)).collect()
+        };
+        self.layout.borrow_mut().in_flight = Some((key, placed_photos));
+        self.layout_pending.set(true);
+        let tx = self.layout_tx.clone();
+        self.spawner.spawn(Box::new(move || {
+            let layout = SpaceLayout::compute(&images, &vectors);
+            let _ = tx.send((key, layout));
+        }));
+        SpaceStatus::Computing
+    }
+
+    /// Collect a finished layout, if a worker has one.
+    fn poll_layout(&self) {
+        let mut landed = false;
+        while let Ok((key, layout)) = self.layout_rx.try_recv() {
+            let mut cache = self.layout.borrow_mut();
+            let current = cache.in_flight.as_ref().is_some_and(|(k, _)| *k == key);
+            if current {
+                let (_, photos) = cache.in_flight.take().expect("checked above");
+                cache.ready = Some((key, Rc::new(layout), photos));
+            }
+            // A result for a key nobody is waiting on is dropped; the next
+            // `space_layout` starts the job that is wanted.
+            landed = true;
+        }
+        if landed {
+            self.layout_pending.set(self.layout.borrow().in_flight.is_some());
+            self.layout_epoch.update(|e| *e += 1);
+        }
+    }
+}
+
+/// The search never reports "done" before the work is: the bar creeps toward
+/// 90% while the query is being encoded, and only completes once it has been.
+///
+/// `done` is whether the encoded query has arrived. Even then the bar takes
+/// [`SEARCH_MIN_SECS`] so the result swap is not a one-frame flash.
+fn search_progress(elapsed: f32, done: bool) -> f32 {
+    if done {
+        (elapsed / SEARCH_MIN_SECS).clamp(0.0, 1.0)
+    } else {
+        // Asymptotic: always moving, never claiming completion.
+        0.9 * (1.0 - (-elapsed / 0.8).exp())
+    }
+}
+
+/// Scroll position as a band index: one band per half viewport.
+///
+/// The grid renders what is inside the viewport plus a viewport either side;
+/// quantising to half a viewport means it is rebuilt a handful of times over
+/// a long scroll, not every frame, and the rendered window always still
+/// covers the screen between rebuilds.
+pub fn band_of(offset: f32, viewport: f32) -> i64 {
+    (offset.max(0.0) / band_step(viewport)).floor() as i64
+}
+
+fn band_step(viewport: f32) -> f32 {
+    (viewport * 0.5).max(100.0)
+}
+
+/// The viewport assumed before the scroll view has reported its size.
+pub const DEFAULT_VIEWPORT: f32 = 900.0;
+
+/// The vertical range of the grid to build for `band`: the viewport itself
+/// at any offset inside the band, plus one viewport of overscan each side.
+///
+/// Anything the user can see between two rebuilds is inside this range —
+/// the property that makes virtualising invisible.
+pub fn window_for(band: i64, viewport: f32) -> (f32, f32) {
+    let viewport = if viewport > 1.0 { viewport } else { DEFAULT_VIEWPORT };
+    let step = band_step(viewport);
+    let lo = band as f32 * step;
+    (lo - viewport, lo + step + viewport * 2.0)
 }
 
 #[cfg(test)]
@@ -630,5 +876,126 @@ mod tests {
             scores.windows(2).all(|w| w[0] >= w[1]),
             "not sorted: {scores:?}"
         );
+    }
+
+    // ---- SS-01..05 ------------------------------------------------------
+
+    fn spin_until(state: &AppState, mut done: impl FnMut() -> bool) {
+        for _ in 0..2000 {
+            state.pump_loader();
+            if done() {
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        panic!("timed out");
+    }
+
+    #[test]
+    fn the_space_layout_is_computed_once_and_then_served_from_the_cache() {
+        let (_rt, state) = state();
+        // First ask starts a job; it never blocks the caller.
+        assert!(matches!(state.space_layout(), SpaceStatus::Computing));
+        spin_until(&state, || state.layout_pending.peek() == false);
+        let first = match state.space_layout() {
+            SpaceStatus::Ready { layout, photos } => {
+                assert_eq!(layout.positions.len(), photos.len());
+                layout
+            }
+            SpaceStatus::Computing => panic!("should be ready"),
+        };
+        let before = crate::widgets::space_map::LAYOUTS_COMPUTED
+            .load(std::sync::atomic::Ordering::Relaxed);
+        for _ in 0..50 {
+            match state.space_layout() {
+                SpaceStatus::Ready { layout, .. } => assert!(Rc::ptr_eq(&layout, &first)),
+                SpaceStatus::Computing => panic!("cache miss"),
+            }
+        }
+        let after = crate::widgets::space_map::LAYOUTS_COMPUTED
+            .load(std::sync::atomic::Ordering::Relaxed);
+        assert_eq!(before, after, "50 rebuilds recomputed nothing");
+    }
+
+    #[test]
+    fn a_changed_index_invalidates_the_layout_and_a_new_one_is_computed() {
+        let (_rt, state) = state();
+        let _ = state.space_layout();
+        spin_until(&state, || !state.layout_pending.peek());
+        let version = state.index.borrow().version();
+        let photo = state.photos.peek()[0].clone();
+        let vector = state.index.borrow().vector(0).unwrap().to_vec();
+        state.index.borrow_mut().insert(photo.id.clone(), vector);
+        assert_ne!(state.index.borrow().version(), version);
+        let mut photos = (*state.photos.peek()).clone();
+        photos.push(photo);
+        state.photos.set(Rc::new(photos));
+        assert!(matches!(state.space_layout(), SpaceStatus::Computing));
+        spin_until(&state, || !state.layout_pending.peek());
+        match state.space_layout() {
+            SpaceStatus::Ready { photos, .. } => assert_eq!(photos.len(), 49),
+            SpaceStatus::Computing => panic!("expected the new layout"),
+        }
+    }
+
+    #[test]
+    fn a_search_completes_when_its_work_does_and_progress_never_goes_backwards() {
+        let (_rt, state) = state();
+        state.mode.set(SearchMode::Text);
+        state.text_query.set("sunset".into());
+        state.run_search();
+        assert!(state.searching.peek());
+        let mut last = 0.0;
+        for _ in 0..2000 {
+            state.advance_clock();
+            let p = state.progress.peek();
+            assert!(p >= last, "progress went backwards: {last} -> {p}");
+            last = p;
+            if !state.searching.peek() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        assert!(!state.searching.peek(), "the search finished");
+        assert!(state.results.peek().is_some());
+    }
+
+    #[test]
+    fn search_progress_creeps_while_working_and_only_completes_when_done() {
+        assert!(search_progress(0.0, false) < 0.01);
+        assert!(search_progress(60.0, false) < 0.9 + f32::EPSILON, "never claims completion");
+        assert!(search_progress(0.1, true) < 1.0);
+        assert_eq!(search_progress(SEARCH_MIN_SECS, true), 1.0);
+    }
+
+    #[test]
+    fn the_grid_window_always_covers_what_is_on_screen_between_rebuilds() {
+        for viewport in [600.0f32, 844.0, 1200.0] {
+            let step = band_step(viewport);
+            for offset in (0..20_000).step_by(37) {
+                let offset = offset as f32;
+                let (top, bottom) = window_for(band_of(offset, viewport), viewport);
+                assert!(top <= offset, "overscan above at {offset}");
+                assert!(bottom >= offset + viewport, "overscan below at {offset} ({bottom})");
+            }
+            // And the window is a bounded multiple of the viewport.
+            let (top, bottom) = window_for(10, viewport);
+            assert!(bottom - top <= viewport * 3.0 + step + 1.0);
+        }
+    }
+
+    #[test]
+    fn the_band_changes_a_few_times_per_screen_not_every_frame() {
+        let viewport = 800.0;
+        let mut changes = 0;
+        let mut last = band_of(0.0, viewport);
+        for offset in 0..4000 {
+            let b = band_of(offset as f32, viewport);
+            if b != last {
+                changes += 1;
+                last = b;
+            }
+        }
+        assert!(changes <= 10, "{changes} rebuilds over 5 viewports of scrolling");
     }
 }

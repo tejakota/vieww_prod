@@ -65,30 +65,106 @@ pub struct SpaceLayout {
     pub links: Vec<(usize, usize)>,
 }
 
+/// Up to this many photos the neighbour search is exact (O(n²), a few ms);
+/// above it the search is approximate so a three-thousand-photo library does
+/// not cost nine million dot products.
+pub const EXACT_KNN_MAX: usize = 500;
+
+/// Force ticks above [`EXACT_KNN_MAX`]: the layout converges long before the
+/// full budget on a big graph, and every tick costs O(n log n).
+const MAX_TICKS_LARGE: usize = 150;
+
+/// Random projections used by the approximate search, and how far along each
+/// sorted projection a photo looks for candidates.
+const PROJECTIONS: usize = 6;
+const WINDOW: usize = 14;
+
+/// How many layouts have been computed in this process. Tests use it to prove
+/// the cache is doing its job; it is otherwise inert.
+pub static LAYOUTS_COMPUTED: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+/// Each slot's best `k` neighbours as `(other, cosine)`, best first.
+///
+/// Exact for small inputs, approximate (random-projection candidates, exact
+/// cosine on those) for large ones. Deterministic either way.
+pub fn neighbours(vectors: &[Vec<f32>], k: usize) -> Vec<Vec<(usize, f32)>> {
+    let n = vectors.len();
+    let top = |slot: usize, candidates: &mut dyn Iterator<Item = usize>| {
+        let a = &vectors[slot];
+        let mut scored: Vec<(usize, f32)> = candidates
+            .filter(|&other| other != slot)
+            .map(|other| (other, cosine(a, &vectors[other])))
+            .collect();
+        scored.sort_by(|x, y| y.1.total_cmp(&x.1).then(x.0.cmp(&y.0)));
+        scored.truncate(k);
+        scored
+    };
+
+    if n <= EXACT_KNN_MAX {
+        return (0..n).map(|slot| top(slot, &mut (0..n))).collect();
+    }
+
+    // Candidate sets from sorted random projections: points that are close
+    // in the embedding are close along most directions, so a window around
+    // each point's rank in each ordering holds its neighbours with high
+    // probability.
+    let dim = vectors[0].len();
+    let mut candidates: Vec<Vec<usize>> = vec![Vec::with_capacity(PROJECTIONS * WINDOW * 2); n];
+    for direction in 0..PROJECTIONS {
+        let weights: Vec<f32> = (0..dim)
+            .map(|d| {
+                // A deterministic +/-1 per (direction, dimension).
+                let h = crate::photo::hash_str(&format!("p{direction}:{d}"));
+                if h & 1 == 0 { 1.0 } else { -1.0 }
+            })
+            .collect();
+        let mut order: Vec<(usize, f32)> = vectors
+            .iter()
+            .enumerate()
+            .map(|(i, v)| (i, v.iter().zip(&weights).map(|(x, w)| x * w).sum::<f32>()))
+            .collect();
+        order.sort_by(|x, y| x.1.total_cmp(&y.1).then(x.0.cmp(&y.0)));
+        for (rank, &(slot, _)) in order.iter().enumerate() {
+            let lo = rank.saturating_sub(WINDOW);
+            let hi = (rank + WINDOW + 1).min(n);
+            candidates[slot].extend(order[lo..hi].iter().map(|&(other, _)| other));
+        }
+    }
+    (0..n)
+        .map(|slot| {
+            let mut list = std::mem::take(&mut candidates[slot]);
+            list.sort_unstable();
+            list.dedup();
+            top(slot, &mut list.into_iter())
+        })
+        .collect()
+}
+
 impl SpaceLayout {
     /// Lay out `photos` by the embeddings in `vectors`, which are parallel
     /// to them — the caller filters out photos whose vector has not landed
     /// yet, so the map's photos and its positions stay index-aligned.
     pub fn build(photos: &[Photo], vectors: &[Vec<f32>]) -> Rc<Self> {
-        let n = photos.len().min(vectors.len());
+        let images: Vec<Image_> = photos.iter().map(|p| p.image.clone()).collect();
+        Rc::new(Self::compute(&images, vectors))
+    }
+
+    /// The layout as plain data, so it can be computed on a worker thread
+    /// (`Image_` is `Arc`-backed and `Send`; `Rc` is only for the UI side).
+    pub fn compute(images: &[Image_], vectors: &[Vec<f32>]) -> Self {
+        LAYOUTS_COMPUTED.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let n = images.len().min(vectors.len());
         let mut links = Vec::new();
         let mut positions = vec![Offset::new(0.5, 0.5); n];
-        let colors = photos.iter().map(|p| mean_color(&p.image)).collect();
+        let colors = images.iter().take(n).map(mean_color).collect();
 
         if n > 1 {
-            // The kNN graph: each photo's NEIGHBOURS best cosine friends.
             let mut sim = Simulation::new(n);
             // A wider spread than D3's default: this is a map, not a hairball.
             sim.charge = -70.0;
             sim.collide = 1.0;
-            for slot in 0..n {
-                let a = &vectors[slot];
-                let mut scored: Vec<(usize, f32)> = (0..n)
-                    .filter(|&other| other != slot)
-                    .map(|other| (other, cosine(a, &vectors[other])))
-                    .collect();
-                scored.sort_by(|x, y| y.1.total_cmp(&x.1));
-                for (other, similarity) in scored.into_iter().take(NEIGHBOURS) {
+            for (slot, near) in neighbours(&vectors[..n], NEIGHBOURS).into_iter().enumerate() {
+                for (other, similarity) in near {
                     // Alike photos want to be *close*: similarity 1.0 maps to
                     // a short spring, 0.0 to a long one.
                     let distance = 160.0 - 130.0 * similarity.clamp(0.0, 1.0);
@@ -96,7 +172,7 @@ impl SpaceLayout {
                     links.push((slot, other));
                 }
             }
-            sim.run(MAX_TICKS);
+            sim.run(if n > EXACT_KNN_MAX { MAX_TICKS_LARGE } else { MAX_TICKS });
 
             // Normalise into the unit square with a margin, so no dot sits
             // on the map's edge where a tap target is half clipped.
@@ -127,11 +203,7 @@ impl SpaceLayout {
                 .collect();
         }
 
-        Rc::new(Self {
-            positions,
-            colors,
-            links,
-        })
+        Self { positions, colors, links }
     }
 
     /// The photo nearest to `point` (in map pixels), within the tap radius —
@@ -400,6 +472,59 @@ mod tests {
         let a = SpaceLayout::build(&photos, &vectors);
         let b = SpaceLayout::build(&photos, &vectors);
         assert_eq!(a.positions, b.positions, "same input, same map");
+    }
+
+    /// `n` unit vectors in clusters, so there are real neighbours to find.
+    fn clustered(n: usize, dim: usize) -> Vec<Vec<f32>> {
+        (0..n)
+            .map(|i| {
+                let cluster = i % 20;
+                let mut v: Vec<f32> = (0..dim)
+                    .map(|d| {
+                        let base = ((cluster * 31 + d * 17) % 13) as f32 - 6.0;
+                        let jitter = ((i * 7 + d * 3) % 5) as f32 * 0.05;
+                        base + jitter
+                    })
+                    .collect();
+                crate::embed::normalize(&mut v);
+                v
+            })
+            .collect()
+    }
+
+    #[test]
+    fn above_the_exact_limit_the_approximate_search_still_finds_real_neighbours() {
+        let vectors = clustered(900, 32);
+        let approx = neighbours(&vectors, NEIGHBOURS);
+        assert_eq!(approx.len(), 900);
+        // Compare the neighbours' similarity with the exact best: the
+        // approximation may pick a different tie, but must not be far off.
+        let mut gap = 0.0f32;
+        for slot in (0..900).step_by(30) {
+            let mut exact: Vec<f32> = (0..900)
+                .filter(|&o| o != slot)
+                .map(|o| cosine(&vectors[slot], &vectors[o]))
+                .collect();
+            exact.sort_by(|a, b| b.total_cmp(a));
+            gap += exact[0] - approx[slot][0].1;
+            assert_eq!(approx[slot].len(), NEIGHBOURS);
+        }
+        assert!(gap / 30.0 < 0.02, "approximate best is within 0.02 of exact on average: {gap}");
+    }
+
+    #[test]
+    fn a_large_library_lays_out_in_bounded_time_and_stays_in_the_unit_square() {
+        let vectors = clustered(1500, 32);
+        let images: Vec<Image_> = (0..1500).map(|i| photo::photo_for_seed(i % 40).image).collect();
+        let started = std::time::Instant::now();
+        let layout = SpaceLayout::compute(&images, &vectors);
+        assert!(
+            started.elapsed() < std::time::Duration::from_secs(20),
+            "1500 photos took {:?}",
+            started.elapsed()
+        );
+        assert_eq!(layout.positions.len(), 1500);
+        assert!(layout.positions.iter().all(|p| (0.0..=1.0).contains(&p.dx) && (0.0..=1.0).contains(&p.dy)));
     }
 
     #[test]

@@ -11,7 +11,6 @@ use std::sync::Arc;
 
 use vieww::animation::SpringPreset;
 use vieww::element::TimelineBuilder;
-use vieww::foundation::task::Threads;
 use vieww::foundation::Storage;
 use vieww::prelude::*;
 use vieww::render::FrameDriver;
@@ -30,13 +29,13 @@ fn platform_storage() -> Option<Rc<dyn Storage>> {
     {
         Some(Rc::new(vieww_platform_winit::storage::FileStorage::platform()))
     }
-    // On Android `FileStorage::for_android` needs the `AndroidApp`, which
-    // `build_root` does not receive. Wiring it means threading that handle
-    // through; until then the app re-embeds each launch rather than
-    // pretending to have a cache.
+    // On Android the cache lives in the app's private `filesDir`, which
+    // `android_main` records before the tree is built. `None` only if the
+    // platform had not supplied one yet, in which case the app re-embeds.
     #[cfg(target_os = "android")]
     {
-        None
+        crate::workers::android_data_dir()
+            .map(|dir| Rc::new(vieww_platform_winit::storage::FileStorage::at(dir)) as Rc<dyn Storage>)
     }
 }
 
@@ -124,10 +123,11 @@ pub fn build_root(driver: &mut FrameDriver, slot: &SharedState) {
         snapshot.get(key).and_then(|raw| crate::library::decode_vector(raw))
     });
 
-    // `Threads` is a thread per task, which is honest for a few hundred
-    // photos and wrong for a few thousand. A real deployment wants a pool
-    // behind `Spawn`; the trait is the seam for exactly that.
-    let spawner: Arc<dyn vieww::foundation::task::Spawn> = Arc::new(Threads);
+    // A bounded pool sized by the device's tier: a thread per task was
+    // 2000 threads (and 2000 decode buffers) on a 2 GB phone.
+    let facts = vieww_platform_winit::device_facts();
+    let spawner: Arc<dyn vieww::foundation::task::Spawn> =
+        crate::workers::spawner_for(facts.tier, facts.cores.unwrap_or(4));
     let loader = Loader::new(spawner.clone(), embedder.clone(), lookup);
 
     let state = AppState::new(&runtime, embedder, spawner, loader, storage);
