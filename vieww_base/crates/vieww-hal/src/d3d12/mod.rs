@@ -239,6 +239,8 @@ impl D3d12Device {
         if debug_requested() {
             enable_debug_layer();
         }
+        let trace = std::env::var_os("VIEWW_TRACE_FRAMES").is_some();
+        let started = std::time::Instant::now();
         // SAFETY: an argument-free COM factory.
         let factory: IDXGIFactory4 = unsafe { CreateDXGIFactory1()? };
         let mut chosen = None;
@@ -268,6 +270,13 @@ impl D3d12Device {
             }
         }
         let (device, description, software) = chosen.ok_or(D3d12Error::NoAdapter)?;
+        if trace {
+            eprintln!(
+                "d3d12: device on {description} in {:.1} ms (DXGI factory, adapters, \
+                 D3D12CreateDevice)",
+                started.elapsed().as_secs_f64() * 1e3
+            );
+        }
         let queue_desc = D3D12_COMMAND_QUEUE_DESC {
             Type: D3D12_COMMAND_LIST_TYPE_DIRECT,
             Priority: 0,

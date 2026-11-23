@@ -109,6 +109,23 @@ pub struct D3d12WindowPresenter {
     pso: ID3D12PipelineState,
     extent: (u32, u32),
     timings: PresentTimings,
+    /// The CPU frames' copy plumbing, made at the first CPU frame and kept:
+    /// creating a 1.9 MB upload buffer, an allocator and a list per frame
+    /// cost ~8 ms a frame on the HD 620 (run 45143917742).
+    cpu: Option<CpuCopy>,
+}
+
+/// A persistently mapped upload buffer sized for the window, and one
+/// allocator/list pair reset per frame. Safe to reuse because every CPU
+/// frame waits for its fence before returning.
+struct CpuCopy {
+    staging: ID3D12Resource,
+    /// The mapping's address (upload heaps may stay mapped for life).
+    mapped: usize,
+    pitch: u32,
+    extent: (u32, u32),
+    allocator: ID3D12CommandAllocator,
+    list: ID3D12GraphicsCommandList,
 }
 
 impl std::fmt::Debug for D3d12WindowPresenter {
@@ -138,6 +155,8 @@ impl D3d12WindowPresenter {
     ) -> Result<Self, D3d12Error> {
         let raw = device.raw().clone();
         let (width, height) = (width.max(1), height.max(1));
+        let trace = std::env::var_os("VIEWW_TRACE_FRAMES").is_some();
+        let opening = Instant::now();
         let queue_desc = D3D12_COMMAND_QUEUE_DESC {
             Type: D3D12_COMMAND_LIST_TYPE_DIRECT,
             Priority: 0,
@@ -176,6 +195,13 @@ impl D3d12WindowPresenter {
                 .SetMaximumFrameLatency(1)
                 .map_err(|e| D3d12Error::Api(format!("SetMaximumFrameLatency: {e}")))?;
             let waitable = swapchain.GetFrameLatencyWaitableObject();
+            if trace {
+                eprintln!(
+                    "d3d12: swapchain ready in {:.1} ms",
+                    opening.elapsed().as_secs_f64() * 1e3
+                );
+            }
+            let compiling = Instant::now();
 
             let rtv_heap: ID3D12DescriptorHeap =
                 raw.CreateDescriptorHeap(&D3D12_DESCRIPTOR_HEAP_DESC {
@@ -240,6 +266,12 @@ impl D3d12WindowPresenter {
                     RenderTargetWriteMask: D3D12_COLOR_WRITE_ENABLE_ALL.0 as u8,
                 },
             )?;
+            if trace {
+                eprintln!(
+                    "d3d12: present shaders and pipeline in {:.1} ms",
+                    compiling.elapsed().as_secs_f64() * 1e3
+                );
+            }
             let mut presenter = Self {
                 device: raw,
                 queue,
@@ -254,6 +286,7 @@ impl D3d12WindowPresenter {
                 pso,
                 extent: (width, height),
                 timings: PresentTimings::default(),
+                cpu: None,
             };
             presenter.write_rtvs()?;
             Ok(presenter)
@@ -416,43 +449,22 @@ impl D3d12WindowPresenter {
         }
         self.wait_for_frame();
         let started = Instant::now();
-        let pitch = (width * 4).div_ceil(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT)
-            * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
-        let size = u64::from(pitch) * u64::from(height);
-        // SAFETY: creation, mapping and recording calls on live objects; the
-        // fence wait before returning keeps the staging buffer alive for
-        // the GPU's copy.
+        if self
+            .cpu
+            .as_ref()
+            .is_none_or(|c| c.extent != (width, height))
+        {
+            self.cpu = None;
+            self.cpu = Some(self.cpu_copy(width, height)?);
+        }
+        let cpu = self.cpu.as_ref().expect("made above");
+        let pitch = cpu.pitch;
+        // SAFETY: the mapping is `pitch * height` bytes and the GPU is done
+        // with it (the previous CPU frame waited for its fence); recording
+        // and execution on our own queue; the fence wait below keeps the
+        // staging buffer's contents valid for the copy.
         unsafe {
-            let mut staging: Option<ID3D12Resource> = None;
-            self.device.CreateCommittedResource(
-                &D3D12_HEAP_PROPERTIES {
-                    Type: D3D12_HEAP_TYPE_UPLOAD,
-                    ..Default::default()
-                },
-                D3D12_HEAP_FLAG_NONE,
-                &D3D12_RESOURCE_DESC {
-                    Dimension: D3D12_RESOURCE_DIMENSION_BUFFER,
-                    Alignment: 0,
-                    Width: size,
-                    Height: 1,
-                    DepthOrArraySize: 1,
-                    MipLevels: 1,
-                    Format: DXGI_FORMAT_UNKNOWN,
-                    SampleDesc: DXGI_SAMPLE_DESC {
-                        Count: 1,
-                        Quality: 0,
-                    },
-                    Layout: D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-                    Flags: D3D12_RESOURCE_FLAG_NONE,
-                },
-                D3D12_RESOURCE_STATE_GENERIC_READ,
-                None,
-                &mut staging,
-            )?;
-            let staging = staging.ok_or_else(|| D3d12Error::Api("no staging buffer".into()))?;
-            let mut ptr = std::ptr::null_mut();
-            staging.Map(0, None, Some(&mut ptr))?;
-            let base = ptr.cast::<u8>();
+            let base = cpu.mapped as *mut u8;
             for y in 0..height as usize {
                 std::ptr::copy_nonoverlapping(
                     pixels.as_ptr().add(y * row),
@@ -460,17 +472,9 @@ impl D3d12WindowPresenter {
                     row,
                 );
             }
-            staging.Unmap(0, None);
-
-            let allocator: ID3D12CommandAllocator = self
-                .device
-                .CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT)?;
-            let list: ID3D12GraphicsCommandList = self.device.CreateCommandList(
-                0,
-                D3D12_COMMAND_LIST_TYPE_DIRECT,
-                &allocator,
-                None,
-            )?;
+            cpu.allocator.Reset()?;
+            let list = &cpu.list;
+            list.Reset(&cpu.allocator, None)?;
             let index = self.swapchain.GetCurrentBackBufferIndex();
             let back: ID3D12Resource = self.swapchain.GetBuffer(index)?;
             let to_copy = super::transition(
@@ -481,7 +485,7 @@ impl D3d12WindowPresenter {
             list.ResourceBarrier(std::slice::from_ref(&to_copy));
             super::release_barrier(to_copy);
             let src = D3D12_TEXTURE_COPY_LOCATION {
-                pResource: ManuallyDrop::new(Some(staging.clone())),
+                pResource: ManuallyDrop::new(Some(cpu.staging.clone())),
                 Type: D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
                 Anonymous: D3D12_TEXTURE_COPY_LOCATION_0 {
                     PlacedFootprint: D3D12_PLACED_SUBRESOURCE_FOOTPRINT {
@@ -517,10 +521,68 @@ impl D3d12WindowPresenter {
             self.queue
                 .ExecuteCommandLists(&[Some(list.cast::<ID3D12CommandList>()?)]);
             self.signal_and_wait()?;
-            drop(staging);
         }
         self.timings.present = started.elapsed();
         self.present()
+    }
+
+    /// The persistent CPU-frame plumbing for a `width x height` window.
+    fn cpu_copy(&self, width: u32, height: u32) -> Result<CpuCopy, D3d12Error> {
+        let pitch = (width * 4).div_ceil(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT)
+            * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+        let size = u64::from(pitch) * u64::from(height);
+        // SAFETY: creation calls on a live device; the buffer stays mapped
+        // for its life, which upload heaps allow.
+        unsafe {
+            let mut staging: Option<ID3D12Resource> = None;
+            self.device.CreateCommittedResource(
+                &D3D12_HEAP_PROPERTIES {
+                    Type: D3D12_HEAP_TYPE_UPLOAD,
+                    ..Default::default()
+                },
+                D3D12_HEAP_FLAG_NONE,
+                &D3D12_RESOURCE_DESC {
+                    Dimension: D3D12_RESOURCE_DIMENSION_BUFFER,
+                    Alignment: 0,
+                    Width: size,
+                    Height: 1,
+                    DepthOrArraySize: 1,
+                    MipLevels: 1,
+                    Format: DXGI_FORMAT_UNKNOWN,
+                    SampleDesc: DXGI_SAMPLE_DESC {
+                        Count: 1,
+                        Quality: 0,
+                    },
+                    Layout: D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
+                    Flags: D3D12_RESOURCE_FLAG_NONE,
+                },
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                None,
+                &mut staging,
+            )?;
+            let staging = staging.ok_or_else(|| D3d12Error::Api("no staging buffer".into()))?;
+            let mut ptr = std::ptr::null_mut();
+            staging.Map(0, None, Some(&mut ptr))?;
+            let allocator: ID3D12CommandAllocator = self
+                .device
+                .CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT)?;
+            let list: ID3D12GraphicsCommandList = self.device.CreateCommandList(
+                0,
+                D3D12_COMMAND_LIST_TYPE_DIRECT,
+                &allocator,
+                None,
+            )?;
+            // Lists are created open; each frame resets it.
+            list.Close()?;
+            Ok(CpuCopy {
+                staging,
+                mapped: ptr as usize,
+                pitch,
+                extent: (width, height),
+                allocator,
+                list,
+            })
+        }
     }
 
     /// Block until everything submitted to this queue has finished.
