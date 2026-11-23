@@ -2677,9 +2677,31 @@ impl NativeRenderer {
             return Ok(None);
         }
         note_gpu_route("d3d12: rendered into L[0] and copied onto the DXGI back buffer");
-        let redrawn = renderer
-            .render_planned_to_window(planner, &plan, base, window, damage)
-            .map_err(|error| NativeError::Render(error.to_string()))?;
+        let redrawn = match renderer.render_planned_to_window(planner, &plan, base, window, damage)
+        {
+            Ok(redrawn) => redrawn,
+            Err(error) => {
+                // **A GPU frame that fails ends the GPU renderer, not the
+                // window.** The error is reported once, the renderer is
+                // dropped and marked unavailable, and this frame and every
+                // later one draw on the CPU through the same swapchain. (A
+                // removed device fails the CPU present too, and that error
+                // does end the window — there is nothing left to draw on.)
+                eprintln!(
+                    "vieww: the D3D12 GPU renderer failed and is switched off for this window; \
+                     drawing on the CPU instead: {error}"
+                );
+                if let Some(gpu) = self.d3d12.as_mut() {
+                    gpu.renderer = None;
+                    gpu.unavailable = true;
+                }
+                self.gpu_frame_current = None;
+                if self.shadow.is_some() {
+                    *fallback = Some(format!("d3d12 renderer failed: {error}"));
+                }
+                return Ok(None);
+            }
+        };
         let t = renderer.last_timings();
         // This backend waits for its fence every frame, so `submit` is the
         // GPU's time plus the submission: reported as `wait`, the field

@@ -61,7 +61,7 @@ use windows::Win32::Graphics::Dxgi::{
     DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT, DXGI_SWAP_EFFECT_FLIP_DISCARD,
     DXGI_USAGE_RENDER_TARGET_OUTPUT,
 };
-use windows::Win32::System::Threading::{CreateEventW, WaitForSingleObject, INFINITE};
+use windows::Win32::System::Threading::WaitForSingleObject;
 
 use super::{D3d12Device, D3d12Error};
 
@@ -597,15 +597,7 @@ impl D3d12WindowPresenter {
         // SAFETY: the caller's; our own queue and fence.
         unsafe {
             self.queue.Signal(&self.fence, value)?;
-            if self.fence.GetCompletedValue() < value {
-                let event = CreateEventW(None, false, false, None)?;
-                let set = self.fence.SetEventOnCompletion(value, event);
-                if set.is_ok() {
-                    WaitForSingleObject(event, INFINITE);
-                }
-                CloseHandle(event)?;
-                set?;
-            }
+            super::wait_fence(&self.device, &self.fence, value, "a present copy")?;
         }
         Ok(())
     }

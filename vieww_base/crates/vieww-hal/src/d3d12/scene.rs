@@ -63,7 +63,6 @@ use std::time::{Duration, Instant};
 use vieww_foundation::Color;
 use vieww_gpu::{PixelRect, Planner, ScenePlan, Vertex};
 use windows::core::Interface;
-use windows::Win32::Foundation::{CloseHandle, HANDLE};
 use windows::Win32::Graphics::Direct3D::D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 use windows::Win32::Graphics::Direct3D12::*;
 use windows::Win32::Graphics::Dxgi::Common::{
@@ -71,7 +70,6 @@ use windows::Win32::Graphics::Dxgi::Common::{
     DXGI_FORMAT_R32G32_FLOAT, DXGI_FORMAT_R32_UINT, DXGI_FORMAT_R8G8B8A8_UNORM,
     DXGI_FORMAT_R8_UNORM,
 };
-use windows::Win32::System::Threading::{CreateEventW, WaitForSingleObject, INFINITE};
 
 use crate::scene_exec::{compute_blur_wanted, frame_passes, Redrawn, Retained, SceneOp, TargetId};
 
@@ -885,15 +883,26 @@ impl D3d12SceneRenderer {
         if !plan.is_complete() {
             return Err(D3d12Error::Invalid("incomplete plan".into()));
         }
+        let trace = super::trace_on();
+        let step = |what: &str| {
+            if trace {
+                eprintln!("d3d12 frame: {what}");
+            }
+        };
+        step("waiting for the swapchain");
         presenter.wait_for_frame();
         let (width, height) = presenter.extent();
         self.timings = FrameTimings::default();
         let started = Instant::now();
+        step("uploading atlases");
         self.upload_planner(planner)?;
         self.timings.upload = started.elapsed();
+        step("recording and executing the scene");
         let (_, redrawn) =
             self.render_with(plan, width, height, clear, damage, Some(&mut *presenter))?;
+        step("presenting");
         presenter.present()?;
+        step("done");
         Ok(redrawn)
     }
 
@@ -2160,15 +2169,7 @@ impl D3d12SceneRenderer {
             let lists = [Some(list.cast::<ID3D12CommandList>()?)];
             self.queue.ExecuteCommandLists(&lists);
             self.queue.Signal(&self.fence, value)?;
-            if self.fence.GetCompletedValue() < value {
-                let event: HANDLE = CreateEventW(None, false, false, None)?;
-                let set = self.fence.SetEventOnCompletion(value, event);
-                if set.is_ok() {
-                    WaitForSingleObject(event, INFINITE);
-                }
-                CloseHandle(event)?;
-                set?;
-            }
+            super::wait_fence(&self.device, &self.fence, value, "a scene frame")?;
             // A removed device (driver reset, TDR) reports here rather than
             // returning garbage pixels.
             super::print_debug_messages(&self.device, "execute");

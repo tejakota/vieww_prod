@@ -78,7 +78,7 @@ use windows::Win32::Graphics::Dxgi::Common::{
 use windows::Win32::Graphics::Dxgi::{
     CreateDXGIFactory1, IDXGIAdapter1, IDXGIFactory4, DXGI_ADAPTER_FLAG_SOFTWARE,
 };
-use windows::Win32::System::Threading::{CreateEventW, WaitForSingleObject, INFINITE};
+use windows::Win32::System::Threading::{CreateEventW, WaitForSingleObject};
 
 /// What can go wrong on this backend.
 #[derive(Debug)]
@@ -348,15 +348,7 @@ impl D3d12Device {
             let lists = [Some(list.cast::<ID3D12CommandList>()?)];
             submit.queue.ExecuteCommandLists(&lists);
             submit.queue.Signal(&submit.fence, value)?;
-            if submit.fence.GetCompletedValue() < value {
-                let event: HANDLE = CreateEventW(None, false, false, None)?;
-                let set = submit.fence.SetEventOnCompletion(value, event);
-                if set.is_ok() {
-                    WaitForSingleObject(event, INFINITE);
-                }
-                CloseHandle(event)?;
-                set?;
-            }
+            wait_fence(&self.device, &submit.fence, value, "a device submission")?;
             // A removed device (driver reset, TDR) reports here rather than
             // returning garbage pixels.
             print_debug_messages(&self.device, "execute");
@@ -1054,4 +1046,69 @@ impl HalDevice for D3d12Device {
         self.finish(&list)?;
         Self::read_rows(&readback, width, height, pitch)
     }
+}
+
+/// How long a fence wait may take before it is a hung GPU, not a slow one:
+/// `VIEWW_D3D12_FENCE_TIMEOUT_MS`, default 5 s — well past Windows' own 2 s
+/// TDR, so a real reset has already reported itself by then.
+fn fence_timeout_ms() -> u32 {
+    std::env::var("VIEWW_D3D12_FENCE_TIMEOUT_MS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(5_000)
+}
+
+/// `VIEWW_D3D12_TRACE=1`: one stderr line per step of every D3D12 window
+/// frame, so a frame that never returns says which step it stopped in.
+pub(crate) fn trace_on() -> bool {
+    use std::sync::OnceLock;
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("VIEWW_D3D12_TRACE").is_ok_and(|v| v == "1"))
+}
+
+/// Block until `fence` reaches `value`, for at most [`fence_timeout_ms`].
+///
+/// Was `WaitForSingleObject(event, INFINITE)` in three places: a GPU that
+/// never finished a frame left the window thread waiting forever, with no
+/// error and no trace (the HD 620's first GPU-drawn window, run
+/// 45161040898, stopped after nine frames). Now it is an error that says
+/// how far the GPU got and why the device says it stopped.
+///
+/// # Safety
+///
+/// `fence` belongs to `device`, and `value` was signalled on a queue of it.
+pub(crate) unsafe fn wait_fence(
+    device: &ID3D12Device,
+    fence: &ID3D12Fence,
+    value: u64,
+    what: &str,
+) -> Result<(), D3d12Error> {
+    // SAFETY: the caller's; plain calls on live objects.
+    unsafe {
+        if fence.GetCompletedValue() >= value {
+            return Ok(());
+        }
+        let event: HANDLE = CreateEventW(None, false, false, None)?;
+        let set = fence.SetEventOnCompletion(value, event);
+        let waited = if set.is_ok() {
+            WaitForSingleObject(event, fence_timeout_ms())
+        } else {
+            windows::Win32::Foundation::WAIT_EVENT(0)
+        };
+        CloseHandle(event)?;
+        set?;
+        if waited.0 != 0 {
+            let reached = fence.GetCompletedValue();
+            let removed = match device.GetDeviceRemovedReason() {
+                Ok(()) => "the device is not removed".to_owned(),
+                Err(e) => format!("device removed: {e}"),
+            };
+            return Err(D3d12Error::Api(format!(
+                "the GPU did not finish {what} within {} ms (fence at {reached}, waiting for \
+                 {value}; {removed}) — a hung GPU; VIEWW_D3D12_DEBUG=1 names the call",
+                fence_timeout_ms()
+            )));
+        }
+    }
+    Ok(())
 }
