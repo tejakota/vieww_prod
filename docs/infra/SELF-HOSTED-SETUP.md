@@ -65,13 +65,19 @@ echo 'export VIEWW_DEVICE_CLASS=kabylake-linux' | sudo tee /etc/profile.d/vieww.
 
 ### One-time setup
 ```powershell
-# Runner (as a Windows service)
-# Not under C:\Users\<you>: the service runs as NETWORK SERVICE, which cannot
-# read a user profile ("Access to the path 'C:\Users\<you>' is denied").
+# Runner — in your logged-in desktop session, NOT as a Windows service.
+# A service runs in session 0, which has no desktop compositor: D3D12 (the
+# Windows GPU present path) cannot create a swapchain there
+# (DXGI_ERROR_NOT_CURRENTLY_AVAILABLE, 0x887A0022, run 44769748477), and no
+# windowed GPU test can run. So: no --runasservice, and run.cmd at login.
 mkdir C:\actions-runner; cd C:\actions-runner
 Invoke-WebRequest -Uri https://github.com/actions/runner/releases/latest/download/actions-runner-win-x64-2.320.0.zip -OutFile runner.zip
-Expand-Archive runner.zip -DestinationPath .; .\config.cmd --url https://github.com/tejakota/vieww_prod --token <TOKEN> --name vieww-windows --labels vieww-windows --runasservice --unattended
-.\svc.cmd install; .\svc.cmd start   # run as a dedicated low-priv account
+Expand-Archive runner.zip -DestinationPath .; .\config.cmd --url https://github.com/tejakota/vieww_prod --token <TOKEN> --name vieww-windows --labels vieww-windows --work _work --unattended --replace
+.\run.cmd   # leave it open; Listening for Jobs
+# Start at login: a shortcut to C:\actions-runner\run.cmd in shell:startup
+# (Win+R, shell:startup). For an unattended machine, turn on automatic login.
+# Moving off an old service install: Stop-Service actions.runner.*; then
+# sc.exe delete <its name>; .\config.cmd remove --local; and register again.
 
 # Toolchain
 rustup toolchain install 1.98.1

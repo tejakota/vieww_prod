@@ -338,6 +338,21 @@ impl FrameLog {
         if let Some(frame) = self.recent.back_mut() {
             frame.stages = stages;
             frame.wait = Self::display_waits(&stages);
+            // **Pacing is not lateness.** `record` judged this frame on its
+            // whole wall clock, before its stages were known. A present that
+            // paces at the start of the frame — DXGI's frame-latency wait,
+            // `nextDrawable` — spends most of every frame in `acquire` by
+            // design, so a 2.6 ms frame waited into a 16.7 ms vsync slot
+            // tipped a third of all frames "over budget" on the reference
+            // laptop (run 45148678530). The acquire is the display deciding
+            // when the frame may start, not the app being slow: a frame is
+            // late only if what is left after it exceeds the budget. The
+            // fence wait stays in — on a backend that waits for its own
+            // GPU work, that is the frame's GPU time.
+            if frame.work > self.budget && frame.work.saturating_sub(stages.acquire) <= self.budget
+            {
+                self.over_budget = self.over_budget.saturating_sub(1);
+            }
         }
     }
 
@@ -1229,6 +1244,26 @@ mod tests {
         // And the next frame is measured against it.
         log.record(None, ms(12), 0, start + ms(16), false);
         assert_eq!(log.report().over_budget, 1, "12ms is late at 120Hz");
+    }
+
+    #[test]
+    fn waiting_for_the_display_to_start_a_frame_is_not_lateness() {
+        let mut log = FrameLog::new(ms(16), 1000);
+        let start = Instant::now();
+        // 17 ms on the wall clock, 14 of it the swapchain's pacing wait.
+        log.record(None, ms(17), 0, start, false);
+        log.note_stages(FrameStages {
+            acquire: ms(14),
+            ..FrameStages::default()
+        });
+        assert_eq!(log.report().over_budget, 0, "3 ms of work is on time");
+        // 30 ms on the wall clock, 5 of it acquire: 25 ms of work is late.
+        log.record(None, ms(30), 0, start + ms(17), false);
+        log.note_stages(FrameStages {
+            acquire: ms(5),
+            ..FrameStages::default()
+        });
+        assert_eq!(log.report().over_budget, 1, "25 ms of work is late");
     }
 
     #[test]

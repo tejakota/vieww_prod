@@ -2572,6 +2572,23 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // path's "no GPU driver is loaded" contract stands. See
         // `crate::native::Prewarm` for what the prefix is and is not.
         let present_env = std::env::var("VIEWW_PRESENT").ok();
+        // Windows: the D3D12 device beside the window (the driver load is
+        // most of its open), and its compiled shaders beside the pipeline
+        // cache so only the first launch runs FXC.
+        #[cfg(target_os = "windows")]
+        {
+            vieww_hal::d3d12::set_shader_cache_dir(
+                self.pipeline_cache_file()
+                    .and_then(|file| file.parent().map(|dir| dir.join("d3d12-shaders"))),
+            );
+            if crate::native::may_want_d3d12(
+                present_env.as_deref(),
+                self.shared.config.prefer_gpu,
+                self.shared.config.auto_rasterizer,
+            ) {
+                crate::native::start_d3d12_prewarm();
+            }
+        }
         let prewarm = crate::native::may_want_vulkan(
             present_env.as_deref(),
             self.shared.config.prefer_gpu,

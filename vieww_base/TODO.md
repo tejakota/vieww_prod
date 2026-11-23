@@ -66,36 +66,51 @@ follows is *vieww_prod performance plan: status check and to-do plan*
   harness broke — is the last job's receipt; no job in the thorough
   dispatch is red.
 
+## Done on 2026-11-20 – 23 (hardware runs on the laptop and the Mac)
+
+- **Metal present path** (`a57a1ca`): 31/31 on a real Mac, including
+  `layer_frames_leave_the_same_pixels_the_readback_draws`.
+- **D3D12 on a hardware adapter**: 27/27 (20 scene + 7 smoke) on the
+  laptop's Intel HD 620, adapter confirmed `device_type: "hardware"`.
+- **Windows presents through D3D12** (`PresentPath::D3d12`, the default
+  for a GPU window): Vulkan on the hybrid laptop woke the GeForce 920MX
+  (19.3 s cold first frame) and crashed on the Intel GPU
+  (`VIEWW_VK_DEVICE=intel`, unmodified code). D3D12 on the Intel:
+  first frame 1.74 s, 60.0 fps held to vsync, 9.7% CPU animating, present
+  2.5 ms (run 45148678530). Follow-ups landed with it: a refused swapchain
+  says why and falls back to the CPU (never Vulkan); CPU frames reuse
+  their upload buffer and list; compiled shaders are cached on disk
+  (`d3d12::shader_cache`); the device is created beside the window; the
+  Vulkan prewarm no longer runs on Windows or iOS.
+- **Over-budget counts work, not pacing**: a frame's acquire (the swapchain
+  deciding when it may start) no longer makes it "late".
+- **Fixtures receipt, 30 runs, i5-7200U (Windows)**: glass 13.9 ms best
+  (under budget, was 23–24); gallery 166 ms (was 195).
+- **CI**: `6 · Run a command` runs any typed command on any machine.
+
 ## Open
 
-1. **Metal on the iPhone** (PENDING §1.2): *code landed 2026-11-20* —
-   `PresentPath::Metal` (the iOS GPU default; `VIEWW_PRESENT=metal` on
-   macOS, `=vulkan` for the MoltenVK A/B) presents through
-   `vieww_hal::metal::MetalLayerPresenter`: the scene renders into `L[0]`
-   and is copied onto the `CAMetalLayer` drawable in the same command
-   buffer, no readback, frame left in flight; the drawable wait is
-   `acquire`, and the GPU time is the finished command buffer's
-   `GPUEndTime - GPUStartTime` (`gpu_passes.draw`). Owed: the macOS leg's
-   `layer_frames_leave_the_same_pixels_the_readback_draws`, then the
-   iPhone numbers (GPU time under 8.3 ms at 120 Hz) on Device Farm or
-   Firebase Test Lab (`ci/mobile/test-lab.sh ios`).
-2. **D3D12 on a hardware adapter** (PENDING §1.3): run the same suite plus
-   `fixtures`/`baseline` on the Kaby Lake laptop's GPU and commit the
-   receipt — WARP is correctness, never speed.
-3. **The two over-budget fixtures** (PENDING §4.1): AVX2 shipped
-   (`3736a4a`, runtime-detected); CI's Linux leg now shows glass at 4.4 ms
-   and nested at 4.6 ms — the i5-7200U receipt is what closes it.
-4. **The compute blur's own follow-ups**: the A73 stress screen's
-   before/after on Device Farm — 117 ms is the number the one-add-one-sub
-   form is owed to halve. (The ports themselves are done: all four backends
-   dispatch `cs_blur`; the gate's macOS and Windows legs referee them.)
-5. **Windows start-up measurement** (§3.5): the 840 → ~250 ms code landed
-   (`9b82b2b`); the before/after `baseline` trace on the laptop is owed.
-6. **The verification owed on done items** — one Device Farm round (storm
-   attribution, `gpu` vs `gpuserial`, small-damage), one laptop round
-   (`fixtures --runs 10 --receipt`, `baseline` with `VIEWW_TRACE_FRAMES=1`),
-   a first-frame timing for the cached 3D pipelines, and a vertex-bytes
-   receipt for the card/list fixtures against the 108-byte figure the
-   plan's 50% target names.
-7. **Toolchain** — keep the legs on the pinned 1.98.1; the soma upgrade's
-   web dispatch has no web build (`apps/soma/ci.toml` is android+ios only).
+1. **The iPhone numbers** (PENDING §1.2): the Metal path is proven on a
+   Mac; the iPhone GPU time (under 8.3 ms at 120 Hz) is owed on a real
+   iPhone — Firebase Test Lab's only 120 Hz model (iphone14pro) is being
+   retired, so Device Farm or a phone on USB (`ci/mobile/ios-app.sh
+   --device`).
+2. **CPU fixtures still over budget on the i5-7200U**: `00-layers-nested`
+   21.0 ms (bandwidth-bound: 16-byte layers — the fix moves bytes and needs
+   a tolerance decision), `00-strokes` 25.5 ms and `00-curves` 18.8 ms
+   (stroke expansion and flattening — not yet profiled).
+3. **Windows GPU-path memory**: 79 MB peak against 40 MB; ~62 MB is in
+   place at the first frame (D3D12 runtime + Intel driver). A VMMap /
+   heaptrack split of driver vs vieww is the next step. The CPU path is
+   31 MB (met).
+4. **Windows idle CPU on D3D12**: 3.1% with zero frames (0% on the CPU
+   path) — needs a profile (Windows Performance Recorder, idle window).
+5. **D3D12 GPU-drawn window**: `baseline -- --gpu` with
+   `VIEWW_PRESENT=d3d12` measures the scene renderer drawing the window
+   (every run so far drew on the CPU and only presented through D3D12).
+6. **The compute blur's follow-ups**: the A73 stress screen's before/after
+   on Device Farm (117 ms owed to halve).
+7. **Device Farm round** (storm attribution, `gpu` vs `gpuserial`,
+   small-damage), a first-frame timing for the cached 3D pipelines, and a
+   vertex-bytes receipt for the card/list fixtures.
+8. **Toolchain** — keep the legs on the pinned 1.98.1.

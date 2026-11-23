@@ -1301,7 +1301,8 @@ impl NativeRenderer {
         let RawWindowHandle::Win32(win32) = handle.as_raw() else {
             return Err(NativeError::Device("not a Win32 window".to_owned()));
         };
-        let device = vieww_hal::d3d12::D3d12Device::new()
+        let device = take_d3d12_prewarm()
+            .unwrap_or_else(vieww_hal::d3d12::D3d12Device::new)
             .map_err(|error| NativeError::Device(error.to_string()))?;
         // SAFETY: the window's own HWND from `raw-window-handle`; the window
         // outlives its surface (the app releases surfaces before windows).
@@ -3721,4 +3722,51 @@ fn run(
     #[cfg(target_os = "ios")]
     let (made_device, made_instance) = (None, None);
     (what, made_device, made_instance)
+}
+
+/// The D3D12 device being created beside the window — see
+/// [`start_d3d12_prewarm`].
+#[cfg(target_os = "windows")]
+type D3d12Prewarm =
+    std::thread::JoinHandle<Result<vieww_hal::d3d12::D3d12Device, vieww_hal::d3d12::D3d12Error>>;
+
+#[cfg(target_os = "windows")]
+static D3D12_PREWARM: std::sync::Mutex<Option<D3d12Prewarm>> = std::sync::Mutex::new(None);
+
+/// Start creating the D3D12 device on a thread, before the window exists.
+///
+/// `D3D12CreateDevice` is mostly the GPU driver loading — 999 ms of a 1.74 s
+/// first frame on the reference laptop's HD 620 (run 45148678530) — and it
+/// needs nothing from the window, so it runs beside the window's creation
+/// (221 ms there) instead of after it. [`NativeRenderer::for_window_on`]
+/// joins it; a window that ends up not presenting through D3D12 simply
+/// never collects it, and the device is dropped with the thread's result.
+#[cfg(target_os = "windows")]
+pub(crate) fn start_d3d12_prewarm() {
+    if let Ok(mut slot) = D3D12_PREWARM.lock() {
+        if slot.is_none() {
+            *slot = std::thread::Builder::new()
+                .name("vieww-d3d12-prewarm".into())
+                .spawn(vieww_hal::d3d12::D3d12Device::new)
+                .ok();
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn take_d3d12_prewarm(
+) -> Option<Result<vieww_hal::d3d12::D3d12Device, vieww_hal::d3d12::D3d12Error>> {
+    let handle = D3D12_PREWARM.lock().ok()?.take()?;
+    handle.join().ok()
+}
+
+/// Whether a window about to open will present through D3D12 — the gate
+/// for [`start_d3d12_prewarm`], `may_want_vulkan`'s twin.
+#[cfg(target_os = "windows")]
+pub(crate) fn may_want_d3d12(present_env: Option<&str>, prefer_gpu: bool, auto: bool) -> bool {
+    match present_env {
+        Some("d3d12") => true,
+        Some(_) => false,
+        None => prefer_gpu || auto,
+    }
 }

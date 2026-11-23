@@ -650,6 +650,10 @@ const fn swapchain_flags() -> DXGI_SWAP_CHAIN_FLAG {
 fn compile_hlsl(entry: &str, target: &[u8]) -> Result<ID3DBlob, D3d12Error> {
     let entry_c = std::ffi::CString::new(entry)
         .map_err(|_| D3d12Error::Invalid("entry point name".into()))?;
+    let flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3;
+    if let Some(cached) = super::shader_cache::load(PRESENT_HLSL, entry, target, flags) {
+        return Ok(cached);
+    }
     let mut code: Option<ID3DBlob> = None;
     let mut errors: Option<ID3DBlob> = None;
     // SAFETY: the source pointer and length describe `PRESENT_HLSL`; every
@@ -663,7 +667,7 @@ fn compile_hlsl(entry: &str, target: &[u8]) -> Result<ID3DBlob, D3d12Error> {
             None,
             PCSTR(entry_c.as_ptr().cast()),
             PCSTR(target.as_ptr()),
-            D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_OPTIMIZATION_LEVEL3,
+            flags,
             0,
             &mut code,
             Some(&mut errors),
@@ -682,7 +686,9 @@ fn compile_hlsl(entry: &str, target: &[u8]) -> Result<ID3DBlob, D3d12Error> {
             .unwrap_or_default();
         return Err(D3d12Error::Shader(format!("{entry}: {error}: {log}")));
     }
-    code.ok_or_else(|| D3d12Error::Shader(format!("{entry}: no code")))
+    let code = code.ok_or_else(|| D3d12Error::Shader(format!("{entry}: no code")))?;
+    super::shader_cache::store(PRESENT_HLSL, entry, target, flags, &code);
+    Ok(code)
 }
 
 /// `CreateSwapChainForHwnd`'s error, with what it usually means here.

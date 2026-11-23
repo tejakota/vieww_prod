@@ -54,9 +54,11 @@ use super::{sealed, AdapterInfo, Device as HalDevice};
 /// backend, the port of `vulkan::scene::SceneRenderer` PENDING 1.3 asks for.
 pub mod present;
 pub mod scene;
+pub mod shader_cache;
 
 pub use present::{D3d12WindowPresenter, PresentTimings};
 pub use scene::{D3d12SceneRenderer, FrameTimings};
+pub use shader_cache::set_shader_cache_dir;
 use vieww_foundation::Color;
 use vieww_shaders::{hlsl_slots, ParsedShader, ShaderStage};
 use windows::core::{Interface, PCSTR};
@@ -589,6 +591,9 @@ impl D3d12Device {
                 D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_SKIP_OPTIMIZATION,
             ),
         ] {
+            if let Some(cached) = shader_cache::load(&hlsl, entry, target, flags) {
+                return Ok(cached);
+            }
             let mut code: Option<ID3DBlob> = None;
             let mut errors: Option<ID3DBlob> = None;
             // SAFETY: the source pointer and length describe `hlsl`; every
@@ -610,8 +615,10 @@ impl D3d12Device {
             };
             match compiled {
                 Ok(()) => {
-                    return code
-                        .ok_or_else(|| D3d12Error::Shader("D3DCompile produced no code".into()));
+                    let code = code
+                        .ok_or_else(|| D3d12Error::Shader("D3DCompile produced no code".into()))?;
+                    shader_cache::store(&hlsl, entry, target, flags, &code);
+                    return Ok(code);
                 }
                 Err(error) => {
                     let log = errors.map(|b| blob_text(&b)).unwrap_or_default();
