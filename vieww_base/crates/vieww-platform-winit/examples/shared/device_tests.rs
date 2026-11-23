@@ -219,6 +219,11 @@ impl Watch {
                     "hottest zone {a:.1} -> {b:.1} °C (peak {:.1})",
                     self.hottest.unwrap_or(b)
                 ));
+            } else {
+                // No skin or SoC sensor this process may read, or only ones
+                // that report a sentinel: say so instead of printing a number
+                // nobody can stand behind (the S26 Ultra's flat 105.0 °C).
+                thermal.push("hottest zone unknown".to_owned());
             }
         }
         let over = self

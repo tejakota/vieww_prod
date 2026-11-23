@@ -1376,6 +1376,10 @@ struct WindowState {
     insets: SystemInsets,
     /// Which frames are worth asking on.
     inset_watch: InsetWatch,
+    /// The OS accessibility preferences (reduce motion, high contrast, text
+    /// scale): read at start-up and again on focus and on a slow timer, and
+    /// pushed to the driver only when they change. See `os_accessibility`.
+    os_accessibility: crate::os_accessibility::AccessibilityWatch,
     log: FrameLog,
     /// Input to present, per input — see `crate::latency`.
     input_latency: crate::latency::InputLatencyLog,
@@ -1700,6 +1704,15 @@ impl WindowState {
         // Most frames answer `false` here and cost nothing.
         if self.inset_watch.due() {
             self.refresh_insets(shared);
+        }
+        // The OS's reduce-motion, contrast and text-size settings: asked on a
+        // schedule and on focus, applied only when they changed. Before the
+        // hooks and the build for the same reason the insets are — the frame
+        // about to be built should already be under the new preference.
+        if let Some(preferences) = self.os_accessibility.poll(Instant::now()) {
+            if self.driver.set_accessibility(preferences) {
+                self.scheduler.request_frame();
+            }
         }
         self.notify_frame(shared);
 
@@ -2879,6 +2892,25 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         Some(pipelines.with_file_name(name))
     }
 
+    /// The watch over the OS accessibility preferences for one window.
+    ///
+    /// Built here because only the runner holds the Android activity handle
+    /// the Android read needs.
+    fn new_accessibility_watch(&self) -> crate::os_accessibility::AccessibilityWatch {
+        #[cfg(target_os = "android")]
+        let android = self.shared.android.clone();
+        crate::os_accessibility::AccessibilityWatch::new(
+            move || {
+                #[cfg(target_os = "android")]
+                let handle = android.as_ref();
+                #[cfg(not(target_os = "android"))]
+                let handle: Option<&crate::os_accessibility::AndroidHandle> = None;
+                crate::os_accessibility::read(handle)
+            },
+            crate::os_accessibility::AccessibilityWatch::default_interval(),
+        )
+    }
+
     /// Attach the accessibility adapter for a window that has just been made.
     fn attach_accessibility(
         &mut self,
@@ -2960,6 +2992,9 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
         // `open_windows` — minted from the same runtime — mark the right
         // elements pending.
         let mut driver = FrameDriver::with_runtime(logical, self.runtime.clone());
+        // The tier's quality profile, published before the application's tree
+        // is built so a widget reads it on its very first build (FW-01).
+        driver.set_quality(crate::device_tier::default_quality_profile());
         // The system font fallback: the default store is embedded-only (Latin,
         // Hebrew, Arabic) and a windowed application is by definition on a
         // machine with fonts — without it a shipped app renders Chinese,
@@ -3018,6 +3053,7 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
             ime_composing: false,
             insets: SystemInsets::NONE,
             inset_watch: InsetWatch::new(),
+            os_accessibility: self.new_accessibility_watch(),
             log,
             input_latency: crate::latency::InputLatencyLog::new(),
             lifecycle: Lifecycle::default(),
@@ -3108,6 +3144,7 @@ impl<F: FnOnce(&mut FrameDriver)> Runner<F> {
                 chores: crate::frame_budget::FrameBudgetGuard::default(),
             });
             state.scheduler.request_frame();
+            state.os_accessibility.mark_dirty();
         }
 
         // Split out because it needs `&self.shared` and the block above holds
@@ -3639,6 +3676,13 @@ impl<F: FnOnce(&mut FrameDriver)> ApplicationHandler<UserEvent> for Runner<F> {
                 let shared = &self.shared;
                 let window = &mut self.windows[index];
                 window.set_lifecycle(window.lifecycle.focused(focused));
+                if focused {
+                    // A setting changed in the system Settings app is seen the
+                    // moment the person comes back — ask again, and make sure a
+                    // frame runs to do it.
+                    window.os_accessibility.mark_dirty();
+                    window.scheduler.request_frame();
+                }
                 if !focused {
                     // A window losing focus mid-gesture never sees the release.
                     window.cancel_pointers(shared);

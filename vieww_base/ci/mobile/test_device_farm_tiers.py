@@ -43,5 +43,26 @@ class Tiers(unittest.TestCase):
         self.assertIn("--count 3", str(e.exception))
 
 
+class OneTierSource(unittest.TestCase):
+    """PERF-03: the table and the budgets read the same tier."""
+
+    def test_the_phones_own_tier_wins_over_the_spread_label(self):
+        # An iPhone 13 picked as the "low" of a spread whose app resolved
+        # `tier medium`: the table says medium, as its cache budgets do.
+        result = {"gpu_device": "tier medium, 4.0 GB, 6 cores, Apple A15"}
+        self.assertEqual(device_farm.reported_tier(result), "medium")
+
+    def test_a_run_that_reported_nothing_falls_back_to_the_ram_policy_or_none(self):
+        self.assertEqual(device_farm.reported_tier({"mem_total_kb": "1913472", "cpu_cores": "8"}), "low")
+        self.assertIsNone(device_farm.reported_tier({}))
+        self.assertIsNone(device_farm.reported_tier(None))
+
+    def test_medium_and_mid_sort_as_the_same_rung(self):
+        order = device_farm.TIER_ORDER
+        self.assertEqual(order["medium"], order["mid"])
+        self.assertLess(order["low"], order["medium"])
+        self.assertLess(order["medium"], order["high"])
+
+
 if __name__ == "__main__":
     sys.exit(unittest.main())

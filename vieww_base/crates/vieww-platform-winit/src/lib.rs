@@ -152,6 +152,7 @@ pub mod drag;
 mod frame_budget;
 mod gpu_route;
 mod perf_hint;
+mod os_accessibility;
 mod quality;
 #[cfg(all(
     feature = "desktop-services",
@@ -181,13 +182,20 @@ pub use deep_links::PlatformDeepLinks;
 pub use windows::PlatformWindows;
 
 pub use cpu_time::process_cpu_time;
-pub use device_tier::{device_facts, device_facts_status, resolve_tier, DeviceFacts, DeviceTier};
+pub use device_tier::{
+    default_quality_profile, device_class, device_facts, device_facts_status, resolve_tier,
+    DeviceFacts, DeviceTier,
+};
 pub use drag::OsDragStarter;
 pub use input::{PointerTranslator, TouchPhase};
 pub use keys::{ime, KeyTranslator};
 pub use latency::{InputLatencyLog, InputLatencyReport, UNANSWERED_AFTER};
 pub use lifecycle::Lifecycle;
 pub use monitors::{MonitorChange, MonitorInfo};
+pub use os_accessibility::{
+    from_android, from_gnome, from_ios, from_macos, from_web, from_windows, ios_text_scale,
+    with_overrides, AccessibilityWatch,
+};
 pub use perf_hint::perf_hint_status;
 pub use quality::{cache_budgets_for, cache_budgets_status, gpu_scale_status, QualityProfile};
 pub use rasterizer_choice::rasterizer_choice;

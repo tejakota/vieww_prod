@@ -93,11 +93,29 @@ impl BackdropFilter {
 /// BackdropBlur::new(BackdropFilter::frosted(24.0))
 ///     .child(nav_bar_content)
 /// ```
+///
+/// # It reads the device's quality profile
+///
+/// Frosted glass is the single most expensive thing a screen here can ask for
+/// (the Stylo's stress screen spends 830 ms of GPU time on it), so the widget
+/// itself consults the [`QualityProfile`](vieww_foundation::QualityProfile)
+/// published above it: where `backdrop_blur` is off (the Low tier) it draws a
+/// flat translucent fill instead of sampling and blurring the backdrop, and
+/// where a ceiling applies (Medium, 12 px) the radius is capped. Layout is
+/// identical in every case, so a tier change never moves anything. An app
+/// needs no per-call-site check — and gets the right behaviour from a theme
+/// that was written before tiers existed.
 #[derive(Debug)]
 pub struct BackdropBlur {
     filter: BackdropFilter,
     child: WidgetNode,
+    flat: Option<Color>,
 }
+
+/// The least opaque a flat stand-in for glass may be. The blur was what kept
+/// the content behind it from fighting the content on top; without it the wash
+/// has to do that job by itself.
+const FLAT_FALLBACK_MIN_ALPHA: u8 = 0x99;
 
 impl BackdropBlur {
     /// Create a backdrop blur with `filter`.
@@ -108,7 +126,25 @@ impl BackdropBlur {
         Self {
             filter,
             child: SizedBox::shrink().into(),
+            flat: None,
         }
+    }
+
+    /// The solid colour to draw instead of glass on a tier that cannot afford
+    /// it. Without one the filter's tint is used, raised to a legible opacity.
+    #[must_use]
+    pub fn flat_fallback(mut self, color: Color) -> Self {
+        self.flat = Some(color);
+        self
+    }
+
+    /// What this draws on a tier with `backdrop_blur` off.
+    #[must_use]
+    pub fn flat_color(&self) -> Color {
+        self.flat.unwrap_or_else(|| Color {
+            a: self.filter.tint.a.max(FLAT_FALLBACK_MIN_ALPHA),
+            ..self.filter.tint
+        })
     }
 
     /// Set the content drawn on top of the blur.
@@ -140,8 +176,15 @@ impl Widget for BackdropBlur {
     /// glass, not a flat translucent wash standing in for one. Kept as its
     /// own type because "frosted glass" is a recognisable thing to ask for
     /// and `BackdropFilter::frosted(24.0)` says it in one line.
-    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
-        let sigma = self.filter.blur;
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
+        let quality = ctx.inherit_or(vieww_foundation::QualityProfile::HIGH);
+        let Some(sigma) = quality.clamp_blur(self.filter.blur) else {
+            // Blur off for this tier (or none asked for): a flat wash, same
+            // layout, no backdrop sample.
+            return vieww_widget::ColoredBox::new(self.flat_color())
+                .child(self.child.clone())
+                .into();
+        };
         let mut filtered = vieww_widget::Filtered::blur(sigma).with_backdrop();
         if self.filter.tint.a > 0 {
             let amount = f32::from(self.filter.tint.a) / 255.0;
@@ -401,6 +444,52 @@ vieww_widget::widget_node_from!(Blend);
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn build_under(quality: Option<vieww_foundation::QualityProfile>) -> WidgetNode {
+        let root = BuildContext::root();
+        let ctx = match quality {
+            Some(q) => root.child_with(std::rc::Rc::new(q)),
+            None => root,
+        };
+        BackdropBlur::new(BackdropFilter::dark(24.0)).build(&ctx)
+    }
+
+    /// VA-01: a Low tier draws a flat wash, not a backdrop blur.
+    #[test]
+    fn a_low_tier_gets_a_flat_fill_and_no_backdrop_layer() {
+        let node = build_under(Some(vieww_foundation::QualityProfile::LOW));
+        assert!(
+            node.downcast_ref::<vieww_widget::ColoredBox>().is_some(),
+            "Low must not build a Filtered backdrop layer"
+        );
+        assert!(node.downcast_ref::<vieww_widget::Filtered>().is_none());
+    }
+
+    #[test]
+    fn medium_and_high_and_an_unpublished_profile_keep_the_glass() {
+        for quality in [
+            Some(vieww_foundation::QualityProfile::MEDIUM),
+            Some(vieww_foundation::QualityProfile::HIGH),
+            None,
+        ] {
+            let node = build_under(quality);
+            assert!(
+                node.downcast_ref::<vieww_widget::Filtered>().is_some(),
+                "{quality:?} should still blur"
+            );
+        }
+    }
+
+    #[test]
+    fn the_flat_fallback_is_legible_and_can_be_overridden() {
+        let glass = BackdropBlur::new(BackdropFilter::frosted(20.0));
+        assert!(
+            glass.flat_color().a >= FLAT_FALLBACK_MIN_ALPHA,
+            "a 10% tint is a wash you cannot read through once the blur is gone"
+        );
+        let solid = glass.flat_fallback(Color::rgb(16, 22, 35));
+        assert_eq!(solid.flat_color(), Color::rgb(16, 22, 35));
+    }
 
     /// todo-upgrades U-02: every mode this crate can name must land on a
     /// foundation mode the rasterizer honours — the conversion is the seam

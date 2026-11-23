@@ -349,6 +349,9 @@ pub struct SceneRenderer {
     staging_trim_frames: u32,
     /// What the last frame whose timestamps were read spent on the GPU.
     pass_times: Option<GpuPassTimes>,
+    /// Frames whose timestamps failed validation and were left out of
+    /// [`last_pass_times`](Self::last_pass_times) — see `resolve_pass_times`.
+    pass_times_dropped: u64,
     /// Whether a frame into a swapchain image is left in flight
     /// ([`set_overlap`](Self::set_overlap)).
     overlap: bool,
@@ -460,6 +463,65 @@ impl GpuPassTimes {
     pub fn total(&self) -> Duration {
         self.draw + self.layers + self.filters + self.shadows + self.blit
     }
+}
+
+/// The longest single GPU interval accepted as real. A frame that takes a
+/// second on the GPU has already failed every budget by two orders of
+/// magnitude; an interval longer than this is a counter that wrapped, a slot
+/// that was never written, or a driver that reports garbage in the bits above
+/// `timestampValidBits` — never a measurement.
+///
+/// The case that made this necessary: the Stylo 5's stress-GPU "GPU time by
+/// kind" medians read 43,980,314,422 ms (≈ 509 days), which is what an
+/// unvalidated `wrapping_sub` of two unrelated counters reports.
+pub const MAX_PLAUSIBLE_PASS: Duration = Duration::from_secs(1);
+
+/// Charge each interval between consecutive timestamps to the kind that began
+/// it, rejecting the whole frame when any interval is implausible.
+///
+/// `ticks` has one more entry than `kinds` (the last timestamp ends the
+/// frame). Both operands are masked to `timestampValidBits` before the
+/// subtraction, so a real counter wrap *between two good readings* — which a
+/// masked `wrapping_sub` resolves correctly — is kept, while upper-bit garbage
+/// and unwritten slots (a zero tick after a non-zero one reads as a wrap of
+/// nearly the whole counter) are not. `None` means "drop this frame's pass
+/// times"; the caller counts it.
+#[must_use]
+pub fn resolve_pass_times(
+    kinds: &[PassKind],
+    ticks: &[u64],
+    mask: u64,
+    period_ns: f32,
+) -> Option<GpuPassTimes> {
+    if ticks.len() != kinds.len() + 1 || !period_ns.is_finite() || period_ns <= 0.0 {
+        return None;
+    }
+    let mut times = GpuPassTimes::default();
+    for (index, kind) in kinds.iter().enumerate() {
+        let (from, to) = (ticks[index] & mask, ticks[index + 1] & mask);
+        let delta = to.wrapping_sub(from) & mask;
+        #[expect(
+            clippy::cast_precision_loss,
+            clippy::cast_possible_truncation,
+            clippy::cast_sign_loss,
+            reason = "a tick count times nanoseconds per tick, rounded"
+        )]
+        let nanos = (delta as f64 * f64::from(period_ns)).round();
+        // `nanos` can be infinite or enormous for a bad `delta`; compare as
+        // floating point before it becomes an integer.
+        if !nanos.is_finite() || nanos > MAX_PLAUSIBLE_PASS.as_nanos() as f64 {
+            return None;
+        }
+        let spent = Duration::from_nanos(nanos as u64);
+        match kind {
+            PassKind::Draw => times.draw += spent,
+            PassKind::Layers => times.layers += spent,
+            PassKind::Filters => times.filters += spent,
+            PassKind::Shadows => times.shadows += spent,
+            PassKind::Blit => times.blit += spent,
+        }
+    }
+    Some(times)
 }
 
 /// Timestamp slots per frame. A kind changes a few times per layer, filter
@@ -1126,6 +1188,7 @@ impl SceneRenderer {
             frame_clip: None,
             pending_copies: Vec::new(),
             pass_times: None,
+            pass_times_dropped: 0,
             overlap: true,
             settled_wait: Duration::ZERO,
             presents: PresentHistory::new(),
@@ -1874,6 +1937,14 @@ impl SceneRenderer {
     #[must_use]
     pub const fn last_pass_times(&self) -> Option<GpuPassTimes> {
         self.pass_times
+    }
+
+    /// How many frames' timestamps were rejected as implausible (a wrapped
+    /// counter, an unwritten slot) instead of being folded into the figures.
+    /// Surfaced so a summary can say "N dropped" rather than hide them.
+    #[must_use]
+    pub const fn pass_times_dropped(&self) -> u64 {
+        self.pass_times_dropped
     }
 
     /// Execute `plan` at `width` x `height` over `clear` and read the frame
@@ -3089,26 +3160,13 @@ impl SceneRenderer {
         if read.is_err() {
             return;
         }
-        let mut times = GpuPassTimes::default();
-        for (index, kind) in queries.kinds.iter().enumerate() {
-            let delta = ticks[index + 1].wrapping_sub(ticks[index]) & mask;
-            #[expect(
-                clippy::cast_precision_loss,
-                clippy::cast_possible_truncation,
-                clippy::cast_sign_loss,
-                reason = "a tick count times nanoseconds per tick, rounded"
-            )]
-            let nanos = (delta as f64 * f64::from(period)).round() as u64;
-            let spent = Duration::from_nanos(nanos);
-            match kind {
-                PassKind::Draw => times.draw += spent,
-                PassKind::Layers => times.layers += spent,
-                PassKind::Filters => times.filters += spent,
-                PassKind::Shadows => times.shadows += spent,
-                PassKind::Blit => times.blit += spent,
-            }
+        // A frame whose timestamps do not make sense is dropped, not recorded:
+        // see `resolve_pass_times`. The previous figures stay in place, which
+        // is also what an unreadable pool does above.
+        match resolve_pass_times(&queries.kinds, &ticks, mask, period) {
+            Some(times) => self.pass_times = Some(times),
+            None => self.pass_times_dropped += 1,
         }
-        self.pass_times = Some(times);
     }
 
     fn begin_commands(&mut self, slot: usize) -> Result<(), VulkanError> {
@@ -4797,6 +4855,59 @@ fn pick_memory_type(
 #[cfg(test)]
 mod tests {
     use crate::scene_exec::half_to_f32;
+
+    /// PERF-03: timestamps that wrapped or were never written must not turn
+    /// into a 509-day "GPU time".
+    #[test]
+    fn a_good_frame_charges_each_interval_to_the_kind_that_began_it() {
+        use super::{resolve_pass_times, PassKind};
+        let kinds = [PassKind::Draw, PassKind::Shadows, PassKind::Blit];
+        // 1,000 ticks at 52.08 ns/tick is 52.08 µs; mask is a 48-bit counter.
+        let ticks = [10_000, 11_000, 13_000, 14_000];
+        let times = resolve_pass_times(&kinds, &ticks, (1u64 << 48) - 1, 52.08).unwrap();
+        assert_eq!(times.draw.as_nanos(), 52_080);
+        assert_eq!(times.shadows.as_nanos(), 104_160);
+        assert_eq!(times.blit.as_nanos(), 52_080);
+        assert_eq!(times.layers.as_nanos(), 0);
+    }
+
+    #[test]
+    fn a_real_counter_wrap_between_two_good_readings_is_resolved_not_dropped() {
+        use super::{resolve_pass_times, PassKind};
+        let mask = (1u64 << 36) - 1;
+        // The counter wrapped between the two timestamps: 100 ticks before the
+        // end, then 400 after the start.
+        let ticks = [mask - 99, 400];
+        let times = resolve_pass_times(&[PassKind::Draw], &ticks, mask, 52.08).unwrap();
+        assert_eq!(times.draw.as_nanos(), (500.0_f64 * 52.08).round() as u128);
+    }
+
+    #[test]
+    fn an_unwritten_slot_or_garbage_upper_bits_drop_the_whole_frame() {
+        use super::{resolve_pass_times, PassKind};
+        let mask = (1u64 << 48) - 1;
+        // A zero where a timestamp should be, after a real one: unmasked this
+        // wraps to ~2^48 ticks, which at 52 ns is 170 days.
+        assert!(resolve_pass_times(&[PassKind::Draw], &[5_000_000_000, 0], mask, 52.08).is_none());
+        // The same through a 64-bit-valid driver: nearly 2^64 ticks.
+        assert!(
+            resolve_pass_times(&[PassKind::Draw], &[5_000_000_000, 0], u64::MAX, 52.08).is_none()
+        );
+        // Wrong number of readings, and a nonsensical period.
+        assert!(resolve_pass_times(&[PassKind::Draw, PassKind::Blit], &[1, 2], mask, 52.08).is_none());
+        assert!(resolve_pass_times(&[PassKind::Draw], &[1, 2], mask, f32::NAN).is_none());
+        assert!(resolve_pass_times(&[PassKind::Draw], &[1, 2], mask, 0.0).is_none());
+    }
+
+    #[test]
+    fn one_bad_interval_poisons_the_frame_rather_than_one_kind() {
+        use super::{resolve_pass_times, PassKind};
+        let mask = (1u64 << 48) - 1;
+        let kinds = [PassKind::Draw, PassKind::Filters];
+        // The second interval is a wrap; the first alone would have been fine,
+        // but half a frame's attribution is a frame that sums to nothing true.
+        assert!(resolve_pass_times(&kinds, &[100, 200, 50], mask, 52.08).is_none());
+    }
 
     /// A damaged frame's passes into `L[0]` load and store only the damage's
     /// bounds, clamped to the frame — on a tiled GPU, that is the cost.

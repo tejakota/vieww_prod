@@ -686,6 +686,7 @@ impl WebApp {
             last_rebuild: 0,
         }));
 
+        install_accessibility_listeners(&inner, &window)?;
         install_pointer_listeners(&inner, &window)?;
         install_pointer_out_listener(&inner, &window)?;
         install_wheel_listener(&inner, &window)?;
@@ -752,6 +753,59 @@ fn schedule(inner: &Rc<RefCell<Loop>>, window: &web_sys::Window) {
     let mut guard = inner.borrow_mut();
     guard.animation_frame = handle;
     guard.callback = Some(closure);
+}
+
+/// The browser's reduced-motion and contrast preferences, pushed into the
+/// frame driver (FW-02 / WEB-01).
+///
+/// The page's stylesheet already honours `prefers-reduced-motion` for the DOM
+/// it owns; the canvas is drawn by the framework, which only knows what
+/// `FrameDriver::set_accessibility` tells it. So this reads both media queries
+/// once at mount and again on each query's `change` event — a person flipping
+/// the OS setting with the page open sees the canvas settle, no reload — and
+/// every animation in the tree goes through the same ticker path the native
+/// platforms use (`Tickers::set_reduce_motion`).
+///
+/// A browser without `matchMedia` (or one that rejects the query) leaves the
+/// default, "nothing requested", in force.
+fn install_accessibility_listeners(
+    inner: &Rc<RefCell<Loop>>,
+    window: &web_sys::Window,
+) -> Result<(), WebError> {
+    let query = |text: &str| window.match_media(text).ok().flatten();
+    let reduced = query("(prefers-reduced-motion: reduce)");
+    let contrast = query("(prefers-contrast: more)");
+
+    let read: Rc<dyn Fn() -> vieww_foundation::Accessibility> = {
+        let (reduced, contrast) = (reduced.clone(), contrast.clone());
+        Rc::new(move || {
+            vieww_foundation::Accessibility::from_media_queries(
+                reduced.as_ref().is_some_and(web_sys::MediaQueryList::matches),
+                contrast.as_ref().is_some_and(web_sys::MediaQueryList::matches),
+            )
+        })
+    };
+    inner.borrow_mut().driver.set_accessibility(read());
+
+    for list in [reduced, contrast].into_iter().flatten() {
+        let weak = Rc::downgrade(inner);
+        let read = Rc::clone(&read);
+        let closure = Closure::wrap(Box::new(move |_event: web_sys::Event| {
+            let Some(inner) = weak.upgrade() else { return };
+            // Both queries are re-read, not just the one that fired: the value
+            // is one struct, and the other half may have moved in the same
+            // settings change.
+            inner.borrow_mut().driver.set_accessibility(read());
+        }) as Box<dyn FnMut(web_sys::Event)>);
+        let target: web_sys::EventTarget = list.into();
+        target.add_event_listener_with_callback("change", closure.as_ref().unchecked_ref())?;
+        inner.borrow_mut().listeners.push(Listener {
+            target,
+            kind: "change",
+            closure,
+        });
+    }
+    Ok(())
 }
 
 /// Pointer events, translated into vieww's own.

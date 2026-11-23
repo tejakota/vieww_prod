@@ -98,8 +98,11 @@ declare -A failed=()
 # unavailable): whether the window-present path's slower raster is the
 # scheduler's choice of core and clock. Diagnostic only.
 #
-# `gpuscale` is the GPU path at the probed device tier's resolution
-# (`debug.vieww.scale=auto`, `VIEWW_GPU_SCALE`): the plan renders into targets
+# `gpu` is the GPU path at FULL resolution (`debug.vieww.scale=off`): since
+# FW-01 a phone scales by its tier with no variable at all, so the baseline has
+# to opt out. `gpuscale` is the GPU path at the probed device tier's resolution
+# (`debug.vieww.scale=auto`, `VIEWW_GPU_SCALE`) — now what every other GPU pass
+# runs at too: the plan renders into targets
 # a fraction of the swapchain's size and the final blit enlarges. The test of
 # whether a fill-rate cut is what lets the GPU path pass where it currently
 # loses (LG Stylo 5: CPU 36.2 ms, GPU 40.1 ms, 2026-10-17) — the `device`
@@ -173,7 +176,10 @@ for mode in cpu gpu auto cpuvk cpuhint gpuscale gpuserial cpubare cpunothreads c
     overlap=""; [ "$mode" = gpuserial ] && overlap=0
     present=""; [ "$mode" = cpuvk ] && present="vulkan"
     hint=0; [ "$mode" = cpuhint ] && hint=1
-    scale=""; [ "$mode" = gpuscale ] && scale=auto
+    # Scaled is the default now (FW-01), so the `gpu` pass has to ask for full
+    # resolution explicitly: it is the baseline the `gpuscale` A/B, and
+    # `gpuscale_verdict.py`'s promote/keep rule, compare against.
+    scale=""; [ "$mode" = gpuscale ] && scale=auto; [ "$mode" = gpu ] && scale=off
     case "$mode" in
         cpubare) bare=all ;;
         cpunothreads) bare=threads ;;

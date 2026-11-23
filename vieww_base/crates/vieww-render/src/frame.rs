@@ -280,6 +280,11 @@ pub struct FrameDriver {
     /// [`Accessibility`]'s module docs for why it is its own rather than a
     /// field on `ViewMetrics`.
     accessibility: vieww_foundation::Accessibility,
+    /// The device's quality profile, published as a fifth provider so a widget
+    /// can read the effect gates (`backdrop_blur`, `shadow_blur`,
+    /// `ambient_motion`, `max_internal_scale`) from its `BuildContext`.
+    /// Defaults to full quality: a headless render or a test has no device.
+    quality: vieww_foundation::QualityProfile,
     /// The theme published above the root, when the application set one.
     ///
     /// See [`FrameDriver::set_theme`].
@@ -413,6 +418,7 @@ impl FrameDriver {
             capture: Capture::default(),
             pending_fonts: None,
             accessibility: vieww_foundation::Accessibility::default(),
+            quality: vieww_foundation::QualityProfile::default(),
             theme: None,
             file_drag: FileDrag::default(),
             dropped: DroppedFiles::default(),
@@ -918,6 +924,32 @@ impl FrameDriver {
         true
     }
 
+    /// The quality profile currently published to the tree.
+    #[must_use]
+    pub const fn quality(&self) -> vieww_foundation::QualityProfile {
+        self.quality
+    }
+
+    /// Publish a quality profile, re-mounting the root under it.
+    ///
+    /// The platform layer calls this once at start-up with the probed tier's
+    /// profile (a tier does not change while the process runs), and a test or
+    /// a settings screen may call it again. Only widgets that *read* the
+    /// profile rebuild — it is its own provider for that reason, so a tier
+    /// change does not disturb a widget that only reads accessibility.
+    ///
+    /// Returns `false` when nothing changed or there is no root yet; in the
+    /// second case the value is still stored and is published by the first
+    /// `set_root`, so ordering against the application's build does not
+    /// matter.
+    pub fn set_quality(&mut self, quality: vieww_foundation::QualityProfile) -> bool {
+        if self.quality == quality {
+            return false;
+        }
+        self.quality = quality;
+        self.republish()
+    }
+
     /// The system accessibility preferences currently in force.
     #[must_use]
     pub const fn accessibility(&self) -> vieww_foundation::Accessibility {
@@ -1076,7 +1108,10 @@ impl FrameDriver {
             self.metrics,
             Inherited::new(
                 self.capture,
-                Inherited::new(self.file_drag, Inherited::new(self.accessibility, root)),
+                Inherited::new(
+                    self.file_drag,
+                    Inherited::new(self.accessibility, Inherited::new(self.quality, root)),
+                ),
             ),
         ));
         true

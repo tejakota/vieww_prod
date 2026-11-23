@@ -17,8 +17,12 @@
 //! - **Android 12+ (API 31):** `AThermal_getThermalHeadroom` — how close the
 //!   device is to severe throttling, `1.0` being there. The system answers at
 //!   most once a second; asked sooner it returns NaN, which reads as `None`.
-//! - **Linux (and Android, where readable):** the hottest
-//!   `/sys/class/thermal/thermal_zone*/temp`, in °C.
+//! - **Linux (and Android, where readable):** the hottest *trustworthy*
+//!   `/sys/class/thermal/thermal_zone*/temp`, in °C. A zone counts only when
+//!   its `type` names a skin or SoC sensor and its reading is not a "no data"
+//!   sentinel (PERF-03: the S26 Ultra's flat 105.0 °C). Skin sensors win over
+//!   SoC ones. When nothing qualifies the reading is `None` and the suite
+//!   prints "unknown".
 //!
 //! The NDK functions are looked up at run time, as `perf_hint` does: linked
 //! directly, a symbol the phone's `libandroid.so` lacks stops the library
@@ -71,29 +75,93 @@ pub fn thermal_reading() -> ThermalReading {
     }
 }
 
-/// The hottest readable `/sys/class/thermal/thermal_zone*/temp`, in °C.
-/// Zones report millidegrees; a value outside -40..150 °C is a zone that is
-/// not a temperature (some report a state or a raw ADC count) and is skipped.
+/// One `/sys/class/thermal/thermal_zone*` entry: what it says it measures and
+/// what it reads, in millidegrees.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct Zone {
+    pub kind: String,
+    pub millicelsius: i64,
+}
+
+/// Which part of the device a zone's `type` names, best first. `None` for a
+/// type that is not a temperature of anything the user touches or the SoC
+/// throttles on (battery gauges, chargers, PMIC rails, virtual fan-ins).
+fn rank(kind: &str) -> Option<u8> {
+    let kind = kind.trim().to_ascii_lowercase();
+    // The outside of the phone: what a hand feels, and what Android's own
+    // skin-temperature throttling is built on.
+    if ["skin", "xo-therm", "quiet-therm", "case", "shell", "back-therm", "front-therm"]
+        .iter()
+        .any(|name| kind.contains(name))
+    {
+        return Some(0);
+    }
+    // The SoC and its clusters, and a desktop CPU package.
+    if ["soc", "cpuss", "cpu-", "cpu_", "tsens_tz_sensor", "x86_pkg_temp", "coretemp", "acpitz", "gpuss", "gpu-", "big", "little", "mid-"]
+        .iter()
+        .any(|name| kind.contains(name))
+    {
+        return Some(1);
+    }
+    None
+}
+
+/// A reading a sensor with no data reports instead of a number. These are the
+/// trip-point constants some thermal HALs return for an unwired or disabled
+/// sensor: the S26 Ultra printed a flat 105.0 °C for a whole run, which no
+/// phone survives and no run varies by. Exact multiples only — a real die
+/// temperature is not 105.000.
+const SENTINEL_MILLICELSIUS: [i64; 5] = [0, 105_000, 110_000, 120_000, 125_000];
+
+/// The hottest *trustworthy* zone, in °C — or `None`, which the suite prints
+/// as "unknown" rather than a number it cannot stand behind.
+///
+/// Skin sensors win over SoC sensors when any are readable, because a phone's
+/// outside is what throttling protects; among the same rank the hottest wins.
+/// A zone is ignored when its type is unknown, its reading is a sentinel, or
+/// the value is outside a plausible phone/laptop range (`-20..=100` °C).
+pub(crate) fn select_zone(zones: &[Zone]) -> Option<f32> {
+    let usable = |zone: &&Zone| {
+        !SENTINEL_MILLICELSIUS.contains(&zone.millicelsius)
+            && (-20_000..=100_000).contains(&zone.millicelsius)
+    };
+    let best_rank = zones
+        .iter()
+        .filter(usable)
+        .filter_map(|zone| rank(&zone.kind))
+        .min()?;
+    zones
+        .iter()
+        .filter(usable)
+        .filter(|zone| rank(&zone.kind) == Some(best_rank))
+        .map(|zone| zone.millicelsius)
+        .max()
+        .map(|milli| milli as f32 / 1000.0)
+}
+
+/// The hottest trustworthy `/sys/class/thermal/thermal_zone*`, in °C.
 fn hottest_zone() -> Option<f32> {
     let entries = std::fs::read_dir("/sys/class/thermal").ok()?;
-    let mut hottest: Option<f32> = None;
+    let mut zones = Vec::new();
     for entry in entries.flatten() {
         let name = entry.file_name();
         if !name.to_string_lossy().starts_with("thermal_zone") {
             continue;
         }
-        let Ok(text) = std::fs::read_to_string(entry.path().join("temp")) else {
+        let path = entry.path();
+        let Ok(text) = std::fs::read_to_string(path.join("temp")) else {
             continue;
         };
-        let Ok(milli) = text.trim().parse::<f32>() else {
+        let Ok(millicelsius) = text.trim().parse::<i64>() else {
             continue;
         };
-        let celsius = milli / 1000.0;
-        if (-40.0..150.0).contains(&celsius) {
-            hottest = Some(hottest.map_or(celsius, |h: f32| h.max(celsius)));
-        }
+        let kind = std::fs::read_to_string(path.join("type")).unwrap_or_default();
+        zones.push(Zone {
+            kind: kind.trim().to_owned(),
+            millicelsius,
+        });
     }
-    hottest
+    select_zone(&zones)
 }
 
 #[cfg(target_os = "android")]
@@ -182,6 +250,42 @@ mod imp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn zone(kind: &str, milli: i64) -> Zone {
+        Zone {
+            kind: kind.to_owned(),
+            millicelsius: milli,
+        }
+    }
+
+    /// PERF-03: the S26 Ultra's constant 105.0 °C.
+    #[test]
+    fn a_constant_105_degree_sentinel_is_not_a_temperature() {
+        let zones = [zone("skin-therm", 105_000), zone("cpuss-0", 105_000)];
+        assert_eq!(select_zone(&zones), None, "print unknown, not 105.0");
+    }
+
+    #[test]
+    fn skin_beats_soc_even_when_the_soc_is_hotter() {
+        let zones = [zone("cpuss-0", 71_500), zone("skin-therm", 38_200), zone("battery", 31_000)];
+        assert_eq!(select_zone(&zones), Some(38.2));
+    }
+
+    #[test]
+    fn without_a_skin_sensor_the_hottest_soc_zone_is_used() {
+        let zones = [zone("cpu-0-0-usr", 52_000), zone("cpu-1-0-usr", 58_500), zone("pmic-therm", 90_000)];
+        assert_eq!(select_zone(&zones), Some(58.5), "PMIC rails are not the SoC");
+    }
+
+    #[test]
+    fn unknown_types_and_implausible_values_are_ignored() {
+        assert_eq!(select_zone(&[zone("mystery", 40_000)]), None);
+        assert_eq!(select_zone(&[zone("cpuss-0", 180_000)]), None, "out of range");
+        assert_eq!(select_zone(&[zone("cpuss-0", 0)]), None, "zero is no data");
+        assert_eq!(select_zone(&[]), None);
+        // A real desktop reading is still reported.
+        assert_eq!(select_zone(&[zone("x86_pkg_temp", 47_000)]), Some(47.0));
+    }
 
     #[test]
     fn statuses_have_android_names() {

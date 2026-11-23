@@ -893,13 +893,15 @@ mod demo {
         // where it currently loses (the LG Stylo 5: CPU 36.2 ms, GPU 40.1 ms,
         // Device Farm 2026-10-17). `auto` takes the probed device tier's
         // profile (`device_tier`); a number between 0.25 and 1.0 is that
-        // scale; unset or `off` is full resolution.
+        // scale; `off` is full resolution, and unset is the tier's own default.
         let scale = std::process::Command::new("/system/bin/getprop")
             .arg("debug.vieww.scale")
             .output()
             .map(|out| String::from_utf8_lossy(&out.stdout).trim().to_owned())
             .unwrap_or_default();
-        if !scale.is_empty() && scale != "off" {
+        // `off` is passed through: the tier's profile is the default now
+        // (FW-01), so full resolution has to be asked for by name.
+        if !scale.is_empty() {
             // Before the event loop and every worker the app starts, as below.
             std::env::set_var("VIEWW_GPU_SCALE", &scale);
         }

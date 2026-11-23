@@ -164,6 +164,19 @@ impl Accessibility {
         }
     }
 
+    /// The preferences a browser reports through CSS media queries:
+    /// `(prefers-reduced-motion: reduce)` and `(prefers-contrast: more)`.
+    ///
+    /// A page cannot read the browser's text size as a multiplier — the
+    /// browser zooms the layout instead — so `text_scale` stays `1.0`. This is
+    /// the web platform's one read; `vieww-platform-web` calls it on start-up
+    /// and again from the queries' `change` events, so toggling the OS setting
+    /// reaches a running canvas without a reload.
+    #[must_use]
+    pub fn from_media_queries(prefers_reduced_motion: bool, prefers_more_contrast: bool) -> Self {
+        Self::new(prefers_reduced_motion, prefers_more_contrast, 1.0)
+    }
+
     /// `text_scale` applied to one size.
     ///
     /// The one place the multiplication happens, so that a rounding or clamping
@@ -205,6 +218,14 @@ impl fmt::Display for Accessibility {
 mod tests {
     use super::*;
     use core::time::Duration;
+
+    #[test]
+    fn the_browser_media_queries_map_one_to_one_and_leave_the_text_size_alone() {
+        assert_eq!(Accessibility::from_media_queries(false, false), Accessibility::default());
+        let a = Accessibility::from_media_queries(true, true);
+        assert!(a.reduce_motion && a.high_contrast);
+        assert_eq!(a.text_scale, 1.0);
+    }
 
     #[test]
     fn the_default_is_nothing_asked_for_and_changes_nothing() {

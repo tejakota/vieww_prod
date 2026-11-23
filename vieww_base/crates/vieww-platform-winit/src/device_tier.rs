@@ -47,37 +47,7 @@
 
 use std::sync::OnceLock;
 
-/// The coarseness at which quality decisions are made. Deliberately three
-/// levels: finer bands would want measurements the farm has not taken yet,
-/// and a tier nobody can explain the boundaries of is worse than a coarse one
-/// everybody can.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum DeviceTier {
-    /// A phone where the CPU raster can miss the budget outright: the LG
-    /// Stylo 5 (2 GB, Adreno 506). Quality is the cheapest there is, and the
-    /// question is whether the GPU path can be made to pass at all.
-    Low,
-    /// The middle of the farm: the Galaxy A36 (6 GB), A73 (8 GB), S20 (8 GB),
-    /// iPhone 13 (4 GB).
-    /// Measurements decide the rasterizer; effects may run if they pay.
-    Medium,
-    /// Where every path passes with room: the S26 Ultra (12 GB) — more than
-    /// 8 GB of RAM.
-    /// Full resolution, effects on.
-    High,
-}
-
-impl DeviceTier {
-    /// The tier's name, as the Device Farm summary prints it.
-    #[must_use]
-    pub const fn name(self) -> &'static str {
-        match self {
-            Self::Low => "low",
-            Self::Medium => "medium",
-            Self::High => "high",
-        }
-    }
-}
+pub use vieww_foundation::DeviceTier;
 
 /// What the device said, as far as it said anything. The `Option`s are
 /// honest: a question the OS would not answer stays unanswered, and the
@@ -163,6 +133,24 @@ pub fn resolve_tier(memory_total_kb: Option<u64>, cores: Option<usize>) -> Devic
             DeviceTier::Medium
         }
     }
+}
+
+/// Whether this build runs on a phone/tablet or a desktop.
+#[must_use]
+pub const fn device_class() -> vieww_foundation::DeviceClass {
+    if cfg!(any(target_os = "android", target_os = "ios")) {
+        vieww_foundation::DeviceClass::Handheld
+    } else {
+        vieww_foundation::DeviceClass::Desktop
+    }
+}
+
+/// The quality profile this device gets by default: its probed tier, resolved
+/// for its class (desktops keep full resolution, see
+/// [`QualityProfile::for_device`]).
+#[must_use]
+pub fn default_quality_profile() -> vieww_foundation::QualityProfile {
+    vieww_foundation::QualityProfile::for_device(device_facts().tier, device_class())
 }
 
 /// The device's profile, probed once and cached. The probe costs two file

@@ -42,6 +42,7 @@ script needs no Python packages.
 """
 
 import argparse
+import importlib.util
 import json
 import os
 import pathlib
@@ -66,6 +67,26 @@ class Aws:
         if proc.returncode != 0:
             raise SystemExit(f"device_farm: `aws devicefarm {args[0]}` failed:\n{proc.stderr.strip()}")
         return json.loads(proc.stdout or "{}")
+
+
+# `medium` (the app's name for the middle tier) and `mid` (the spread label) are
+# the same rung.
+TIER_ORDER = {"low": 0, "mid": 1, "medium": 1, "high": 2, "named": 3, "?": 4}
+
+
+def reported_tier(result):
+    """The tier the phone's own app resolved, from its suite observations —
+    the same source `gpuscale_verdict.tier_of` and the cache budgets use.
+    `None` when the run did not report one."""
+    if not result:
+        return None
+    # Loaded by path: this script runs both as `python3 device_farm.py` and
+    # under `python3 -I` from the tests, where its directory is not importable.
+    spec = importlib.util.spec_from_file_location("gpuscale_verdict", HERE / "gpuscale_verdict.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules.setdefault("gpuscale_verdict", module)
+    spec.loader.exec_module(module)
+    return module.tier_of(result)
 
 
 def say(message):
@@ -540,21 +561,30 @@ def main():
         run = aws("get-run", "--arn", run["arn"])["run"]
         say(f"run {run.get('status')} {run.get('counters', {})}")
 
-    tiers = {d["arn"]: d["tier"] for d in devices}
+    picks = {d["arn"]: d["tier"] for d in devices}
     rows = []
     for job in aws("list-jobs", "--arn", run["arn"]).get("jobs", []):
         folder, result = download_job(aws, job, out)
+        # ONE tier source for the table and the budgets (PERF-03): the tier the
+        # app itself resolved on the phone (`device: tier medium, 4.0 GB…`),
+        # which is what the cache budgets and the GPU scale are keyed on. The
+        # spread label (`low`/`mid`/`high` by RAM rank among the phones this run
+        # *picked*) is only a fallback, and says so with a trailing `~`: it
+        # labelled the iPhone 13 "low" while its budgets said "tier medium".
+        reported = reported_tier(result)
+        pick = picks.get(job["device"]["arn"], "?")
         rows.append(
             {
                 "device": job["device"]["name"],
                 "os": job["device"].get("os"),
-                "tier": tiers.get(job["device"]["arn"], "?"),
+                "tier": reported or (pick if pick in ("named", "?") else pick + "~"),
+                "picked_as": pick,
                 "job_result": job.get("result"),
                 "folder": str(folder.relative_to(out)),
                 "result": result,
             }
         )
-    rows.sort(key=lambda r: ["low", "mid", "high", "named", "?"].index(r["tier"]))
+    rows.sort(key=lambda r: TIER_ORDER.get(r["tier"].rstrip("~"), len(TIER_ORDER)))
     summarize(rows, out, run)
 
     # The decision the gpuscale pass exists for, computed while the numbers

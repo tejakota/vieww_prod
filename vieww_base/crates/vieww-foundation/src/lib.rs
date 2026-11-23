@@ -17,6 +17,7 @@
 //! See `docs/DESIGN.md` §4 for why every scalar here is `f32`.
 
 mod accessibility;
+mod quality;
 mod alignment;
 pub mod app;
 pub mod capability;
@@ -64,6 +65,7 @@ mod vector;
 mod view;
 
 pub use accessibility::{Accessibility, MAX_TEXT_SCALE, MIN_TEXT_SCALE};
+pub use quality::{DeviceClass, DeviceTier, QualityProfile};
 pub use alignment::{Alignment, AlignmentDirectional};
 pub use capture::Capture;
 pub use color::{Color, ColorSpace, Oklab};
