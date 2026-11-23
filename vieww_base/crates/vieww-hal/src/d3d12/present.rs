@@ -428,6 +428,9 @@ impl D3d12WindowPresenter {
         // SAFETY: a live swapchain whose current back buffer was just drawn.
         let hr = unsafe { self.swapchain.Present(1, DXGI_PRESENT(0)) };
         self.timings.present += presenting.elapsed();
+        if hr.is_err() {
+            super::report_dred(&self.device);
+        }
         hr.ok().map_err(D3d12Error::from)
     }
 

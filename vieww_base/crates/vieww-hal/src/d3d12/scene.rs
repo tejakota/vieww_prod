@@ -976,6 +976,41 @@ impl D3d12SceneRenderer {
         check_size(width, height)?;
 
         let exec = frame_passes(plan, width, height, clear, damage, self.retained);
+        if super::trace_on() {
+            let ops: Vec<String> = exec
+                .ops
+                .iter()
+                .map(|op| match op {
+                    SceneOp::Begin { target, clear, .. } => {
+                        format!(
+                            "begin {target:?}{}",
+                            if clear.is_some() { " clear" } else { "" }
+                        )
+                    }
+                    SceneOp::ClearRegions { rects, .. } => format!("clear {} rects", rects.len()),
+                    SceneOp::DrawRun {
+                        target,
+                        index_count,
+                        ..
+                    } => {
+                        format!("draw {index_count} idx on {target:?}")
+                    }
+                    SceneOp::Post { pass, scissors, .. } => format!(
+                        "post mode {} {:?}->{:?} x{}",
+                        pass.push.args[0],
+                        pass.src,
+                        pass.into,
+                        scissors.len()
+                    ),
+                })
+                .collect();
+            eprintln!(
+                "d3d12 frame: {width}x{height}, depth {}, damage {}, ops [{}]",
+                plan.target_depth,
+                damage.map_or("none".to_owned(), |d| format!("{} rects", d.len())),
+                ops.join(", ")
+            );
+        }
         // Until this frame finishes, `L[0]` is half-drawn.
         self.retained = None;
 

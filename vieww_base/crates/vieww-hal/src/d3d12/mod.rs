@@ -241,6 +241,9 @@ impl D3d12Device {
         if debug_requested() {
             enable_debug_layer();
         }
+        if dred_requested() {
+            enable_dred();
+        }
         let trace = std::env::var_os("VIEWW_TRACE_FRAMES").is_some();
         let started = std::time::Instant::now();
         // SAFETY: an argument-free COM factory.
@@ -1097,7 +1100,15 @@ pub(crate) unsafe fn wait_fence(
         };
         CloseHandle(event)?;
         set?;
-        if waited.0 != 0 {
+        if waited.0 == 0 {
+            if let Err(error) = device.GetDeviceRemovedReason() {
+                report_dred(device);
+                return Err(D3d12Error::Api(format!(
+                    "the device was removed during {what}: {error}"
+                )));
+            }
+        } else {
+            report_dred(device);
             let reached = fence.GetCompletedValue();
             let removed = match device.GetDeviceRemovedReason() {
                 Ok(()) => "the device is not removed".to_owned(),
@@ -1111,4 +1122,187 @@ pub(crate) unsafe fn wait_fence(
         }
     }
     Ok(())
+}
+
+/// `VIEWW_D3D12_DRED=1`: Device Removed Extended Data — the driver keeps a
+/// breadcrumb per GPU command and, after a hang or a page fault, says which
+/// command list and command the GPU died in ([`report_dred`]). Off by
+/// default: breadcrumbs cost a little on every command.
+fn dred_requested() -> bool {
+    std::env::var("VIEWW_D3D12_DRED").is_ok_and(|v| v == "1")
+}
+
+fn enable_dred() {
+    let mut settings: Option<ID3D12DeviceRemovedExtendedDataSettings> = None;
+    // SAFETY: a valid out-pointer; called before any device exists.
+    match unsafe { D3D12GetDebugInterface(&mut settings) } {
+        Ok(()) => {
+            if let Some(settings) = settings {
+                // SAFETY: as above.
+                unsafe {
+                    settings.SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+                    settings.SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+                }
+                eprintln!("d3d12: DRED breadcrumbs and page-fault reporting enabled");
+            }
+        }
+        Err(error) => eprintln!("d3d12: DRED unavailable ({error})"),
+    }
+}
+
+/// Print what DRED recorded about a removed device: per command list, its
+/// commands, the last one the GPU completed, and the first it did not; then
+/// the faulting address and the allocations around it. A no-op when DRED
+/// was not enabled or the device is not removed.
+pub(crate) fn report_dred(device: &ID3D12Device) {
+    if !dred_requested() {
+        return;
+    }
+    let Ok(dred) = device.cast::<ID3D12DeviceRemovedExtendedData>() else {
+        eprintln!("d3d12 DRED: no data interface");
+        return;
+    };
+    // SAFETY: DRED's output is a linked list owned by the runtime, valid
+    // while the device lives; every pointer is checked before it is read.
+    unsafe {
+        match dred.GetAutoBreadcrumbsOutput() {
+            Ok(output) => {
+                let mut node = output.pHeadAutoBreadcrumbNode;
+                let mut index = 0;
+                while let Some(n) = node.as_ref() {
+                    let count = n.BreadcrumbCount;
+                    let last = if n.pLastBreadcrumbValue.is_null() {
+                        0
+                    } else {
+                        *n.pLastBreadcrumbValue
+                    };
+                    let name = |p: *const u8| {
+                        if p.is_null() {
+                            "-".to_owned()
+                        } else {
+                            std::ffi::CStr::from_ptr(p.cast())
+                                .to_string_lossy()
+                                .into_owned()
+                        }
+                    };
+                    let state = if last >= count {
+                        "finished"
+                    } else {
+                        "DID NOT FINISH"
+                    };
+                    eprintln!(
+                        "d3d12 DRED: list #{index} ({} on {}): {count} commands, {last} completed — {state}",
+                        name(n.pCommandListDebugNameA),
+                        name(n.pCommandQueueDebugNameA),
+                    );
+                    if last < count && !n.pCommandHistory.is_null() {
+                        let ops = std::slice::from_raw_parts(n.pCommandHistory, count as usize);
+                        for (i, op) in ops.iter().enumerate() {
+                            let mark = if i as u32 + 1 == last {
+                                "   <- last completed"
+                            } else if i as u32 == last {
+                                "   <- the GPU stopped here"
+                            } else {
+                                ""
+                            };
+                            eprintln!("d3d12 DRED:   [{i:3}] {}{mark}", breadcrumb_name(op.0));
+                        }
+                    }
+                    node = n.pNext;
+                    index += 1;
+                }
+            }
+            Err(error) => eprintln!("d3d12 DRED: no breadcrumbs ({error})"),
+        }
+        match dred.GetPageFaultAllocationOutput() {
+            Ok(fault) if fault.PageFaultVA != 0 => {
+                eprintln!(
+                    "d3d12 DRED: page fault at GPU address {:#x}",
+                    fault.PageFaultVA
+                );
+                for (label, mut node) in [
+                    ("live allocation there", fault.pHeadExistingAllocationNode),
+                    (
+                        "recently freed allocation there",
+                        fault.pHeadRecentFreedAllocationNode,
+                    ),
+                ] {
+                    while let Some(n) = node.as_ref() {
+                        let object = if n.ObjectNameA.is_null() {
+                            "(unnamed)".to_owned()
+                        } else {
+                            std::ffi::CStr::from_ptr(n.ObjectNameA.cast())
+                                .to_string_lossy()
+                                .into_owned()
+                        };
+                        eprintln!(
+                            "d3d12 DRED:   {label}: {object} (type {})",
+                            n.AllocationType.0
+                        );
+                        node = n.pNext;
+                    }
+                }
+            }
+            Ok(_) => eprintln!("d3d12 DRED: no page fault (a hang, not a bad address)"),
+            Err(error) => eprintln!("d3d12 DRED: no page-fault data ({error})"),
+        }
+    }
+}
+
+/// `D3D12_AUTO_BREADCRUMB_OP`'s names, for the report.
+fn breadcrumb_name(op: i32) -> &'static str {
+    const NAMES: [&str; 47] = [
+        "SetMarker",
+        "BeginEvent",
+        "EndEvent",
+        "DrawInstanced",
+        "DrawIndexedInstanced",
+        "ExecuteIndirect",
+        "Dispatch",
+        "CopyBufferRegion",
+        "CopyTextureRegion",
+        "CopyResource",
+        "CopyTiles",
+        "ResolveSubresource",
+        "ClearRenderTargetView",
+        "ClearUnorderedAccessView",
+        "ClearDepthStencilView",
+        "ResourceBarrier",
+        "ExecuteBundle",
+        "Present",
+        "ResolveQueryData",
+        "BeginSubmission",
+        "EndSubmission",
+        "DecodeFrame",
+        "ProcessFrames",
+        "AtomicCopyBufferUint",
+        "AtomicCopyBufferUint64",
+        "ResolveSubresourceRegion",
+        "WriteBufferImmediate",
+        "DecodeFrame1",
+        "SetProtectedResourceSession",
+        "DecodeFrame2",
+        "ProcessFrames1",
+        "BuildRaytracingAccelerationStructure",
+        "EmitRaytracingAccelerationStructurePostbuildInfo",
+        "CopyRaytracingAccelerationStructure",
+        "DispatchRays",
+        "InitializeMetaCommand",
+        "ExecuteMetaCommand",
+        "EstimateMotion",
+        "ResolveMotionVectorHeap",
+        "SetPipelineState1",
+        "InitializeExtensionCommand",
+        "ExecuteExtensionCommand",
+        "DispatchMesh",
+        "EncodeFrame",
+        "ResolveEncoderOutputMetadata",
+        "Barrier",
+        "BeginCommandList",
+    ];
+    usize::try_from(op)
+        .ok()
+        .and_then(|i| NAMES.get(i))
+        .copied()
+        .unwrap_or("(unknown op)")
 }
