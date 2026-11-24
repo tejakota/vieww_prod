@@ -41,7 +41,9 @@ echo "installed $(stat -c %s "$apk" 2>/dev/null || wc -c <"$apk") bytes"
 # Keep the screen on and the phone awake: the app must be in the foreground.
 adb shell input keyevent KEYCODE_WAKEUP || true
 adb shell svc power stayon usb || true
-if [ "${SKIP_THERMAL:-0}" = 1 ]; then adb shell setprop debug.mw.thermal 0; else adb shell setprop debug.mw.thermal ""; fi
+# `1` runs the 60 s thermal pass, `0` skips it. (An empty value cannot be
+# sent through `adb shell`: the empty argument is dropped.)
+adb shell setprop debug.mw.thermal "$([ "${SKIP_THERMAL:-0}" = 1 ] && echo 0 || echo 1)"
 
 log="$out/results/usb/phone/logcat"
 : > "$log"
@@ -61,7 +63,7 @@ for scenario in 1 2; do
 done
 adb shell am force-stop "$pkg"
 adb shell svc power stayon false || true
-adb shell setprop debug.mw.thermal "" || true
+adb shell setprop debug.mw.thermal 1 || true
 
 # Same converter and report as Test Lab: the app narrates the same lines.
 python3 "$here/../firebase/to_farm.py" --results "$out/results" --out "$out/farm" --apk "$apk"

@@ -191,6 +191,38 @@ pub(crate) fn after_gpu(
     }
 }
 
+/// Whether this device leans to the GPU: a Low or Medium handheld.
+///
+/// On the Redmi Note 7 Pro (Medium) the CPU path held 60 fps while the
+/// startup frames were calm and fell to 30 fps, 99.6% of frames over budget,
+/// once the screen got busy; the GPU path held 60 fps throughout at a third
+/// of the CPU time (USB run, 2026-11-24). A calm calibration cannot see
+/// that, so on these devices a settled CPU is not a reason to stay on it.
+pub(crate) fn leans_gpu(
+    tier: crate::device_tier::DeviceTier,
+    class: vieww_foundation::DeviceClass,
+) -> bool {
+    class == vieww_foundation::DeviceClass::Handheld
+        && tier != crate::device_tier::DeviceTier::High
+}
+
+/// [`after_gpu`], for a device that may lean to the GPU ([`leans_gpu`]): a
+/// GPU that draws the frames and is [`CLEARLY_FASTER`] wins even against a
+/// CPU path that settled.
+pub(crate) fn after_gpu_leaning(
+    cpu: Duration,
+    cpu_settled: bool,
+    gpu: Duration,
+    gpu_share: f64,
+    budget: Duration,
+    lean: bool,
+) -> Rasterizer {
+    if lean && gpu_share >= 0.9 && gpu.as_secs_f64() < cpu.as_secs_f64() * CLEARLY_FASTER {
+        return Rasterizer::Gpu;
+    }
+    after_gpu(cpu, cpu_settled, gpu, gpu_share, budget)
+}
+
 /// The calibration file: where, and under which key.
 #[derive(Debug, Clone)]
 pub(crate) struct Calibration {
@@ -309,7 +341,17 @@ impl Measuring {
                 #[expect(clippy::cast_precision_loss, reason = "forty samples")]
                 let share = self.gpu_drawn as f64 / self.samples.len() as f64;
                 Record {
-                    launch: Launch::Use(after_gpu(cpu, cpu_settled, median, share, budget)),
+                    launch: Launch::Use(after_gpu_leaning(
+                        cpu,
+                        cpu_settled,
+                        median,
+                        share,
+                        budget,
+                        leans_gpu(
+                            crate::device_tier::device_facts().tier,
+                            crate::device_tier::device_class(),
+                        ),
+                    )),
                     cpu: Some(cpu),
                     gpu: Some(median),
                 }
@@ -518,6 +560,32 @@ mod tests {
             let chosen = after_gpu(ms(cpu), settled, ms(gpu), 1.0, ms(budget));
             assert_eq!(chosen, expected, "{phone}");
         }
+    }
+
+    /// The Redmi Note 7 Pro: calm startup frames, a busy screen after.
+    #[test]
+    fn a_medium_handheld_leaves_a_settled_cpu_for_a_faster_gpu() {
+        use crate::device_tier::DeviceTier;
+        use vieww_foundation::DeviceClass::{Desktop, Handheld};
+        let lean = leans_gpu(DeviceTier::Medium, Handheld);
+        assert!(lean && leans_gpu(DeviceTier::Low, Handheld));
+        assert!(!leans_gpu(DeviceTier::High, Handheld));
+        assert!(!leans_gpu(DeviceTier::Medium, Desktop));
+        let settled = after_cpu(ms(5.0), 0.0, ms(HZ60));
+        assert!(settled);
+        let leaning = after_gpu_leaning(ms(5.0), settled, ms(3.5), 1.0, ms(HZ60), lean);
+        assert_eq!(leaning, Rasterizer::Gpu);
+        // Without the lean the settled CPU would have stayed...
+        assert_eq!(after_gpu(ms(5.0), settled, ms(3.5), 1.0, ms(HZ60)), Rasterizer::Cpu);
+        // ...and a GPU that is not clearly faster, or draws too few frames, loses.
+        assert_eq!(
+            after_gpu_leaning(ms(5.0), settled, ms(4.8), 1.0, ms(HZ60), lean),
+            Rasterizer::Cpu
+        );
+        assert_eq!(
+            after_gpu_leaning(ms(5.0), settled, ms(3.5), 0.5, ms(HZ60), lean),
+            Rasterizer::Cpu
+        );
     }
 
     /// Device Farm run 39538891917: the Galaxy S26 Ultra's CPU median was

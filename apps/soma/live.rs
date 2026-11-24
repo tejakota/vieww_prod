@@ -5,34 +5,52 @@
 // it to sketch a flow — the screens, what is on them, and the way between them.
 // Press Render to see real code instead; that one compiles.
 //
+// Soma's flow: one real screen (src/screens/home.rs) whose floating card has
+// three states — resting, results, answer. The sketch lays them out as
+// screens so the flow can be read and changed before it is built.
+//
 // Delete this file and the Live Preview turns off.
 
 live! {
-    screen "Home" {
-        title "Inbox"
-        row "Design Review" "3 new comments on the card layout"
-        row "Sprint Planning" "5 tickets moved to In Progress"
-        row "Release Notes" "Draft for v0.3 is ready to review"
-        button "Open settings" -> "Settings"
-    }
-
-    screen "Detail" {
-        title "Design Review"
-        text "Rows, text, buttons, a switch and a counter are all this file can say by itself."
-        // `mount` drops one of your own screens in, exactly as it last rendered.
-        // Press Render on src/screens/home.rs once to fill this in — it is the
-        // file this project opens with.
+    screen "Body" {
+        title "SOMA"
+        text "11,043 health topics · offline. Drag to turn, pinch to zoom, tap a region to open it."
+        // The real screen, exactly as it last rendered. Press Render on
+        // src/screens/home.rs once to fill this in.
         mount "src/screens/home.rs"
-        button "Back" -> "Home"
+        row "chest pain" "Suggestion: starts a search"
+        row "tired all the time" "Suggestion"
+        row "kidney stones" "Suggestion"
+        button "Ask: kidney stones" -> "Results"
     }
 
-    screen "Settings" {
-        title "Settings"
-        toggle "Notifications"
-        counter "Badge count"
-        text "Changes here are a sketch, not state your app keeps."
-        button "Done" -> "Home"
+    screen "Results" {
+        title "24 answers, best first"
+        text "The camera flies to the leading organ while you type; the card rides to the other end."
+        row "Kidney Stones" "Condition · Kidneys · TEXT · MEANING"
+        row "Kidneys" "Body · Kidneys · MEANING"
+        row "Bladder Stones" "Condition · Bladder · NEARBY"
+        text "Information only, not medical advice."
+        button "Open Kidney Stones" -> "Answer"
+        button "Clear" -> "Body"
     }
 
-    nav "Home" "Detail" "Settings"
+    screen "Answer" {
+        title "Kidney Stones"
+        text "Condition · Kidneys. The 3D kidneys are framed clear of this card; the callout cites the words that matched."
+        text "Matched: Kidney stones are hard deposits that form in your kidneys…"
+        row "Kidneys" "Nearby in the body"
+        row "Bladder" "Nearby in the body"
+        text "Source: my.clevelandclinic.org"
+        button "Back" -> "Results"
+    }
+
+    screen "Emergency" {
+        title "This could be an emergency"
+        text "Shown above results and answers for red-flag questions (chest pain, stroke signs, trouble breathing, self-harm)."
+        text "Call your local emergency number now (112 in India and the EU, 911 in the US, 999 in the UK)."
+        button "Back to results" -> "Results"
+    }
+
+    nav "Body" "Results" "Answer" "Emergency"
 }

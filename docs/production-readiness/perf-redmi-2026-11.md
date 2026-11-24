@@ -14,7 +14,7 @@ A local callgrind profile of the storm phase is flat. Paths and sparklines domin
 No change was found that keeps the output byte-identical (the CPU path is the fidelity reference, docs/FIDELITY.md).
 Options, each needing a decision:
 
-1. Let `auto_rasterizer` prefer the GPU path on Medium handhelds (no pixel change on the CPU path).
+1. **Done:** `auto_rasterizer` now prefers the GPU path on Low/Medium handhelds when it draws the frames and is clearly faster (`rasterizer_choice::after_gpu_leaning`). The CPU path's pixels are unchanged.
 2. A CPU-path resolution scale for handheld Medium/Low (pixels change; needs a `Pixels-Changed:` line).
 3. NEON paths for the premultiplied composite (needs a device to measure).
 
@@ -28,3 +28,7 @@ Options, each needing a decision:
 
 `since_process_start_ms` returned null on every phone because it read `/proc/uptime`. It now reads `CLOCK_BOOTTIME`
 directly. Unverified until the next device run.
+
+## MW-01 (jump hitch): open
+
+A 4,000 px jump costs about 43 ms on GPU and 80 ms on CPU at 2k rows, against 10 ms for a load on GPU. Not profiled yet; it needs a trace of the frame after the jump on the phone (layout vs glyph cache vs row build) before any fix.
