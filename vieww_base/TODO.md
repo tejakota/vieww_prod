@@ -105,9 +105,11 @@ follows is *vieww_prod performance plan: status check and to-do plan*
    31 MB (met).
 4. **Windows idle CPU on D3D12**: 3.1% with zero frames (0% on the CPU
    path) — needs a profile (Windows Performance Recorder, idle window).
-5. **D3D12 GPU-drawn window**: `baseline -- --gpu` with
-   `VIEWW_PRESENT=d3d12` measures the scene renderer drawing the window
-   (every run so far drew on the CPU and only presented through D3D12).
+5. **D3D12 GPU-drawn window**: on the HD 620, damaged frames into the
+   retained L[0] page-faulted on the 10th frame (DRED; fault matrix run
+   45211604020); full redraws ran clean, so the window path now redraws in
+   full (`VIEWW_D3D12_RETAINED=1` for the old path). Owed: the matrix
+   re-run confirming it, and the GPU-drawn numbers from it.
 6. **The compute blur's follow-ups**: the A73 stress screen's before/after
    on Device Farm (117 ms owed to halve).
 7. **Device Farm round** (storm attribution, `gpu` vs `gpuserial`,

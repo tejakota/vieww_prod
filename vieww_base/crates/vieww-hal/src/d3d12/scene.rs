@@ -1049,23 +1049,6 @@ impl D3d12SceneRenderer {
         let constants_bytes: &[u8] = plain_bytes(&plan.constants);
         let vertices = self.upload_buffer(vertex_bytes)?;
         let indices = self.upload_buffer(index_bytes)?;
-        // `VIEWW_D3D12_PAD_CONSTANTS=1` (diagnostic): the table is read
-        // through a root SRV, which has no size and no bounds check, so a
-        // read past its end reaches whatever memory follows. Padding it with
-        // 1 MiB of zeros makes any such overrun land in our own buffer —
-        // if the window-frame page fault stops, an overrun was the cause.
-        let padded: Vec<u8>;
-        let constants_bytes = if std::env::var("VIEWW_D3D12_PAD_CONSTANTS").is_ok_and(|v| v == "1")
-        {
-            padded = constants_bytes
-                .iter()
-                .copied()
-                .chain(std::iter::repeat_n(0u8, 1 << 20))
-                .collect();
-            &padded[..]
-        } else {
-            constants_bytes
-        };
         let constants = self.upload_buffer(constants_bytes)?;
         #[expect(clippy::cast_precision_loss, reason = "frame extents")]
         let viewport: [f32; 4] = [width as f32, height as f32, 0.0, 0.0];
