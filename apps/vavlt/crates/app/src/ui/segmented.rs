@@ -110,7 +110,12 @@ pub fn tier_control(
                         Flexible::expanded(1)
                             .child(
                                 Semantics::button(format!("{label}, {figure}")).child(
-                                    GestureDetector::new().on_tap(move |_| pick(tier)).child(
+                                    GestureDetector::new()
+                                        .on_tap(move |_| pick(tier))
+                                        // A segment is a control: Tab reaches it, Space/Enter pick it.
+                                        .focusable(true)
+                                        .focus_ring(Some(colors.accent_bg))
+                                        .child(
                                         Container::new()
                                             .height(HEIGHT)
                                             .alignment(Alignment::CENTER)
