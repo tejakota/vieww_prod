@@ -173,11 +173,35 @@ mod app {
     /// Milliseconds since this process was started — Test Lab's launch is a
     /// cold one, so at the first presented frame this is the cold start.
     fn since_process_start_ms() -> Option<f64> {
-        // CLK_TCK is 100 on every Android ABI.
+        // `starttime` is in clock ticks since boot, on the boot-time clock
+        // (suspend included), and CLK_TCK is 100 on every Android ABI. The
+        // "now" it is compared with must be on the same clock:
+        // `CLOCK_BOOTTIME`, read directly. `/proc/uptime` is not readable by
+        // an app on every Android release (the 2026-11 Redmi and Pixel runs
+        // both returned null from it), and the clock call cannot be refused.
+        #[repr(C)]
+        struct Timespec {
+            tv_sec: i64,
+            tv_nsec: i64,
+        }
+        extern "C" {
+            fn clock_gettime(clock: i32, out: *mut Timespec) -> i32;
+        }
+        const CLOCK_BOOTTIME: i32 = 7;
         let start_ticks = *stat_fields()?.get(19)?;
-        let uptime = std::fs::read_to_string("/proc/uptime").ok()?;
-        let up_s: f64 = uptime.split_whitespace().next()?.parse().ok()?;
-        Some((up_s - start_ticks as f64 / 100.0) * 1e3)
+        let mut now = Timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        };
+        // SAFETY: `now` is a valid, writable `timespec` for the call's duration.
+        if unsafe { clock_gettime(CLOCK_BOOTTIME, &mut now) } != 0 {
+            return None;
+        }
+        #[expect(clippy::cast_precision_loss, reason = "a boot time is far below 2^52 ns")]
+        let up_s = now.tv_sec as f64 + now.tv_nsec as f64 / 1e9;
+        #[expect(clippy::cast_precision_loss, reason = "ticks since boot are small")]
+        let started = start_ticks as f64 / 100.0;
+        Some(((up_s - started) * 1e3).max(0.0))
     }
 
     /// One `kB` line of `/proc/self/smaps_rollup` (`Pss:`, `Rss:`).
