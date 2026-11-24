@@ -70,7 +70,7 @@ const INK: Color = Color::rgb(0xF8, 0xF4, 0xF2);
 /// `--muted-foreground`, `oklch(0.7 0.015 60)`.
 const INK_2: Color = Color::rgb(0xA6, 0x9C, 0x95);
 /// Between the border and the muted foreground: captions and file names.
-const INK_3: Color = Color::rgb(0x78, 0x71, 0x6C);
+const INK_3: Color = Color::rgb(0x9A, 0x92, 0x8B);
 
 // **Purple, as asked for.** `globals.css` says
 // `/* Blue accent — #5B9DF9, the viewwstudio mark's preview panel */`, so the
@@ -3030,4 +3030,33 @@ pub fn start() -> Result<(), wasm_bindgen::JsValue> {
         .map(std::mem::forget)
         .map_err(|error| error.to_string())?;
     Ok(())
+}
+
+#[cfg(test)]
+mod a11y01_tests {
+    use super::*;
+
+    /// WCAG 2.1 relative luminance and contrast ratio (SC 1.4.3), so this test
+    /// needs no dependency beyond the colour type.
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    #[test]
+    fn ink_3_meets_aa_on_every_surface_it_is_set_on() {
+        for (n, bg) in [("ground", GROUND), ("surface", SURFACE), ("surface_2", SURFACE_2)] {
+            let r = ratio(INK_3, bg);
+            assert!(r >= 4.5, "INK_3 on {n}: {r:.2}:1");
+            let r = ratio(INK_2, bg);
+            assert!(r >= 4.5, "INK_2 on {n}: {r:.2}:1");
+        }
+    }
 }

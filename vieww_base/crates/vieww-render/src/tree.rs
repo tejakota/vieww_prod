@@ -257,6 +257,8 @@ pub struct RenderTree {
     /// The previous frame's boundary list, kept for its capacity: every frame
     /// produces one, and allocating it afresh was a steady-state allocation.
     boundary_scratch: Vec<Boundary>,
+    /// The object currently drawing a keyboard focus ring, if any.
+    focus_ring: Option<RenderId>,
     /// The layer → boundary map `paint_layers_with_ratio` rebuilds each frame,
     /// kept for its capacity for the same reason.
     owner_scratch: FastMap<LayerId, RenderId>,
@@ -316,6 +318,7 @@ impl Default for RenderTree {
             structure_generation: 0,
             boundary_cache: FastMap::default(),
             boundary_scratch: Vec::new(),
+            focus_ring: None,
             owner_scratch: FastMap::default(),
             boundary_walks: 0,
             previous_boundaries: Vec::new(),
@@ -1240,6 +1243,7 @@ impl RenderTree {
     /// Leaves that snap to the pixel grid read it off the [`PaintCtx`] this
     /// hands them; at 1:1 the two calls are identical.
     pub fn paint_with_ratio(&self, canvas: &mut dyn Canvas, dpr: f32) {
+        self.apply_focus_ring();
         if let Some(root) = self.root {
             self.paint_node(root, Offset::ZERO, canvas, dpr);
         }
@@ -1260,6 +1264,34 @@ impl RenderTree {
         }
         let offset = self.node(id).offset;
         self.paint_node(id, Offset::new(-offset.dx, -offset.dy), canvas, 1.0);
+    }
+
+    /// Move the keyboard focus ring to `target`, repainting the object that lost
+    /// it and the one that gained it. A no-op when it is already there.
+    pub fn set_focus_ring(&mut self, target: Option<RenderId>) {
+        if self.focus_ring == target {
+            return;
+        }
+        if let Some(old) = self.focus_ring.take() {
+            if let Some(object) = self.object(old) {
+                object.set_focus_visible(false);
+            }
+            self.mark_needs_paint(old);
+        }
+        self.focus_ring = target;
+        if let Some(new) = target {
+            self.mark_needs_paint(new);
+        }
+    }
+
+    /// A rebuild replaces render objects, which resets their ring flag; this
+    /// re-asserts it for the object that owns the ring, once per paint.
+    fn apply_focus_ring(&self) {
+        if let Some(id) = self.focus_ring {
+            if let Some(object) = self.object(id) {
+                object.set_focus_visible(true);
+            }
+        }
     }
 
     fn paint_node(&self, id: RenderId, parent_origin: Offset, canvas: &mut dyn Canvas, dpr: f32) {
@@ -1329,6 +1361,7 @@ impl RenderTree {
     /// The same, for a surface whose physical pixels are `dpr` to one logical
     /// one. See [`paint_with_ratio`](Self::paint_with_ratio).
     pub fn paint_layers_with_ratio(&mut self, layers: &mut LayerTree, dpr: f32) {
+        self.apply_focus_ring();
         let boundaries = self.boundaries();
         self.reconcile_layers(layers, &boundaries);
         self.boundary_scratch = boundaries;

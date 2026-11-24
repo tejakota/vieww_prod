@@ -481,6 +481,7 @@ impl RenderFactory {
         factory.register_with_context::<GestureDetector, _>(|widget, scope| {
             RenderGestureDetector::new(widget.handlers().clone())
                 .focusable(widget.is_focusable())
+                .focus_ring(widget.focus_ring_color())
                 .min_touch_target(
                     widget
                         .touch_target_override()

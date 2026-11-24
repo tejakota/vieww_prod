@@ -58,7 +58,7 @@ const INK: Color = Color::rgb(0xEC, 0xEB, 0xF6);
 /// The second text colour.
 const INK_2: Color = Color::rgb(0xA6, 0xA4, 0xC0);
 /// Captions, file names, small print.
-const INK_3: Color = Color::rgb(0x73, 0x71, 0x8E);
+const INK_3: Color = Color::rgb(0x8C, 0x8A, 0xA8);
 /// The accent as text on the dark ground, lifted the way Wright lifts its own.
 const ACCENT_INK: Color = Color::rgb(0xA7, 0x9B, 0xFF);
 /// The live dot — a lab at work.
@@ -1463,4 +1463,31 @@ pub fn start() -> Result<(), wasm_bindgen::JsValue> {
         .map(std::mem::forget)
         .map_err(|error| error.to_string())?;
     Ok(())
+}
+
+#[cfg(test)]
+mod a11y01_tests {
+    use super::*;
+
+    /// WCAG 2.1 relative luminance and contrast ratio (SC 1.4.3), so this test
+    /// needs no dependency beyond the colour type.
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    #[test]
+    fn ink_3_meets_aa_on_the_ground() {
+        for (n, fg) in [("INK_3", INK_3), ("INK_2", INK_2), ("ACCENT_INK", ACCENT_INK)] {
+            let r = ratio(fg, GROUND);
+            assert!(r >= 4.5, "{n} on ground: {r:.2}:1");
+        }
+    }
 }

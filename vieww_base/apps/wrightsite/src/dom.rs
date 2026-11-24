@@ -36,7 +36,7 @@ const GROUND: Color = Color::rgb(0x1F, 0x1F, 0x1F);
 const INK: Color = Color::rgb(0xE8, 0xE8, 0xE8);
 /// `DARK.muted`.
 const INK_2: Color = Color::rgb(0x9D, 0x9D, 0x9D);
-const INK_3: Color = Color::rgb(0x6E, 0x6E, 0x6E);
+const INK_3: Color = Color::rgb(0x9A, 0x9A, 0x9A);
 /// `DARK.accent`.
 const ACCENT: Color = Color::rgb(0x00, 0x78, 0xD4);
 /// `DARK.accent_ink` — the accent as text on the dark ground.

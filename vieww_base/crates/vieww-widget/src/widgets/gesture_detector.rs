@@ -177,6 +177,7 @@ impl fmt::Debug for GestureHandlers {
 pub struct GestureDetector {
     handlers: GestureHandlers,
     focusable: bool,
+    focus_ring: Option<vieww_foundation::Color>,
     /// An override for the theme's minimum touch target — see
     /// [`touch_target`](Self::touch_target). `None` takes the theme's.
     touch_target: Option<f32>,
@@ -382,6 +383,22 @@ impl GestureDetector {
     pub const fn focusable(mut self, focusable: bool) -> Self {
         self.focusable = focusable;
         self
+    }
+
+    /// Draw a keyboard focus ring in `color` while this has focus from the
+    /// keyboard (never after a tap). Meaningful only with
+    /// [`focusable`](Self::focusable). [`Pressable`](crate::Pressable) sets it
+    /// from the theme's `focus` token, so a control built on it has one.
+    #[must_use]
+    pub const fn focus_ring(mut self, color: Option<vieww_foundation::Color>) -> Self {
+        self.focus_ring = color;
+        self
+    }
+
+    /// The ring colour, read by the render layer.
+    #[must_use]
+    pub const fn focus_ring_color(&self) -> Option<vieww_foundation::Color> {
+        self.focus_ring
     }
 
     /// Set the child.

@@ -33,7 +33,7 @@ const GROUND: Color = Color::rgb(0x0F, 0x0D, 0x0B);
 const INK: Color = Color::rgb(0xF8, 0xF4, 0xF2);
 /// `--muted-foreground`.
 const INK_2: Color = Color::rgb(0xA6, 0x9C, 0x95);
-const INK_3: Color = Color::rgb(0x78, 0x71, 0x6B);
+const INK_3: Color = Color::rgb(0x9A, 0x92, 0x8B);
 /// `--primary`. Purple, as asked for, where their CSS has blue.
 const ACCENT: Color = Color::rgb(0xB4, 0x91, 0xFF);
 const LIVE: Color = Color::rgb(0x4E, 0xBE, 0x7D);

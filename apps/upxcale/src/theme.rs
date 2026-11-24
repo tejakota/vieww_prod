@@ -149,3 +149,33 @@ pub const DIVIDER: Color = Color::rgb(255, 255, 255);
 /// `DISABLED_ALPHA` as a multiplier, for the places that dim by opacity rather
 /// than by compositing a colour.
 pub const DISABLED_OPACITY: f32 = 0.38;
+
+#[cfg(test)]
+mod a11y01_tests {
+    use super::*;
+
+    /// WCAG 2.1 relative luminance and contrast ratio (SC 1.4.3), so this test
+    /// needs no dependency beyond the colour type.
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    #[test]
+    fn primary_and_text_roles_meet_aa_on_the_dark_scheme() {
+        let s = scheme();
+        let r = ratio(s.on_primary, s.primary);
+        assert!(r >= 4.5, "primary label: {r:.2}:1");
+        let r = ratio(s.primary, s.surface);
+        assert!(r >= 3.0, "primary button against surface: {r:.2}:1");
+        let r = ratio(s.on_surface, s.surface_variant);
+        assert!(r >= 4.5, "text on surface_variant: {r:.2}:1");
+    }
+}

@@ -47,6 +47,42 @@ use crate::{
 };
 
 // ---------------------------------------------------------------------------
+// Keyboard-reachable controls (A11Y-02)
+
+/// A `Pressable` with the call shape of the `GestureDetector` it replaces
+/// (`on_tap(|_| ..).child(..)`), so every control here is a tab stop that
+/// Space and Enter activate, shows the theme's focus ring after Tab, and
+/// dims while pressed. The viewport's drag/pinch surface stays a bare
+/// detector: it is not a control.
+struct PressTap {
+    handler: Option<Rc<dyn Fn(vieww::foundation::TapDetails)>>,
+}
+
+impl PressTap {
+    fn new() -> Self {
+        Self { handler: None }
+    }
+
+    fn on_tap(mut self, handler: impl Fn(vieww::foundation::TapDetails) + 'static) -> Self {
+        self.handler = Some(Rc::new(handler));
+        self
+    }
+
+    fn child(self, child: impl Into<WidgetNode>) -> Pressable {
+        let child: WidgetNode = child.into();
+        let pressable = Pressable::new(move |press| {
+            Opacity::new(1.0 - 0.3 * press).child(child.clone()).into()
+        });
+        match self.handler {
+            Some(handler) => pressable.on_tap(move || {
+                handler(vieww::foundation::TapDetails::at(Offset::ZERO));
+            }),
+            None => pressable,
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Tokens (DESIGN_SPEC.md §1)
 // ---------------------------------------------------------------------------
 
@@ -428,7 +464,7 @@ fn camera_controls(state: &Rc<AppState>, pill: f32, vw: f32, vh: f32) -> WidgetN
             let state = state.clone();
             Semantics::button(label)
                 .child(
-                    GestureDetector::new()
+                    PressTap::new()
                         .on_tap(move |_| {
                             act(&state);
                             let mut rig = state.rig.borrow_mut();
@@ -841,7 +877,7 @@ fn search_icon() -> WidgetNode {
 fn clear_button(state: &Rc<AppState>) -> WidgetNode {
     Semantics::button("Clear search")
         .child(
-            GestureDetector::new()
+            PressTap::new()
                 .on_tap({
                     let state = state.clone();
                     move |_tap| clear(&state)
@@ -907,7 +943,7 @@ fn hint_row(state: &Rc<AppState>) -> WidgetNode {
 /// A rounded, tappable label with a 44 px target.
 fn chip(state: &Rc<AppState>, label: &str, color: Color, act: Rc<dyn Fn(&AppState)>) -> WidgetNode {
     let state = state.clone();
-    GestureDetector::new()
+    PressTap::new()
         .on_tap(move |_| act(&state))
         .child(
             SizedBox::height(HIT).child(
@@ -1061,7 +1097,7 @@ fn result_row(state: &Rc<AppState>, hit: &crate::search::Hit) -> WidgetNode {
         organ
     ))
     .child(
-        GestureDetector::new()
+        PressTap::new()
             .on_tap({
                 let state = state.clone();
                 move |_tap| select_topic(&state, index)
@@ -1285,7 +1321,7 @@ fn answer_card(state: &Rc<AppState>) -> WidgetNode {
 fn back_button(state: &Rc<AppState>) -> WidgetNode {
     Semantics::button("Back")
         .child(
-            GestureDetector::new()
+            PressTap::new()
                 .on_tap({
                     let state = state.clone();
                     move |_| go_back(&state)

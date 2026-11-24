@@ -227,6 +227,9 @@ pub struct FrameDriver {
     /// field that keeps asking on every rebuild must not keep taking the
     /// keyboard back. Ids carry a generation, so a reused slot is a new id.
     autofocused: std::collections::HashSet<RenderId>,
+    /// Whether the keyboard, not a pointer, last moved or used focus — the
+    /// `:focus-visible` rule. A tap focuses a button without lighting a ring.
+    keyboard_driven: bool,
     /// What had the keyboard before an autofocus took it, and the object that
     /// took it. When that object goes away with the keyboard still on it (a
     /// palette closing), focus returns here rather than to nothing — a
@@ -405,6 +408,7 @@ impl FrameDriver {
             hovered: Vec::new(),
             focus: FocusManager::new(),
             autofocused: std::collections::HashSet::new(),
+            keyboard_driven: false,
             autofocus_return: None,
             autofocus_seen: None,
             placement_ids: Vec::new(),
@@ -1251,6 +1255,10 @@ impl FrameDriver {
     /// try to be one — a gesture arriving mid-frame would otherwise change the
     /// tree between layout and paint.
     pub fn handle_pointer(&mut self, event: &PointerEvent) -> Vec<Dispatched> {
+        if event.phase == PointerPhase::Down && self.keyboard_driven {
+            self.keyboard_driven = false;
+            self.invalidation.upgrade(InvalidationKind::Paint);
+        }
         // Focus follows the press, before the gesture is routed. Doing it here
         // rather than in a widget's tap handler is deliberate: a tap that lands
         // on a field has to move focus whether or not any recogniser goes on to
@@ -1412,6 +1420,10 @@ impl FrameDriver {
     /// Like [`handle_pointer`](Self::handle_pointer), this is not a frame phase.
     /// A handler sets a signal, and the *next* frame shows the result.
     pub fn handle_key(&mut self, event: &KeyEvent) -> bool {
+        if event.is_down() && !self.keyboard_driven {
+            self.keyboard_driven = true;
+            self.invalidation.upgrade(InvalidationKind::Paint);
+        }
         // A focused object can have been removed by a rebuild since the last
         // key, so this is checked here rather than trusted from when it was set.
         self.focus.prune(self.owner.tree());
@@ -2199,8 +2211,10 @@ impl FrameSink for FrameDriver {
         // leaves snap to is the surface's, and `self.metrics` is where the
         // platform published it.
         let dpr = self.metrics.device_pixel_ratio;
+        let ring = if self.keyboard_driven { self.focus.focused() } else { None };
         let (owner, layers) = (&mut self.owner, &mut self.layers);
         if let Err(error) = guarded(FramePhase::Paint, move || {
+            owner.tree_mut().set_focus_ring(ring);
             owner.tree_mut().paint_layers_with_ratio(layers, dpr);
         }) {
             self.frame_errors.push(error);

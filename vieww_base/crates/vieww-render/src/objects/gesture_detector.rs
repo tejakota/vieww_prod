@@ -11,7 +11,7 @@ use vieww_gestures::{
 };
 use vieww_widget::{GestureHandlers, Handler};
 
-use crate::{LayoutCtx, RenderObject, SemanticAction};
+use crate::{LayoutCtx, PaintCtx, RenderObject, SemanticAction};
 
 /// How much of a screen a screen reader's "scroll down" moves.
 ///
@@ -64,6 +64,11 @@ pub struct RenderGestureDetector {
     /// wanted — see `Chip`, whose own docs argue density over reach — rather
     /// than as a general escape hatch.
     min_touch_target: f32,
+    /// The ring colour — the theme's `focus` token — or `None` for no ring.
+    focus_ring: Option<vieww_foundation::Color>,
+    /// Set by the frame driver while this has the keyboard *and* the keyboard
+    /// is how the person is driving. A `Cell` because it arrives through `&self`.
+    ring_visible: Cell<bool>,
 }
 
 impl Clone for RenderGestureDetector {
@@ -77,6 +82,8 @@ impl Clone for RenderGestureDetector {
             focusable: self.focusable,
             space_held: Cell::new(false),
             min_touch_target: self.min_touch_target,
+            focus_ring: self.focus_ring,
+            ring_visible: Cell::new(self.ring_visible.get()),
         }
     }
 }
@@ -112,7 +119,19 @@ impl RenderGestureDetector {
             focusable: false,
             space_held: Cell::new(false),
             min_touch_target: 0.0,
+            focus_ring: None,
+            ring_visible: Cell::new(false),
         }
+    }
+
+    /// Draw a 2 px ring in `color` around this while the keyboard is on it.
+    ///
+    /// Only a focusable detector can have the keyboard, so on any other this
+    /// does nothing.
+    #[must_use]
+    pub const fn focus_ring(mut self, color: Option<vieww_foundation::Color>) -> Self {
+        self.focus_ring = color;
+        self
     }
 
     /// The smallest square this must be reachable across.
@@ -156,6 +175,31 @@ impl RenderObject for RenderGestureDetector {
         let size = ctx.layout_child(child, constraints);
         ctx.place_child(child, Offset::ZERO);
         size
+    }
+
+    fn set_focus_visible(&self, visible: bool) {
+        self.ring_visible.set(visible);
+    }
+
+    fn paint_children_done(&self, ctx: &mut PaintCtx<'_>) {
+        let (Some(color), true) = (self.focus_ring, self.ring_visible.get()) else {
+            return;
+        };
+        // Outside the box by one stroke, so the ring never covers the control's
+        // own border or label (`ring-offset` in DESIGN_SPEC §focus).
+        let bounds = ctx.bounds();
+        let grown = Rect::new(
+            bounds.left - 2.0,
+            bounds.top - 2.0,
+            bounds.right + 2.0,
+            bounds.bottom + 2.0,
+        );
+        ctx.canvas().stroke_rrect(
+            grown,
+            8.0,
+            vieww_paint::Stroke::new(2.0),
+            vieww_paint::Paint::solid(color),
+        );
     }
 
     fn hit_test_self(&self, _point: Offset, _size: Size) -> bool {

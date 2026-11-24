@@ -115,6 +115,31 @@ impl ColorScheme {
     /// throws away the difference between "destructive" and "confirm" has
     /// traded one accessibility failure for another, and colour is not the only
     /// signal here precisely so that it can survive this.
+    /// The **`focus` token**: the colour of the keyboard focus ring.
+    ///
+    /// `primary` when it stands clear of the surface (the common case, and what
+    /// makes the ring read as part of the palette), otherwise `on_surface`,
+    /// because a ring that blends into the ground is no ring. DESIGN_SPEC draws
+    /// it 2 px wide with a 2 px offset; the render layer does the drawing.
+    #[must_use]
+    pub fn focus_ring(&self) -> Color {
+        if (self.primary.lightness() - self.surface.lightness()).abs() >= 0.3 {
+            self.primary
+        } else {
+            self.on_surface
+        }
+    }
+
+    /// The **`hover` token**: the wash a pointer-over control gains.
+    ///
+    /// Only ever applied through [`Sense::hover`](crate::Sense), which is `0.0`
+    /// on a touch device — so this is desktop-only without a platform check at
+    /// any call site.
+    #[must_use]
+    pub fn hover_wash(&self) -> Color {
+        self.on_surface.with_alpha(20)
+    }
+
     #[must_use]
     pub fn high_contrast(self) -> Self {
         // Which way "away from the ground" points, decided once from the

@@ -150,6 +150,16 @@ pub trait RenderObject: Any + Debug + 'static {
         let _ = ctx;
     }
 
+    /// Whether the keyboard is on this object **and the person is using it**
+    /// (the CSS `:focus-visible` rule: a ring after Tab, none after a tap).
+    ///
+    /// The frame driver calls this on the object that has the ring and on the
+    /// one that just lost it, then asks for a repaint. A default no-op, because
+    /// only a control that draws a ring cares.
+    fn set_focus_visible(&self, visible: bool) {
+        let _ = visible;
+    }
+
     /// Whether this object's subtree keeps its own recording.
     ///
     /// A boundary gets a [`Layer`](vieww_paint::Layer): repaints inside it stop

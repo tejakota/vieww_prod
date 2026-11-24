@@ -234,6 +234,13 @@ impl Widget for Pressable {
             // below is set either way, because a tap always has to clear the
             // highlight, so this cannot be inferred from that.
             .focusable(self.on_tap.is_some())
+            // The theme's `focus` token. `None` outside a theme, which is also
+            // what `debug_tree` wants: a description has no keyboard.
+            .focus_ring(
+                self.on_tap
+                    .is_some()
+                    .then(|| crate::ThemeData::of(ctx).colors.focus_ring()),
+            )
             // Set unconditionally, like `on_tap` below: a control that only
             // tracked the pointer when its builder happened to read the hover
             // would report a stale fraction the first time one did.

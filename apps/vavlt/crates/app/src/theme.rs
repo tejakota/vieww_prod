@@ -141,7 +141,7 @@ impl VavltColors {
             btn_hover: Color::rgba(255, 255, 255, 46),
             btn_active: Color::rgba(255, 255, 255, 64),
 
-            accent_bg: Color::hex(0x35_84E4),
+            accent_bg: Color::hex(0x1C_71D8),
             accent_fg: Color::WHITE,
             accent_txt: Color::hex(0x8A_B8F0),
             accent_tint: Color::rgba(53, 132, 228, 46),
@@ -171,7 +171,7 @@ impl VavltColors {
 
             fg: Color::hex(0x1E_1E1E),
             fg_2: Color::rgba(30, 30, 30, 209),
-            dim: Color::rgba(30, 30, 30, 153),
+            dim: Color::hex(0x6B_6B6B),
 
             line: Color::rgba(0, 0, 0, 26),
             line_strong: Color::rgba(0, 0, 0, 41),
@@ -181,7 +181,7 @@ impl VavltColors {
             btn_hover: Color::hex(0xF0_F0F0),
             btn_active: Color::hex(0xE2_E2E2),
 
-            accent_bg: Color::hex(0x35_84E4),
+            accent_bg: Color::hex(0x1C_71D8),
             accent_fg: Color::WHITE,
             accent_txt: Color::hex(0x1C_71D8),
             accent_tint: Color::rgba(53, 132, 228, 31),
@@ -541,4 +541,44 @@ pub mod motion {
     /// One tile completing. Short, because dozens fire in sequence and a long
     /// curve turns a run into a light show.
     pub const TILE: Duration = Duration::from_millis(220);
+}
+
+#[cfg(test)]
+mod a11y_tests {
+    use super::*;
+
+    /// WCAG 2.1 relative luminance and contrast ratio (SC 1.4.3), so this test
+    /// needs no dependency beyond the colour type.
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    /// Flatten a translucent foreground over an opaque background.
+    fn over(fg: Color, bg: Color) -> Color {
+        let a = f32::from(fg.a) / 255.0;
+        let mix = |f: u8, b: u8| (f32::from(f) * a + f32::from(b) * (1.0 - a)).round() as u8;
+        Color::rgb(mix(fg.r, bg.r), mix(fg.g, bg.g), mix(fg.b, bg.b))
+    }
+
+    #[test]
+    fn a11y01_text_and_suggested_button_meet_aa_in_both_schemes() {
+        for (name, c) in [("dark", VavltColors::dark()), ("light", VavltColors::light())] {
+            for (what, bg) in [("window", c.window), ("view", c.view), ("card", c.card)] {
+                let r = ratio(over(c.dim, bg), bg);
+                assert!(r >= 4.5, "{name} dim on {what}: {r:.2}:1");
+                let r = ratio(over(c.fg_2, bg), bg);
+                assert!(r >= 4.5, "{name} fg_2 on {what}: {r:.2}:1");
+            }
+            let r = ratio(c.accent_fg, c.accent_bg);
+            assert!(r >= 4.5, "{name} Suggested label on fill: {r:.2}:1");
+        }
+    }
 }
