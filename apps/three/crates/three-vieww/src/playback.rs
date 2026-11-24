@@ -65,6 +65,10 @@ pub struct DepthView {
     /// median and then never re-measured: it anchors the orbit, and letting
     /// it move per-frame would make the camera breathe with the footage.
     subject_distance: f32,
+    /// The last warp and what it was for: a rebuild with the same frame and
+    /// camera reuses it instead of warping again (TH-02).
+    last_render: Option<(usize, ViewCamera, RenderedFrame)>,
+    warps: u64,
 }
 
 impl DepthView {
@@ -85,6 +89,8 @@ impl DepthView {
             decoded_index: None,
             decoded: None,
             subject_distance,
+            last_render: None,
+            warps: 0,
         }
     }
 
@@ -140,13 +146,29 @@ impl DepthView {
         let intrinsics = self.capture.meta().intrinsics;
         let subject = self.subject_distance;
         let camera = self.camera;
+        let index = self.player.frame_index()?;
+        if let Some((at, cam, rendered)) = &self.last_render {
+            if *at == index && *cam == camera {
+                return Some(rendered.clone());
+            }
+        }
         let frame = self.current_frame()?;
         let out = crate::warp_frame(&frame.color, &frame.depth, &intrinsics, &camera, subject);
-        Some(RenderedFrame {
+        let rendered = RenderedFrame {
             width: out.width,
             height: out.height,
             rgba: Shared::new(out.rgba),
-        })
+        };
+        self.warps += 1;
+        self.last_render = Some((index, camera, rendered.clone()));
+        Some(rendered)
+    }
+
+    /// How many times a frame has actually been warped (not served from the
+    /// memo) — the counter the memoisation test reads.
+    #[must_use]
+    pub fn warps(&self) -> u64 {
+        self.warps
     }
 
     /// Whether the current state still needs frames drawn for it: the
@@ -229,5 +251,15 @@ mod tests {
         let blank = RenderedFrame::blank(4, 3);
         assert_eq!(blank.rgba.len(), 4 * 3 * 4);
         assert!(blank.rgba.chunks(4).all(|p| p == [0, 0, 0, 255]));
+    }
+
+    /// TH-02: the same frame under the same camera is warped once.
+    #[test]
+    fn an_unchanged_frame_and_camera_is_warped_once() {
+        let mut view = sample_view();
+        let first = view.render(std::time::Duration::ZERO).expect("a frame");
+        let second = view.render(std::time::Duration::ZERO).expect("a frame");
+        assert_eq!(first, second);
+        assert_eq!(view.warps(), 1);
     }
 }

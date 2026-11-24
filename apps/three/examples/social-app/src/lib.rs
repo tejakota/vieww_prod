@@ -212,6 +212,21 @@ fn seeded_app() -> ThreeApp<MemorySocialBackend> {
         .expect("the sample capture encodes");
     let post = app.publish_composer().expect("seed post publishes");
 
+    // Two more people's moments, so the feed is a feed. Each is published by
+    // its own author through the same composer.
+    for (who, caption) in [
+        ("maya", "Remixed the window light — rotate it slowly."),
+        ("noah", "Orbit study no. 4: the desk, from underneath."),
+    ] {
+        let _ = app.backend_mut().set_active_user(UserId(who.to_owned()));
+        app.begin_create();
+        app.composer.caption = caption.into();
+        app.attach_capture(&sample_capture())
+            .expect("the sample capture encodes");
+        app.publish_composer().expect("seed post publishes");
+    }
+    let _ = app.backend_mut().set_active_user(UserId("teja".into()));
+
     // The trail, left by real actors through the real actions. `set_active_user`
     // is the whole trick: the backend attributes every act to whoever is
     // active, exactly as a multi-user server would.
@@ -268,6 +283,19 @@ impl fmt::Debug for CapturePhase {
     }
 }
 
+thread_local! {
+    static SHARE_HOOK: RefCell<Option<Rc<dyn Fn(String)>>> = const { RefCell::new(None) };
+}
+
+/// Install the platform's share sheet: it is handed the post's link. Until a
+/// host installs one, Share says it is unavailable instead of doing nothing.
+pub fn set_share_hook(hook: impl Fn(String) + 'static) {
+    SHARE_HOOK.with(|slot| *slot.borrow_mut() = Some(Rc::new(hook)));
+}
+
+/// One feed card's height, the list's uniform row extent.
+const FEED_CARD: f32 = 470.0;
+
 struct SocialState {
     app: ThreeApp<MemorySocialBackend>,
     pending: bool,
@@ -279,6 +307,15 @@ struct SocialState {
     /// set privately; this is the view's copy, written only by the same call
     /// that writes the backend's.
     following: HashSet<UserId>,
+    /// The snapshot's backend-derived part, by `ThreeApp::revision`.
+    cache: std::cell::RefCell<Option<(u64, Rc<Heavy>)>>,
+    /// The feed post whose capture is playing: one at a time (TH-02).
+    active: Option<PostId>,
+    /// A line the user is told: share result, errors.
+    notice: Option<String>,
+    /// The feed's scroll offset and viewport, driven by drag.
+    feed_offset: f32,
+    feed_viewport: f32,
 }
 /// AppError has no Display; the failure line wants a string.
 fn self_capture_failed(phase: &mut CapturePhase, error: &three_app::AppError) {
@@ -304,6 +341,11 @@ impl SocialState {
             pending: false,
             search: String::new(),
             following: HashSet::new(),
+            cache: std::cell::RefCell::new(None),
+            active: None,
+            notice: None,
+            feed_offset: 0.0,
+            feed_viewport: 0.0,
             capture: match source {
                 Some(_) => CapturePhase::Idle,
                 None => CapturePhase::NoSource,
@@ -344,6 +386,59 @@ impl SocialState {
             Err(_) => {}
         }
         self.pending = true;
+    }
+    /// Play this post's capture; every other card shows its poster.
+    fn play(&mut self, id: &PostId) {
+        self.active = Some(id.clone());
+        self.pending = true;
+    }
+    fn open_comments(&mut self, id: &PostId) {
+        self.app.navigate(Route::Comments(id.clone()));
+        self.pending = true;
+    }
+    fn open_post(&mut self, id: &PostId) {
+        self.app.navigate(Route::Post(id.clone()));
+        self.pending = true;
+    }
+    fn open_user(&mut self, id: &UserId) {
+        self.app.navigate(Route::User(id.clone()));
+        self.pending = true;
+    }
+    fn back(&mut self) {
+        self.app.select_tab(Tab::Home);
+        self.pending = true;
+    }
+    /// Remix: start a composer whose parent is this post, and go there.
+    fn remix(&mut self, id: &PostId) {
+        self.app.begin_remix(id.clone());
+        self.app.navigate(Route::Composer);
+        self.pending = true;
+    }
+    /// Share through the platform seam ([`set_share_hook`]); with none
+    /// installed, say so rather than do nothing.
+    fn share(&mut self, id: &PostId) {
+        let link = format!("three://post/{}", id.0);
+        let shared = SHARE_HOOK.with(|slot| match slot.borrow().as_ref() {
+            Some(hook) => {
+                hook(link);
+                true
+            }
+            None => false,
+        });
+        self.notice = Some(if shared {
+            "Shared".to_owned()
+        } else {
+            "Sharing is not available on this device yet".to_owned()
+        });
+        self.pending = true;
+    }
+    fn scroll_feed(&mut self, dy: f32) {
+        let max = (self.app.feed.posts.len() as f32 * FEED_CARD - self.feed_viewport).max(0.0);
+        let next = (self.feed_offset - dy).clamp(0.0, max);
+        if (next - self.feed_offset).abs() > f32::EPSILON {
+            self.feed_offset = next;
+            self.pending = true;
+        }
     }
     fn discard_composer(&mut self) {
         self.app.select_tab(Tab::Create);
@@ -476,10 +571,22 @@ struct Snapshot {
     activity: Vec<ActivityRow>,
     following: Vec<UserId>,
     search: String,
-    /// The feed's first post, opened for lazy viewing.
+    /// The playing post's capture, opened lazily (and only that one).
     media: Option<Rc<LazyCapture>>,
+    active: Option<PostId>,
+    notice: Option<String>,
+    feed_offset: f32,
+    /// The route's own data: a post's comments as `(author, text)`.
+    comments: Vec<(String, String)>,
+    detail_post: Option<Post>,
 }
-impl Snapshot {
+/// What a snapshot reads from the backend that only a mutation changes.
+struct Heavy {
+    people: Vec<Profile>,
+    me: Profile,
+    activity: Vec<ActivityRow>,
+}
+impl Heavy {
     fn read(s: &SocialState) -> Self {
         let people = s.app.backend().search_profiles("", 30);
         let me = people
@@ -517,7 +624,48 @@ impl Snapshot {
                     }
                 },
             )
-            .collect();
+            .collect::<Vec<ActivityRow>>();
+        Self {
+            people,
+            me,
+            activity,
+        }
+    }
+}
+/// The post whose capture should be open: the one the user started, else
+/// the feed's first.
+fn active_post(s: &SocialState) -> Option<Post> {
+    let posts = &s.app.feed.posts;
+    s.active
+        .as_ref()
+        .and_then(|id| posts.iter().find(|p| &p.id == id))
+        .or_else(|| posts.first())
+        .cloned()
+}
+
+impl Snapshot {
+    fn read(s: &SocialState) -> Self {
+        // The directory, "me" and the activity list only change when the app
+        // mutates (`ThreeApp::revision`), so a keystroke or a like that does
+        // not touch them reads them from the cache instead of re-querying the
+        // backend (TH-01).
+        let revision = s.app.revision();
+        let cached = {
+            let slot = s.cache.borrow();
+            slot.as_ref()
+                .filter(|(at, _)| *at == revision)
+                .map(|(_, heavy)| Rc::clone(heavy))
+        };
+        let heavy = cached.unwrap_or_else(|| {
+            let fresh = Rc::new(Heavy::read(s));
+            *s.cache.borrow_mut() = Some((revision, Rc::clone(&fresh)));
+            fresh
+        });
+        let (people, me, activity) = (
+            heavy.people.clone(),
+            heavy.me.clone(),
+            heavy.activity.clone(),
+        );
         let capture = match &s.capture {
             CapturePhase::NoSource => CaptureRead::NoSource,
             CapturePhase::Idle => CaptureRead::Idle,
@@ -540,12 +688,26 @@ impl Snapshot {
             activity,
             following: s.following.iter().cloned().collect(),
             search: s.search.clone(),
-            media: s
-                .app
-                .feed
-                .posts
-                .first()
-                .and_then(|post| s.app.open_post_media(post).ok()),
+            media: active_post(s).and_then(|post| s.app.open_post_media(&post).ok()),
+            active: s.active.clone(),
+            notice: s.notice.clone(),
+            feed_offset: s.feed_offset,
+            comments: match &s.app.route {
+                Route::Comments(id) => s
+                    .app
+                    .comments(id)
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|c| (c.author.0, c.text))
+                    .collect(),
+                _ => vec![],
+            },
+            detail_post: match &s.app.route {
+                Route::Post(id) | Route::Comments(id) => {
+                    s.app.feed.posts.iter().find(|p| &p.id == id).cloned()
+                }
+                _ => None,
+            },
         }
     }
     fn initial() -> Self {
@@ -563,6 +725,11 @@ impl Snapshot {
             following: vec![],
             search: String::new(),
             media: None,
+            active: None,
+            notice: None,
+            feed_offset: 0.0,
+            comments: vec![],
+            detail_post: None,
         }
     }
 }
@@ -587,7 +754,9 @@ impl SocialScreen {
             Route::Composer => create_screen(&theme, &snap, handle.clone()),
             Route::Root(Tab::Activity) => activity_screen(&theme, &snap),
             Route::Root(Tab::Profile) => profile_screen(&theme, &snap),
-            _ => simple_screen(&theme, "3", "Detail route"),
+            Route::Post(_) => post_screen(&theme, &snap, handle.clone()),
+            Route::Comments(_) => comments_screen(&theme, &snap, handle.clone()),
+            Route::User(id) => user_screen(&theme, &snap, id, handle.clone()),
         };
         Container::new().color(theme.colors.surface).child(
             Flex::column()
@@ -616,62 +785,277 @@ fn home_screen(theme: &ThemeData, snap: &Snapshot, handle: Option<Handle>) -> Wi
             }
         }));
 
-    // The moment card: author, caption, the capture itself and the action
-    // row travel together on one raised surface. A feed post is *one thing*;
-    // before this it was four siblings floating on the page background, and
-    // the viewer's dark chamber bled straight into the surrounding surface
-    // with nothing marking whose content it was. Same layout, one surface:
-    // radius, fill, and the cast shadow that separates it from the page.
-    let card = if let Some(post) = snap.posts.first() {
-        let like = handle.clone();
-        let id = post.id.clone();
-        Flex::column()
-            .cross_axis_alignment(CrossAxisAlignment::Stretch)
-            .spacing(10.0)
-            .push(
-                Text::new(format!("@{}", post.author.0))
-                    .style(theme.text.label)
-                    .color(theme.colors.primary)
-                    .bold(),
-            )
-            .push(Text::new(post.caption.clone()).style(theme.text.body))
-            .push(Flexible::expanded(1).child(ViewerScreen {
-                capture: feed_media(snap),
-            }))
-            .push(
-                Flex::row()
-                    .spacing(8.0)
-                    .push(
-                        Button::new(format!("♥ {}", post.likes)).on_pressed(move || {
-                            if let Some(h) = &like {
-                                h.write(|s| s.like(&id))
-                            }
-                        }),
-                    )
-                    .push(Button::new(format!("Comment {}", post.comments)))
-                    .push(Button::new("Remix"))
-                    .push(Button::new("Share")),
-            )
-    } else {
-        Flex::column().cross_axis_alignment(CrossAxisAlignment::Stretch)
-    };
-    let card = Container::new()
-        .color(theme.colors.surface_variant)
-        .radius(18.0)
-        .shadow(Shadow::new(
-            Color::rgba(0, 0, 0, 110),
-            Offset::new(0.0, 12.0),
-            32.0,
-        ))
-        .padding(EdgeInsets::all(12.0))
-        .child(card);
+    // Every post is one moment card: author, caption, the capture (only the
+    // playing one) and the action row on one raised surface. The list is a
+    // `ListView` of uniform cards, so a feed of any length builds only the
+    // cards near the window, and exactly one capture plays at a time.
+    let posts: Rc<Vec<Post>> = Rc::new(snap.posts.clone());
+    let active = snap
+        .active
+        .clone()
+        .or_else(|| snap.posts.first().map(|p| p.id.clone()));
+    let media = snap.media.clone();
+    let card_theme = theme.clone();
+    let card_handle = handle.clone();
+    let list = ListView::new(
+        posts.len(),
+        FEED_CARD,
+        Rc::new(move |index| match posts.get(index) {
+            Some(post) => moment_card(
+                &card_theme,
+                post,
+                active.as_ref() == Some(&post.id),
+                media.clone(),
+                card_handle.clone(),
+            ),
+            None => SizedBox::shrink().into(),
+        }),
+    );
+    let drag = handle.clone();
+    let extents = handle.clone();
+    let feed: WidgetNode = Scrollable::vertical(snap.feed_offset)
+        .on_drag(Rc::new(move |d: vieww::foundation::DragDetails| {
+            if let Some(h) = &drag {
+                h.write(|s| s.scroll_feed(d.delta.dy));
+            }
+        }))
+        .on_extents(Rc::new(move |e: ScrollExtents| {
+            if let Some(h) = &extents {
+                h.write(|s| s.feed_viewport = e.viewport);
+            }
+        }))
+        .child(list)
+        .into();
 
+    let mut column = Flex::column()
+        .cross_axis_alignment(CrossAxisAlignment::Stretch)
+        .spacing(12.0)
+        .push(header);
+    if let Some(note) = &snap.notice {
+        column = column.push(
+            Text::new(note.clone())
+                .style(theme.text.label)
+                .color(theme.colors.on_surface_variant),
+        );
+    }
+    column.push(Flexible::expanded(1).child(feed)).into()
+}
+
+/// One post as a card, with every button wired.
+fn moment_card(
+    theme: &ThemeData,
+    post: &Post,
+    playing: bool,
+    media: Option<Rc<LazyCapture>>,
+    handle: Option<Handle>,
+) -> WidgetNode {
+    let (like, comment, remix, share, play, author) = (
+        handle.clone(),
+        handle.clone(),
+        handle.clone(),
+        handle.clone(),
+        handle.clone(),
+        handle,
+    );
+    let (id_like, id_comment, id_remix, id_share, id_play) = (
+        post.id.clone(),
+        post.id.clone(),
+        post.id.clone(),
+        post.id.clone(),
+        post.id.clone(),
+    );
+    let author_id = post.author.clone();
+    let chamber: WidgetNode = if playing {
+        match media {
+            Some(capture) => Flexible::expanded(1).child(ViewerScreen { capture }).into(),
+            None => Flexible::expanded(1).child(SizedBox::shrink()).into(),
+        }
+    } else {
+        Flexible::expanded(1)
+            .child(
+                Container::new()
+                    .color(theme.colors.surface)
+                    .radius(12.0)
+                    .alignment(Alignment::CENTER)
+                    .child(Button::new("▶ Play").on_pressed(move || {
+                        if let Some(h) = &play {
+                            h.write(|s| s.play(&id_play));
+                        }
+                    })),
+            )
+            .into()
+    };
+    let card = Flex::column()
+        .cross_axis_alignment(CrossAxisAlignment::Stretch)
+        .spacing(10.0)
+        .push(
+            Button::new(format!("@{}", post.author.0)).on_pressed(move || {
+                if let Some(h) = &author {
+                    h.write(|s| s.open_user(&author_id));
+                }
+            }),
+        )
+        .push(Text::new(post.caption.clone()).style(theme.text.body))
+        .push(chamber)
+        .push(
+            Flex::row()
+                .spacing(8.0)
+                .push(
+                    Button::new(format!("♥ {}", post.likes)).on_pressed(move || {
+                        if let Some(h) = &like {
+                            h.write(|s| s.like(&id_like));
+                        }
+                    }),
+                )
+                .push(
+                    Button::new(format!("Comment {}", post.comments)).on_pressed(move || {
+                        if let Some(h) = &comment {
+                            h.write(|s| s.open_comments(&id_comment));
+                        }
+                    }),
+                )
+                .push(Button::new("Remix").on_pressed(move || {
+                    if let Some(h) = &remix {
+                        h.write(|s| s.remix(&id_remix));
+                    }
+                }))
+                .push(Button::new("Share").on_pressed(move || {
+                    if let Some(h) = &share {
+                        h.write(|s| s.share(&id_share));
+                    }
+                })),
+        );
+    Padding::new(EdgeInsets::only(0.0, 0.0, 0.0, 10.0))
+        .child(
+            Container::new()
+                .color(theme.colors.surface_variant)
+                .radius(18.0)
+                .shadow(Shadow::new(
+                    Color::rgba(0, 0, 0, 110),
+                    Offset::new(0.0, 12.0),
+                    32.0,
+                ))
+                .padding(EdgeInsets::all(12.0))
+                .child(card),
+        )
+        .into()
+}
+
+/// One post, full screen: the card, and a way back.
+fn post_screen(theme: &ThemeData, snap: &Snapshot, handle: Option<Handle>) -> WidgetNode {
+    let back = handle.clone();
+    let body: WidgetNode = match &snap.detail_post {
+        Some(post) => Flexible::expanded(1)
+            .child(moment_card(theme, post, true, snap.media.clone(), handle))
+            .into(),
+        None => Text::new("This moment is no longer in your feed.")
+            .style(theme.text.body)
+            .into(),
+    };
     Flex::column()
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
         .spacing(12.0)
-        .push(header)
-        .push(Flexible::expanded(1).child(card))
+        .push(Button::new("← Back").on_pressed(move || {
+            if let Some(h) = &back {
+                h.write(|s| s.back());
+            }
+        }))
+        .push(body)
         .into()
+}
+
+/// A post's comments.
+fn comments_screen(theme: &ThemeData, snap: &Snapshot, handle: Option<Handle>) -> WidgetNode {
+    let back = handle;
+    let mut column = Flex::column()
+        .cross_axis_alignment(CrossAxisAlignment::Stretch)
+        .spacing(10.0)
+        .push(Button::new("← Back").on_pressed(move || {
+            if let Some(h) = &back {
+                h.write(|s| s.back());
+            }
+        }))
+        .push(Text::new("Comments").style(theme.text.title).bold());
+    if snap.comments.is_empty() {
+        column = column.push(
+            Text::new("No comments yet.")
+                .style(theme.text.body)
+                .color(theme.colors.on_surface_variant),
+        );
+    }
+    for (author, text) in &snap.comments {
+        column = column.push(
+            Flex::column()
+                .spacing(2.0)
+                .push(
+                    Text::new(format!("@{author}"))
+                        .style(theme.text.label)
+                        .color(theme.colors.primary)
+                        .bold(),
+                )
+                .push(Text::new(text.clone()).style(theme.text.body)),
+        );
+    }
+    column.into()
+}
+
+/// Someone else's profile, with the Follow button wired.
+fn user_screen(
+    theme: &ThemeData,
+    snap: &Snapshot,
+    id: &UserId,
+    handle: Option<Handle>,
+) -> WidgetNode {
+    let back = handle.clone();
+    let follow = handle;
+    let target = id.clone();
+    let person = snap.people.iter().find(|p| &p.id == id);
+    let following = snap.following.contains(id);
+    let mut column = Flex::column()
+        .cross_axis_alignment(CrossAxisAlignment::Stretch)
+        .spacing(10.0)
+        .push(Button::new("← Back").on_pressed(move || {
+            if let Some(h) = &back {
+                h.write(|s| s.back());
+            }
+        }));
+    match person {
+        Some(p) => {
+            column = column
+                .push(
+                    Text::new(p.display_name.clone())
+                        .style(theme.text.title)
+                        .bold(),
+                )
+                .push(
+                    Text::new(format!("@{}", p.handle))
+                        .style(theme.text.label)
+                        .color(theme.colors.primary),
+                )
+                .push(Text::new(p.bio.clone()).style(theme.text.body))
+                .push(
+                    Text::new(format!(
+                        "{} posts · {} followers · {} following",
+                        p.posts, p.followers, p.following
+                    ))
+                    .style(theme.text.label)
+                    .color(theme.colors.on_surface_variant),
+                )
+                .push(
+                    Button::new(if following { "Following" } else { "Follow" }).on_pressed(
+                        move || {
+                            if let Some(h) = &follow {
+                                h.write(|s| s.follow(&target));
+                            }
+                        },
+                    ),
+                );
+        }
+        None => {
+            column = column.push(Text::new("Nobody by that name.").style(theme.text.body));
+        }
+    }
+    column.into()
 }
 
 /// The feed card's media: the first post's asset, opened lazily the way
@@ -1543,6 +1927,53 @@ mod receipts {
         println!("wrote {}", path.display());
     }
 
+    /// TH-01: after the first build, keystrokes and likes cause no asset
+    /// downloads.
+    #[test]
+    fn keystrokes_and_likes_cause_no_downloads_after_the_first_build() {
+        let mut harness = mounted_app();
+        harness.tick(Duration::from_millis(400));
+        let cell = {
+            let driver = harness.driver();
+            let tree = driver.elements();
+            let root = tree
+                .iter()
+                .into_iter()
+                .find(|element| element.debug_name() == "SocialScreen")
+                .expect("the root screen is mounted");
+            root.state().expect("state").clone()
+        };
+        let downloads = |cell: &std::rc::Rc<std::cell::RefCell<Box<dyn std::any::Any>>>| {
+            let _ = cell;
+        };
+        let _ = downloads;
+        let before = {
+            let mut state = cell.borrow_mut();
+            let social = state.as_any_mut().downcast_mut::<SocialState>().unwrap();
+            social.app.downloads()
+        };
+        assert!(before >= 1, "the first build opened the feed's first post");
+        for text in ["a", "al", "ali", "alic"] {
+            {
+                let mut state = cell.borrow_mut();
+                let social = state.as_any_mut().downcast_mut::<SocialState>().unwrap();
+                social.set_search(text.to_owned());
+                let id = social.app.feed.posts.first().map(|p| p.id.clone());
+                if let Some(id) = id {
+                    social.like(&id);
+                }
+            }
+            harness.request_frame();
+            harness.tick(Duration::from_millis(50));
+        }
+        let after = {
+            let mut state = cell.borrow_mut();
+            let social = state.as_any_mut().downcast_mut::<SocialState>().unwrap();
+            social.app.downloads()
+        };
+        assert_eq!(after, before, "no further downloads");
+    }
+
     #[test]
     #[ignore = "writes PNG files; run with -- --ignored --nocapture"]
     fn render_the_app_screens() {
@@ -1562,5 +1993,72 @@ mod receipts {
             harness.tick(Duration::from_millis(120));
             save(&mut harness, name);
         }
+    }
+}
+
+#[cfg(test)]
+mod th02 {
+    use super::*;
+
+    fn state() -> SocialState {
+        let mut s = SocialState::new();
+        s.app.refresh_home().expect("seeded feed");
+        s
+    }
+
+    #[test]
+    fn the_action_row_buttons_all_do_something() {
+        let mut s = state();
+        let id = s.app.feed.posts.first().expect("a post").id.clone();
+
+        s.open_comments(&id);
+        assert_eq!(s.app.route, Route::Comments(id.clone()));
+        s.back();
+        assert_eq!(s.app.route, Route::Root(Tab::Home));
+
+        s.remix(&id);
+        assert_eq!(s.app.route, Route::Composer);
+        assert_eq!(s.app.composer.remix_of, Some(id.clone()));
+        s.back();
+
+        // Without a host share sheet it says so; with one it hands over a link.
+        s.share(&id);
+        assert!(s
+            .notice
+            .as_deref()
+            .is_some_and(|n| n.contains("not available")));
+        let seen = Rc::new(RefCell::new(String::new()));
+        let sink = Rc::clone(&seen);
+        set_share_hook(move |link| *sink.borrow_mut() = link);
+        s.share(&id);
+        assert_eq!(s.notice.as_deref(), Some("Shared"));
+        assert!(seen.borrow().starts_with("three://post/"));
+    }
+
+    #[test]
+    fn the_detail_routes_are_screens_not_a_placeholder() {
+        let mut s = state();
+        let id = s.app.feed.posts.first().expect("a post").id.clone();
+        for route in [
+            Route::Post(id.clone()),
+            Route::Comments(id.clone()),
+            Route::User(UserId("teja".into())),
+        ] {
+            s.app.navigate(route);
+            let snap = Snapshot::read(&s);
+            assert!(snap.detail_post.is_some() || matches!(snap.route, Route::User(_)));
+        }
+    }
+
+    #[test]
+    fn the_feed_holds_more_than_one_post_and_scrolls() {
+        let mut s = state();
+        let posts = s.app.feed.posts.len();
+        assert!(posts > 1, "the seeded feed has {posts} posts");
+        s.feed_viewport = 800.0;
+        s.scroll_feed(-300.0);
+        assert!(s.feed_offset > 0.0, "a drag up scrolls into the feed");
+        s.scroll_feed(10_000.0);
+        assert_eq!(s.feed_offset, 0.0, "and back clamps at the top");
     }
 }

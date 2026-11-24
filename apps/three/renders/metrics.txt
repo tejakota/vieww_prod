@@ -1,19 +1,15 @@
 app=3 (three)
 what=temporal 3D capture, .3 format, social product built on vieww
-engine=round 3 — the capture renders through the framework's own 3D stack:
-        vieww-3d (scene graph, materials, lights, the depth-buffered
-        software rasteriser with a PCF shadow pass, the Viewport3D widget
-        compositing the render as an image). examples/vieww-integration
-        gains src/engine.rs: the MeshFrame bridge with computed per-vertex
-        normals, the OrbitCamera-to-engine-camera mapping at the painter's
-        own fov, the light rig (0.35 ambient + 0.65 shadow-casting key,
-        the painter's balance), and the motes as one occluded instanced
-        node. On by default; the painter stays one transport toggle away
-        and remains the wireframe path (asking for Wire drops out of the
-        engine, deliberately). 4 new tests (37 pass in vieww-integration);
-        a fourth preview, viewer-engine.png, shows the same dragged angle
-        under both renderers so they read as a comparison. The GIF's 30
-        moment frames are engine renders now.
+engine=none yet. The capture is rendered by this repo's own depth warp
+        (crates/three-vieww: warp_frame + DepthView), drawn as an image by
+        examples/vieww-integration. An engine path through the framework's
+        3D stack (a MeshFrame bridge and a Viewport3D widget) was described
+        in an earlier revision of this file but was never landed:
+        examples/vieww-integration/src has no engine.rs, nothing depends on
+        vieww-3d, and the unused workspace dependencies were removed.
+        vieww-integration has 17 tests. The feed memoises DepthView::render
+        on (frame, camera), and the unused projection.rs / presentation.rs
+        were deleted.
 migrated=old vello vieww-develop checkout -> in-repo vieww_base (native
         rasteriser, vieww-hal Vulkan swapchain); workspace deps repointed
 enriched=round 2 — the real-screens pass: the four stub tabs are gone.

@@ -125,36 +125,68 @@ impl LazyCapture {
     /// demand, so a corrupt JPEG deep in the file surfaces when that frame
     /// is shown, not at open.
     pub fn open(bytes: Vec<u8>) -> Result<Self, FormatError> {
-        // The full decode is the validation: everything it checks, the lazy
-        // reader needs, and everything it decompresses, the lazy reader
-        // skips. Running it and throwing the pixels away costs one decode
-        // — cheap at capture sizes, and the only way both readers can never
-        // disagree about what is valid.
-        let probe = decode(&bytes)?;
-        let meta = CaptureMeta {
-            title: probe.title.clone(),
-            duration_ns: probe.duration_ns,
-            fps: probe.fps,
-            intrinsics: probe.intrinsics,
-            source: probe.source,
-            frame_count: probe.frames.len(),
-        };
-
-        // Walk again, recording offsets. The fixed block is duration(8) +
-        // fps(4) + width(4) + height(4) + fx/fy/cx/cy(16) + source(1) = 37
-        // bytes — the frame count is read separately so its value, not just
-        // its bytes, is what positions the records.
+        // Header and offsets only (TH-01): no frame is decompressed here. A
+        // feed opens every post's capture, and the old open ran a full
+        // `decode` of each just to throw the pixels away. What `decode` and
+        // `CaptureMeta` agree on structurally is checked below; a corrupt
+        // JPEG or depth plane surfaces when that frame is shown, as
+        // `frame()` already documents.
+        let head = header(&bytes)?;
         let payload_start = 16usize;
-        let mut cursor = Cursor::new(
-            &bytes[payload_start..payload_start + header(&bytes)?.payload_len as usize],
+        let payload_end = payload_start
+            .checked_add(head.payload_len as usize)
+            .ok_or(FormatError::InvalidData("payload length overflows"))?;
+        if bytes.len() < payload_end {
+            return Err(FormatError::InvalidData(
+                "file is shorter than its header claims",
+            ));
+        }
+        let mut cursor = Cursor::new(&bytes[payload_start..payload_end]);
+        let title = read_string(&mut cursor)?;
+        let duration_ns = read_u64(&mut cursor)?;
+        let fps = read_u32(&mut cursor)?;
+        let width = read_u32(&mut cursor)?;
+        let height = read_u32(&mut cursor)?;
+        let (fx, fy, cx, cy) = (
+            read_f32(&mut cursor)?,
+            read_f32(&mut cursor)?,
+            read_f32(&mut cursor)?,
+            read_f32(&mut cursor)?,
         );
-        read_string(&mut cursor)?;
-        let mut fixed = [0u8; 8 + 4 + 4 + 4 + 16 + 1];
-        cursor.read_exact(&mut fixed)?;
+        let source = read_source(&mut cursor)?;
         let frame_count = read_u32(&mut cursor)? as usize;
+
+        if width as usize * height as usize == 0 {
+            return Err(FormatError::InvalidData(
+                "capture resolution must be non-zero",
+            ));
+        }
+        if frame_count == 0 || frame_count > bytes.len() / 24 {
+            return Err(FormatError::InvalidData(
+                "frame count does not fit the file",
+            ));
+        }
+        if fps == 0 || duration_ns == 0 {
+            return Err(FormatError::InvalidData(
+                "frame rate and duration must be non-zero",
+            ));
+        }
+        if !(fx.is_finite() && fx > 0.0 && fy.is_finite() && fy > 0.0) {
+            return Err(FormatError::InvalidData(
+                "focal lengths must be positive and finite",
+            ));
+        }
+
         let mut records = Vec::with_capacity(frame_count);
+        let mut previous = None;
         for _ in 0..frame_count {
             let timestamp = read_u64(&mut cursor)?;
+            if previous.is_some_and(|p| timestamp <= p) {
+                return Err(FormatError::InvalidData(
+                    "frame timestamps must be strictly increasing",
+                ));
+            }
+            previous = Some(timestamp);
             let color = read_blob_range(&mut cursor)?;
             let depth = read_blob_range(&mut cursor)?;
             // read_blob_range reports payload-relative offsets; the payload
@@ -165,6 +197,26 @@ impl LazyCapture {
                 (payload_start + depth.0, payload_start + depth.1),
             ));
         }
+        if previous.is_some_and(|last| last >= duration_ns) {
+            return Err(FormatError::InvalidData(
+                "duration must outlast the last frame",
+            ));
+        }
+        let meta = CaptureMeta {
+            title,
+            duration_ns,
+            fps,
+            intrinsics: CameraIntrinsics {
+                fx,
+                fy,
+                cx,
+                cy,
+                width,
+                height,
+            },
+            source,
+            frame_count,
+        };
         Ok(Self {
             bytes,
             meta,
@@ -746,6 +798,22 @@ mod tests {
             lazy.frame(full.frames.len() + 1).is_err(),
             "out of range is an error, not a panic"
         );
+    }
+
+    /// TH-01: opening decodes no frame — a payload whose JPEG is garbage opens,
+    /// and the failure waits for the frame that is actually shown.
+    #[test]
+    fn lazy_open_does_not_decode_a_frame() {
+        let capture = sample_capture();
+        let mut bytes = encode(&capture).unwrap();
+        let lazy = LazyCapture::open(bytes.clone()).unwrap();
+        let (_, (start, end), _) = lazy.records[0];
+        for byte in &mut bytes[start..end] {
+            *byte = 0;
+        }
+        let corrupt = LazyCapture::open(bytes).expect("headers and offsets are intact");
+        assert!(corrupt.frame(0).is_err(), "the frame itself is corrupt");
+        assert!(corrupt.frame(1).is_ok() || capture.frames.len() == 1);
     }
 
     #[test]

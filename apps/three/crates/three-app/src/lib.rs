@@ -68,6 +68,14 @@ pub struct ThreeApp<B: SocialBackend> {
     pub search_query: String,
     pub search_results: Vec<Profile>,
     pub last_error: Option<AppError>,
+    /// Opened post media by post id, so a rebuild never downloads or opens
+    /// the same asset twice (TH-01).
+    media: std::cell::RefCell<std::collections::HashMap<PostId, Rc<LazyCapture>>>,
+    /// How many assets this app has asked the backend for — the counter the
+    /// "0 downloads after the first build" test reads.
+    downloads: std::cell::Cell<u64>,
+    /// Bumped by every call that changes what a snapshot would read.
+    revision: std::cell::Cell<u64>,
 }
 
 impl<B: SocialBackend> ThreeApp<B> {
@@ -81,12 +89,30 @@ impl<B: SocialBackend> ThreeApp<B> {
             search_query: String::new(),
             search_results: vec![],
             last_error: None,
+            media: std::cell::RefCell::new(std::collections::HashMap::new()),
+            downloads: std::cell::Cell::new(0),
+            revision: std::cell::Cell::new(0),
         }
+    }
+    /// A number that changes whenever the app's own mutating calls could have
+    /// changed what a view reads. A view caches against it.
+    #[must_use]
+    pub fn revision(&self) -> u64 {
+        self.revision.get()
+    }
+    fn touch(&self) {
+        self.revision.set(self.revision.get() + 1);
+    }
+    /// Assets requested from the backend so far.
+    #[must_use]
+    pub fn downloads(&self) -> u64 {
+        self.downloads.get()
     }
     pub fn backend(&self) -> &B {
         &self.backend
     }
     pub fn backend_mut(&mut self) -> &mut B {
+        self.touch();
         &mut self.backend
     }
     pub fn navigate(&mut self, route: Route) {
@@ -96,6 +122,7 @@ impl<B: SocialBackend> ThreeApp<B> {
         self.route = Route::Root(tab);
     }
     pub fn refresh_home(&mut self) -> Result<&FeedPage, AppError> {
+        self.touch();
         let kind = match self.home_feed {
             HomeFeed::ForYou => FeedKind::ForYou,
             HomeFeed::Following => FeedKind::Following,
@@ -104,6 +131,7 @@ impl<B: SocialBackend> ThreeApp<B> {
         Ok(&self.feed)
     }
     pub fn load_more(&mut self) -> Result<&FeedPage, AppError> {
+        self.touch();
         let Some(cursor) = self.feed.next_cursor.clone() else {
             return Ok(&self.feed);
         };
@@ -122,11 +150,13 @@ impl<B: SocialBackend> ThreeApp<B> {
         Ok(())
     }
     pub fn like(&mut self, id: &PostId) -> Result<bool, AppError> {
+        self.touch();
         let liked = self.backend.like(id)?;
         self.refresh_home()?;
         Ok(liked)
     }
     pub fn comment(&mut self, id: &PostId, text: String) -> Result<Comment, AppError> {
+        self.touch();
         let c = self.backend.comment(id, text)?;
         self.refresh_home()?;
         Ok(c)
@@ -135,6 +165,7 @@ impl<B: SocialBackend> ThreeApp<B> {
         Ok(self.backend.comments(id)?)
     }
     pub fn follow(&mut self, id: &UserId) -> Result<bool, AppError> {
+        self.touch();
         let v = self.backend.follow(id)?;
         if self.home_feed == HomeFeed::Following {
             self.refresh_home()?;
@@ -170,6 +201,7 @@ impl<B: SocialBackend> ThreeApp<B> {
         Ok(())
     }
     pub fn publish_composer(&mut self) -> Result<Post, AppError> {
+        self.touch();
         let bytes = self
             .composer
             .asset_bytes
@@ -197,8 +229,16 @@ impl<B: SocialBackend> ThreeApp<B> {
     /// compressed bytes and one decoded frame each, not a hundred megabytes
     /// of pixels per card.
     pub fn open_post_media(&self, post: &Post) -> Result<Rc<LazyCapture>, AppError> {
+        if let Some(open) = self.media.borrow().get(&post.id) {
+            return Ok(Rc::clone(open));
+        }
+        self.downloads.set(self.downloads.get() + 1);
         let bytes = self.backend.download_asset(&post.asset)?;
-        Ok(Rc::new(LazyCapture::open(bytes)?))
+        let open = Rc::new(LazyCapture::open(bytes)?);
+        self.media
+            .borrow_mut()
+            .insert(post.id.clone(), Rc::clone(&open));
+        Ok(open)
     }
     pub fn my_profile(&self) -> Result<Profile, AppError> {
         let id = self
