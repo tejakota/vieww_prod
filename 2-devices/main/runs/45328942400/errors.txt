@@ -1,0 +1,30 @@
+-----
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:03.7301635Z ##[warning]Could not read the project's billing state (the service account may lack billing.resourceAssociations.list). A Spark project cannot be billed; make sure this one is on Spark.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:03.7308267Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:03.7308733Z ##[group]Run on phones
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:04.0675077Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:04.9354716Z phones: model=aruba,version=30,orientation=portrait model=a10,version=29,orientation=portrait model=bluejay,version=32,orientation=portrait
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:05.2614054Z WARNING: Firebase Test Lab is deprecated and will be fully shut down on September 30, 2027. To maintain your testing workflows, you can migrate to the Developer Device Platform on Google Cloud. See the Developer Device Platform Migration Guide (https://docs.cloud.google.com/developer-device-platform/device-run/migrate) and FAQ (https://docs.cloud.google.com/developer-device-platform/troubleshooting) for more details.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:05.3867076Z 
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:05.3867723Z Have questions, feedback, or issues? Get support by visiting:
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:05.3868360Z   https://firebase.google.com/support/
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:05.3868563Z 
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:05.8756633Z Uploading [../dist/vieww-market-watch.apk] to Firebase Test Lab...
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:06.3371207Z Raw results will be stored in your GCS bucket at [https://console.developers.google.com/storage/browser/test-lab-1k0ztm046956a-h83tracnkfq0z/mw-c1054f27a1-45328942400/]
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:06.3371858Z 
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:06.7869985Z Test [matrix-1gz4pqhfbnhir] has been created in the Google Cloud.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:06.7885460Z Creating individual test executions...
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:09.9253359Z ...............failed.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:10.0075953Z ERROR: (gcloud.firebase.test.android.run) Matrix [matrix-1gz4pqhfbnhir] failed during validation.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:10.0077028Z Reason: TEST_QUOTA_EXCEEDED Message: Insufficient testing quota. See https://firebase.google.com/docs/test-lab/usage-quotas-pricing for details.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4339969Z to_farm: 0 phone(s): none
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4380822Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4394740Z ##[error]Run on phones failed (exit 1)
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4396039Z ##[group]mark: upload compare-firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4406983Z ##[endgroup]
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4507833Z ##[error]Process completed with exit code 1.
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4594991Z ##[group]Run actions/upload-artifact@v4
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4595307Z with:
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4595540Z   name: compare-firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4596018Z   path: /home/runner/work/_temp/firebase
+phase-2 / Market Watch · compare-firebase	log	2026-11-24T04:52:14.4596329Z   if-no-files-found: warn

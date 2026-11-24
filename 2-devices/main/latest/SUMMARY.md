@@ -1,15 +1,15 @@
-# 2 · Devices — SUCCESS
+# 2 · Devices — FAILURE
 
 - branch: `main`  sha: `c1054f27a1217e5f92ed8a8630034106f181c50b`  event: workflow_dispatch
-- run: https://github.com/tejakota/vieww_prod/actions/runs/45325161447
+- run: https://github.com/tejakota/vieww_prod/actions/runs/45328942400
 
 | job | verdict | failed steps |
 |---|---|---|
 | plan / plan | PASS |  |
 | phase-1 / Market Watch · compare-vieww-apk | PASS |  |
-| phase-1 / matrix.title | skipped |  |
 | phase-1 / approve | skipped |  |
-| phase-2 / Market Watch · compare-firebase | PASS |  |
+| phase-1 / matrix.title | skipped |  |
+| phase-2 / Market Watch · compare-firebase | FAIL | Market Watch · compare-firebase |
 | phase-2 / matrix.title | skipped |  |
 | phase-2 / approve | skipped |  |
 | results / publish | running |  |
@@ -57,11 +57,11 @@
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
-### phase-1 / matrix.title — skipped
-
 ### phase-1 / approve — skipped
 
-### phase-2 / Market Watch · compare-firebase — PASS
+### phase-1 / matrix.title — skipped
+
+### phase-2 / Market Watch · compare-firebase — FAIL
 - PASS: Set up job
 - skipped: Long paths (Windows)
 - PASS: Run actions/checkout@v4
@@ -79,7 +79,7 @@
 - skipped: AWS credentials (access keys)
 - PASS: Run actions/download-artifact@v4
 - skipped: Run actions/download-artifact@v4
-- PASS: Market Watch · compare-firebase
+- FAIL: Market Watch · compare-firebase
 - skipped: Android emulator
 - skipped: Build provenance (Sigstore, keyless)
 - skipped: After
@@ -87,8 +87,8 @@
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
 - skipped: Run actions/upload-artifact@v4
-- PASS: Post Python for the runner (self-host machines)
-- PASS: Post Python for the runner (GitHub's machines)
+- skipped: Post Python for the runner (self-host machines)
+- skipped: Post Python for the runner (GitHub's machines)
 - PASS: Post Run actions/checkout@v4
 - PASS: Complete job
 
@@ -97,7 +97,10 @@
 ### phase-2 / approve — skipped
 
 ### results / publish — running
-- running: Set up job
+- PASS: Set up job
+- running: Collect the run
+- running: Run actions/checkout@v4
+- running: Write to the ci-results branch
 
 ### phase-3 — skipped
 
