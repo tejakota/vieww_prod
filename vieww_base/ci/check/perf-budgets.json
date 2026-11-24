@@ -1,7 +1,29 @@
 {
+  "ceilings": {
+    "auto_first_frame_ms": {
+      "ceiling_ms": 500,
+      "reason": "FW-16: the audit's mid-tier first-frame budget \u2014 500 ms from launch to the first frame on any phone the app itself rates medium or high (its own tier choice, auto_cache_budgets). Low-tier phones (the LG Stylo 5 at ~640 ms) are reported, not gated; 120 Hz phones' pacing is a separate row. Measured 2026-10-30: iPhone 15 Plus 376, iPhone 18 Pro Max 280, Galaxy A36 437, Galaxy S26 Ultra 180.",
+      "tiers": [
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "class_aliases": {
+    "ubuntu-*/x86-64/intel-r-core-tm-i5-7200u*": "kabylake-linux",
+    "windows-*/x86-64/intel-r-core-tm-i5-7200u*": "kabylake-windows"
+  },
   "classes": {
     "hardware-linux": {
       "peak_rss_mb": 60.0
+    },
+    "kabylake-linux": {
+      "gallery/00-layers-nested/cpu_p50_ms": 23.8,
+      "gallery/23-editor-glass/cpu_p50_ms": 24.8
+    },
+    "kabylake-windows": {
+      "gallery/00-layers-nested/cpu_p50_ms": 22.2,
+      "gallery/23-editor-glass/cpu_p50_ms": 24.2
     },
     "phone-apple-iphone-13": {
       "auto_frame_time_p50_ms": 7.229,
@@ -30,22 +52,8 @@
     "phone-sm-s948u1": {
       "auto_frame_time_p50_ms": 0.316,
       "gpu_frame_time_p50_ms": 0.349
-    },
-    "kabylake-linux": {
-      "gallery/00-layers-nested/cpu_p50_ms": 23.8,
-      "gallery/23-editor-glass/cpu_p50_ms": 24.8
-    },
-    "kabylake-windows": {
-      "gallery/00-layers-nested/cpu_p50_ms": 22.2,
-      "gallery/23-editor-glass/cpu_p50_ms": 24.2
     }
   },
-  "min_delta_ms": 1.0,
-  "notes": {
-    "hardware-linux/peak_rss_mb": "Ratcheted 120 -> 60 (FW-15, 2026-11-04). The audit's 150 MB predates the softbuffer CPU present: re-measured with examples/baseline under Xvfb (CPU path), peak RSS is 32 MB with 132 fonts and 32 MB with all 575 Noto faces installed; heaptrack puts the heap peak at 16.5 MB, the largest single allocation being the 840x600 Premul target (7.68 MB, 16 B/px). 60 leaves headroom for a Mesa Vulkan driver's mappings on the GPU path, which this sandbox cannot load; the next ratchet is toward AIMS' 40 once a self-hosted receipt records the GPU-path figure. A --record that moves this row up is a regression being written down, not a budget change."
-  },
-  "schema": "vieww.perf-budgets/1",
-  "tolerance_percent": 10,
   "known_limitations": {
     "kabylake-linux": {
       "gallery/00-layers-nested/cpu_p50_ms": {
@@ -72,14 +80,10 @@
       }
     }
   },
-  "ceilings": {
-    "auto_first_frame_ms": {
-      "ceiling_ms": 500,
-      "reason": "FW-16: the audit's mid-tier first-frame budget \u2014 500 ms from launch to the first frame on any phone the app itself rates medium or high (its own tier choice, auto_cache_budgets). Low-tier phones (the LG Stylo 5 at ~640 ms) are reported, not gated; 120 Hz phones' pacing is a separate row. Measured 2026-10-30: iPhone 15 Plus 376, iPhone 18 Pro Max 280, Galaxy A36 437, Galaxy S26 Ultra 180.",
-      "tiers": [
-        "medium",
-        "high"
-      ]
-    }
-  }
+  "min_delta_ms": 1.0,
+  "notes": {
+    "hardware-linux/peak_rss_mb": "Ratcheted 120 -> 60 (FW-15, 2026-11-04). The audit's 150 MB predates the softbuffer CPU present: re-measured with examples/baseline under Xvfb (CPU path), peak RSS is 32 MB with 132 fonts and 32 MB with all 575 Noto faces installed; heaptrack puts the heap peak at 16.5 MB, the largest single allocation being the 840x600 Premul target (7.68 MB, 16 B/px). 60 leaves headroom for a Mesa Vulkan driver's mappings on the GPU path, which this sandbox cannot load; the next ratchet is toward AIMS' 40 once a self-hosted receipt records the GPU-path figure. A --record that moves this row up is a regression being written down, not a budget change."
+  },
+  "schema": "vieww.perf-budgets/1",
+  "tolerance_percent": 10
 }

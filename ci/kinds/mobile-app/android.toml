@@ -126,6 +126,13 @@ export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="android"
 # keystore's well-known values are androiddebugkey/android.
 export CARGO_APK_RELEASE_KEY_ALIAS="androiddebugkey"
 export CARGO_APK_RELEASE_KEY_PASSWORD="android"
+# BLD-01: apps build with `--profile dist`, and cargo-apk reads the DIST
+# signing variables for that profile (it dies with "Configure a release
+# keystore via [package.metadata.android.signing.dist]" otherwise).
+export CARGO_APK_DIST_KEYSTORE="$keystore"
+export CARGO_APK_DIST_KEYSTORE_PASSWORD="android"
+export CARGO_APK_DIST_KEY_ALIAS="androiddebugkey"
+export CARGO_APK_DIST_KEY_PASSWORD="android"
 # FW-06: the release upload key, when the repository has one. The
 # APK is then signed for real (Play / direct install), not with the
 # debug key every Android machine shares.
@@ -137,6 +144,10 @@ if [ -n "$ANDROID_KEYSTORE" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$A
   export CARGO_APK_RELEASE_KEYSTORE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
   export CARGO_APK_RELEASE_KEY_ALIAS="$ANDROID_KEY_ALIAS"
   export CARGO_APK_RELEASE_KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+  export CARGO_APK_DIST_KEYSTORE="$CARGO_APK_RELEASE_KEYSTORE"
+  export CARGO_APK_DIST_KEYSTORE_PASSWORD="$CARGO_APK_RELEASE_KEYSTORE_PASSWORD"
+  export CARGO_APK_DIST_KEY_ALIAS="$CARGO_APK_RELEASE_KEY_ALIAS"
+  export CARGO_APK_DIST_KEY_PASSWORD="$CARGO_APK_RELEASE_KEY_PASSWORD"
 else
   echo "::notice::No ANDROID_KEYSTORE secret: APKs are signed with a debug key (not installable from Play)"
 fi
@@ -149,6 +160,10 @@ fi
   echo "CARGO_APK_RELEASE_KEYSTORE_PASSWORD=$CARGO_APK_RELEASE_KEYSTORE_PASSWORD"
   echo "CARGO_APK_RELEASE_KEY_ALIAS=$CARGO_APK_RELEASE_KEY_ALIAS"
   echo "CARGO_APK_RELEASE_KEY_PASSWORD=$CARGO_APK_RELEASE_KEY_PASSWORD"
+  echo "CARGO_APK_DIST_KEYSTORE=$CARGO_APK_DIST_KEYSTORE"
+  echo "CARGO_APK_DIST_KEYSTORE_PASSWORD=$CARGO_APK_DIST_KEYSTORE_PASSWORD"
+  echo "CARGO_APK_DIST_KEY_ALIAS=$CARGO_APK_DIST_KEY_ALIAS"
+  echo "CARGO_APK_DIST_KEY_PASSWORD=$CARGO_APK_DIST_KEY_PASSWORD"
 } >> "$GITHUB_ENV"
 '''
 
@@ -175,12 +190,12 @@ run = '''
 if [ -n "$VIEWW_ANDROID_PGO_PROFILE" ] && [ -f "$VIEWW_ANDROID_PGO_PROFILE" ]; then
   echo "building with the trained profile: $VIEWW_ANDROID_PGO_PROFILE"
   RUSTFLAGS="-Cprofile-use=$VIEWW_ANDROID_PGO_PROFILE" \
-    cargo apk build -p ${{ matrix.package }} --lib --release
+    cargo apk build -p ${{ matrix.package }} --lib --profile dist
 else
   if [ -n "$VIEWW_ANDROID_PGO_PROFILE" ]; then
     echo "::warning::VIEWW_ANDROID_PGO_PROFILE is set but '$VIEWW_ANDROID_PGO_PROFILE' does not exist; building plain release"
   fi
-  cargo apk build -p ${{ matrix.package }} --lib --release
+  cargo apk build -p ${{ matrix.package }} --lib --profile dist
 fi
 '''
 

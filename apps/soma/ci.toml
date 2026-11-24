@@ -9,3 +9,8 @@ uses = ["vieww"]
 [build]
 android = { package = "soma", apk = "soma" }
 ios = { package = "soma", bundle_id = "dev.soma.app", binary = "soma" }
+
+# CI-01: what `cargo test --release` runs for this app on a Linux runner. The
+# platform crates need a phone toolchain and are left out.
+[test]
+args = "--workspace"

@@ -889,11 +889,15 @@ fn moment_card(
         .cross_axis_alignment(CrossAxisAlignment::Stretch)
         .spacing(10.0)
         .push(
-            Button::new(format!("@{}", post.author.0)).on_pressed(move || {
-                if let Some(h) = &author {
-                    h.write(|s| s.open_user(&author_id));
-                }
-            }),
+            // In a row so the button sizes to its label instead of
+            // stretching across the card.
+            Flex::row().push(
+                Button::new(format!("@{}", post.author.0)).on_pressed(move || {
+                    if let Some(h) = &author {
+                        h.write(|s| s.open_user(&author_id));
+                    }
+                }),
+            ),
         )
         .push(Text::new(post.caption.clone()).style(theme.text.body))
         .push(chamber)

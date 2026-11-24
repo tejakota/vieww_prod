@@ -267,5 +267,53 @@ class PerfBudget(unittest.TestCase):
             pb.measurements({"hello": 1})
 
 
+class ClassAliasesAndGates(unittest.TestCase):
+    """CI-03: the run that gated nothing."""
+
+    BUDGETS = {"schema": pb.SCHEMA, "tolerance_percent": 10, "min_delta_ms": 1.0,
+               "classes": {"kabylake-linux": {"gallery/editor/cpu_p50_ms": 4.0,
+                                              "gallery/list/cpu_p50_ms": 2.0}},
+               "class_aliases": {"ubuntu-*/x86-64/intel-r-core-tm-i5-7200u*": "kabylake-linux"}}
+
+    def receipt(self, scale=1.0, os_name="Ubuntu 26.04.1 LTS"):
+        r = json.loads(json.dumps(RECEIPT))
+        r["machine"] = {"os": os_name, "arch": "x86-64", "cpu_model": "Intel(R) Core(TM) i5-7200U"}
+        for f in r["fixtures"]:
+            f["cpu_p50_ms"] *= scale
+        return r
+
+    def test_the_runners_own_class_resolves_to_the_budget_class(self):
+        budgets = write(self.BUDGETS)
+        b = pb.load_budgets(budgets)
+        seen = pb.gather([write(self.receipt())], None, b)
+        self.assertEqual(list(seen), ["kabylake-linux"])
+        self.assertEqual(pb.main(["check", budgets, write(self.receipt())]), 0)
+
+    def test_two_rows_are_compared_and_a_ten_percent_regression_fails(self):
+        budgets = write(self.BUDGETS)
+        self.assertEqual(pb.main(["check", budgets, write(self.receipt(1.30))]), 1)
+
+    def test_a_class_nobody_budgeted_fails_when_a_budget_is_required(self):
+        budgets = write(self.BUDGETS)
+        odd = self.receipt(os_name="Arch")
+        odd["machine"]["cpu_model"] = "Some Other CPU"
+        self.assertEqual(pb.main(["check", budgets, write(odd)]), 0)
+        self.assertEqual(pb.main(["check", budgets, write(odd), "--require-budget"]), 1)
+        self.assertEqual(pb.main(["check", budgets, write(odd), "--require-budget", "--advisory"]), 0)
+
+    def test_a_wrong_governor_fails_and_a_pinned_one_passes(self):
+        budgets = write(self.BUDGETS)
+        r = write(self.receipt())
+        self.assertEqual(pb.main(["check", budgets, r, "--require-governor", "performance",
+                                  "--governor", "powersave"]), 1)
+        self.assertEqual(pb.main(["check", budgets, r, "--require-governor", "performance",
+                                  "--governor", "performance"]), 0)
+
+    def test_an_alias_to_a_missing_class_is_rejected(self):
+        bad = dict(self.BUDGETS, class_aliases={"x*": "nope"})
+        with self.assertRaises(ValueError):
+            pb.validate(bad)
+
+
 if __name__ == "__main__":
     unittest.main()

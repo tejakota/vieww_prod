@@ -9,3 +9,8 @@ uses = ["vieww"]
 [build]
 android = { package = "vavlt-android", apk = "vavlt" }
 ios = { package = "vavlt-ios", bundle_id = "dev.vavlt.app", binary = "vavlt-ios" }
+
+# CI-01: what `cargo test --release` runs for this app on a Linux runner. The
+# platform crates need a phone toolchain and are left out.
+[test]
+args = "--workspace --exclude vavlt-android --exclude vavlt-ios"

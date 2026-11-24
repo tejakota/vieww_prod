@@ -31,7 +31,8 @@ args=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --record) cmd=record ;;
-        --class | --baseline | --write-measured) args+=("$1" "$2"); shift ;;
+        --class | --baseline | --write-measured | --require-governor | --governor) args+=("$1" "$2"); shift ;;
+        --require-budget) args+=(--require-budget) ;;
         --advisory) args+=(--advisory) ;;
         *) args+=("$1") ;;
     esac
@@ -41,7 +42,7 @@ files=0
 skip=""
 for a in "${args[@]}"; do
     if [ -n "$skip" ]; then skip=""; continue; fi
-    case "$a" in --class | --baseline | --write-measured) skip=1 ;; *.json) files=$((files + 1)) ;; esac
+    case "$a" in --class | --baseline | --write-measured | --require-governor | --governor) skip=1 ;; *.json) files=$((files + 1)) ;; esac
 done
 if [ "$files" -eq 0 ]; then
     tmp="$(mktemp -d)"

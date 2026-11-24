@@ -9,3 +9,8 @@ uses = ["vieww"]
 [build]
 android = { package = "three-social-app", apk = "three" }
 ios = { package = "three-social-app", bundle_id = "dev.three.app", binary = "three-social-app" }
+
+# CI-01: what `cargo test --release` runs for this app on a Linux runner. The
+# platform crates need a phone toolchain and are left out.
+[test]
+args = "--workspace"

@@ -163,6 +163,15 @@ if want nvidia; then
     fi
 fi
 
+# CI-03: pin the governor for the measurement where we are allowed to (root or
+# passwordless sudo); the perf budget then fails the run if it is not
+# `performance`, so an unpinnable machine is visible rather than quietly noisy.
+if want gallery && [ -w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ] || sudo -n true 2>/dev/null; then
+    for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+        echo performance | sudo -n tee "$g" >/dev/null 2>&1 || echo performance > "$g" 2>/dev/null || true
+    done
+fi
+
 if want gallery; then
     run gallery cargo run --release -p fixtures -- "$out/fixtures" \
         --runs 30 --receipt "$out/fixtures/receipt.json" --shadow "$out/fixtures/shadow.jsonl"
@@ -176,7 +185,10 @@ if want gallery; then
     # commit; this run's figures are saved as the next run's baseline.
     if [ -f "$out/fixtures/receipt.json" ] && [ -f "$out/census/receipt.json" ]; then
         python3 -I ci/check/perf_baseline.py hardware-self-hosted-linux-and-windows hardware-linux "$out/perf-baseline.json" || true
-        run perf-budget ci/check/perf-budget.sh --baseline "$out/perf-baseline.json" \
+        # CI-03: a run that matches no budget class, or that measured under
+        # `powersave`, gated nothing (2026-10-30: +24% / +27% unflagged).
+        run perf-budget ci/check/perf-budget.sh --require-budget --require-governor performance \
+            --baseline "$out/perf-baseline.json" \
             --write-measured "$out/perf-measured.json" "$out/fixtures/receipt.json" "$out/census/receipt.json"
     fi
     if command -v python3 >/dev/null && [ -f "$out/census/receipt.json" ]; then

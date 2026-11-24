@@ -219,5 +219,25 @@ class Planner(unittest.TestCase):
             self.assertIn(f"          - {name}\n", text)
 
 
+    def test_every_app_builds_with_the_same_dist_profile(self):
+        # BLD-01: one profile, copied between markers, kept equal by --check.
+        import subprocess
+        out = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "ci/lib/app_profile.py"),
+                              "--check"], capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+
+    def test_every_mobile_app_runs_its_tests_in_ci(self):
+        # CI-01: a check job per app, and the build jobs use --profile dist.
+        with open(os.path.join(ROOT, "ci/kinds/mobile-app.toml")) as f:
+            kind = f.read()
+        self.assertIn('id = "check"', kind)
+        for name in ("android", "ios"):
+            with open(os.path.join(ROOT, f"ci/kinds/mobile-app/{name}.toml")) as f:
+                self.assertIn("--profile dist", f.read(), name)
+        for app in ("snapsearch", "upxcale", "vavlt", "three", "soma"):
+            with open(os.path.join(ROOT, f"apps/{app}/ci.toml")) as f:
+                self.assertIn("[test]", f.read(), app)
+
+
 if __name__ == "__main__":
     unittest.main()

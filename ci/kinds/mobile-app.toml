@@ -11,6 +11,25 @@
 # app's manifest.
 description = "An app for Android and/or iOS built with the vieww mobile toolchain."
 
+# CI-01: every app's own tests, in release (the profile the app ships), on a
+# plain Linux runner. Before this no `cargo test` ran for any mobile app, so
+# vavlt's idle-cost test and snapsearch's performance tests never gated
+# anything. A PR that breaks an app's tests goes red here.
+[[job]]
+id = "check"
+title = "cargo test --release"
+file = "ci/kinds/mobile-app/check.toml"
+requires = "test"
+row = { app = "{name}", workdir = "{path}", test_args = "{test.args}" }
+stage = "check"
+depth = "quick"
+runs_on = "ubuntu-24.04"
+timeout = 60
+checkout = { persist-credentials = false }
+[[job.setup]]
+uses = "rust-cache"
+with = { workspaces = "{path}" }
+
 [[job]]
 id = "android"
 title = "android build"

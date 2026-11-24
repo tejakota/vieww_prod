@@ -9,3 +9,8 @@ uses = ["vieww"]
 [build]
 android = { package = "upxcale", apk = "upxcale" }
 ios = { package = "upxcale", bundle_id = "dev.upxcale.app", binary = "upxcale" }
+
+# CI-01: what `cargo test --release` runs for this app on a Linux runner. The
+# platform crates need a phone toolchain and are left out.
+[test]
+args = "--workspace"

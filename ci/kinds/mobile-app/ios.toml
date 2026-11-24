@@ -43,7 +43,7 @@ run = '''
 cargo build \
   -p ${{ matrix.package }} \
   --target aarch64-apple-ios \
-  --release
+  --profile dist
 '''
 
 [[step]]
@@ -54,7 +54,7 @@ run = '''
 set -euo pipefail
 
 triple="aarch64-apple-ios"
-profile="release"
+profile="dist"
 binary="target/$triple/$profile/$BINARY"
 
 if [ ! -f "$binary" ]; then

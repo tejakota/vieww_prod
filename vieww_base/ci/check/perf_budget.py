@@ -39,6 +39,23 @@ failed, the way `size-budget.sh` treats a target it has no figure for.
 `record` writes today's figures for the classes it saw, to commit after
 review. Standard library only.
 
+## Class aliases, required budgets and the governor (CI-03)
+
+A runner's class is `os / arch / cpu_model`, which includes the distro
+release and the CPU's marketing string; the budgets are keyed by a stable
+name (`kabylake-linux`). The 2026-10-30 hardware run compared nothing because
+`ubuntu-26-04-1-lts/x86-64/intel-r-core-tm-i5-7200u...` matched no key.
+`class_aliases` maps glob patterns to budget classes:
+
+    "class_aliases": {"ubuntu-*/x86-64/intel-r-core-tm-i5-7200u*": "kabylake-linux"}
+
+`--require-budget` fails a run whose class has neither a budget nor a
+previous run to be held to — a hardware gate that gates nothing is a failure,
+not a quiet pass. `--require-governor NAME` fails (or, with `--advisory`,
+warns) when the CPU frequency governor read from sysfs (or given as
+`--governor`) is not `NAME`: the same run measured +24% on two rows under
+`powersave`. A governor that cannot be read is reported, not failed.
+
 ## Known limitations (FW-07)
 
 A metric can be *known to miss its real budget* — the 60 Hz 16.7 ms frame
@@ -241,6 +258,13 @@ def validate(b):
         for name, v in metrics.items():
             if not isinstance(v, (int, float)) or v <= 0:
                 raise ValueError(f"{cls} {name}: {v!r} is not a positive number of ms")
+    aliases = b.get("class_aliases")
+    if aliases is not None:
+        if not isinstance(aliases, dict) or not aliases:
+            raise ValueError("class_aliases must be a non-empty object or absent")
+        for pattern, target in aliases.items():
+            if target not in classes:
+                raise ValueError(f"class_aliases {pattern!r}: {target!r} is not a budget class")
     ceilings = b.get("ceilings")
     if ceilings is not None:
         if not isinstance(ceilings, dict) or not ceilings:
@@ -289,19 +313,40 @@ def validate(b):
                     "non-empty string naming the decision that accepted the miss")
 
 
-def gather_tiers(paths, forced_class):
+def gather_tiers(paths, forced_class, budgets=None):
     out = {}
     for p in paths:
         with open(p) as f:
-            out.update(tiers(json.load(f), forced_class))
+            for cls, tier in tiers(json.load(f), forced_class).items():
+                out[canonical(cls, budgets) if budgets else cls] = tier
     return out
 
 
-def gather(paths, forced_class):
+def canonical(cls, budgets):
+    """The budget class a measured class answers to, through `class_aliases`."""
+    import fnmatch
+    if cls in (budgets.get("classes") or {}):
+        return cls
+    for pattern, target in sorted((budgets.get("class_aliases") or {}).items()):
+        if fnmatch.fnmatchcase(cls, pattern):
+            return target
+    return cls
+
+
+def read_governor(path="/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"):
+    try:
+        with open(path) as f:
+            return f.read().strip() or None
+    except OSError:
+        return None
+
+
+def gather(paths, forced_class, budgets=None):
     seen = {}
     for p in paths:
         with open(p) as f:
             for cls, metrics in measurements(json.load(f), forced_class).items():
+                cls = canonical(cls, budgets) if budgets else cls
                 seen.setdefault(cls, {}).update(metrics)
     return seen
 
@@ -389,9 +434,12 @@ def main(argv):
     baseline_path = take(rest, "--baseline")
     measured_path = take(rest, "--write-measured")
     advisory = bool(take(rest, "--advisory", has_value=False))
+    require_budget = bool(take(rest, "--require-budget", has_value=False))
+    require_governor = take(rest, "--require-governor")
+    governor = take(rest, "--governor") or (read_governor() if require_governor else None)
     budgets = load_budgets(budgets_path)
-    seen = gather(rest, forced)
-    tier_of = gather_tiers(rest, forced)
+    seen = gather(rest, forced, budgets)
+    tier_of = gather_tiers(rest, forced, budgets)
     if measured_path:
         write_measured(measured_path, seen)
     if cmd == "record":
@@ -456,8 +504,22 @@ def main(argv):
         for cls, name, ceiling, now, tier in cfail:
             print(f"::{level}::perf-budget: {cls} ({tier} tier) {name}: {now:.1f} ms is over "
                   f"its {ceiling:g} ms ceiling")
-    if failures or cfail:
-        level = "warning" if advisory else "error"
+    gate_failed = False
+    level = "warning" if advisory else "error"
+    if require_budget and unknown:
+        gate_failed = True
+        for cls in unknown:
+            print(f"::{level}::perf-budget: class {cls!r} has no budget, no alias and no previous "
+                  "run: nothing was gated (add it to class_aliases or record it)")
+    if require_governor:
+        if governor is None:
+            print("perf-budget: CPU governor unreadable here; not checked")
+        elif governor != require_governor:
+            gate_failed = True
+            print(f"::{level}::perf-budget: CPU governor is {governor!r}, not "
+                  f"{require_governor!r}: the numbers are not comparable "
+                  "(pin it: cpupower frequency-set -g performance)")
+    if failures or cfail or gate_failed:
         for cls, name, was, now, change in failures:
             print(f"::{level}::perf-budget: {cls} {name}: {now:.3f} against {was:.3f} "
                   f"({change:+.1f}%)")
