@@ -417,9 +417,157 @@ pub trait Inference: 'static {
     fn run(&self, name: &str, input: &[u8]) -> Result<Vec<Prediction>, ServiceError>;
 }
 
+/// A photo the person chose, already read.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PickedPhoto {
+    /// The file name the platform reported (`IMG_0042.JPG`), or a stand-in.
+    pub name: String,
+    /// The encoded image — JPEG, PNG, HEIC — exactly as the library holds it.
+    pub bytes: Vec<u8>,
+}
+
+/// The platform's photo picker (UX-02).
+///
+/// Android's system picker / `READ_MEDIA_IMAGES` + MediaStore, iOS `PHPicker`.
+/// **Unguarded**: both system pickers run out of process and hand back only what
+/// the person selected, so there is no permission to ask for; an app that wants
+/// to browse the whole library is a different capability and not this one.
+///
+/// A callback rather than a return value because a picker is a screen the
+/// person walks through, and nothing here may block the UI thread waiting.
+pub trait PhotoPicker: 'static {
+    /// Ask the person for up to `max` photos. `done` runs exactly once — with an
+    /// empty list when they dismiss the picker (cancelling is not an error).
+    ///
+    /// # Errors
+    ///
+    /// Delivered to `done`: [`ServiceError::Unsupported`] with no picker.
+    fn pick_photos(
+        &self,
+        max: usize,
+        done: Box<dyn FnOnce(Result<Vec<PickedPhoto>, ServiceError>)>,
+    );
+}
+
+/// What to hand to the platform share sheet.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct ShareItem {
+    /// Shown as the message / subject.
+    pub text: String,
+    /// An optional link.
+    pub url: Option<String>,
+    /// An optional file: its name and bytes (the bridge writes it to cache and
+    /// shares a content URI / file URL).
+    pub file: Option<(String, Vec<u8>)>,
+}
+
+/// The platform share sheet: Android `ACTION_SEND` chooser, iOS `UIActivity`.
+/// Unguarded — the sheet is the person's own choice of destination.
+pub trait Share: 'static {
+    /// Open the share sheet for `item`.
+    ///
+    /// # Errors
+    ///
+    /// [`ServiceError::Unsupported`] where there is no share sheet (a headless
+    /// run, a desktop without one); the caller's fallback is to copy the link.
+    fn share(&self, item: ShareItem) -> Result<(), ServiceError>;
+}
+
 // ---------------------------------------------------------------------------
 // Headless implementations
 // ---------------------------------------------------------------------------
+
+/// The honest answer where no native bridge exists yet: every call reports
+/// [`ServiceError::Unsupported`], so an app can fall back (copy the link, open
+/// its own file dialog) instead of silently doing nothing.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct Unsupported;
+
+impl Haptics for Unsupported {
+    fn play(&self, _: HapticPattern) -> Result<(), ServiceError> {
+        Err(ServiceError::unsupported("haptics"))
+    }
+}
+
+impl PhotoPicker for Unsupported {
+    fn pick_photos(
+        &self,
+        _: usize,
+        done: Box<dyn FnOnce(Result<Vec<PickedPhoto>, ServiceError>)>,
+    ) {
+        done(Err(ServiceError::unsupported("photo picker")))
+    }
+}
+
+impl Share for Unsupported {
+    fn share(&self, _: ShareItem) -> Result<(), ServiceError> {
+        Err(ServiceError::unsupported("share"))
+    }
+}
+
+/// A picker that answers with whatever a test queued.
+#[derive(Default)]
+pub struct ScriptedPhotoPicker {
+    queued: RefCell<Vec<PickedPhoto>>,
+    asked: RefCell<Vec<usize>>,
+}
+
+impl ScriptedPhotoPicker {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// The photos the next `pick_photos` will deliver (truncated to `max`).
+    pub fn queue(&self, photos: Vec<PickedPhoto>) {
+        *self.queued.borrow_mut() = photos;
+    }
+
+    /// The `max` of every request so far.
+    #[must_use]
+    pub fn asked(&self) -> Vec<usize> {
+        self.asked.borrow().clone()
+    }
+}
+
+impl PhotoPicker for ScriptedPhotoPicker {
+    fn pick_photos(
+        &self,
+        max: usize,
+        done: Box<dyn FnOnce(Result<Vec<PickedPhoto>, ServiceError>)>,
+    ) {
+        self.asked.borrow_mut().push(max);
+        let mut photos = std::mem::take(&mut *self.queued.borrow_mut());
+        photos.truncate(max);
+        done(Ok(photos));
+    }
+}
+
+/// A share sheet that records what it was given.
+#[derive(Debug, Default)]
+pub struct HeadlessShare {
+    shared: RefCell<Vec<ShareItem>>,
+}
+
+impl HeadlessShare {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Every item shared so far, in order.
+    #[must_use]
+    pub fn shared(&self) -> Vec<ShareItem> {
+        self.shared.borrow().clone()
+    }
+}
+
+impl Share for HeadlessShare {
+    fn share(&self, item: ShareItem) -> Result<(), ServiceError> {
+        self.shared.borrow_mut().push(item);
+        Ok(())
+    }
+}
 
 /// Haptics that are recorded rather than felt.
 #[derive(Debug, Default)]
@@ -861,6 +1009,8 @@ fn take_first<T>(queue: &RefCell<Vec<T>>) -> Option<T> {
 /// the point of the guard and not an oversight here.
 pub fn provide_headless(services: &mut Services) {
     services.provide::<dyn Haptics>(Rc::new(HeadlessHaptics::new()));
+    services.provide::<dyn PhotoPicker>(Rc::new(ScriptedPhotoPicker::new()));
+    services.provide::<dyn Share>(Rc::new(HeadlessShare::new()));
     services.provide::<dyn Biometrics>(Rc::new(ScriptedBiometrics::succeeding()));
     services.provide::<dyn PushNotifications>(Rc::new(HeadlessPush::new()));
     services.provide::<dyn BarcodeScanner>(Rc::new(HeadlessBarcodeScanner::new()));
@@ -1101,11 +1251,29 @@ mod tests {
     }
 
     #[test]
+    fn the_picker_delivers_at_most_max_and_share_records() {
+        let picker = ScriptedPhotoPicker::new();
+        let photo = |n: &str| PickedPhoto { name: n.into(), bytes: vec![1] };
+        picker.queue(vec![photo("a"), photo("b"), photo("c")]);
+        let got = Rc::new(RefCell::new(Vec::new()));
+        let sink = got.clone();
+        picker.pick_photos(2, Box::new(move |r| *sink.borrow_mut() = r.unwrap()));
+        assert_eq!(got.borrow().len(), 2);
+        assert_eq!(picker.asked(), vec![2]);
+
+        let share = HeadlessShare::new();
+        share.share(ShareItem { text: "hi".into(), ..ShareItem::default() }).unwrap();
+        assert_eq!(share.shared()[0].text, "hi");
+    }
+
+    #[test]
     fn every_capability_arrives_through_the_ordinary_seam() {
         let mut services = Services::new();
         provide_headless(&mut services);
 
         assert!(services.get::<dyn Haptics>().is_some());
+        assert!(services.get::<dyn PhotoPicker>().is_some());
+        assert!(services.get::<dyn Share>().is_some());
         assert!(services.get::<dyn Biometrics>().is_some());
         assert!(services.get::<dyn PushNotifications>().is_some());
         assert!(services.get::<dyn BarcodeScanner>().is_some());

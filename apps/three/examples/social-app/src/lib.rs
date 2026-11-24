@@ -284,13 +284,43 @@ impl fmt::Debug for CapturePhase {
 }
 
 thread_local! {
-    static SHARE_HOOK: RefCell<Option<Rc<dyn Fn(String)>>> = const { RefCell::new(None) };
+    static SHARE_HOOK: RefCell<Option<Rc<dyn Fn(String) -> bool>>> = const { RefCell::new(None) };
 }
 
 /// Install the platform's share sheet: it is handed the post's link. Until a
 /// host installs one, Share says it is unavailable instead of doing nothing.
-pub fn set_share_hook(hook: impl Fn(String) + 'static) {
+pub fn set_share_hook(hook: impl Fn(String) -> bool + 'static) {
     SHARE_HOOK.with(|slot| *slot.borrow_mut() = Some(Rc::new(hook)));
+}
+
+/// Route Share through the platform's `Share` service (UX-02) the first time a
+/// build can see one. A host that registers none (or only the `Unsupported`
+/// stub) leaves the hook uninstalled, so the app keeps saying "not available"
+/// honestly instead of claiming "Shared".
+fn wire_platform_share(ctx: &BuildContext) {
+    use vieww::foundation::mobile::{Share, ShareItem};
+    thread_local! {
+        static WIRED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    }
+    if WIRED.with(std::cell::Cell::get) {
+        return;
+    }
+    let Some(services) = ctx.inherit::<vieww::foundation::SharedServices>() else {
+        return;
+    };
+    let Some(share) = services.get::<dyn Share>() else {
+        return;
+    };
+    WIRED.with(|w| w.set(true));
+    set_share_hook(move |link| {
+        share
+            .share(ShareItem {
+                text: "Look at this on 3".to_owned(),
+                url: Some(link),
+                ..ShareItem::default()
+            })
+            .is_ok()
+    });
 }
 
 /// One feed card's height, the list's uniform row extent.
@@ -419,10 +449,7 @@ impl SocialState {
     fn share(&mut self, id: &PostId) {
         let link = format!("three://post/{}", id.0);
         let shared = SHARE_HOOK.with(|slot| match slot.borrow().as_ref() {
-            Some(hook) => {
-                hook(link);
-                true
-            }
+            Some(hook) => hook(link),
             None => false,
         });
         self.notice = Some(if shared {
@@ -742,6 +769,7 @@ impl SocialScreen {
         Some(Box::new(SocialState::new()))
     }
     fn build(&self, ctx: &BuildContext) -> impl Into<WidgetNode> {
+        wire_platform_share(ctx);
         let theme = ThemeData::of(ctx);
         let snap = ctx
             .state::<SocialState, Snapshot>(Snapshot::read)
@@ -2033,7 +2061,10 @@ mod th02 {
             .is_some_and(|n| n.contains("not available")));
         let seen = Rc::new(RefCell::new(String::new()));
         let sink = Rc::clone(&seen);
-        set_share_hook(move |link| *sink.borrow_mut() = link);
+        set_share_hook(move |link| {
+            *sink.borrow_mut() = link;
+            true
+        });
         s.share(&id);
         assert_eq!(s.notice.as_deref(), Some("Shared"));
         assert!(seen.borrow().starts_with("three://post/"));

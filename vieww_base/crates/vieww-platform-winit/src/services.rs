@@ -231,6 +231,15 @@ pub fn for_android(android: &crate::AndroidApp) -> Services {
 /// [`AlwaysDenied`](vieww_foundation::permission::AlwaysDenied) is the honest
 /// answer for a build with no bridge behind any of them.
 pub fn unavailable_capabilities(services: &mut Services) {
+    services.provide::<dyn vieww_foundation::mobile::Haptics>(Rc::new(
+        vieww_foundation::mobile::Unsupported,
+    ));
+    services.provide::<dyn vieww_foundation::mobile::PhotoPicker>(Rc::new(
+        vieww_foundation::mobile::Unsupported,
+    ));
+    services.provide::<dyn vieww_foundation::mobile::Share>(Rc::new(
+        vieww_foundation::mobile::Unsupported,
+    ));
     services.provide::<dyn Camera>(Rc::new(NoCamera));
     services.provide::<dyn LocationServices>(Rc::new(NoLocation));
     services.provide::<dyn Notifications>(Rc::new(NoNotifications));

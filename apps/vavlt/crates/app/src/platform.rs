@@ -55,6 +55,11 @@ pub trait Platform: 'static {
     ///
     /// The default does nothing but log, because on a desktop the file being
     /// written where the user can find it *is* the whole feature.
+    /// A short confirming tick — called when a tier is committed. Default: none
+    /// (a desktop has nothing to buzz); the mobile hosts override it with the
+    /// system haptic (`HapticFeedbackConstants` / `UIImpactFeedbackGenerator`).
+    fn haptic(&self) {}
+
     fn share(&self, path: &std::path::Path) {
         log::info!("exported: {}", path.display());
     }

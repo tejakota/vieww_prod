@@ -319,6 +319,9 @@ impl VavltState {
 
     pub fn set_tier(&self, tier: Tier) {
         log::info!("tier: {tier:?}");
+        if self.tier.peek() != tier {
+            self.platform.haptic();
+        }
         self.tier.set(tier);
         self.reprice();
     }
