@@ -126,6 +126,11 @@ pub struct AppState {
     pub grid_scroll: ScrollController,
     pub picker_scroll: ScrollController,
 
+    /// The line the toast shows, if any: save progress, success and error.
+    pub toast: Signal<Option<String>>,
+    /// The save in flight, if any.
+    save: Rc<RefCell<Option<std::sync::mpsc::Receiver<crate::export::SaveOutcome>>>>,
+    expire_toast_at: Rc<std::cell::Cell<Option<std::time::Instant>>>,
     /// The batch in flight, if any.
     job: Rc<RefCell<Option<RenderJob>>>,
     /// How the render reaches a thread. Held so a screen can start one.
@@ -178,6 +183,9 @@ impl AppState {
             progress: runtime.signal(RenderState::idle()),
             comparing: runtime.signal(None),
             divider: runtime.signal(0.5),
+            toast: runtime.signal(None),
+            save: Rc::new(RefCell::new(None)),
+            expire_toast_at: Rc::new(std::cell::Cell::new(None)),
             job: Rc::new(RefCell::new(None)),
             grid_scroll,
             picker_scroll,
@@ -285,9 +293,13 @@ impl AppState {
                     let done = index * STAGES_PER_PHOTO as usize + stage as usize;
                     state.stages_done = state.stages_done.max(done);
                 }
-                Progress::Done { id, image } => {
+                Progress::Done {
+                    id,
+                    image,
+                    baseline,
+                } => {
                     if let Some(photo) = photos::by_id(&id) {
-                        self.library.adopt(photo, image);
+                        self.library.adopt_with_baseline(photo, image, baseline);
                         finished_ids.push(photo.id);
                         state.photos_done += 1;
                         state.status = next_status(state.photos_done, state.photos_total);
@@ -394,21 +406,74 @@ impl AppState {
     /// deliberately not dressed up as the platform integration it is standing
     /// in for. When vieww grows a `PhotoLibrary` service, this function is the
     /// one that changes.
-    pub fn save_current(&self) -> Option<std::path::PathBuf> {
-        let photo = self.comparing_photo()?;
-        let image = self.library.result(photo)?;
-        match crate::export::write_png(&image, photo.slug) {
-            Ok(path) => {
-                eprintln!("upxcale: saved {}", path.display());
-                Some(path)
-            }
-            Err(error) => {
-                eprintln!("upxcale: could not save {}: {error}", photo.slug);
-                None
+    pub fn save_current(&self) -> bool {
+        if self.save.borrow().is_some() {
+            return false;
+        }
+        let Some(photo) = self.comparing_photo() else {
+            return false;
+        };
+        let Some(image) = self.library.result(photo) else {
+            return false;
+        };
+        let slug = photo.slug;
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let waker = Arc::clone(&self.waker);
+        // The PNG encode and the write are tens to hundreds of ms on a phone:
+        // off the frame thread, with the toast saying so meanwhile.
+        self.spawner.spawn(Box::new(move || {
+            let outcome = match crate::export::write_png(&image, slug) {
+                Ok(path) => crate::export::SaveOutcome::Saved(path),
+                Err(error) => crate::export::SaveOutcome::Failed(error.to_string()),
+            };
+            let _ = sender.send(outcome);
+            waker.wake();
+        }));
+        *self.save.borrow_mut() = Some(receiver);
+        self.toast.set(Some("Saving…".to_owned()));
+        true
+    }
+
+    /// Fold a finished save into the toast, and schedule the toast's removal.
+    /// Called from the same per-frame hook as [`poll_render`](Self::poll_render).
+    pub fn poll_save(&self) {
+        let outcome = match self.save.borrow().as_ref() {
+            Some(receiver) => receiver.try_recv().ok(),
+            None => return,
+        };
+        let Some(outcome) = outcome else {
+            return;
+        };
+        *self.save.borrow_mut() = None;
+        if let crate::export::SaveOutcome::Failed(error) = &outcome {
+            eprintln!("upxcale: save failed: {error}");
+        }
+        self.toast
+            .set(Some(crate::export::outcome_message(&outcome)));
+        // A frame must happen when the toast expires, and nothing else will
+        // ask for one: a sleeping worker wakes the loop.
+        let waker = Arc::clone(&self.waker);
+        self.expire_toast_at
+            .set(Some(std::time::Instant::now() + TOAST_HOLD));
+        self.spawner.spawn(Box::new(move || {
+            std::thread::sleep(TOAST_HOLD);
+            waker.wake();
+        }));
+    }
+
+    /// Clear the toast once its hold has passed. Per-frame.
+    pub fn expire_toast(&self) {
+        if let Some(at) = self.expire_toast_at.get() {
+            if std::time::Instant::now() >= at {
+                self.expire_toast_at.set(None);
+                self.toast.set(None);
             }
         }
     }
 }
+
+/// How long a finished save's toast stays up.
+const TOAST_HOLD: std::time::Duration = std::time::Duration::from_secs(3);
 
 fn first_status(chosen: &[&Photo]) -> String {
     match chosen {

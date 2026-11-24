@@ -38,8 +38,14 @@ pub enum Progress {
     /// A stage of one photograph finished. `index` is its position in the
     /// batch, `stage` how many of that photo's stages are done.
     Stage { index: usize, stage: u8 },
-    /// A photograph is finished, with its pixels.
-    Done { id: String, image: Image },
+    /// A photograph is finished, with its pixels and the plain resample the
+    /// compare sheet's measurements are taken against (stage 1's output, which
+    /// is exactly `Library::baseline`'s definition — so it costs nothing).
+    Done {
+        id: String,
+        image: Image,
+        baseline: Image,
+    },
     /// A photograph could not be rendered. The batch continues.
     Failed { id: String, error: String },
 }
@@ -104,6 +110,7 @@ impl RenderJob {
                     .send(Progress::Done {
                         id,
                         image: sharpened,
+                        baseline: enlarged,
                     })
                     .is_err()
                 {

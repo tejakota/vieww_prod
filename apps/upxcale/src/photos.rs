@@ -169,6 +169,9 @@ pub struct Library {
     /// have shipped" stage the measurements strip measures against. See
     /// [`Library::baseline`].
     baselines: RefCell<HashMap<String, Image>>,
+    /// Baseline keys, oldest first, for eviction.
+    baseline_order: RefCell<Vec<String>>,
+    budget: std::cell::Cell<usize>,
 }
 
 /// Hand-written because `dyn AssetBundle` is not `Debug` and the orphan rule
@@ -192,6 +195,8 @@ impl Library {
             sources: RefCell::new(HashMap::new()),
             upscaled: RefCell::new(HashMap::new()),
             baselines: RefCell::new(HashMap::new()),
+            baseline_order: RefCell::new(Vec::new()),
+            budget: std::cell::Cell::new(8),
         }
     }
 
@@ -243,9 +248,7 @@ impl Library {
         let result = self.result(photo)?;
         let source = self.source(photo).ok()?;
         let plain = upscale::resample(&source, result.width(), result.height());
-        self.baselines
-            .borrow_mut()
-            .insert(photo.id.to_string(), plain.clone());
+        self.keep_baseline(photo.id, plain.clone());
         Some(plain)
     }
 
@@ -273,6 +276,56 @@ impl Library {
         self.upscaled
             .borrow_mut()
             .insert(photo.id.to_string(), image);
+    }
+
+    /// [`adopt`](Self::adopt), and keep the worker's plain resample as the
+    /// baseline so the compare sheet never computes one on the UI thread.
+    pub fn adopt_with_baseline(&self, photo: &Photo, image: Image, baseline: Image) {
+        self.adopt(photo, image);
+        self.keep_baseline(photo.id, baseline);
+    }
+
+    /// The baseline if it is already held. Never computes: the UI thread must
+    /// not run a 1200² Lanczos pass on the first compare open (UP-01).
+    #[must_use]
+    pub fn baseline_cached(&self, photo: &Photo) -> Option<Image> {
+        self.baselines.borrow().get(photo.id).cloned()
+    }
+
+    /// How many baselines (and decoded sources) the library keeps — about
+    /// 11.5 MB per photo — before the oldest go. Results are never evicted:
+    /// they are the user's work.
+    pub fn set_cache_budget(&self, photos: usize) {
+        self.budget.set(photos.max(1));
+        self.trim();
+    }
+
+    /// The default budget for a device tier: 4, 8 or 24 photos.
+    #[must_use]
+    pub const fn budget_for_tier(tier: vieww_foundation::DeviceTier) -> usize {
+        match tier {
+            vieww_foundation::DeviceTier::Low => 4,
+            vieww_foundation::DeviceTier::Medium => 8,
+            vieww_foundation::DeviceTier::High => 24,
+        }
+    }
+
+    fn keep_baseline(&self, id: &str, baseline: Image) {
+        let mut order = self.baseline_order.borrow_mut();
+        order.retain(|k| k != id);
+        order.push(id.to_string());
+        drop(order);
+        self.baselines.borrow_mut().insert(id.to_string(), baseline);
+        self.trim();
+    }
+
+    fn trim(&self) {
+        let budget = self.budget.get();
+        let mut order = self.baseline_order.borrow_mut();
+        while order.len() > budget {
+            let oldest = order.remove(0);
+            self.baselines.borrow_mut().remove(&oldest);
+        }
     }
 
     /// Forget every result. The app never calls this; a "clear cache" setting

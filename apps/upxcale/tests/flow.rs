@@ -229,3 +229,53 @@ fn dismissing_the_picker_clears_the_selection() {
         "dismissing the picker changes nothing about the grid"
     );
 }
+
+/// UP-01: the compare sheet's baseline comes from the worker, so opening the
+/// sheet resamples nothing on the UI thread; and Save runs off it, says so
+/// in the toast, and says how it ended.
+#[test]
+fn compare_needs_no_ui_thread_resample_and_save_reports_back() {
+    let dir = std::env::temp_dir().join(format!("upxcale-up01-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    upxcale::export::set_export_dir(dir.clone());
+
+    let (_tree, state) = app();
+    state.toggle_pick("a2");
+    assert!(state.start_render());
+    assert!(state.poll_render());
+
+    let photo = photos::by_id("a2").expect("a2");
+    let baseline = state
+        .library
+        .baseline_cached(photo)
+        .expect("the worker supplied the baseline");
+    let result = state.library.result(photo).expect("result");
+    assert_eq!((baseline.width(), baseline.height()), (result.width(), result.height()));
+
+    state.open_compare("a2");
+    assert!(state.save_current());
+    // `Inline` ran the encode already; the toast is folded in on the next poll.
+    state.poll_save();
+    let message = state.toast.peek().expect("a toast after saving");
+    assert!(message.starts_with("Saved to "), "{message}");
+    assert!(std::fs::read_dir(&dir).unwrap().count() >= 1, "a file was written");
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn the_baseline_cache_keeps_to_its_tier_budget() {
+    let (_tree, state) = app();
+    state.library.set_cache_budget(2);
+    for id in ["a1", "a2", "a3", "a4"] {
+        let photo = photos::by_id(id).expect("catalogue photo");
+        let image = state.library.source(photo).expect("source");
+        state.library.adopt_with_baseline(photo, image.clone(), image);
+    }
+    let held = ["a1", "a2", "a3", "a4"]
+        .iter()
+        .filter(|id| state.library.baseline_cached(photos::by_id(id).unwrap()).is_some())
+        .count();
+    assert_eq!(held, 2, "only the newest two baselines stay");
+    // Results are the user's work and are never evicted.
+    assert!(photos::by_id("a1").is_some_and(|p| state.library.is_upscaled(p)));
+}

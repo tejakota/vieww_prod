@@ -51,6 +51,8 @@ impl Pump {
     }
 
     pub fn tick(&mut self) {
+        self.state.poll_save();
+        self.state.expire_toast();
         if self.state.poll_render() {
             self.settle_at = Some(Instant::now() + FRESH_HOLD);
         }
@@ -105,6 +107,12 @@ pub fn boot_with(
     // its own here and nothing else would change.
     let spawner: Rc<dyn Spawn> = Rc::new(Threads);
 
+    // Baselines and decoded sources are ~11.5 MB a photo: keep fewer on a
+    // smaller device (UP-01).
+    library.set_cache_budget(Library::budget_for_tier(
+        vieww_platform_winit::device_facts().tier,
+    ));
+
     let state = AppState::new(runtime, library, nav.clone(), spawner, Arc::clone(&waker));
 
     let landing = Landing {
@@ -131,6 +139,10 @@ pub fn boot_with(
 #[cfg(target_os = "android")]
 #[no_mangle]
 fn android_main(android: vieww_platform_winit::AndroidApp) {
+    // cwd is `/` on Android: exports go in the app's own data directory.
+    if let Some(dir) = android.internal_data_path() {
+        crate::export::set_export_dir(dir.join("exports"));
+    }
     let pump: Rc<RefCell<Option<Pump>>> = Rc::new(RefCell::new(None));
     let hook_pump = Rc::clone(&pump);
 

@@ -22,13 +22,40 @@ use std::path::{Path, PathBuf};
 
 use vieww_foundation::Image;
 
-/// Where exports land: `upxcale-exports/` in the current working directory.
-///
-/// Deliberately relative. An absolute path under `$HOME` would be wrong on
-/// Android (no `$HOME` worth writing to) and rude on a desktop.
+static EXPORT_DIR: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
+
+/// Point exports at a directory the platform lets the app write to — the
+/// app-private data directory on Android, where the old relative
+/// `upxcale-exports/` (the process's cwd) failed silently (UP-01). Set once,
+/// before the first save; a second call is ignored.
+pub fn set_export_dir(dir: PathBuf) {
+    let _ = EXPORT_DIR.set(dir);
+}
+
+/// Where exports land: the directory given to [`set_export_dir`], else
+/// `upxcale-exports/` in the current working directory (a desktop run).
 #[must_use]
 pub fn export_dir() -> PathBuf {
-    PathBuf::from("upxcale-exports")
+    EXPORT_DIR
+        .get()
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("upxcale-exports"))
+}
+
+/// How a background save ended.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SaveOutcome {
+    Saved(PathBuf),
+    Failed(String),
+}
+
+/// The words a toast shows for an outcome.
+#[must_use]
+pub fn outcome_message(outcome: &SaveOutcome) -> String {
+    match outcome {
+        SaveOutcome::Saved(path) => format!("Saved to {}", path.display()),
+        SaveOutcome::Failed(error) => format!("Could not save: {error}"),
+    }
 }
 
 /// Encode `image` as a PNG and write it into [`export_dir`].
