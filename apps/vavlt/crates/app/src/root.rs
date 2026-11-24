@@ -111,6 +111,27 @@ impl Scrolls {
     }
 }
 
+/// How long the startup animation plays (VA-01: it was 1,450 ms).
+pub const SPLASH_DURATION: std::time::Duration = std::time::Duration::from_millis(600);
+
+/// Set once this process has shown (or been asked about) its splash.
+static SPLASH_SEEN: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Whether the splash is wanted: the first call in a process says yes; a
+/// later one — an activity recreated in a process that is still warm — says
+/// no. Reduce-motion is separate: [`VavltApp`] drops the overlay itself when
+/// the inherited accessibility asks for it.
+#[must_use]
+pub fn splash_wanted() -> bool {
+    !SPLASH_SEEN.swap(true, std::sync::atomic::Ordering::Relaxed)
+}
+
+/// Whether the splash overlay shows at `progress` under `reduce_motion`.
+#[must_use]
+pub fn splash_visible(progress: f32, reduce_motion: bool) -> bool {
+    !reduce_motion && progress < 0.999
+}
+
 /// The whole application.
 #[derive(Debug)]
 pub struct VavltApp {
@@ -156,10 +177,13 @@ impl Widget for VavltApp {
         WidgetKind::Composed
     }
 
-    fn build(&self, _ctx: &BuildContext) -> WidgetNode {
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
         let state = self.state.clone();
         let scrolls = self.scrolls.clone();
         let dark = state.dark.get();
+        let reduce_motion = ctx
+            .inherit_or(vieww::foundation::Accessibility::default())
+            .reduce_motion;
 
         // The form factor is read from the surface, once, above everything —
         // so a phone-sized window on a laptop is genuinely the phone layout
@@ -176,13 +200,16 @@ impl Widget for VavltApp {
 
             let root: WidgetNode = if let Some(splash) = splash.clone() {
                 let progress = splash.value();
-                if progress < 0.999 {
+                if splash_visible(progress, reduce_motion) {
+                    // A tap anywhere ends it: nobody should wait for a logo.
+                    let skip = splash.clone();
+                    let overlay = Pressable::new(move |_| {
+                        vavlt_splash(progress, constraints.max_width, constraints.max_height)
+                    })
+                    .on_tap(move || skip.set_progress(1.0));
                     Stack::new()
                         .fit(StackFit::Expand)
-                        .children(children![
-                            content,
-                            vavlt_splash(progress, constraints.max_width, constraints.max_height),
-                        ])
+                        .children(children![content, overlay])
                         .into()
                 } else {
                     content.into()
@@ -564,5 +591,26 @@ fn title_for(state: &Rc<VavltState>, screen: Screen, tab: Tab) -> String {
             .photos
             .with(|photos| photos.get(state.detail.get()).map(|p| p.name.clone()))
             .unwrap_or_else(|| "Photo".to_string()),
+    }
+}
+
+#[cfg(test)]
+mod splash_tests {
+    use super::*;
+
+    #[test]
+    fn the_splash_is_short_and_a_warm_start_skips_it() {
+        assert!(SPLASH_DURATION.as_millis() <= 600);
+        // Process-wide: the first caller plays it, every later one does not.
+        let first = splash_wanted();
+        assert!(!splash_wanted());
+        let _ = first;
+    }
+
+    #[test]
+    fn reduce_motion_and_a_finished_animation_hide_the_overlay() {
+        assert!(splash_visible(0.3, false));
+        assert!(!splash_visible(0.3, true));
+        assert!(!splash_visible(1.0, false));
     }
 }

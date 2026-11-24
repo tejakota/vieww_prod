@@ -135,7 +135,10 @@ impl Widget for BodyScreen {
     }
     fn build(&self, _ctx: &BuildContext) -> WidgetNode {
         let state = self.state.clone();
-        let pose = state.pose.get();
+        BODY_SCREEN_BUILDS.with(|n| n.set(n.get() + 1));
+        // Only the card's own two springs — not the camera. A drag rebuilds
+        // the viewport (`BodyView`), not this (SO-01).
+        let (panel, pill) = state.dock.get();
 
         LayoutBuilder::new(move |constraints| {
             let big = constraints.biggest();
@@ -148,10 +151,14 @@ impl Widget for BodyScreen {
                 .children(children![
                     // The 3D body owns the full screen — the card floats
                     // over it, it is never handed a band of its own.
-                    viewport(&state, &pose, vw, vh),
+                    BodyView {
+                        state: state.clone(),
+                        vw,
+                        vh,
+                    },
                     top_bar(&state, vw),
-                    camera_controls(&state, pose.pill, vw, vh),
-                    floating_card(&state, &pose, vw, vh),
+                    camera_controls(&state, pill, vw, vh),
+                    floating_card(&state, (panel, pill), vw, vh),
                 ])
                 .into()
         })
@@ -159,12 +166,56 @@ impl Widget for BodyScreen {
     }
 }
 
+thread_local! {
+    /// How many times `BodyScreen` / `BodyView` have built on this thread — the
+    /// build-count test's evidence that a camera drag rebuilds the viewport
+    /// alone.
+    static BODY_SCREEN_BUILDS: Cell<u32> = const { Cell::new(0) };
+    static BODY_VIEW_BUILDS: Cell<u32> = const { Cell::new(0) };
+}
+
+/// The viewport subtree: the only part of the screen that reads the camera.
+struct BodyView {
+    state: Rc<AppState>,
+    vw: f32,
+    vh: f32,
+}
+
+impl std::fmt::Debug for BodyView {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BodyView").finish_non_exhaustive()
+    }
+}
+
+vieww::widget_node_from!(BodyView);
+
+impl Widget for BodyView {
+    fn debug_name(&self) -> &'static str {
+        "BodyView"
+    }
+    fn kind(&self) -> WidgetKind<'_> {
+        WidgetKind::Composed
+    }
+    fn build(&self, ctx: &BuildContext) -> WidgetNode {
+        BODY_VIEW_BUILDS.with(|n| n.set(n.get() + 1));
+        let pose = self.state.pose.get();
+        let profile = ctx.inherit_or(vieww::foundation::QualityProfile::HIGH);
+        viewport(&self.state, &pose, *profile, self.vw, self.vh)
+    }
+}
+
 // ---------------------------------------------------------------------------
 // The viewport
 // ---------------------------------------------------------------------------
 
-fn viewport(state: &Rc<AppState>, pose: &anatomy::Pose, vw: f32, vh: f32) -> WidgetNode {
-    let image = body_frame(state, pose, vw, vh);
+fn viewport(
+    state: &Rc<AppState>,
+    pose: &anatomy::Pose,
+    profile: vieww::foundation::QualityProfile,
+    vw: f32,
+    vh: f32,
+) -> WidgetNode {
+    let image = body_frame(state, pose, profile, vw, vh);
 
     // A pinch reports its spread relative to its start; the rig wants the
     // change since the last update.
@@ -234,31 +285,60 @@ fn viewport(state: &Rc<AppState>, pose: &anatomy::Pose, vw: f32, vh: f32) -> Wid
         .into()
 }
 
-/// The 3D budget per frame, ms: half a 60 Hz frame, leaving the rest for
-/// the card, the composite and the present.
-const BUDGET_MS: f32 = 8.0;
+/// The share of a frame the 3D pass may take; the rest is the card, the
+/// composite and the present (SO-01: it was a fixed 8 ms, which is the whole
+/// frame at 120 Hz).
+const BUDGET_SHARE: f32 = 0.5;
 /// The quality governor's floor (fraction of logical size).
 const MIN_SCALE: f32 = 0.22;
+/// The widest buffer a *settled* frame may use; a moving one stays at
+/// [`anatomy::MAX_INTERNAL_WIDTH`].
+const SETTLED_MAX_WIDTH: u32 = 1600;
+
+/// The scale the settled body renders at: the tier's ceiling, never above 1.0,
+/// a little less with the x-ray on (more geometry).
+pub(crate) fn settled_scale(profile: vieww::foundation::QualityProfile, xray: f32) -> f32 {
+    profile.max_internal_scale.min(1.0) * (1.0 - 0.2 * xray)
+}
+
+/// The 3D budget in ms for a display whose frames arrive every `period_ms`.
+pub(crate) fn budget_ms(period_ms: f32) -> f32 {
+    period_ms * BUDGET_SHARE
+}
+
+/// Fold one observed gap between moving renders into the running frame
+/// period. Gaps outside a plausible display rate are ignored (a pause is not
+/// a refresh rate).
+pub(crate) fn observe_period(period_ms: f32, gap_ms: f32) -> f32 {
+    if (3.0..=40.0).contains(&gap_ms) {
+        (period_ms * 0.8 + gap_ms * 0.2).clamp(4.0, 33.4)
+    } else {
+        period_ms
+    }
+}
 
 /// The body's image for this frame — reused when nothing it depends on
 /// changed, rendered at the device's own pace when something did.
 ///
-/// **The governor.** Each render while moving is timed. Over budget, the
-/// next renders drop a step in resolution; well under, they climb back. A
-/// low-end phone settles low while moving, a flagship stays at full scale;
-/// nothing is tuned per model. **Settling.** When the camera stops, one
-/// render at full scale replaces the motion frame, and the cache holds it.
+/// **The governor.** Each render while moving is timed against half the
+/// display's own frame period. Over budget, the next renders drop a step in
+/// resolution; well under, they climb back. **Settling.** When the camera
+/// stops, one render at the tier's settled scale replaces the motion frame,
+/// and the cache holds it.
 fn body_frame(
     state: &Rc<AppState>,
     pose: &anatomy::Pose,
+    profile: vieww::foundation::QualityProfile,
     vw: f32,
     vh: f32,
 ) -> vieww::foundation::Image {
     use vieww::animation::Ticker;
     let moving = state.rig.borrow().is_animating();
-    let full = anatomy::RENDER_SCALE * (1.0 - 0.2 * pose.xray);
-    let scale = if moving { state.quality.get().min(full) } else { full };
-    let bw = ((vw * scale) as u32).clamp(2, anatomy::MAX_INTERNAL_WIDTH);
+    let full = settled_scale(profile, pose.xray);
+    let motion_cap = anatomy::RENDER_SCALE * (1.0 - 0.2 * pose.xray);
+    let scale = if moving { state.quality.get().min(motion_cap) } else { full };
+    let cap = if moving { anatomy::MAX_INTERNAL_WIDTH } else { SETTLED_MAX_WIDTH };
+    let bw = ((vw * scale) as u32).clamp(2, cap);
     let bh = ((bw as f32) * vh / vw.max(1.0)) as u32;
     let selected = state.selected.get();
 
@@ -280,16 +360,23 @@ fn body_frame(
         Some(&state.stats),
     );
     if moving {
+        if let Some(last) = state.last_moving_render.replace(Some(started)) {
+            let gap = started.duration_since(last).as_secs_f32() * 1000.0;
+            state.frame_period_ms.set(observe_period(state.frame_period_ms.get(), gap));
+        }
         let ms = started.elapsed().as_secs_f32() * 1000.0;
+        let budget = budget_ms(state.frame_period_ms.get());
         let q = state.quality.get();
-        let next = if ms > BUDGET_MS {
+        let next = if ms > budget {
             q * 0.85
-        } else if ms < BUDGET_MS * 0.55 {
+        } else if ms < budget * 0.55 {
             q * 1.05
         } else {
             q
         };
         state.quality.set(next.clamp(MIN_SCALE, anatomy::RENDER_SCALE));
+    } else {
+        state.last_moving_render.set(None);
     }
     *state.frame_cache.borrow_mut() = Some((*pose, selected, bw, bh, image.clone()));
     image
@@ -617,7 +704,7 @@ fn host(url: &str) -> String {
 /// At rest (`panel = 0`) it is the pill and a row of suggestions, low over
 /// the body's feet. Alive (`panel = 1`) it grows to hold the answer, and
 /// `pill` decides which end of the scene it floats toward.
-fn floating_card(state: &Rc<AppState>, pose: &anatomy::Pose, vw: f32, vh: f32) -> WidgetNode {
+fn floating_card(state: &Rc<AppState>, (panel, pill): (f32, f32), vw: f32, vh: f32) -> WidgetNode {
     let query = state.query.get();
     let has_query = !query.text.trim().is_empty();
     let topic_open = state.topic.get().is_some();
@@ -628,13 +715,13 @@ fn floating_card(state: &Rc<AppState>, pose: &anatomy::Pose, vw: f32, vh: f32) -
     } else {
         (vh * 0.46).min(450.0)
     };
-    let card_h = collapsed + (expanded - collapsed) * pose.panel;
+    let card_h = collapsed + (expanded - collapsed) * panel;
 
     // Where the card floats: `pill` 0 parks it at the bottom edge, 1 lifts
     // it under the brand line, and the spring glides between.
     let low_top = (vh - card_h - 16.0).max(76.0);
     let high_top = 76.0;
-    let top = low_top + (high_top - low_top) * pose.pill;
+    let top = low_top + (high_top - low_top) * pill;
 
     let body: WidgetNode = if topic_open {
         answer_card(state)
@@ -1425,5 +1512,55 @@ mod tests {
         assert_eq!(group(999), "999");
         assert_eq!(short("abcdef", 4), "abc…");
         assert_eq!(host("https://my.example.org/a/b"), "my.example.org");
+    }
+}
+
+#[cfg(test)]
+mod so01_tests {
+    use super::*;
+    use vieww::foundation::QualityProfile;
+
+    #[test]
+    fn the_settled_scale_follows_the_tier_and_a_desktop_is_sharp() {
+        assert_eq!(settled_scale(QualityProfile::HIGH, 0.0), 1.0);
+        assert!(settled_scale(QualityProfile::LOW, 0.0) <= 0.5 + f32::EPSILON);
+        assert!(settled_scale(QualityProfile::HIGH, 1.0) < 1.0);
+    }
+
+    #[test]
+    fn the_budget_is_half_the_displays_own_frame() {
+        assert!((budget_ms(1000.0 / 60.0) - 8.33).abs() < 0.01);
+        assert!((budget_ms(1000.0 / 120.0) - 4.17).abs() < 0.01);
+        // The period is learned from gaps and ignores a pause.
+        let p = observe_period(16.7, 8.3);
+        assert!(p < 16.7 && p > 8.3);
+        assert_eq!(observe_period(16.7, 900.0), 16.7);
+    }
+
+    #[test]
+    fn a_camera_drag_rebuilds_the_viewport_and_not_the_screen() {
+        let mut driver = vieww::FrameDriver::new(Size::new(390.0, 844.0));
+        let state = crate::mount(&mut driver);
+        let mut now = std::time::Duration::ZERO;
+        for _ in 0..6 {
+            now += std::time::Duration::from_millis(16);
+            driver.draw_frame_at(now);
+        }
+        let screen = BODY_SCREEN_BUILDS.with(Cell::get);
+        let view = BODY_VIEW_BUILDS.with(Cell::get);
+        assert!(screen >= 1 && view >= 1);
+        for i in 1..=5 {
+            let mut pose = state.pose.peek();
+            pose.camera = vieww_3d::Camera::perspective(
+                vieww_3d::Vec3::new(0.2 * i as f32, 1.35, 3.9),
+                vieww_3d::Vec3::new(0.0, 1.02, 0.0),
+                0.62,
+            );
+            state.pose.set(pose);
+            now += std::time::Duration::from_millis(16);
+            driver.draw_frame_at(now);
+        }
+        assert_eq!(BODY_SCREEN_BUILDS.with(Cell::get), screen, "the screen rebuilt");
+        assert!(BODY_VIEW_BUILDS.with(Cell::get) > view, "the viewport did not");
     }
 }

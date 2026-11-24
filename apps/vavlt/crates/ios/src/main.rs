@@ -133,16 +133,17 @@ fn main() {
         let scrolls = Rc::new(Scrolls::new(&runtime));
         scrolls.attach(driver.tickers());
 
-        let splash = driver
-            .animation(
-                Tween::new(0.0_f32, 1.0_f32),
-                Duration::from_millis(1450),
-            )
-            .curve(Curve::EASE_IN_OUT);
-        splash.forward(Duration::ZERO);
-        splash.attach(driver.tickers());
-
-        driver.set_root(VavltApp::new_with_splash(state, scrolls, splash));
+        // Short, skippable by tap, and only on a cold start (VA-01).
+        if vavlt_app::splash_wanted() {
+            let splash = driver
+                .animation(Tween::new(0.0_f32, 1.0_f32), vavlt_app::SPLASH_DURATION)
+                .curve(Curve::EASE_IN_OUT);
+            splash.forward(Duration::ZERO);
+            splash.attach(driver.tickers());
+            driver.set_root(VavltApp::new_with_splash(state, scrolls, splash));
+        } else {
+            driver.set_root(VavltApp::new(state, scrolls));
+        }
     });
 
     match result {

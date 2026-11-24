@@ -162,6 +162,13 @@ pub struct AppState {
     pub frame_cache: RefCell<Option<(anatomy::Pose, Option<usize>, u32, u32, vieww::foundation::Image)>>,
     /// The 3D quality governor's render scale, adapted to this device.
     pub quality: std::cell::Cell<f32>,
+    /// The card's two springs `(panel, pill)`, apart from the camera: a memo,
+    /// so it only notifies when one of them moves (SO-01).
+    pub dock: vieww::element::Memo<(f32, f32)>,
+    /// The running display frame period in ms, learned from moving renders.
+    pub frame_period_ms: std::cell::Cell<f32>,
+    /// When the previous moving render began.
+    pub last_moving_render: std::cell::Cell<Option<std::time::Instant>>,
     /// The viewport's logical size, for projecting organ callouts.
     pub viewport: Signal<(f32, f32)>,
 }
@@ -184,8 +191,18 @@ pub fn build_state(runtime: &vieww::element::Runtime) -> Rc<AppState> {
     });
     let selected = runtime.signal(None::<usize>);
     let (scene, parts, placements, rig) = Rig::new(&database, pose.clone(), selected.clone());
+    let dock = runtime.memo({
+        let pose = pose.clone();
+        move || {
+            let p = pose.get();
+            (p.panel, p.pill)
+        }
+    });
     Rc::new(AppState {
         db: database,
+        dock,
+        frame_period_ms: std::cell::Cell::new(1000.0 / 60.0),
+        last_moving_render: std::cell::Cell::new(None),
         pose,
         selected,
         topic: runtime.signal(None),

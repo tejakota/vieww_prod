@@ -52,6 +52,6 @@ pub mod ui;
 
 pub use model::{AuditKind, AuditRow, Estimate, Photo, PhotoState, RunResult, Screen, Tab, Thumb};
 pub use platform::Platform;
-pub use root::{Scrolls, VavltApp};
+pub use root::{splash_visible, splash_wanted, Scrolls, VavltApp, SPLASH_DURATION};
 pub use state::{Message, Pump, VavltState, MAX_PICK, RETENTION_DAYS};
 pub use theme::{FormFactor, VavltColors, VavltMetrics, VavltTheme};
