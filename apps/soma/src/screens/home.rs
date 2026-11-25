@@ -906,11 +906,7 @@ fn clear_button(state: &Rc<AppState>) -> WidgetNode {
 }
 
 fn badge(label: &str, color: Color) -> WidgetNode {
-    Container::new()
-        .decoration(BoxDecoration::new().color(color.with_alpha(40)).radius(6.0))
-        .padding(EdgeInsets::symmetric(6.0, 3.0))
-        .child(Text::new(label.to_owned()).style(style(MICRO, FontWeight::Bold, color, 0.8)))
-        .into()
+    vieww_ui_kit::badge(&skin(), label, color)
 }
 
 // ---------------------------------------------------------------------------
@@ -940,32 +936,43 @@ fn hint_row(state: &Rc<AppState>) -> WidgetNode {
         .into()
 }
 
+/// soma's skin for the shared kit (UX-01): only the numbers the kit's chip and
+/// badge read; the rest are the same defaults any app starts from.
+fn skin() -> vieww_ui_kit::Skin {
+    vieww_ui_kit::Skin {
+        ground: crate::GROUND,
+        panel: Color::rgba(255, 255, 255, 10),
+        edge: Color::rgba(255, 255, 255, 26),
+        accent: crate::ACCENT,
+        accent_tint: crate::ACCENT.with_alpha(26),
+        ink: crate::INK,
+        muted: crate::MUTED,
+        danger: (crate::CORAL.with_alpha(26), crate::CORAL, crate::CORAL.with_alpha(76)),
+        radius: 12.0,
+        chip_radius: 10.0,
+        badge_radius: 6.0,
+        button_pad: (14.0, 12.0),
+        button_text: 14.0,
+        card_pad: (10.0, 9.0),
+        chip_pad: (12.0, 8.0),
+        chip_height: HIT,
+        chip_text: (CAPTION, 0.2),
+        badge_pad: (6.0, 3.0),
+        badge_text: (MICRO, 0.8),
+        press_dim: 0.3,
+        toast_fill: crate::CARD_GLASS,
+        toast_ink: crate::INK,
+        toast_pad: (16.0, 10.0),
+        toast_text: (13.0, FontWeight::Bold),
+        toast_max_width: 310.0,
+        toast_shadow: None,
+    }
+}
+
 /// A rounded, tappable label with a 44 px target.
 fn chip(state: &Rc<AppState>, label: &str, color: Color, act: Rc<dyn Fn(&AppState)>) -> WidgetNode {
     let state = state.clone();
-    PressTap::new()
-        .on_tap(move |_| act(&state))
-        .child(
-            SizedBox::height(HIT).child(
-                Center::new().child(
-                    Container::new()
-                        .decoration(
-                            BoxDecoration::new()
-                                .color(color.with_alpha(26))
-                                .radius(10.0)
-                                .border(vieww::foundation::Border::new(color.with_alpha(76), 1.0)),
-                        )
-                        .padding(EdgeInsets::symmetric(12.0, 8.0))
-                        .child(Text::new(label.to_owned()).style(style(
-                            CAPTION,
-                            FontWeight::Medium,
-                            color,
-                            0.2,
-                        ))),
-                ),
-            ),
-        )
-        .into()
+    vieww_ui_kit::chip(&skin(), label, color, Rc::new(move || act(&state)))
 }
 
 /// The emergency card a red-flag query shows above everything else.

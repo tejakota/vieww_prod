@@ -32,6 +32,7 @@ publish = false
 [dependencies]
 # The umbrella crate: widgets, layout, painting and the element tree.
 vieww = { path = "../../vieww_base/crates/vieww" }
+vieww-ui-kit = { path = "../../vieww_base/crates/vieww-ui-kit" }
 
 # The 3D layer: the anatomical body is a `vieww_3d::Scene`, rendered by the
 # CPU rasterizer (default features only) so the same code builds for desktop,

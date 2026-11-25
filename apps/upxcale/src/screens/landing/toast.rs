@@ -20,18 +20,7 @@ pub fn layer(state: &AppState) -> WidgetNode {
         .child(
             Flex::row()
                 .main_axis_alignment(MainAxisAlignment::Center)
-                .children(children![Container::new()
-                    .decoration(
-                        BoxDecoration::new()
-                            .color(theme::scheme().surface_variant)
-                            .stadium(),
-                    )
-                    .padding(EdgeInsets::symmetric(16.0, 10.0))
-                    .child(
-                        Text::new(message)
-                            .style(TextStyle::new(13.0).bold())
-                            .color(theme::scheme().on_surface),
-                    )]),
+                .children(children![vieww_ui_kit::toast(&theme::skin(), &message)]),
         )
         .into()
 }

@@ -7,6 +7,7 @@ use vieww::prelude::*;
 use vieww::widget::Pressable;
 
 use crate::pixel::{Avatar, Morse, Place, Scene};
+use vieww_ui_kit::Kind;
 use crate::{style, Motion, TwinState, AMBER, BLUE, EDGE, GROUND, INK, MINT, MUTED, PANEL, PX};
 
 /// The eight screens. Four are tabs; Call, Friends and Key are reached from
@@ -70,7 +71,7 @@ fn flat(fill: Color, edge: Color, radius: f32, child: WidgetNode, pad: EdgeInset
 }
 
 fn card(child: WidgetNode) -> WidgetNode {
-    flat(PANEL, EDGE, 4.0, child, EdgeInsets::symmetric(14.0, 12.0))
+    vieww_ui_kit::card(&crate::skin(), child)
 }
 
 fn col(gap: f32, children: Vec<WidgetNode>) -> WidgetNode {
@@ -89,23 +90,14 @@ fn space(h: f32) -> WidgetNode {
     SizedBox::height(h).into()
 }
 
-/// A tappable flat button (focusable, with the theme's focus ring).
-fn button(label: &str, fill: Color, ink: Color, edge: Color, on_tap: impl Fn() + 'static) -> WidgetNode {
-    let label = label.to_owned();
-    Pressable::new(move |press| {
-        let wash = if press > 0.0 { 0.75 } else { 1.0 };
-        Opacity::new(wash)
-            .child(flat(
-                fill,
-                edge,
-                4.0,
-                Center::new().child(Text::new(label.clone()).style(style(14.0, FontWeight::Medium, ink, 0.0))).into(),
-                EdgeInsets::symmetric(14.0, 12.0),
-            ))
-            .into()
-    })
-    .on_tap(on_tap)
-    .into()
+/// A kit button of `kind`.
+fn kbutton(label: &str, kind: vieww_ui_kit::Kind, on_tap: impl Fn() + 'static) -> WidgetNode {
+    vieww_ui_kit::button(&crate::skin(), label, kind, on_tap)
+}
+
+/// A kit chip in `color` (quick replies, the key shortcut).
+fn kchip(label: &str, color: Color, on_tap: impl Fn() + 'static) -> WidgetNode {
+    vieww_ui_kit::chip(&crate::skin(), label, color, Rc::new(on_tap))
 }
 
 fn title(s: &str) -> WidgetNode {
@@ -168,18 +160,18 @@ fn home(state: &Rc<TwinState>) -> WidgetNode {
         text("twin", 22.0, FontWeight::Bold, INK),
         SizedBox::height(300.0).child(room).into(),
         col(6.0, vec![
-            pixel_label("knowledge", MUTED),
+            vieww_ui_kit::section_label(&crate::skin(), "knowledge"),
             row(10.0, vec![
                 grow(SizedBox::height(6.0).child(Row2::bar(0.64)).into()),
                 text("1,842 notes · +3 today", 11.0, FontWeight::Regular, MINT),
             ]),
         ]),
         row(8.0, vec![
-            grow(button("message", Color::rgb(0x12, 0x2A, 0x1E), MINT, MINT.with_alpha(110), move || s2.screen.set(Screen::Chat))),
-            grow(button("call", PANEL, INK, EDGE, move || s3.screen.set(Screen::Call))),
-            grow(button("teach", PANEL, INK, EDGE, move || s4.screen.set(Screen::Teach))),
+            grow(kbutton("message", Kind::Primary, move || s2.screen.set(Screen::Chat))),
+            grow(kbutton("call", Kind::Quiet, move || s3.screen.set(Screen::Call))),
+            grow(kbutton("teach", Kind::Quiet, move || s4.screen.set(Screen::Teach))),
         ]),
-        pixel_label("recent moments", MUTED),
+        vieww_ui_kit::section_label(&crate::skin(), "recent moments"),
         moment("visited the north gate with kira's twin", "world · linden", "21:12", AMBER),
         moment("asked about your day", "voice message · 0:42", "19:05", BLUE),
         {
@@ -224,8 +216,8 @@ fn world(state: &Rc<TwinState>) -> WidgetNode {
         header("world", "lamps are on tonight"),
         SizedBox::height(560.0).child(scene).into(),
         row(8.0, vec![
-            grow(button("go to the gate", Color::rgb(0x12, 0x2A, 0x1E), MINT, MINT.with_alpha(110), || {})),
-            grow(button("worlds", PANEL, INK, EDGE, || {})),
+            grow(kbutton("go to the gate", Kind::Primary, || {})),
+            grow(kbutton("worlds", Kind::Quiet, || {})),
         ]),
     ])
 }
@@ -244,7 +236,7 @@ fn chat(state: &Rc<TwinState>) -> WidgetNode {
             row(10.0, vec![
                 avatar(3.0, state.motion),
                 grow(col(2.0, vec![text("mara", 15.0, FontWeight::Bold, INK), text("awake · this device", 11.0, FontWeight::Regular, MINT)])),
-                button("key", PANEL, AMBER, EDGE, move || s.screen.set(Screen::Key)),
+                kchip("key", AMBER, move || s.screen.set(Screen::Key)),
             ]),
             Morse::new("safety morse", 3.0, AMBER).widget(),
             e2e_banner(),
@@ -260,12 +252,12 @@ fn chat(state: &Rc<TwinState>) -> WidgetNode {
             text("mara is typing …", 11.0, FontWeight::Regular, MUTED),
             grow(Container::new().into()),
             row(8.0, vec![
-                button("tell me more", GROUND, MINT, MINT.with_alpha(90), || {}),
-                button("what did you learn today?", GROUND, MINT, MINT.with_alpha(90), || {}),
+                kchip("tell me more", MINT, || {}),
+                kchip("what did you learn today?", MINT, || {}),
             ]),
             row(8.0, vec![
                 grow(flat(PANEL, EDGE, 4.0, text("say something…", 14.0, FontWeight::Regular, MUTED), EdgeInsets::symmetric(14.0, 14.0))),
-                button("send", MINT, GROUND, MINT, || {}),
+                kbutton("send", Kind::Solid, || {}),
             ]),
         ]))
         .into()
@@ -285,9 +277,9 @@ fn call(state: &Rc<TwinState>) -> WidgetNode {
         grow(Container::new().into()),
         e2e_banner(),
         row(10.0, vec![
-            grow(button("mute", PANEL, INK, EDGE, || {})),
-            grow(button("speaker", PANEL, INK, EDGE, || {})),
-            grow(button("end", Color::rgb(0x3A, 0x14, 0x18), Color::rgb(0xFF, 0x8A, 0x94), Color::rgb(0x6A, 0x24, 0x2C), move || s.screen.set(Screen::Home))),
+            grow(kbutton("mute", Kind::Quiet, || {})),
+            grow(kbutton("speaker", Kind::Quiet, || {})),
+            grow(kbutton("end", Kind::Danger, move || s.screen.set(Screen::Home))),
         ]),
     ])
 }
@@ -306,7 +298,7 @@ fn teach(_state: &Rc<TwinState>) -> WidgetNode {
         slider("gentle", 0.64, "learned · 71% sure"),
         slider("playful", 0.35, "learned · 48% sure"),
         slider("direct", 0.55, "you set · 88% sure"),
-        pixel_label("corrections", MUTED),
+        vieww_ui_kit::section_label(&crate::skin(), "corrections"),
         card(col(4.0, vec![
             body("\"less formal when i'm tired\"", INK),
             text("you · yesterday · applied to 12 replies", 11.0, FontWeight::Regular, MUTED),
@@ -332,7 +324,7 @@ fn mind(_state: &Rc<TwinState>) -> WidgetNode {
             grow(card(col(2.0, vec![text("+3", 20.0, FontWeight::Bold, AMBER), text("today", 11.0, FontWeight::Regular, MUTED)]))),
             grow(card(col(2.0, vec![text("17", 20.0, FontWeight::Bold, BLUE), text("friends", 11.0, FontWeight::Regular, MUTED)]))),
         ]),
-        pixel_label("recent notes", MUTED),
+        vieww_ui_kit::section_label(&crate::skin(), "recent notes"),
         note("lichen is a symbiosis of fungus and alga", "#nature · 14:30", MINT),
         note("kira likes the festival world", "#friends · yesterday", AMBER),
         note("prefers short answers late at night", "#you · learned", BLUE),
@@ -351,11 +343,11 @@ fn friends(state: &Rc<TwinState>) -> WidgetNode {
     let _ = state;
     page(vec![
         header("worlds & twins", "who lives where"),
-        pixel_label("twins", MUTED),
+        vieww_ui_kit::section_label(&crate::skin(), "twins"),
         item("mara", "awake · linden", Color::rgb(0x2C, 0x57, 0x3A)),
         item("kira", "asleep · the lantern fields", Color::rgb(0x57, 0x2C, 0x3A)),
         item("juno", "awake · festival world", Color::rgb(0x57, 0x4A, 0x2C)),
-        pixel_label("worlds", MUTED),
+        vieww_ui_kit::section_label(&crate::skin(), "worlds"),
         item("linden", "by mara · 214 twins", Color::rgb(0x1E, 0x5A, 0x3A)),
         item("festival world", "by juno · open tonight", Color::rgb(0x6A, 0x4A, 0x1E)),
     ])
@@ -375,7 +367,7 @@ fn key(_state: &Rc<TwinState>) -> WidgetNode {
             text("matches", 16.0, FontWeight::Bold, MINT),
             body("the two strips are identical — this thread is sealed to the two of you.", INK),
         ])),
-        button("mark verified", Color::rgb(0x12, 0x2A, 0x1E), MINT, MINT.with_alpha(110), || {}),
+        kbutton("mark verified", Kind::Primary, || {}),
     ])
 }
 

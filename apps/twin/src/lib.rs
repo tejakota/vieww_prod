@@ -70,6 +70,40 @@ impl Motion {
     }
 }
 
+/// twin's skin for the shared kit (UX-01): the night plate and phosphor mint.
+#[must_use]
+pub fn skin() -> vieww_ui_kit::Skin {
+    use vieww::foundation::FontWeight as W;
+    vieww_ui_kit::Skin {
+        ground: GROUND,
+        panel: PANEL,
+        edge: EDGE,
+        accent: MINT,
+        accent_tint: Color::rgb(0x12, 0x2A, 0x1E),
+        ink: INK,
+        muted: MUTED,
+        danger: (Color::rgb(0x3A, 0x14, 0x18), Color::rgb(0xFF, 0x8A, 0x94), Color::rgb(0x6A, 0x24, 0x2C)),
+        radius: 4.0,
+        chip_radius: 4.0,
+        badge_radius: 3.0,
+        button_pad: (14.0, 12.0),
+        button_text: 14.0,
+        card_pad: (14.0, 12.0),
+        chip_pad: (12.0, 8.0),
+        chip_height: 40.0,
+        chip_text: (12.0, 0.2),
+        badge_pad: (6.0, 3.0),
+        badge_text: (9.0, 0.8),
+        press_dim: 0.25,
+        toast_fill: PANEL,
+        toast_ink: INK,
+        toast_pad: (16.0, 10.0),
+        toast_text: (13.0, W::Medium),
+        toast_max_width: 310.0,
+        toast_shadow: None,
+    }
+}
+
 // ---- state ---------------------------------------------------------------
 
 /// What the screens read and the tab bar changes.

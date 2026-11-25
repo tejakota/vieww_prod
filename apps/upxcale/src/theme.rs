@@ -37,6 +37,20 @@ pub fn scheme() -> ColorScheme {
     ColorScheme::apple_dark()
 }
 
+/// upxcale's skin for the shared kit (UX-01), from the same scheme.
+#[must_use]
+pub fn skin() -> vieww_ui_kit::Skin {
+    let c = scheme();
+    vieww_ui_kit::Skin {
+        toast_fill: c.surface_variant,
+        toast_ink: c.on_surface,
+        toast_pad: (16.0, 10.0),
+        toast_text: (13.0, vieww_foundation::FontWeight::Bold),
+        toast_max_width: f32::INFINITY,
+        ..vieww_ui_kit::Skin::base(c.surface, c.surface_variant, c.outline, c.primary, c.on_surface, c.on_surface_variant)
+    }
+}
+
 /// The whole theme, assembled.
 ///
 /// `Metrics::apple()` is the 44pt touch target and the 10pt corner the

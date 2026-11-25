@@ -1203,38 +1203,32 @@ fn theme_track() -> Color {
 }
 
 fn toast_pill(theme: &Rc<ThemeData>, message: String) -> WidgetNode {
-    // `main_axis_size(Min)` on the wrapping row is what keeps this a pill
-    // hugging its text rather than a full-width bar — the prototype's
-    // `width: fit-content`.
-    Flex::row()
-        .main_axis_size(MainAxisSize::Min)
-        .children(children![Container::new()
-            .color(theme.colors.surface_variant)
-            .radius(f32::MAX)
-            .padding(EdgeInsets::symmetric(
-                theme.metrics.gap * 2.5,
-                theme.metrics.gap * 1.5
-            ))
-            .shadow(Shadow {
-                color: Color::rgba(0, 0, 0, 0x66),
-                offset: Offset::new(0.0, 6.0),
-                blur: 20.0,
-                spread: 0.0,
-                is_inset: false,
-            })
-            .child(
-                // A long query echoed back in "Nothing close to …" once made
-                // this pill 420 of a 390-point screen. The cap lets the text
-                // wrap to a second line instead — a stadium becomes a
-                // lozenge, which is still a pill.
-                Constrained::new(Constraints::new(0.0, 310.0, 0.0, f32::INFINITY)).child(
-                    Text::new(message)
-                        .color(theme.colors.on_surface)
-                        .size(theme.text.body.size)
-                        .align(TextAlign::Center),
-                ),
-            )])
-        .into()
+    // The shared kit's toast (UX-01): a pill hugging its text, wrapping a long
+    // query echo into a lozenge. This app's numbers ride in its skin.
+    let colors = &theme.colors;
+    let skin = vieww_ui_kit::Skin {
+        toast_fill: colors.surface_variant,
+        toast_ink: colors.on_surface,
+        toast_pad: (theme.metrics.gap * 2.5, theme.metrics.gap * 1.5),
+        toast_text: (theme.text.body.size, vieww::foundation::FontWeight::Regular),
+        toast_max_width: 310.0,
+        toast_shadow: Some(Shadow {
+            color: Color::rgba(0, 0, 0, 0x66),
+            offset: Offset::new(0.0, 6.0),
+            blur: 20.0,
+            spread: 0.0,
+            is_inset: false,
+        }),
+        ..vieww_ui_kit::Skin::base(
+            colors.surface,
+            colors.surface_variant,
+            colors.outline,
+            colors.primary,
+            colors.on_surface,
+            colors.on_surface_variant,
+        )
+    };
+    vieww_ui_kit::toast(&skin, &message)
 }
 
 fn empty_state(theme: &Rc<ThemeData>, tokens: &FluidTokens) -> WidgetNode {
