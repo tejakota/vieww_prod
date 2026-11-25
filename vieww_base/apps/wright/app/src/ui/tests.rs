@@ -1576,3 +1576,42 @@ fn the_toggles_hug_the_right_edge_of_the_top_bar() {
         "the top bar's rightmost control ends at {rightmost}, not at the right edge"
     );
 }
+
+#[test]
+fn wr01_the_opening_is_long_once_and_short_after_and_any_key_skips_it() {
+    assert_eq!(splash_ms(true), SPLASH_FIRST_MS);
+    assert!(splash_ms(false) <= 800, "a repeat launch is a blink");
+    assert!(SPLASH_FIRST_MS > splash_ms(false));
+
+    let mut driver = FrameDriver::new(vieww::foundation::Size::new(900.0, 600.0));
+    let ui = Ui::new(driver.elements().runtime(), None, std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)));
+    ui.choose_splash(false);
+    assert_eq!(ui.splash_len(), SPLASH_REPEAT_MS);
+    assert!(ui.splash.get(), "the splash starts up");
+    let key = KeyEvent::down(LogicalKey::Named(NamedKey::Enter), Duration::ZERO);
+    assert!(ui.handle_key(&key), "the key that skips it is consumed");
+    assert!(!ui.splash.get(), "any key skips the splash");
+}
+
+#[test]
+fn wr01_pages_and_flings_move_a_scroll_area_and_stop() {
+    let mut driver = FrameDriver::new(vieww::foundation::Size::new(900.0, 600.0));
+    let s = kit::ScrollState::new(driver.elements().runtime());
+    s.extent.set((500.0, 5000.0));
+    s.page(1.0);
+    assert!((s.at() - 450.0).abs() < 0.01, "a page is 90% of the window");
+    s.page(-1.0);
+    assert!(s.at() < 0.01);
+
+    s.fling(2000.0);
+    let mut frames = 0;
+    while kit::step_flings(0.016) {
+        frames += 1;
+        assert!(frames < 600, "a fling must come to rest");
+    }
+    assert!(s.at() > 300.0, "it carried on after release: {}", s.at());
+
+    s.to_end();
+    s.fling(2000.0);
+    assert!(!kit::step_flings(0.016), "a fling into the end stops there");
+}

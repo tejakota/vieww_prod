@@ -97,8 +97,27 @@ struct Swipe {
     lock_until: Option<Instant>,
 }
 
+/// The full opening, played on the first launch only.
+pub const SPLASH_FIRST_MS: u64 = 3200;
+/// Every launch after that: the W draws and the app is there.
+pub const SPLASH_REPEAT_MS: u64 = 700;
+
+/// The opening's length for a launch (WR-01: ≤ 800 ms after the first).
+pub const fn splash_ms(first_launch: bool) -> u64 {
+    if first_launch {
+        SPLASH_FIRST_MS
+    } else {
+        SPLASH_REPEAT_MS
+    }
+}
+
 struct Inner {
     started: Instant,
+    /// How long the opening plays before it hands over (ms): the full
+    /// splash on first launch, a short one after — see [`splash_ms`].
+    splash_ms: Cell<u64>,
+    last_pump: Cell<Option<Instant>>,
+    flinging: Cell<bool>,
     swipe: Cell<Swipe>,
     next_id: Cell<u64>,
     recording: RefCell<Option<(u64, capture::Recording)>>,
@@ -163,6 +182,16 @@ impl std::fmt::Debug for Ui {
 }
 
 impl Ui {
+    /// Pick the opening's length: full on the first launch, short after.
+    pub fn choose_splash(&self, first_launch: bool) {
+        self.inner.splash_ms.set(splash_ms(first_launch));
+    }
+
+    /// How long the opening plays, in ms.
+    pub fn splash_len(&self) -> u64 {
+        self.inner.splash_ms.get()
+    }
+
     pub fn new(
         rt: &vieww::element::Runtime,
         project: Option<PathBuf>,
@@ -220,6 +249,9 @@ impl Ui {
             size: Rc::new(Cell::new(Size::new(1280.0, 800.0))),
             inner: Rc::new(Inner {
                 started: Instant::now(),
+                splash_ms: Cell::new(SPLASH_FIRST_MS),
+                last_pump: Cell::new(None),
+                flinging: Cell::new(false),
                 swipe: Cell::new(Swipe::default()),
                 next_id,
                 recording: RefCell::new(None),
@@ -642,6 +674,15 @@ impl Ui {
     /// Before each frame: drain workers into signals, settle a swipe whose
     /// fingers lifted, tick the clock while anything is live.
     pub fn pump(&self, driver: &mut FrameDriver) {
+        let now = Instant::now();
+        let dt = self.inner.last_pump.replace(Some(now)).map_or(0.016, |t| {
+            now.duration_since(t).as_secs_f32().min(0.05)
+        });
+        if kit::step_flings(dt) {
+            self.inner.flinging.set(true);
+        } else {
+            self.inner.flinging.set(false);
+        }
         for s in self.sessions.get() {
             s.pump();
         }
@@ -733,7 +774,9 @@ impl Ui {
                 }
             }
         }
-        if self.splash.get() && self.inner.started.elapsed() > Duration::from_millis(3300) {
+        if self.splash.get()
+            && self.inner.started.elapsed() > Duration::from_millis(self.inner.splash_ms.get() + 100)
+        {
             self.splash.set(false);
         }
         if let Some(t) = self.toast.get() {
@@ -751,6 +794,7 @@ impl Ui {
                 || s.status().1 == session::Tone::Live
         });
         let live = busy
+            || self.inner.flinging.get()
             || self.splash.get()
             || self.dragging.get()
             || self.engine.get() != EngineView::Hidden
@@ -767,6 +811,11 @@ impl Ui {
     /// Shortcuts. A text field takes typing first; only keys it did not
     /// want arrive here.
     pub fn handle_key(&self, e: &KeyEvent) -> bool {
+        // Any key skips the opening (WR-01), and is not also acted on.
+        if self.splash.get() && e.is_down() {
+            self.splash.set(false);
+            return true;
+        }
         let space = matches!(&e.key, LogicalKey::Named(NamedKey::Space))
             || matches!(&e.key, LogicalKey::Character(c) if c == " ");
         if !e.is_down() {
@@ -782,6 +831,25 @@ impl Ui {
                 self.set_engine(EngineView::Peek);
             }
             return true;
+        }
+        // Keyboard paging for whatever page is showing (WR-01): the open
+        // session's transcript, else Home.
+        if !shortcut && !self.settings.get() && !self.help.get() {
+            let target = || {
+                self.current_session()
+                    .map_or_else(|| self.home_scroll.clone(), |s| s.scroll.clone())
+            };
+            match &e.key {
+                LogicalKey::Named(NamedKey::PageDown) => {
+                    target().page(1.0);
+                    return true;
+                }
+                LogicalKey::Named(NamedKey::PageUp) => {
+                    target().page(-1.0);
+                    return true;
+                }
+                _ => {}
+            }
         }
         match &e.key {
             LogicalKey::Named(NamedKey::Escape) => {
@@ -986,6 +1054,7 @@ fn window(project: Option<PathBuf>) -> i32 {
         .run(move |driver| {
             shell::register(driver);
             let u = Ui::new(driver.elements().runtime(), project, live);
+            u.choose_splash(store::first_launch());
             if let Some(c) = clipboard.clone() {
                 kit::init_copy(driver.elements().runtime(), c);
             }

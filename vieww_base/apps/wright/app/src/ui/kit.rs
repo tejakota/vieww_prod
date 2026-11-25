@@ -982,14 +982,85 @@ pub struct ScrollState {
     pub offset: Signal<f32>,
     /// (window, content) lengths, reported by layout.
     pub extent: Signal<(f32, f32)>,
+    /// Release velocity of a fling, px/s (positive scrolls down). Decays in
+    /// [`step_flings`].
+    velocity: Rc<std::cell::Cell<f32>>,
+}
+
+thread_local! {
+    /// Every scroll area's fling state, so one per-frame call can carry them
+    /// all (weak: a closed session's area just drops out).
+    static FLINGS: std::cell::RefCell<Vec<(std::rc::Weak<std::cell::Cell<f32>>, ScrollState)>> =
+        const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Per-second multiplier on a fling's speed: it loses ~95% in a second, the
+/// feel of a phone's list rather than a flywheel.
+const FLING_FRICTION: f32 = 0.05;
+/// Below this speed (px/s) a fling is over.
+const FLING_STOP: f32 = 24.0;
+/// A page key moves this much of the window, leaving a line of context.
+const PAGE_FRACTION: f32 = 0.9;
+
+/// Advance every fling by `dt` seconds. Returns whether any is still moving,
+/// which is what keeps the frame loop awake.
+pub fn step_flings(dt: f32) -> bool {
+    let live: Vec<ScrollState> = FLINGS.with(|f| {
+        let mut f = f.borrow_mut();
+        f.retain(|(w, _)| w.strong_count() > 0);
+        f.iter().map(|(_, s)| s.clone()).collect()
+    });
+    let mut moving = false;
+    for s in live {
+        moving |= s.step(dt);
+    }
+    moving
 }
 
 impl ScrollState {
     pub fn new(rt: &vieww::element::Runtime) -> ScrollState {
-        ScrollState {
+        let state = ScrollState {
             offset: rt.signal(0.0),
             extent: rt.signal((0.0, 0.0)),
+            velocity: Rc::new(std::cell::Cell::new(0.0)),
+        };
+        FLINGS.with(|f| f.borrow_mut().push((Rc::downgrade(&state.velocity), state.clone())));
+        state
+    }
+    /// Start a fling at `v` px/s (positive = towards the end).
+    pub fn fling(&self, v: f32) {
+        self.velocity.set(v);
+    }
+    /// Stop any fling (a finger or wheel has taken over).
+    pub fn halt(&self) {
+        self.velocity.set(0.0);
+    }
+    /// One frame of fling physics; whether it is still moving.
+    pub fn step(&self, dt: f32) -> bool {
+        let v = self.velocity.get();
+        if v.abs() < FLING_STOP {
+            self.velocity.set(0.0);
+            return false;
         }
+        let before = self.at();
+        self.by(v * dt);
+        // Hitting an end ends the fling there rather than pushing on it.
+        if (self.at() - before).abs() < 0.01 {
+            self.velocity.set(0.0);
+            return false;
+        }
+        self.velocity.set(v * FLING_FRICTION.powf(dt));
+        true
+    }
+    /// PageUp / PageDown: a window less a line, up (`-1`) or down (`1`).
+    pub fn page(&self, dir: f32) {
+        self.halt();
+        let (view, _) = self.extent.get();
+        self.by(dir * view * PAGE_FRACTION);
+    }
+    pub fn to_start(&self) {
+        self.halt();
+        self.offset.set(0.0);
     }
     fn max(&self) -> f32 {
         let (view, content) = self.extent.get();
@@ -1016,10 +1087,15 @@ pub fn scroll_area(ui: &super::Ui, state: &ScrollState, child: WidgetNode) -> Wi
         let p = ui.pal();
         let (view, content) = state.extent.get();
         let at = state.at();
-        let (wheel, ext) = (state.clone(), state.extent.clone());
+        let (wheel, release, ext) = (state.clone(), state.clone(), state.extent.clone());
         let body: WidgetNode = Scrollable::vertical(at)
             .on_drag(Rc::new(move |d: vieww::foundation::DragDetails| {
+                wheel.halt();
                 wheel.by(-d.delta.dy)
+            }))
+            .on_drag_end(Rc::new(move |d: vieww::foundation::DragDetails| {
+                // The finger lifts moving: carry on (kinetic scroll).
+                release.fling(-d.velocity.dy)
             }))
             .on_extents(Rc::new(move |e: ScrollExtents| {
                 if ext.get() != (e.viewport, e.content) {

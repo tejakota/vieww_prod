@@ -60,11 +60,17 @@ fn frame(ui: &Ui, app: &WidgetNode) -> WidgetNode {
     let ground = layer(Container::new().color(p.ground));
     if ui.splash.get() {
         let app = app.clone();
-        return Animated::new(1.0)
-            .from(0.0)
-            .duration(Duration::from_millis(3200))
-            .curve(Curve::Linear)
-            .build(move |t| splash_frame(&p, side, t, &app))
+        let skip = ui.clone();
+        // A tap or click anywhere skips the opening too (WR-01).
+        return GestureDetector::new()
+            .on_tap(move |_| skip.splash.set(false))
+            .child(
+                Animated::new(1.0)
+                    .from(0.0)
+                    .duration(Duration::from_millis(ui.splash_len()))
+                    .curve(Curve::Linear)
+                    .build(move |t| splash_frame(&p, side, t, &app)),
+            )
             .into();
     }
     let mark = Mark {

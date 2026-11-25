@@ -22,6 +22,18 @@ pub fn file(name: &str) -> PathBuf {
     dir.join(name)
 }
 
+/// Whether this is the first launch on this machine, and remembers that it
+/// was seen. The full opening plays once; after that the splash is a blink
+/// (WR-01), because the app is something you open many times a day.
+pub fn first_launch() -> bool {
+    let marker = file("ui-seen-splash");
+    if marker.exists() {
+        return false;
+    }
+    let _ = std::fs::write(marker, "1\n");
+    true
+}
+
 pub fn read_list(name: &str) -> Vec<PathBuf> {
     let mut out: Vec<PathBuf> = Vec::new();
     for l in std::fs::read_to_string(file(name))
