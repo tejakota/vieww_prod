@@ -1,3 +1,6 @@
+//! A11Y-02 (a unit test, not `tests/`: under `panic = "abort"` in the release
+//! profile an integration test links a second copy of the foundation crate).
+//!
 //! A11Y-02: a keyboard alone reaches soma's camera controls, activates one,
 //! and shows the focus ring while it does.
 
@@ -6,6 +9,8 @@ use std::time::Duration;
 use vieww::foundation::{KeyEvent, LogicalKey, NamedKey, Offset, PointerEvent, PointerId};
 use vieww::FrameDriver;
 use vieww_paint::native::NativeRenderer;
+
+use crate as soma;
 
 fn key(driver: &mut FrameDriver, k: NamedKey) {
     driver.handle_key(&KeyEvent::down(LogicalKey::Named(k), Duration::ZERO));

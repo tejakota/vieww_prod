@@ -38,6 +38,9 @@ pub mod safety;
 pub mod screens;
 pub mod search;
 
+#[cfg(test)]
+mod keyboard_test;
+
 use anatomy::{Parts, Placement, Pose, Rig};
 use db::Db;
 use search::Hit;
