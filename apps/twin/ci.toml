@@ -1,0 +1,13 @@
+# CI manifest: what this project is and what CI runs for it.
+# twin has no phone host crates yet (TW-01 delivers the screens, headless);
+# until android/ios hosts exist it is a Linux-tested app only.
+
+name = "twin"
+kind = "mobile-app"
+platforms = []
+uses = ["vieww"]
+
+[build]
+
+[test]
+args = ""

@@ -506,7 +506,7 @@ impl Share for Unsupported {
 }
 
 /// A picker that answers with whatever a test queued.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct ScriptedPhotoPicker {
     queued: RefCell<Vec<PickedPhoto>>,
     asked: RefCell<Vec<usize>>,

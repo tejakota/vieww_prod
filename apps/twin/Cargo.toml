@@ -1,0 +1,31 @@
+[package]
+name = "twin"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Its own workspace root, like every app here: a checkout inside another
+# workspace must not make cargo go looking upward (see apps/soma/Cargo.toml).
+[workspace]
+
+[dependencies]
+vieww = { path = "../../vieww_base/crates/vieww" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+vieww-platform-winit = { path = "../../vieww_base/crates/vieww-platform-winit" }
+
+[lib]
+name = "twin"
+path = "src/lib.rs"
+
+[[bin]]
+name = "twin"
+path = "src/main.rs"
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["png"] }
+vieww-paint = { path = "../../vieww_base/crates/vieww-paint", features = ["native"] }
+vieww-render = { path = "../../vieww_base/crates/vieww-render" }
+
+[profile.dev.package."*"]
+debug = 0
