@@ -495,7 +495,7 @@ impl PhotoPicker for Unsupported {
         _: usize,
         done: Box<dyn FnOnce(Result<Vec<PickedPhoto>, ServiceError>)>,
     ) {
-        done(Err(ServiceError::unsupported("photo picker")))
+        done(Err(ServiceError::unsupported("photo picker")));
     }
 }
 
