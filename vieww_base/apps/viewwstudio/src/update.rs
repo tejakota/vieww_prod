@@ -842,20 +842,23 @@ mod tests {
     // ----- the feed ---------------------------------------------------------
 
     fn feed() -> String {
-        r#"{
+        // Asset names are this machine's own, so the plan finds them on every
+        // runner; on Linux they are exactly the names this fixture used to
+        // spell out.
+        let base = "https://github.com/example/vieww/releases/download/v0.4.0";
+        let (studio, sdk) = (studio_asset_name(), sdk_asset_name());
+        format!(
+            r#"{{
   "url": "https://api.github.com/repos/example/vieww/releases/123",
   "tag_name": "v0.4.0",
   "name": "0.4.0",
   "assets": [
-    {"name": "viewwstudio-linux-x86_64.tar.gz",
-     "browser_download_url": "https://github.com/example/vieww/releases/download/v0.4.0/viewwstudio-linux-x86_64.tar.gz"},
-    {"name": "viewwstudio-sdk-linux-x86_64.tar.gz",
-     "browser_download_url": "https://github.com/example/vieww/releases/download/v0.4.0/viewwstudio-sdk-linux-x86_64.tar.gz"},
-    {"name": "SHA256SUMS",
-     "browser_download_url": "https://github.com/example/vieww/releases/download/v0.4.0/SHA256SUMS"}
+    {{"name": "{studio}", "browser_download_url": "{base}/{studio}"}},
+    {{"name": "{sdk}", "browser_download_url": "{base}/{sdk}"}},
+    {{"name": "SHA256SUMS", "browser_download_url": "{base}/SHA256SUMS"}}
   ]
-}"#
-        .to_owned()
+}}"#
+        )
     }
 
     #[test]
@@ -1015,6 +1018,9 @@ mod tests {
         std::fs::create_dir_all(&bin).expect("mkdir");
         let curl = bin.join("curl");
         std::fs::write(&curl, b"").expect("stub curl");
+        // Windows finds a program by its extension, so the stub has one too.
+        #[cfg(windows)]
+        std::fs::write(bin.join("curl.exe"), b"").expect("stub curl.exe");
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt as _;

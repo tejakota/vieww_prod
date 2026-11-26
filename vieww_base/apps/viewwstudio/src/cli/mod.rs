@@ -2358,7 +2358,8 @@ mod tests {
         std::fs::remove_dir_all(&root).ok();
         std::fs::create_dir_all(root.join("src").join("screens")).unwrap();
         let error = resolve_input(&root).unwrap_err();
-        assert!(error.contains("src/screens"), "{error}");
+        // The path is printed with the platform's separator.
+        assert!(error.replace('\\', "/").contains("src/screens"), "{error}");
     }
 
     #[test]

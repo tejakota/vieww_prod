@@ -258,12 +258,23 @@ mod tests {
     /// one's, per platform (ST-14).
     #[test]
     fn the_sdk_directory_is_the_one_the_layout_packs() {
+        let (dir, bundled) = if cfg!(target_os = "macos") {
+            ("Resources", "vieww")
+        } else {
+            ("lib", "vieww")
+        };
         let linux = sdk_dir(Some(Path::new("/opt/vieww/bin/viewwstudio")));
-        assert_eq!(linux.as_deref(), Some(Path::new("/opt/vieww/lib/vieww")));
+        assert_eq!(
+            linux.as_deref(),
+            Some(Path::new("/opt/vieww").join(dir).join(bundled).as_path())
+        );
         // The flat tree computes the same path: `bin/` and `lib/` are
         // siblings either way.
         let flat = sdk_dir(Some(Path::new("/tmp/tree/bin/viewwstudio")));
-        assert_eq!(flat.as_deref(), Some(Path::new("/tmp/tree/lib/vieww")));
+        assert_eq!(
+            flat.as_deref(),
+            Some(Path::new("/tmp/tree").join(dir).join(bundled).as_path())
+        );
         // A macOS `.app` keeps it in Resources — the expectation is spelled
         // per platform because the code is, and CI runs both.
         let app = sdk_dir(Some(Path::new(

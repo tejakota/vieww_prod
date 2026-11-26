@@ -60,6 +60,10 @@ name = "Download the real models"
 run = '''
 export WRIGHT_HOME="$RUNNER_TEMP/wright-home"
 cargo build --release -p wright
+# The workspace links libstd dynamically (`-C prefer-dynamic`, see
+# .cargo/config.toml); the loader has to be told where this toolchain's is
+# (exit 127, "cannot open shared object file", 2026-11-25).
+export LD_LIBRARY_PATH="$(rustc --print sysroot)/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 ./target/release/wright model pull
 ./target/release/wright model list
 '''
