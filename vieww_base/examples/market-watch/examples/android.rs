@@ -197,7 +197,10 @@ mod app {
         if unsafe { clock_gettime(CLOCK_BOOTTIME, &mut now) } != 0 {
             return None;
         }
-        #[expect(clippy::cast_precision_loss, reason = "a boot time is far below 2^52 ns")]
+        #[expect(
+            clippy::cast_precision_loss,
+            reason = "a boot time is far below 2^52 ns"
+        )]
         let up_s = now.tv_sec as f64 + now.tv_nsec as f64 / 1e9;
         #[expect(clippy::cast_precision_loss, reason = "ticks since boot are small")]
         let started = start_ticks as f64 / 100.0;

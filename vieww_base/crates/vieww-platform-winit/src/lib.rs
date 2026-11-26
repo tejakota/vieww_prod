@@ -151,8 +151,8 @@ mod device_tier;
 pub mod drag;
 mod frame_budget;
 mod gpu_route;
-mod perf_hint;
 mod os_accessibility;
+mod perf_hint;
 mod quality;
 #[cfg(all(
     feature = "desktop-services",

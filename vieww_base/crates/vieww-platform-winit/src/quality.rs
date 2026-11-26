@@ -111,7 +111,9 @@ pub fn gpu_scale_status() -> Option<String> {
         ScaleRequest::Fixed(_) => "VIEWW_GPU_SCALE override".to_owned(),
         ScaleRequest::Full => "VIEWW_GPU_SCALE=off".to_owned(),
     };
-    Some(format!("GPU path renders at {scale:.2}x resolution ({source})"))
+    Some(format!(
+        "GPU path renders at {scale:.2}x resolution ({source})"
+    ))
 }
 
 #[cfg(test)]
@@ -154,11 +156,24 @@ mod tests {
         let low = QualityProfile::LOW;
         assert_eq!(resolve_scale(parse_scale_request(Some("off")), low), None);
         assert_eq!(resolve_scale(parse_scale_request(Some("1")), low), None);
-        assert_eq!(resolve_scale(parse_scale_request(Some("0.6")), low), Some(0.6));
-        assert_eq!(resolve_scale(parse_scale_request(Some("0.01")), low), Some(0.25), "clamped");
+        assert_eq!(
+            resolve_scale(parse_scale_request(Some("0.6")), low),
+            Some(0.6)
+        );
+        assert_eq!(
+            resolve_scale(parse_scale_request(Some("0.01")), low),
+            Some(0.25),
+            "clamped"
+        );
         let high = QualityProfile::HIGH;
-        assert_eq!(resolve_scale(parse_scale_request(Some("0.5")), high), Some(0.5));
-        assert_eq!(resolve_scale(parse_scale_request(Some("auto")), low), Some(0.5));
+        assert_eq!(
+            resolve_scale(parse_scale_request(Some("0.5")), high),
+            Some(0.5)
+        );
+        assert_eq!(
+            resolve_scale(parse_scale_request(Some("auto")), low),
+            Some(0.5)
+        );
     }
 
     #[test]

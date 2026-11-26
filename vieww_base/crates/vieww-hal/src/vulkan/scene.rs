@@ -502,8 +502,6 @@ pub fn resolve_pass_times(
         let delta = to.wrapping_sub(from) & mask;
         #[expect(
             clippy::cast_precision_loss,
-            clippy::cast_possible_truncation,
-            clippy::cast_sign_loss,
             reason = "a tick count times nanoseconds per tick, rounded"
         )]
         let nanos = (delta as f64 * f64::from(period_ns)).round();
@@ -4894,7 +4892,9 @@ mod tests {
             resolve_pass_times(&[PassKind::Draw], &[5_000_000_000, 0], u64::MAX, 52.08).is_none()
         );
         // Wrong number of readings, and a nonsensical period.
-        assert!(resolve_pass_times(&[PassKind::Draw, PassKind::Blit], &[1, 2], mask, 52.08).is_none());
+        assert!(
+            resolve_pass_times(&[PassKind::Draw, PassKind::Blit], &[1, 2], mask, 52.08).is_none()
+        );
         assert!(resolve_pass_times(&[PassKind::Draw], &[1, 2], mask, f32::NAN).is_none());
         assert!(resolve_pass_times(&[PassKind::Draw], &[1, 2], mask, 0.0).is_none());
     }

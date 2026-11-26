@@ -490,11 +490,7 @@ impl Haptics for Unsupported {
 }
 
 impl PhotoPicker for Unsupported {
-    fn pick_photos(
-        &self,
-        _: usize,
-        done: Box<dyn FnOnce(Result<Vec<PickedPhoto>, ServiceError>)>,
-    ) {
+    fn pick_photos(&self, _: usize, done: Box<dyn FnOnce(Result<Vec<PickedPhoto>, ServiceError>)>) {
         done(Err(ServiceError::unsupported("photo picker")));
     }
 }
@@ -1253,7 +1249,10 @@ mod tests {
     #[test]
     fn the_picker_delivers_at_most_max_and_share_records() {
         let picker = ScriptedPhotoPicker::new();
-        let photo = |n: &str| PickedPhoto { name: n.into(), bytes: vec![1] };
+        let photo = |n: &str| PickedPhoto {
+            name: n.into(),
+            bytes: vec![1],
+        };
         picker.queue(vec![photo("a"), photo("b"), photo("c")]);
         let got = Rc::new(RefCell::new(Vec::new()));
         let sink = got.clone();
@@ -1262,7 +1261,12 @@ mod tests {
         assert_eq!(picker.asked(), vec![2]);
 
         let share = HeadlessShare::new();
-        share.share(ShareItem { text: "hi".into(), ..ShareItem::default() }).unwrap();
+        share
+            .share(ShareItem {
+                text: "hi".into(),
+                ..ShareItem::default()
+            })
+            .unwrap();
         assert_eq!(share.shared()[0].text, "hi");
     }
 

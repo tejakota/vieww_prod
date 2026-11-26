@@ -90,16 +90,38 @@ fn rank(kind: &str) -> Option<u8> {
     let kind = kind.trim().to_ascii_lowercase();
     // The outside of the phone: what a hand feels, and what Android's own
     // skin-temperature throttling is built on.
-    if ["skin", "xo-therm", "quiet-therm", "case", "shell", "back-therm", "front-therm"]
-        .iter()
-        .any(|name| kind.contains(name))
+    if [
+        "skin",
+        "xo-therm",
+        "quiet-therm",
+        "case",
+        "shell",
+        "back-therm",
+        "front-therm",
+    ]
+    .iter()
+    .any(|name| kind.contains(name))
     {
         return Some(0);
     }
     // The SoC and its clusters, and a desktop CPU package.
-    if ["soc", "cpuss", "cpu-", "cpu_", "tsens_tz_sensor", "x86_pkg_temp", "coretemp", "acpitz", "gpuss", "gpu-", "big", "little", "mid-"]
-        .iter()
-        .any(|name| kind.contains(name))
+    if [
+        "soc",
+        "cpuss",
+        "cpu-",
+        "cpu_",
+        "tsens_tz_sensor",
+        "x86_pkg_temp",
+        "coretemp",
+        "acpitz",
+        "gpuss",
+        "gpu-",
+        "big",
+        "little",
+        "mid-",
+    ]
+    .iter()
+    .any(|name| kind.contains(name))
     {
         return Some(1);
     }
@@ -267,20 +289,36 @@ mod tests {
 
     #[test]
     fn skin_beats_soc_even_when_the_soc_is_hotter() {
-        let zones = [zone("cpuss-0", 71_500), zone("skin-therm", 38_200), zone("battery", 31_000)];
+        let zones = [
+            zone("cpuss-0", 71_500),
+            zone("skin-therm", 38_200),
+            zone("battery", 31_000),
+        ];
         assert_eq!(select_zone(&zones), Some(38.2));
     }
 
     #[test]
     fn without_a_skin_sensor_the_hottest_soc_zone_is_used() {
-        let zones = [zone("cpu-0-0-usr", 52_000), zone("cpu-1-0-usr", 58_500), zone("pmic-therm", 90_000)];
-        assert_eq!(select_zone(&zones), Some(58.5), "PMIC rails are not the SoC");
+        let zones = [
+            zone("cpu-0-0-usr", 52_000),
+            zone("cpu-1-0-usr", 58_500),
+            zone("pmic-therm", 90_000),
+        ];
+        assert_eq!(
+            select_zone(&zones),
+            Some(58.5),
+            "PMIC rails are not the SoC"
+        );
     }
 
     #[test]
     fn unknown_types_and_implausible_values_are_ignored() {
         assert_eq!(select_zone(&[zone("mystery", 40_000)]), None);
-        assert_eq!(select_zone(&[zone("cpuss-0", 180_000)]), None, "out of range");
+        assert_eq!(
+            select_zone(&[zone("cpuss-0", 180_000)]),
+            None,
+            "out of range"
+        );
         assert_eq!(select_zone(&[zone("cpuss-0", 0)]), None, "zero is no data");
         assert_eq!(select_zone(&[]), None);
         // A real desktop reading is still reported.

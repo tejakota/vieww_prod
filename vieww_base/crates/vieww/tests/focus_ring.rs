@@ -51,12 +51,19 @@ fn tab_draws_a_ring_and_a_tap_does_not() {
     driver.draw_frame();
     assert_eq!(inked(&driver), 0, "nothing is drawn before any focus");
 
-    driver.handle_key(&KeyEvent::down(LogicalKey::Named(NamedKey::Tab), Duration::ZERO));
+    driver.handle_key(&KeyEvent::down(
+        LogicalKey::Named(NamedKey::Tab),
+        Duration::ZERO,
+    ));
     driver.draw_frame();
     assert!(inked(&driver) > 100, "Tab shows a ring");
 
     // A pointer press anywhere ends keyboard modality, ring included.
-    let down = PointerEvent::down(PointerId(1), vieww::foundation::Offset::new(2.0, 2.0), Duration::ZERO);
+    let down = PointerEvent::down(
+        PointerId(1),
+        vieww::foundation::Offset::new(2.0, 2.0),
+        Duration::ZERO,
+    );
     driver.handle_pointer(&down);
     driver.draw_frame();
     assert_eq!(inked(&driver), 0, "a pointer press hides the ring");
@@ -66,24 +73,36 @@ fn tab_draws_a_ring_and_a_tap_does_not() {
 /// `$VIEWW_SHOT_DIR`: three buttons, before Tab, after Tab, after Tab twice.
 #[test]
 fn writes_screenshots_when_asked() {
-    let Ok(dir) = std::env::var("VIEWW_SHOT_DIR") else { return };
+    let Ok(dir) = std::env::var("VIEWW_SHOT_DIR") else {
+        return;
+    };
 
     #[derive(Debug)]
     struct Row;
     impl Widget for Row {
-        fn debug_name(&self) -> &'static str { "Row" }
-        fn kind(&self) -> WidgetKind<'_> { WidgetKind::Composed }
+        fn debug_name(&self) -> &'static str {
+            "Row"
+        }
+        fn kind(&self) -> WidgetKind<'_> {
+            WidgetKind::Composed
+        }
         fn build(&self, _ctx: &BuildContext) -> WidgetNode {
             let b = |c: Color| -> WidgetNode {
                 Pressable::new(move |p| {
                     ColoredBox::new(c.with_alpha((255.0 - 80.0 * p) as u8))
-                        .child(SizedBox::width(96.0).child(SizedBox::height(44.0))).into()
-                }).on_tap(|| {}).into()
+                        .child(SizedBox::width(96.0).child(SizedBox::height(44.0)))
+                        .into()
+                })
+                .on_tap(|| {})
+                .into()
             };
-            ColoredBox::new(Color::rgb(20, 22, 26)).child(Center::new().child(
-                Flex::row().spacing(20.0).children(vec![
-                    b(Color::rgb(28, 113, 216)), b(Color::rgb(60, 64, 72)), b(Color::rgb(60, 64, 72)),
-                ]))).into()
+            ColoredBox::new(Color::rgb(20, 22, 26))
+                .child(Center::new().child(Flex::row().spacing(20.0).children(vec![
+                    b(Color::rgb(28, 113, 216)),
+                    b(Color::rgb(60, 64, 72)),
+                    b(Color::rgb(60, 64, 72)),
+                ])))
+                .into()
         }
     }
     vieww_widget::widget_node_from!(Row);
@@ -94,7 +113,8 @@ fn writes_screenshots_when_asked() {
     driver.draw_frame();
     let dump = |driver: &FrameDriver, name: &str| {
         let f = render(driver, size, Color::BLACK);
-        let mut out = format!("P6\n{} {}\n255\n", size.width as u32, size.height as u32).into_bytes();
+        let mut out =
+            format!("P6\n{} {}\n255\n", size.width as u32, size.height as u32).into_bytes();
         for y in 0..size.height as u32 {
             for x in 0..size.width as u32 {
                 let (r, g, b, _) = f.at(x, y);
@@ -105,7 +125,10 @@ fn writes_screenshots_when_asked() {
     };
     dump(&driver, "focus-none");
     for n in 1..=2 {
-        driver.handle_key(&KeyEvent::down(LogicalKey::Named(NamedKey::Tab), Duration::ZERO));
+        driver.handle_key(&KeyEvent::down(
+            LogicalKey::Named(NamedKey::Tab),
+            Duration::ZERO,
+        ));
         driver.draw_frame();
         dump(&driver, if n == 1 { "focus-tab" } else { "focus-tab2" });
     }

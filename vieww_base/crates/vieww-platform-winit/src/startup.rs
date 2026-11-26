@@ -189,16 +189,39 @@ fn process_age() -> Option<Duration> {
 // is not run here, and an unfulfilled expectation would fail the build.
 #[cfg(any(target_os = "ios", target_os = "macos"))]
 fn process_age() -> Option<Duration> {
+    // The `libc` crate does not export `proc_pidinfo` for every Apple target
+    // (the iOS build failed to find it), so the one call and the 136-byte
+    // struct it fills are declared here, from <sys/proc_info.h>.
+    #[repr(C)]
+    struct ProcBsdInfo {
+        flags_to_rfu: [u32; 12], // pbi_flags .. pbi_rfu_1
+        comm_and_name: [u8; 48], // pbi_comm[16], pbi_name[32]
+        counts: [u32; 5],        // nfiles, pgid, pjobc, e_tdev, e_tpgid
+        nice: i32,
+        pbi_start_tvsec: u64,
+        pbi_start_tvusec: u64,
+    }
+    const PROC_PIDTBSDINFO: libc::c_int = 3;
+    extern "C" {
+        fn proc_pidinfo(
+            pid: libc::c_int,
+            flavor: libc::c_int,
+            arg: u64,
+            buffer: *mut libc::c_void,
+            size: libc::c_int,
+        ) -> libc::c_int;
+    }
+
     // SAFETY: `proc_pidinfo` writes at most `size` bytes into `info`, a
     // zeroed plain-data struct on this stack frame; `gettimeofday` writes one
     // `timeval` the same way.
     let (info, now) = unsafe {
-        let mut info: libc::proc_bsdinfo = std::mem::zeroed();
+        let mut info: ProcBsdInfo = std::mem::zeroed();
         #[allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)] // a small struct
-        let size = std::mem::size_of::<libc::proc_bsdinfo>() as libc::c_int;
-        let written = libc::proc_pidinfo(
+        let size = std::mem::size_of::<ProcBsdInfo>() as libc::c_int;
+        let written = proc_pidinfo(
             libc::getpid(),
-            libc::PROC_PIDTBSDINFO,
+            PROC_PIDTBSDINFO,
             0,
             std::ptr::addr_of_mut!(info).cast(),
             size,

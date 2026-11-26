@@ -17,7 +17,6 @@
 //! See `docs/DESIGN.md` §4 for why every scalar here is `f32`.
 
 mod accessibility;
-mod quality;
 mod alignment;
 pub mod app;
 pub mod capability;
@@ -51,6 +50,7 @@ mod path_ops;
 pub mod permission;
 mod platform;
 mod pointer;
+mod quality;
 pub mod service;
 mod sketch;
 mod sketch_export;
@@ -65,7 +65,6 @@ mod vector;
 mod view;
 
 pub use accessibility::{Accessibility, MAX_TEXT_SCALE, MIN_TEXT_SCALE};
-pub use quality::{DeviceClass, DeviceTier, QualityProfile};
 pub use alignment::{Alignment, AlignmentDirectional};
 pub use capture::Capture;
 pub use color::{Color, ColorSpace, Oklab};
@@ -110,6 +109,7 @@ pub use pointer::{
     PointerId, PointerPhase, ScaleDetails, ScrollEvent, TapDetails, LONG_PRESS_TIMEOUT,
     MULTI_TAP_SLOP, MULTI_TAP_TIMEOUT, PRESS_TIMEOUT, TAP_TIMEOUT,
 };
+pub use quality::{DeviceClass, DeviceTier, QualityProfile};
 pub use service::{
     Clipboard, DeepLink, DeepLinks, KeyBacking, MemoryClipboard, MemorySecureStorage,
     MemoryStorage, SecureStorage, ServiceError, Services, SharedServices, Storage,

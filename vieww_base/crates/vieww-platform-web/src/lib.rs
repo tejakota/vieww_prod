@@ -780,8 +780,12 @@ fn install_accessibility_listeners(
         let (reduced, contrast) = (reduced.clone(), contrast.clone());
         Rc::new(move || {
             vieww_foundation::Accessibility::from_media_queries(
-                reduced.as_ref().is_some_and(web_sys::MediaQueryList::matches),
-                contrast.as_ref().is_some_and(web_sys::MediaQueryList::matches),
+                reduced
+                    .as_ref()
+                    .is_some_and(web_sys::MediaQueryList::matches),
+                contrast
+                    .as_ref()
+                    .is_some_and(web_sys::MediaQueryList::matches),
             )
         })
     };

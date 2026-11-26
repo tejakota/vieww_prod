@@ -2211,7 +2211,11 @@ impl FrameSink for FrameDriver {
         // leaves snap to is the surface's, and `self.metrics` is where the
         // platform published it.
         let dpr = self.metrics.device_pixel_ratio;
-        let ring = if self.keyboard_driven { self.focus.focused() } else { None };
+        let ring = if self.keyboard_driven {
+            self.focus.focused()
+        } else {
+            None
+        };
         let (owner, layers) = (&mut self.owner, &mut self.layers);
         if let Err(error) = guarded(FramePhase::Paint, move || {
             owner.tree_mut().set_focus_ring(ring);

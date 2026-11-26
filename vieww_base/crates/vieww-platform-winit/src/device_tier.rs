@@ -147,7 +147,7 @@ pub const fn device_class() -> vieww_foundation::DeviceClass {
 
 /// The quality profile this device gets by default: its probed tier, resolved
 /// for its class (desktops keep full resolution, see
-/// [`QualityProfile::for_device`]).
+/// [`vieww_foundation::QualityProfile::for_device`]).
 #[must_use]
 pub fn default_quality_profile() -> vieww_foundation::QualityProfile {
     vieww_foundation::QualityProfile::for_device(device_facts().tier, device_class())

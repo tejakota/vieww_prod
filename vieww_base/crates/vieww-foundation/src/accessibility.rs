@@ -221,7 +221,10 @@ mod tests {
 
     #[test]
     fn the_browser_media_queries_map_one_to_one_and_leave_the_text_size_alone() {
-        assert_eq!(Accessibility::from_media_queries(false, false), Accessibility::default());
+        assert_eq!(
+            Accessibility::from_media_queries(false, false),
+            Accessibility::default()
+        );
         let a = Accessibility::from_media_queries(true, true);
         assert!(a.reduce_motion && a.high_contrast);
         assert_eq!(a.text_scale, 1.0);

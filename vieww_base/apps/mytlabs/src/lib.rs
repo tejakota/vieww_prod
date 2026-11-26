@@ -1474,7 +1474,11 @@ mod a11y01_tests {
     fn ratio(a: Color, b: Color) -> f32 {
         fn lin(v: u8) -> f32 {
             let c = f32::from(v) / 255.0;
-            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+            if c <= 0.039_28 {
+                c / 12.92
+            } else {
+                ((c + 0.055) / 1.055).powf(2.4)
+            }
         }
         fn lum(c: Color) -> f32 {
             0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
@@ -1485,7 +1489,11 @@ mod a11y01_tests {
 
     #[test]
     fn ink_3_meets_aa_on_the_ground() {
-        for (n, fg) in [("INK_3", INK_3), ("INK_2", INK_2), ("ACCENT_INK", ACCENT_INK)] {
+        for (n, fg) in [
+            ("INK_3", INK_3),
+            ("INK_2", INK_2),
+            ("ACCENT_INK", ACCENT_INK),
+        ] {
             let r = ratio(fg, GROUND);
             assert!(r >= 4.5, "{n} on ground: {r:.2}:1");
         }

@@ -220,7 +220,10 @@ mod tests {
 
     #[test]
     fn the_profiles_match_the_tiers() {
-        assert_eq!(QualityProfile::for_tier(DeviceTier::Low), QualityProfile::LOW);
+        assert_eq!(
+            QualityProfile::for_tier(DeviceTier::Low),
+            QualityProfile::LOW
+        );
         assert_eq!(
             QualityProfile::for_tier(DeviceTier::Medium),
             QualityProfile::MEDIUM
@@ -233,8 +236,14 @@ mod tests {
 
     #[test]
     fn effects_only_ever_get_cheaper_as_the_tier_drops() {
-        let (l, m, h) = (QualityProfile::LOW, QualityProfile::MEDIUM, QualityProfile::HIGH);
-        assert!(l.resolution_scale <= m.resolution_scale && m.resolution_scale <= h.resolution_scale);
+        let (l, m, h) = (
+            QualityProfile::LOW,
+            QualityProfile::MEDIUM,
+            QualityProfile::HIGH,
+        );
+        assert!(
+            l.resolution_scale <= m.resolution_scale && m.resolution_scale <= h.resolution_scale
+        );
         assert!(l.max_internal_scale <= m.max_internal_scale);
         assert!(l.max_blur_px <= m.max_blur_px && m.max_blur_px <= h.max_blur_px);
         assert!(!l.backdrop_blur && m.backdrop_blur && h.backdrop_blur);
@@ -245,8 +254,15 @@ mod tests {
     fn a_desktop_is_never_resolution_scaled_but_keeps_its_effect_gates() {
         let low_desktop = QualityProfile::for_device(DeviceTier::Low, DeviceClass::Desktop);
         assert_eq!(low_desktop.resolution_scale, 1.0);
-        assert_eq!(low_desktop.settled_scale(), 1.0, "idle desktop renders at 1.0x");
-        assert!(!low_desktop.backdrop_blur, "the i5's glass fixtures are why");
+        assert_eq!(
+            low_desktop.settled_scale(),
+            1.0,
+            "idle desktop renders at 1.0x"
+        );
+        assert!(
+            !low_desktop.backdrop_blur,
+            "the i5's glass fixtures are why"
+        );
         let phone = QualityProfile::for_device(DeviceTier::Low, DeviceClass::Handheld);
         assert_eq!(phone.resolution_scale, 0.5);
         assert_eq!(phone.settled_scale(), 0.5);
@@ -258,7 +274,11 @@ mod tests {
         assert_eq!(QualityProfile::MEDIUM.clamp_blur(24.0), Some(12.0));
         assert_eq!(QualityProfile::MEDIUM.clamp_blur(8.0), Some(8.0));
         assert_eq!(QualityProfile::HIGH.clamp_blur(24.0), Some(24.0));
-        assert_eq!(QualityProfile::HIGH.clamp_blur(0.0), None, "no blur asked, none drawn");
+        assert_eq!(
+            QualityProfile::HIGH.clamp_blur(0.0),
+            None,
+            "no blur asked, none drawn"
+        );
     }
 
     #[test]

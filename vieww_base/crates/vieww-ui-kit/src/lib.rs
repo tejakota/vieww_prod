@@ -75,7 +75,14 @@ impl Skin {
     /// default and is then overridden with struct-update syntax
     /// (`Skin { toast_pad: (16.0, 10.0), ..Skin::base(..) }`).
     #[must_use]
-    pub fn base(ground: Color, panel: Color, edge: Color, accent: Color, ink: Color, muted: Color) -> Self {
+    pub fn base(
+        ground: Color,
+        panel: Color,
+        edge: Color,
+        accent: Color,
+        ink: Color,
+        muted: Color,
+    ) -> Self {
         Self {
             ground,
             panel,
@@ -186,7 +193,13 @@ pub fn button(skin: &Skin, label: &str, kind: Kind, on_tap: impl Fn() + 'static)
 /// A raised container.
 #[must_use]
 pub fn card(skin: &Skin, child: WidgetNode) -> WidgetNode {
-    flat(skin.panel, skin.edge, skin.radius, padded(skin.card_pad), child)
+    flat(
+        skin.panel,
+        skin.edge,
+        skin.radius,
+        padded(skin.card_pad),
+        child,
+    )
 }
 
 /// A rounded, tappable label in `color`, with a touch-sized height.
@@ -263,17 +276,22 @@ pub fn toast(skin: &Skin, message: &str) -> WidgetNode {
         .main_axis_size(MainAxisSize::Min)
         .children(vec![pill
             .child(
-                Constrained::new(Constraints::new(0.0, skin.toast_max_width, 0.0, f32::INFINITY))
-                    .child(
-                        Text::new(message.to_owned())
-                            .style(label_style(
-                                skin.toast_text.0,
-                                skin.toast_text.1,
-                                skin.toast_ink,
-                                0.0,
-                            ))
-                            .align(TextAlign::Center),
-                    ),
+                Constrained::new(Constraints::new(
+                    0.0,
+                    skin.toast_max_width,
+                    0.0,
+                    f32::INFINITY,
+                ))
+                .child(
+                    Text::new(message.to_owned())
+                        .style(label_style(
+                            skin.toast_text.0,
+                            skin.toast_text.1,
+                            skin.toast_ink,
+                            0.0,
+                        ))
+                        .align(TextAlign::Center),
+                ),
             )
             .into()])
         .into()
@@ -292,7 +310,11 @@ mod tests {
             accent_tint: Color::rgb(18, 42, 30),
             ink: Color::rgb(232, 238, 232),
             muted: Color::rgb(140, 151, 140),
-            danger: (Color::rgb(58, 20, 24), Color::rgb(255, 138, 148), Color::rgb(106, 36, 44)),
+            danger: (
+                Color::rgb(58, 20, 24),
+                Color::rgb(255, 138, 148),
+                Color::rgb(106, 36, 44),
+            ),
             radius: 4.0,
             chip_radius: 10.0,
             badge_radius: 6.0,

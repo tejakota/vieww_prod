@@ -202,8 +202,7 @@ pub(crate) fn leans_gpu(
     tier: crate::device_tier::DeviceTier,
     class: vieww_foundation::DeviceClass,
 ) -> bool {
-    class == vieww_foundation::DeviceClass::Handheld
-        && tier != crate::device_tier::DeviceTier::High
+    class == vieww_foundation::DeviceClass::Handheld && tier != crate::device_tier::DeviceTier::High
 }
 
 /// [`after_gpu`], for a device that may lean to the GPU ([`leans_gpu`]): a
@@ -576,7 +575,10 @@ mod tests {
         let leaning = after_gpu_leaning(ms(5.0), settled, ms(3.5), 1.0, ms(HZ60), lean);
         assert_eq!(leaning, Rasterizer::Gpu);
         // Without the lean the settled CPU would have stayed...
-        assert_eq!(after_gpu(ms(5.0), settled, ms(3.5), 1.0, ms(HZ60)), Rasterizer::Cpu);
+        assert_eq!(
+            after_gpu(ms(5.0), settled, ms(3.5), 1.0, ms(HZ60)),
+            Rasterizer::Cpu
+        );
         // ...and a GPU that is not clearly faster, or draws too few frames, loses.
         assert_eq!(
             after_gpu_leaning(ms(5.0), settled, ms(4.8), 1.0, ms(HZ60), lean),

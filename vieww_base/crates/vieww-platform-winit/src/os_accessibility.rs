@@ -59,7 +59,11 @@ pub fn from_android(
     font_scale: f32,
     high_text_contrast: bool,
 ) -> Accessibility {
-    Accessibility::new(animator_duration_scale <= 0.0, high_text_contrast, font_scale)
+    Accessibility::new(
+        animator_duration_scale <= 0.0,
+        high_text_contrast,
+        font_scale,
+    )
 }
 
 /// iOS: `UIAccessibilityIsReduceMotionEnabled`,
@@ -78,7 +82,9 @@ pub fn from_ios(reduce_motion: bool, darker_colors: bool, size_category: &str) -
 pub fn ios_text_scale(category: &str) -> f32 {
     // The constants are `UICTContentSizeCategoryXS` and so on; accept the bare
     // suffix too, which is how they are logged.
-    let name = category.strip_prefix("UICTContentSizeCategory").unwrap_or(category);
+    let name = category
+        .strip_prefix("UICTContentSizeCategory")
+        .unwrap_or(category);
     match name {
         "XS" => 0.82,
         "S" => 0.88,
@@ -331,7 +337,11 @@ fn read_ios() -> Accessibility {
             if utf8.is_null() {
                 return None;
             }
-            Some(std::ffi::CStr::from_ptr(utf8).to_string_lossy().into_owned())
+            Some(
+                std::ffi::CStr::from_ptr(utf8)
+                    .to_string_lossy()
+                    .into_owned(),
+            )
         }
     })();
     from_ios(reduce, darker, category.as_deref().unwrap_or("L"))
@@ -376,8 +386,12 @@ fn read_windows() -> Accessibility {
 
     #[link(name = "user32")]
     extern "system" {
-        fn SystemParametersInfoW(action: u32, param: u32, pv_param: *mut c_void, win_ini: u32)
-            -> i32;
+        fn SystemParametersInfoW(
+            action: u32,
+            param: u32,
+            pv_param: *mut c_void,
+            win_ini: u32,
+        ) -> i32;
     }
     #[link(name = "advapi32")]
     extern "system" {
@@ -470,7 +484,8 @@ fn read_gnome() -> Accessibility {
     let Some(animations) = get("org.gnome.desktop.interface", "enable-animations") else {
         return Accessibility::default();
     };
-    let contrast = get("org.gnome.desktop.a11y.interface", "high-contrast").is_some_and(|v| v == "true");
+    let contrast =
+        get("org.gnome.desktop.a11y.interface", "high-contrast").is_some_and(|v| v == "true");
     let scale = get("org.gnome.desktop.interface", "text-scaling-factor")
         .and_then(|v| v.parse::<f32>().ok())
         .unwrap_or(1.0);
@@ -573,9 +588,15 @@ mod tests {
 
     #[test]
     fn android_remove_animations_is_reduce_motion_and_a_slow_scale_is_not() {
-        assert!(from_android(0.0, 1.0, false).reduce_motion, "Remove animations");
+        assert!(
+            from_android(0.0, 1.0, false).reduce_motion,
+            "Remove animations"
+        );
         assert!(!from_android(1.0, 1.0, false).reduce_motion);
-        assert!(!from_android(0.5, 1.0, false).reduce_motion, "0.5x is a speed");
+        assert!(
+            !from_android(0.5, 1.0, false).reduce_motion,
+            "0.5x is a speed"
+        );
         let big = from_android(1.0, 1.3, true);
         assert_eq!(big.text_scale, 1.3);
         assert!(big.high_contrast);
@@ -585,8 +606,15 @@ mod tests {
     fn ios_dynamic_type_maps_through_the_category_names() {
         assert_eq!(ios_text_scale("UICTContentSizeCategoryL"), 1.0);
         assert_eq!(ios_text_scale("UICTContentSizeCategoryXXXL"), 1.35);
-        assert_eq!(ios_text_scale("UICTContentSizeCategoryAccessibilityXXXL"), 3.12);
-        assert_eq!(ios_text_scale("SomethingFromIOS30"), 1.0, "unknown is not a guess");
+        assert_eq!(
+            ios_text_scale("UICTContentSizeCategoryAccessibilityXXXL"),
+            3.12
+        );
+        assert_eq!(
+            ios_text_scale("SomethingFromIOS30"),
+            1.0,
+            "unknown is not a guess"
+        );
         let a = from_ios(true, true, "UICTContentSizeCategoryAccessibilityXXXL");
         assert!(a.reduce_motion && a.high_contrast);
         assert_eq!(a.text_scale, 3.0, "clamped to the framework's maximum");
@@ -601,7 +629,10 @@ mod tests {
 
     #[test]
     fn windows_animation_off_is_reduce_motion_and_the_percentage_is_a_scale() {
-        assert!(from_windows(false, false, 100).reduce_motion, "animations off");
+        assert!(
+            from_windows(false, false, 100).reduce_motion,
+            "animations off"
+        );
         assert!(!from_windows(true, false, 100).reduce_motion);
         let a = from_windows(true, true, 150);
         assert!(a.high_contrast);
@@ -644,9 +675,17 @@ mod tests {
     fn the_first_answer_is_reported_and_an_unchanged_one_is_not() {
         let mut watch = AccessibilityWatch::new(Accessibility::default, None);
         let t0 = Instant::now();
-        assert_eq!(watch.poll(t0), Some(Accessibility::default()), "start-up is told");
+        assert_eq!(
+            watch.poll(t0),
+            Some(Accessibility::default()),
+            "start-up is told"
+        );
         watch.mark_dirty();
-        assert_eq!(watch.poll(t0), None, "asked again, same answer: no republish");
+        assert_eq!(
+            watch.poll(t0),
+            None,
+            "asked again, same answer: no republish"
+        );
     }
 
     #[test]
