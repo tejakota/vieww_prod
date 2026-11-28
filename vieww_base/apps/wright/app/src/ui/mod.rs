@@ -675,9 +675,11 @@ impl Ui {
     /// fingers lifted, tick the clock while anything is live.
     pub fn pump(&self, driver: &mut FrameDriver) {
         let now = Instant::now();
-        let dt = self.inner.last_pump.replace(Some(now)).map_or(0.016, |t| {
-            now.duration_since(t).as_secs_f32().min(0.05)
-        });
+        let dt = self
+            .inner
+            .last_pump
+            .replace(Some(now))
+            .map_or(0.016, |t| now.duration_since(t).as_secs_f32().min(0.05));
         if kit::step_flings(dt) {
             self.inner.flinging.set(true);
         } else {
@@ -775,7 +777,8 @@ impl Ui {
             }
         }
         if self.splash.get()
-            && self.inner.started.elapsed() > Duration::from_millis(self.inner.splash_ms.get() + 100)
+            && self.inner.started.elapsed()
+                > Duration::from_millis(self.inner.splash_ms.get() + 100)
         {
             self.splash.set(false);
         }

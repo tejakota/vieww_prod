@@ -382,7 +382,20 @@ if (Want 'gallery') {
   if ($py -and (Test-Path $fxr) -and (Test-Path $csr)) {
     $base = Join-Path $OutDir 'perf-baseline.json'
     & $py -I ci\check\perf_baseline.py hardware-self-hosted-linux-and-windows hardware-windows $base | Out-Host
-    Run-Step 'perf-budget' @{} $py @('-I','ci\check\perf_budget.py','check','ci\check\perf-budgets.json',$fxr,$csr,'--baseline',$base,'--write-measured',(Join-Path $OutDir 'perf-measured.json')) | Out-Null
+    # CI-03: a class with no budget, alias or previous run gated nothing, and
+    # a Balanced power plan measured +24% on the Linux twin of this machine.
+    # Windows has no cpufreq governor, so the active power plan stands in:
+    # High / Ultimate Performance reads as `performance`, anything else as
+    # the plan's own name, and the budget check fails on anything but
+    # `performance`. Try to switch to High performance first (SCHEME_MIN is
+    # powercfg's alias for it); a machine that refuses stays visible.
+    & powercfg /setactive SCHEME_MIN 2>$null | Out-Null
+    $plan = ((& powercfg /getactivescheme 2>$null) -join ' ')
+    $governor = if ($plan -match 'High performance|Ultimate Performance') { 'performance' }
+                elseif ($plan -match '\(([^)]+)\)') { ($Matches[1] -replace '\s+','-').ToLower() }
+                else { 'unknown' }
+    Say "      power plan: $plan -> governor '$governor'"
+    Run-Step 'perf-budget' @{} $py @('-I','ci\check\perf_budget.py','check','ci\check\perf-budgets.json',$fxr,$csr,'--baseline',$base,'--write-measured',(Join-Path $OutDir 'perf-measured.json'),'--require-budget','--require-governor','performance','--governor',$governor) | Out-Null
   } elseif (-not $py) {
     Skip-Step 'perf-budget' 'no working Python (the Store alias is not one; install from python.org or disable the alias)'
   }

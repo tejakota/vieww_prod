@@ -1584,7 +1584,11 @@ fn wr01_the_opening_is_long_once_and_short_after_and_any_key_skips_it() {
     assert!(SPLASH_FIRST_MS > splash_ms(false));
 
     let mut driver = FrameDriver::new(vieww::foundation::Size::new(900.0, 600.0));
-    let ui = Ui::new(driver.elements().runtime(), None, std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)));
+    let ui = Ui::new(
+        driver.elements().runtime(),
+        None,
+        std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+    );
     ui.choose_splash(false);
     assert_eq!(ui.splash_len(), SPLASH_REPEAT_MS);
     assert!(ui.splash.get(), "the splash starts up");

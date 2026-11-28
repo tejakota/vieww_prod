@@ -209,6 +209,12 @@ timeout = 15
 write = true
 inputs = { valdi_ref = "e90a983749b384ba403c3bcdd40f7d0432404694" }
 checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.upload]]
+# SCORE-01: the report as an artifact, so the results job builds the
+# per-app scorecard from it.
+name = "compare-report"
+path = "report/compare.json"
+if-no-files-found = "warn"
 [[job.download]]
 pattern = "compare-farm*"
 path = "in/farm"

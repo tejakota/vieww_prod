@@ -178,6 +178,36 @@ jobs:
         with:
           path: results
           fetch-depth: 1
+      # SCORE-01: every compare.json a device run uploaded becomes one
+      # commit-linked per-app table (SCORECARD.md / .csv) in this run's
+      # `latest/`, and the newest one is also kept at the branch root. The
+      # app is the artifact's name without its `-compare` / `-farm` suffix
+      # (Market Watch's `compare-*` jobs are market-watch). One app's two
+      # artifacts (farm and report) are one table: the first file wins.
+      - name: Per-app scorecard
+        run: |
+          set -euo pipefail
+          latest="$RUNNER_TEMP/out/$WF_SLUG/$BR_SLUG/latest"
+          specs=()
+          while IFS= read -r f; do
+            art="${f#"$latest/artifacts/"}"; art="${art%%/*}"
+            # Market Watch's own jobs are named compare-*; per-app device
+            # runs upload `<app>-farm` (or `<app>-compare`).
+            case "$art" in
+              compare-*) app="market-watch" ;;
+              *) app="${art%-compare}"; app="${app%-farm}" ;;
+            esac
+            case " ${seen:-} " in *" $app "*) continue ;; esac
+            seen="${seen:-} $app"
+            specs+=(--app "$app=$f")
+          done < <(find "$latest/artifacts" -name compare.json -type f 2>/dev/null | sort)
+          if [ ${#specs[@]} -eq 0 ]; then
+            echo "no compare.json in this run's artifacts: no scorecard"
+            exit 0
+          fi
+          python3 -I results/tools/make_scorecard.py --commit "$SHA" --out "$latest/SCORECARD" "${specs[@]}"
+          echo "- scorecard: [SCORECARD.md](SCORECARD.md)" >> "$latest/SUMMARY.md"
+
       - name: Write to the ci-results branch
         working-directory: results
         run: |
@@ -193,6 +223,11 @@ jobs:
             mkdir -p "$dest/runs/$RUN_ID"
             cp "$dest/latest/SUMMARY.md" "$dest/runs/$RUN_ID/"
             [ -f "$dest/latest/errors.txt" ] && cp "$dest/latest/errors.txt" "$dest/runs/$RUN_ID/"
+            # SCORE-01: the newest scorecard, at the root, beside LATEST.md.
+            if [ -f "$dest/latest/SCORECARD.md" ]; then
+              cp "$dest/latest/SCORECARD.md" "$dest/latest/SCORECARD.csv" .
+              cp "$dest/latest/SCORECARD.md" "$dest/runs/$RUN_ID/"
+            fi
             # LATEST.md: one row per workflow x branch, newest first.
             {
               echo "# Latest CI results"; echo

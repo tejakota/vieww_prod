@@ -20,7 +20,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-APPS = ["snapsearch", "upxcale", "vavlt", "three", "soma"]
+APPS = ["snapsearch", "upxcale", "vavlt", "three", "soma", "twin"]
 BEGIN = "# >>> vieww app dist profile (ci/lib/app_profile.py; do not edit by hand) >>>"
 END = "# <<< vieww app dist profile <<<"
 BLOCK = f'''{BEGIN}

@@ -1024,7 +1024,10 @@ impl ScrollState {
             extent: rt.signal((0.0, 0.0)),
             velocity: Rc::new(std::cell::Cell::new(0.0)),
         };
-        FLINGS.with(|f| f.borrow_mut().push((Rc::downgrade(&state.velocity), state.clone())));
+        FLINGS.with(|f| {
+            f.borrow_mut()
+                .push((Rc::downgrade(&state.velocity), state.clone()))
+        });
         state
     }
     /// Start a fling at `v` px/s (positive = towards the end).

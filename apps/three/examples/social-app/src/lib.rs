@@ -1802,31 +1802,6 @@ fn profile_screen(theme: &ThemeData, snap: &Snapshot) -> WidgetNode {
         .into()
 }
 
-fn simple_screen(theme: &ThemeData, title: &str, subtitle: &str) -> WidgetNode {
-    // Kept for the detail routes the shell does not draw yet — a title, a
-    // rule, a line, rather than a blank surface.
-    Container::new()
-        .padding(EdgeInsets::all(20.0))
-        .child(
-            Flex::column()
-                .cross_axis_alignment(CrossAxisAlignment::Start)
-                .spacing(10.0)
-                .push(Text::new(title).style(theme.text.title).bold())
-                .push(
-                    Container::new()
-                        .height(2.0)
-                        .width(44.0)
-                        .radius(f32::MAX)
-                        .color(theme.colors.primary),
-                )
-                .push(
-                    Text::new(subtitle)
-                        .style(theme.text.body)
-                        .color(theme.colors.on_surface_variant),
-                ),
-        )
-        .into()
-}
 fn navbar(theme: &ThemeData, snap: &Snapshot, handle: Option<Handle>) -> WidgetNode {
     // The bar sits on its own raised surface with a hairline above it, so
     // the content scrolls *under* something rather than into nothing. The

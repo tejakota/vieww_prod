@@ -166,7 +166,7 @@ fi
 # CI-03: pin the governor for the measurement where we are allowed to (root or
 # passwordless sudo); the perf budget then fails the run if it is not
 # `performance`, so an unpinnable machine is visible rather than quietly noisy.
-if want gallery && [ -w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ] || sudo -n true 2>/dev/null; then
+if want gallery && { [ -w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ] || sudo -n true 2>/dev/null; }; then
     for g in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
         echo performance | sudo -n tee "$g" >/dev/null 2>&1 || echo performance > "$g" 2>/dev/null || true
     done

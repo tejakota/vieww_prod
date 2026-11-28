@@ -162,7 +162,9 @@ if want gallery; then
         receipts=("$out/fixtures/receipt.json")
         [ -f "$out/census/receipt.json" ] && receipts+=("$out/census/receipt.json")
         python3 -I ci/check/perf_baseline.py hardware-self-hosted-linux-and-windows hardware-macos "$out/perf-baseline.json" || true
-        run perf-budget ci/check/perf-budget.sh --baseline "$out/perf-baseline.json" \
+        # CI-03: a class with no budget, alias or previous run fails rather
+        # than passing quietly. macOS has no cpufreq governor to require.
+        run perf-budget ci/check/perf-budget.sh --require-budget --baseline "$out/perf-baseline.json" \
             --write-measured "$out/perf-measured.json" "${receipts[@]}"
     fi
 fi
