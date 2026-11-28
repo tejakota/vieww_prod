@@ -108,15 +108,21 @@ const REPO: &str = "https://github.com/tejakota/vieww_prod";
 
 // ─── the small vocabulary this page is written in ─────────────────────────
 
+/// The smallest text the page sets (DESIGN_SPEC §1.2: an 11 px floor, so a
+/// label is never below what a reader can hold at arm's length). The text
+/// helpers clamp to it, so a `mono(9.5, ..)` written for a tight chip
+/// renders at the floor rather than below it.
+const MIN_TEXT: f32 = 11.0;
+
 fn sans(size: f32, color: Color) -> TextStyle {
-    TextStyle::new(size)
+    TextStyle::new(size.max(MIN_TEXT))
         .family(FontFamily::Named("Geist"))
         .color(color)
         .line_height(1.55)
 }
 
 fn mono(size: f32, color: Color) -> TextStyle {
-    TextStyle::new(size)
+    TextStyle::new(size.max(MIN_TEXT))
         .family(FontFamily::Named("Geist Mono"))
         .color(color)
         .line_height(1.5)
@@ -1467,6 +1473,14 @@ pub fn start() -> Result<(), wasm_bindgen::JsValue> {
 
 #[cfg(test)]
 mod a11y01_tests {
+    #[test]
+    fn no_text_is_set_below_the_11_px_floor() {
+        // DESIGN_SPEC §1.2: the helpers clamp, so the tight chips written
+        // at 9.5 or 10 px render at the floor.
+        assert_eq!(super::mono(9.0, super::INK).size, 11.0);
+        assert_eq!(super::mono(14.0, super::INK).size, 14.0);
+    }
+
     use super::*;
 
     /// WCAG 2.1 relative luminance and contrast ratio (SC 1.4.3), so this test

@@ -102,9 +102,14 @@ pub fn hairline_vertical(color: Color) -> WidgetNode {
     Container::new().color(color).width(1.0).into()
 }
 
+/// The smallest text the studio sets (DESIGN_SPEC §1.2: an 11 px floor). The
+/// three text helpers clamp to it, so a 9.5 or 10.5 px call renders at 11.
+pub const MIN_TEXT: f32 = 11.0;
+
 /// Text at a size and colour, on the UI face.
 #[must_use]
 pub fn label(text: &str, size: f32, color: Color) -> Text {
+    let size = size.max(MIN_TEXT);
     Text::new(text).style(TextStyle {
         color,
         size,
@@ -116,6 +121,7 @@ pub fn label(text: &str, size: f32, color: Color) -> Text {
 /// The same, bolder — a tab that is selected, a section header.
 #[must_use]
 pub fn label_bold(text: &str, size: f32, color: Color) -> Text {
+    let size = size.max(MIN_TEXT);
     Text::new(text).style(TextStyle {
         color,
         size,
@@ -128,6 +134,7 @@ pub fn label_bold(text: &str, size: f32, color: Color) -> Text {
 /// Fixed-pitch text: code, line numbers, a diagnostic's `17:31`.
 #[must_use]
 pub fn mono(text: &str, size: f32, color: Color) -> Text {
+    let size = size.max(MIN_TEXT);
     Text::new(text).style(TextStyle {
         color,
         size,

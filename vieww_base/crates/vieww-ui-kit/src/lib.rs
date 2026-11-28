@@ -24,7 +24,7 @@ use std::rc::Rc;
 
 use vieww_foundation::{Border, Color, EdgeInsets, FontWeight, Shadow, TextStyle};
 use vieww_widget::prelude::*;
-use vieww_widget::Pressable;
+use vieww_widget::{Pressable, Semantics};
 
 /// An app's semantic tokens. Plain data: build one next to the app's theme.
 #[derive(Debug, Clone, PartialEq)]
@@ -68,6 +68,12 @@ pub struct Skin {
     pub toast_text: (f32, FontWeight),
     pub toast_max_width: f32,
     pub toast_shadow: Option<Shadow>,
+    /// Icon button: the drawn disc's diameter and the square touch target
+    /// around it (DESIGN_SPEC §3 `IconButton`: 40 | 44 | 48).
+    pub icon_button: (f32, f32),
+    /// Callout: padding, and the title / body label sizes.
+    pub callout_pad: (f32, f32),
+    pub callout_text: (f32, f32),
 }
 
 impl Skin {
@@ -110,6 +116,9 @@ impl Skin {
             toast_text: (13.0, FontWeight::Medium),
             toast_max_width: 310.0,
             toast_shadow: None,
+            icon_button: (28.0, 44.0),
+            callout_pad: (12.0, 10.0),
+            callout_text: (13.0, 12.0),
         }
     }
 }
@@ -126,6 +135,9 @@ pub enum Kind {
     /// Destructive.
     Danger,
 }
+
+/// The smallest text the kit sets (DESIGN_SPEC §1.2).
+pub const MIN_TEXT: f32 = 11.0;
 
 fn padded(pad: (f32, f32)) -> EdgeInsets {
     EdgeInsets::symmetric(pad.0, pad.1)
@@ -255,11 +267,85 @@ pub fn badge(skin: &Skin, label: &str, color: Color) -> WidgetNode {
 }
 
 /// A small tracked-capitals heading above a group (the pixel face's stand-in
-/// where an app has no pixel font).
+/// where an app has no pixel font). At the 11 px floor (DESIGN_SPEC §1.2).
 #[must_use]
 pub fn section_label(skin: &Skin, text: &str) -> WidgetNode {
     Text::new(text.to_uppercase())
-        .style(label_style(10.0, FontWeight::Bold, skin.muted, 2.4))
+        .style(label_style(MIN_TEXT, FontWeight::Bold, skin.muted, 2.4))
+        .into()
+}
+
+/// A round icon control with a label for screen readers (DESIGN_SPEC §3
+/// `IconButton`): a `fill`-tinted disc of [`Skin::icon_button`]'s diameter
+/// inside a square touch target, a tab stop that dims while pressed.
+#[must_use]
+pub fn icon_button(
+    skin: &Skin,
+    label: &str,
+    icon: WidgetNode,
+    fill: Color,
+    on_tap: impl Fn() + 'static,
+) -> WidgetNode {
+    let skin = skin.clone();
+    let (disc, target) = skin.icon_button;
+    Semantics::button(label.to_owned())
+        .child(
+            Pressable::new(move |press| {
+                Opacity::new(dimmed(&skin, press))
+                    .child(
+                        SizedBox::square(target).child(
+                            Center::new().child(
+                                Container::new()
+                                    .decoration(BoxDecoration::new().color(fill).radius(disc / 2.0))
+                                    .width(disc)
+                                    .height(disc)
+                                    .child(Center::new().child(icon.clone())),
+                            ),
+                        ),
+                    )
+                    .into()
+            })
+            .on_tap(on_tap),
+        )
+        .into()
+}
+
+/// A tinted, edged card that says something in `color`: an alert, a warning,
+/// a status the reader must not miss. A title in `color` and a line in ink —
+/// colour is never the only signal (DESIGN_SPEC §1.1 Status).
+#[must_use]
+pub fn callout(skin: &Skin, color: Color, title: &str, body: &str) -> WidgetNode {
+    Container::new()
+        .decoration(
+            BoxDecoration::new()
+                .color(color.with_alpha(34))
+                .radius(skin.radius)
+                .border(Border::new(color.with_alpha(150), 1.0)),
+        )
+        .padding(padded(skin.callout_pad))
+        .child(
+            Flex::column()
+                .spacing(3.0)
+                .cross_axis_alignment(CrossAxisAlignment::Start)
+                .children(vec![
+                    Text::new(title.to_owned())
+                        .style(label_style(
+                            skin.callout_text.0,
+                            FontWeight::Bold,
+                            color,
+                            0.2,
+                        ))
+                        .into(),
+                    Text::new(body.to_owned())
+                        .style(label_style(
+                            skin.callout_text.1,
+                            FontWeight::Medium,
+                            skin.ink,
+                            0.1,
+                        ))
+                        .into(),
+                ]),
+        )
         .into()
 }
 
@@ -333,6 +419,9 @@ mod tests {
             toast_text: (13.0, FontWeight::Bold),
             toast_max_width: 310.0,
             toast_shadow: None,
+            icon_button: (28.0, 44.0),
+            callout_pad: (12.0, 10.0),
+            callout_text: (13.0, 12.0),
         }
     }
 
@@ -353,5 +442,18 @@ mod tests {
         let _ = badge(&s, "B", s.accent);
         let _ = section_label(&s, "twins");
         let _ = toast(&s, "saved");
+        let _ = icon_button(
+            &s,
+            "Close",
+            Text::new("x".to_owned()).into(),
+            s.panel,
+            || {},
+        );
+        let _ = callout(
+            &s,
+            s.danger.1,
+            "Call 911",
+            "Chest pain can be an emergency.",
+        );
     }
 }

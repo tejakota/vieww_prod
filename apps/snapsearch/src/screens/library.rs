@@ -476,7 +476,8 @@ fn header(
                 .child(
                     Text::new(eyebrow)
                         .color(if loading > 0 {
-                            theme.colors.primary
+                            // The violet as text: the fill violet is 3.3:1 here.
+                            FluidTokens::new().violet_text
                         } else {
                             theme.colors.on_surface_variant
                         })

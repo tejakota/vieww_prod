@@ -93,7 +93,8 @@ pub fn skin() -> vieww_ui_kit::Skin {
         chip_height: 40.0,
         chip_text: (12.0, 0.2),
         badge_pad: (6.0, 3.0),
-        badge_text: (9.0, 0.8),
+        // 11 px: the floor (DESIGN_SPEC §1.2) is the pixel face's own size.
+        badge_text: (11.0, 0.8),
         press_dim: 0.25,
         toast_fill: PANEL,
         toast_ink: INK,
@@ -101,6 +102,9 @@ pub fn skin() -> vieww_ui_kit::Skin {
         toast_text: (13.0, W::Medium),
         toast_max_width: 310.0,
         toast_shadow: None,
+        icon_button: (28.0, 44.0),
+        callout_pad: (12.0, 10.0),
+        callout_text: (13.0, 12.0),
     }
 }
 
@@ -172,5 +176,34 @@ pub fn run() {
     }) {
         Ok(report) => println!("{report}"),
         Err(error) => eprintln!("twin failed to start: {error}"),
+    }
+}
+
+#[cfg(test)]
+mod contrast_tests {
+    use super::*;
+
+    /// WCAG 2.1 contrast ratio (SC 1.4.3).
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    /// A11Y-01: twin's inks on its two grounds.
+    #[test]
+    fn text_tokens_meet_aa_on_every_ground() {
+        for (what, fg) in [("INK", INK), ("MUTED", MUTED), ("MINT", MINT), ("AMBER", AMBER), ("BLUE", BLUE)] {
+            for (on, bg) in [("GROUND", GROUND), ("PANEL", PANEL)] {
+                let r = ratio(fg, bg);
+                assert!(r >= 4.5, "{what} on {on}: {r:.2}:1");
+            }
+        }
     }
 }

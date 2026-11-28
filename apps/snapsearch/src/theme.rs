@@ -17,6 +17,9 @@ use vieww::prelude::*;
 #[derive(Debug, Clone, Copy)]
 pub struct FluidTokens {
     pub violet: Color,
+    /// The violet when it is *text* on the dark ground: `violet` itself is
+    /// 3.3:1 there, this is 6.9:1 (DESIGN_SPEC §1.1, snapsearch skin).
+    pub violet_text: Color,
     pub coral: Color,
     pub amber: Color,
     /// The screen behind the surfaces — the prototype's `--vw-background`.
@@ -46,6 +49,7 @@ impl FluidTokens {
     pub const fn new() -> Self {
         Self {
             violet: Color::rgb(0x7c, 0x3a, 0xed),
+            violet_text: Color::rgb(0xa7, 0x8b, 0xfa),
             coral: Color::rgb(0xff, 0x6b, 0x81),
             amber: Color::rgb(0xff, 0xb5, 0x45),
             background: Color::rgb(0x12, 0x10, 0x20),
@@ -87,7 +91,8 @@ fn colors() -> ColorScheme {
         surface_variant: Color::rgb(0x2c, 0x27, 0x40),
         on_surface_variant: Color::rgb(0xb9, 0xb2, 0xcc),
         outline: Color::rgb(0x3a, 0x34, 0x50),
-        error: Color::rgb(0xef, 0x44, 0x44),
+        // White on #EF4444 was 3.76:1; #DC2626 is 4.83:1 (A11Y-01).
+        error: Color::rgb(0xdc, 0x26, 0x26),
         on_error: Color::WHITE,
         success: Color::rgb(0x35, 0xd6, 0xa9),
         on_success: Color::rgb(0x0b, 0x0b, 0x12),
@@ -142,6 +147,40 @@ mod tests {
     fn the_palette_is_the_prototypes_violet_not_viewws_stock_blue() {
         let theme = build_theme(TargetPlatform::Android);
         assert_eq!(theme.colors.primary, Color::rgb(0x7c, 0x3a, 0xed));
+    }
+
+    /// WCAG 2.1 contrast ratio (SC 1.4.3).
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    /// A11Y-01: every text role on the ground it is drawn on.
+    #[test]
+    fn text_roles_meet_aa() {
+        let c = build_theme(TargetPlatform::Android).colors;
+        let t = FluidTokens::new();
+        for (what, fg, bg) in [
+            ("on_primary / primary", c.on_primary, c.primary),
+            ("on_surface / surface", c.on_surface, c.surface),
+            ("on_surface / background", c.on_surface, t.background),
+            ("on_surface_variant / surface_variant", c.on_surface_variant, c.surface_variant),
+            ("on_surface_variant / background", c.on_surface_variant, t.background),
+            ("on_error / error", c.on_error, c.error),
+            ("on_success / success", c.on_success, c.success),
+            ("violet_text / background", t.violet_text, t.background),
+            ("violet_text / surface", t.violet_text, c.surface),
+        ] {
+            let r = ratio(fg, bg);
+            assert!(r >= 4.5, "{what}: {r:.2}:1");
+        }
     }
 
     #[test]

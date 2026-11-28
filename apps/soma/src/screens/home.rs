@@ -875,34 +875,14 @@ fn search_icon() -> WidgetNode {
 }
 
 fn clear_button(state: &Rc<AppState>) -> WidgetNode {
-    Semantics::button("Clear search")
-        .child(
-            PressTap::new()
-                .on_tap({
-                    let state = state.clone();
-                    move |_tap| clear(&state)
-                })
-                .child(
-                    SizedBox::square(HIT).child(
-                        Center::new().child(
-                            Container::new()
-                                .decoration(
-                                    BoxDecoration::new()
-                                        .color(Color::rgba(255, 255, 255, 26))
-                                        .radius(14.0),
-                                )
-                                .width(28.0)
-                                .height(28.0)
-                                .child(
-                                    Center::new().child(
-                                        Icon::new(icons::close()).size(15.0).color(crate::INK),
-                                    ),
-                                ),
-                        ),
-                    ),
-                ),
-        )
-        .into()
+    let state = state.clone();
+    vieww_ui_kit::icon_button(
+        &skin(),
+        "Clear search",
+        Icon::new(icons::close()).size(15.0).color(crate::INK).into(),
+        Color::rgba(255, 255, 255, 26),
+        move || clear(&state),
+    )
 }
 
 fn badge(label: &str, color: Color) -> WidgetNode {
@@ -966,6 +946,9 @@ fn skin() -> vieww_ui_kit::Skin {
         toast_text: (13.0, FontWeight::Bold),
         toast_max_width: 310.0,
         toast_shadow: None,
+        icon_button: (28.0, HIT),
+        callout_pad: (12.0, 10.0),
+        callout_text: (13.0, CAPTION),
     }
 }
 
@@ -977,37 +960,7 @@ fn chip(state: &Rc<AppState>, label: &str, color: Color, act: Rc<dyn Fn(&AppStat
 
 /// The emergency card a red-flag query shows above everything else.
 fn alert_card(alert: safety::Alert) -> WidgetNode {
-    Container::new()
-        .decoration(
-            BoxDecoration::new()
-                .color(crate::CORAL.with_alpha(34))
-                .radius(12.0)
-                .border(vieww::foundation::Border::new(
-                    crate::CORAL.with_alpha(150),
-                    1.0,
-                )),
-        )
-        .padding(EdgeInsets::symmetric(12.0, 10.0))
-        .child(
-            Flex::column()
-                .spacing(3.0)
-                .cross_axis_alignment(CrossAxisAlignment::Start)
-                .children(children![
-                    Text::new(alert.title.to_owned()).style(style(
-                        13.0,
-                        FontWeight::Bold,
-                        crate::CORAL,
-                        0.2
-                    )),
-                    Text::new(alert.action.to_owned()).style(style(
-                        CAPTION,
-                        FontWeight::Medium,
-                        crate::INK,
-                        0.1
-                    )),
-                ]),
-        )
-        .into()
+    vieww_ui_kit::callout(&skin(), crate::CORAL, alert.title, alert.action)
 }
 
 fn disclaimer() -> WidgetNode {
@@ -1326,36 +1279,14 @@ fn answer_card(state: &Rc<AppState>) -> WidgetNode {
 }
 
 fn back_button(state: &Rc<AppState>) -> WidgetNode {
-    Semantics::button("Back")
-        .child(
-            PressTap::new()
-                .on_tap({
-                    let state = state.clone();
-                    move |_| go_back(&state)
-                })
-                .child(
-                    SizedBox::square(HIT).child(
-                        Center::new().child(
-                            Container::new()
-                                .decoration(
-                                    BoxDecoration::new()
-                                        .color(Color::rgba(255, 255, 255, 18))
-                                        .radius(14.0),
-                                )
-                                .width(28.0)
-                                .height(28.0)
-                                .child(
-                                    Center::new().child(
-                                        Icon::new(icons::chevron_left())
-                                            .size(18.0)
-                                            .color(crate::INK),
-                                    ),
-                                ),
-                        ),
-                    ),
-                ),
-        )
-        .into()
+    let state = state.clone();
+    vieww_ui_kit::icon_button(
+        &skin(),
+        "Back",
+        Icon::new(icons::chevron_left()).size(18.0).color(crate::INK).into(),
+        Color::rgba(255, 255, 255, 18),
+        move || go_back(&state),
+    )
 }
 
 /// The line of `article` that carries the most query terms, with those

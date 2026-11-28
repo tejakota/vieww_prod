@@ -458,7 +458,7 @@ fn say_editor(
             box_style()
                 .child(
                     TextField::text(n.to_string())
-                        .size(10.5)
+                        .size(super::chrome::MIN_TEXT)
                         .style(mono_style(10.5, colors.on_surface))
                         .single_line()
                         // The row's own label is the field's name for a screen
@@ -481,7 +481,7 @@ fn say_editor(
             box_style()
                 .child(
                     TextField::text(text.clone())
-                        .size(10.5)
+                        .size(super::chrome::MIN_TEXT)
                         .style(mono_style(10.5, colors.on_surface))
                         .single_line()
                         // As above: the property's own word is the label.

@@ -632,7 +632,10 @@ pub fn theme_data(dark: bool) -> ThemeData {
         data.colors.primary = ACCENT.near(true);
         data.colors.on_primary = Color::WHITE;
         data.colors.error = Color::hex(0xF8_5149);
-        data.colors.on_error = Color::WHITE;
+        // Ink on the bright error, not white: white on #F85149 is 3.35:1, this
+        // is 5.8:1 (DESIGN_SPEC §1.1 "on-coral ink"). `error` stays bright
+        // because it is also the error *text* colour on the dark chrome.
+        data.colors.on_error = Color::hex(0x1A_0604);
         data.colors.success = Color::hex(0x3F_B950);
         data.colors.on_success = Color::hex(0x0A_1A0D);
     } else {
@@ -694,5 +697,20 @@ pub const fn colors(dark: bool) -> ColorScheme {
         ColorScheme::dark()
     } else {
         ColorScheme::light()
+    }
+}
+
+#[cfg(test)]
+mod a11y01_tests {
+    use super::theme_data;
+
+    /// A11Y-01: the studio's own theme, both modes, through the framework's
+    /// contrast audit (every text role on its partner, the outline at 3:1).
+    #[test]
+    fn the_studio_theme_passes_the_contrast_audit_in_both_modes() {
+        for dark in [true, false] {
+            let report = vieww_accessibility::audit_theme(&theme_data(dark));
+            assert!(report.passes(), "dark={dark}: {:#?}", report.failures);
+        }
     }
 }

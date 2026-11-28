@@ -324,15 +324,16 @@ fn activity_button(look: ActivityLook, view: View) -> WidgetNode {
                 .child(
                     Container::new()
                         .color(colors.error)
-                        .radius(6.5)
-                        .size(13.0, 13.0)
+                        // 16 px so the count can be set at the 11 px floor.
+                        .radius(8.0)
+                        .size(16.0, 16.0)
                         .alignment(Alignment::CENTER)
                         .shadow(vieww_foundation::Shadow::new(
                             Color::rgba(0, 0, 0, 90),
                             Offset::new(0.0, 1.0),
                             3.0,
                         ))
-                        .child(label_bold(&problems.to_string(), 9.0, colors.on_error)),
+                        .child(label_bold(&problems.to_string(), 11.0, colors.on_error)),
                 )
                 .into(),
         );

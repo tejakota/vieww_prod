@@ -160,7 +160,9 @@ pub const DARK: Pal = Pal {
     good_soft: Color::hex(0x1F3320),
     wait: Color::hex(0xCCA700),
     wait_soft: Color::hex(0x3A3217),
-    bad: Color::hex(0xF14C4C),
+    // #F14C4C was 3.86:1 on `surface2` (a failed step's row) and 4.29:1 on
+    // `surface`; this keeps the hue and clears 4.5:1 on every dark ground.
+    bad: Color::hex(0xF47070),
     status: Color::hex(0x181818),
     bubble: Color::hex(0x04395E),
     watermark: 18,
@@ -187,3 +189,54 @@ pub const LIGHT: Pal = Pal {
     bubble: Color::hex(0xDCEBFA),
     watermark: 14,
 };
+
+#[cfg(test)]
+mod contrast_tests {
+    use super::*;
+
+    /// WCAG 2.1 contrast ratio (SC 1.4.3).
+    fn ratio(a: Color, b: Color) -> f32 {
+        fn lin(v: u8) -> f32 {
+            let c = f32::from(v) / 255.0;
+            if c <= 0.039_28 {
+                c / 12.92
+            } else {
+                ((c + 0.055) / 1.055).powf(2.4)
+            }
+        }
+        fn lum(c: Color) -> f32 {
+            0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b)
+        }
+        let (x, y) = (lum(a), lum(b));
+        (x.max(y) + 0.05) / (x.min(y) + 0.05)
+    }
+
+    /// A11Y-01: every text colour on every ground it is set on, both modes.
+    #[test]
+    fn text_tokens_meet_aa_on_every_ground_in_both_modes() {
+        for (mode, p) in [("dark", DARK), ("light", LIGHT)] {
+            for (what, ink) in [
+                ("ink", p.ink),
+                ("muted", p.muted),
+                ("accent_ink", p.accent_ink),
+                ("good", p.good),
+                ("wait", p.wait),
+                ("bad", p.bad),
+            ] {
+                for (on, ground) in [
+                    ("ground", p.ground),
+                    ("surface", p.surface),
+                    ("surface2", p.surface2),
+                    ("status", p.status),
+                ] {
+                    let r = ratio(ink, ground);
+                    assert!(r >= 4.5, "{mode}: {what} on {on} is {r:.2}:1");
+                }
+            }
+            let r = ratio(p.on_accent, p.accent);
+            assert!(r >= 4.5, "{mode}: label on accent is {r:.2}:1");
+            let r = ratio(p.ink, p.bubble);
+            assert!(r >= 4.5, "{mode}: ink on the user's bubble is {r:.2}:1");
+        }
+    }
+}
