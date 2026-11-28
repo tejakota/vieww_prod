@@ -733,6 +733,11 @@ pub struct Session {
     pub receipt: Signal<Option<ReceiptView>>,
     /// The receipt overlay is open over this page.
     pub receipt_open: Signal<bool>,
+    /// The transcript's rows as last laid out, by position (`NaN` = not
+    /// measured yet), and a count bumped when one changes: the transcript
+    /// is a virtual list, and these are the lengths it walks (WR-01).
+    pub row_heights: Rc<std::cell::RefCell<Vec<f32>>>,
+    pub heights_seen: Signal<u64>,
     pub(crate) shared: Arc<Shared>,
     last_poll: Rc<Cell<Instant>>,
 }
@@ -780,6 +785,8 @@ impl Session {
             interviewing: rt.signal(false),
             receipt: rt.signal(receipt),
             receipt_open: rt.signal(false),
+            row_heights: Rc::new(std::cell::RefCell::new(Vec::new())),
+            heights_seen: rt.signal(0),
             shared: Arc::new(Shared::default()),
             last_poll: Rc::new(Cell::new(Instant::now())),
         };

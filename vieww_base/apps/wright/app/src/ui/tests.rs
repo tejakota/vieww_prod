@@ -1619,3 +1619,72 @@ fn wr01_pages_and_flings_move_a_scroll_area_and_stop() {
     s.fling(2000.0);
     assert!(!kit::step_flings(0.016), "a fling into the end stops there");
 }
+
+/// WR-01: a long session is a virtual list. 5,000 messages mount a
+/// screenful of rows, scrolling moves the mounted window rather than growing
+/// it, and a frame of scrolling stays inside a 60 Hz budget (measured here
+/// on the CI/VM CPU in release; the farm's i5-7200U row is the receipt).
+#[test]
+fn wr01_a_5000_message_thread_mounts_a_screenful_and_scrolls_in_budget() {
+    let _home = home_lock();
+    std::env::set_var("WRIGHT_HOME", temp("virtual-home"));
+    let size = Size::new(1280.0, 800.0);
+    let mut driver = FrameDriver::new(size);
+    shell::register(&mut driver);
+    let ui = Ui::new(
+        driver.elements().runtime(),
+        None,
+        std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
+    );
+    ui.splash.set(false);
+    let dir = temp("virtual-proj").canonicalize().unwrap();
+    let s = super::session::Session::open(driver.elements().runtime(), dir, 7_101);
+    s.chat.set(
+        (0..5000)
+            .map(|i| {
+                let text = if i % 3 == 0 {
+                    format!("Message {i}: a longer reply that wraps onto a second line in the column, with **some markdown** and a `code span` in it so the row is not trivial.")
+                } else {
+                    format!("Message {i}")
+                };
+                (i % 2 == 0, text)
+            })
+            .collect(),
+    );
+    driver.set_root(super::thread::page(&ui, &s));
+    let mut now = Duration::ZERO;
+    for _ in 0..10 {
+        now += Duration::from_millis(16);
+        driver.draw_frame_at(now);
+    }
+    let rows = |d: &mut FrameDriver| d.elements().debug_tree().matches("Measured").count();
+    let at_end = rows(&mut driver);
+    assert!(at_end > 0 && at_end < 80, "{at_end} rows mounted of 5,000");
+
+    s.scroll.to_start();
+    let mut worst = Duration::ZERO;
+    let mut total = Duration::ZERO;
+    for _ in 0..120 {
+        s.scroll.by(60.0);
+        now += Duration::from_millis(16);
+        let t = Instant::now();
+        driver.draw_frame_at(now);
+        let took = t.elapsed();
+        total += took;
+        worst = worst.max(took);
+    }
+    let mounted = rows(&mut driver);
+    assert!(
+        mounted < 80,
+        "the window slid rather than grew: {mounted} rows"
+    );
+    let mean = total / 120;
+    eprintln!(
+        "wr01 virtual thread: {at_end} rows at the end, {mounted} after scrolling; \
+         mean {mean:?}, worst {worst:?} per scrolled frame"
+    );
+    assert!(
+        mean < Duration::from_micros(16_700),
+        "mean {mean:?} per scrolled frame"
+    );
+}

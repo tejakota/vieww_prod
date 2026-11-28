@@ -14,6 +14,7 @@ use std::rc::Rc;
 
 use vieww::foundation::DragDetails;
 use vieww::prelude::*;
+use vieww::widget::{ExtentBuilder, ItemBuilder};
 
 use super::kit::*;
 use super::session::{Composer, Progress, Session, State, Tone, Voice};
@@ -150,7 +151,75 @@ pub fn page(ui: &Ui, s: &Session) -> WidgetNode {
     ])
 }
 
+/// A row's length before it has been laid out once: about a short reply.
+/// Only the scroll bar and the spacers use it, and only until the row is
+/// measured, which happens the first time it comes into view.
+const ROW_ESTIMATE: f32 = 120.0;
+
+/// The transcript as a virtual list (WR-01): every row is described, but
+/// only the ones near the window are mounted, laid out and painted. Each row
+/// reports its laid-out height (a `Measured` around it), and those heights
+/// — the estimate until then — are the list's extents, so a 5,000-message
+/// session costs a screenful of rows and not 5,000.
 fn body(ui: &Ui, s: &Session) -> WidgetNode {
+    let items = Rc::new(rows(ui, s));
+    // Subscribe: a row whose height changed re-walks the extents.
+    let _ = s.heights_seen.get();
+    {
+        let mut heights = s.row_heights.borrow_mut();
+        heights.resize(items.len(), f32::NAN);
+    }
+    let extents: ExtentBuilder = {
+        let heights = s.row_heights.clone();
+        Rc::new(move |i| {
+            let h = heights.borrow().get(i).copied().unwrap_or(f32::NAN);
+            if h.is_finite() {
+                h + space::L
+            } else {
+                ROW_ESTIMATE + space::L
+            }
+        })
+    };
+    let count = items.len();
+    let builder: ItemBuilder = {
+        let (heights, seen) = (s.row_heights.clone(), s.heights_seen.clone());
+        Rc::new(move |i| {
+            let Some(item) = items.get(i).cloned() else {
+                return SizedBox::shrink().into();
+            };
+            let (heights, seen) = (heights.clone(), seen.clone());
+            let measured = Measured::new()
+                .on_measured(Rc::new(move |rect: Rect| {
+                    let h = rect.height();
+                    let changed = {
+                        let mut v = heights.borrow_mut();
+                        match v.get_mut(i) {
+                            Some(old) if !(old.is_finite() && (*old - h).abs() < 0.5) => {
+                                *old = h;
+                                true
+                            }
+                            _ => false,
+                        }
+                    };
+                    if changed {
+                        seen.update(|n| *n = n.wrapping_add(1));
+                    }
+                }))
+                .child(item);
+            // Keyed by position: rows are appended, so a row keeps its
+            // index, and its element state stays with it as the window
+            // slides.
+            Padding::new(EdgeInsets::only(0.0, 0.0, 0.0, space::L))
+                .key(Key::from(format!("row-{i}")))
+                .child(measured)
+                .into()
+        })
+    };
+    ListView::variable(count, extents, builder).into()
+}
+
+/// Everything the transcript shows, top to bottom, as descriptions.
+fn rows(ui: &Ui, s: &Session) -> Vec<WidgetNode> {
     let p = ui.pal();
     let mut items: Vec<WidgetNode> = Vec::new();
     let plan = s.plan.get();
@@ -232,7 +301,7 @@ fn body(ui: &Ui, s: &Session) -> WidgetNode {
     if !notice.is_empty() {
         items.push(copyable(notice, size::UI, p.wait));
     }
-    stretch(space::L, items)
+    items
 }
 
 /// A reply on its way: the words so far, rendered as they will land
