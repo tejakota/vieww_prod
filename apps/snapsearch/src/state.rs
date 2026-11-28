@@ -574,6 +574,22 @@ impl AppState {
         }
     }
 
+    /// The progress the search card shows *now*: the same curve
+    /// [`Self::advance_clock`] records, evaluated at this instant, so the
+    /// bar moves every frame rather than every 140 ms clock step (SS-04).
+    /// Never behind what was recorded. Reads only; recording stays with the
+    /// clock.
+    pub fn live_progress(&self) -> f32 {
+        let recorded = self.progress.peek();
+        match self.search_started.get() {
+            Some(started) if self.searching.peek() => {
+                let done = self.search_queries.borrow().is_some();
+                search_progress(started.elapsed().as_secs_f32(), done).max(recorded)
+            }
+            _ => recorded,
+        }
+    }
+
     /// Called every frame from the app's `before_frame` hook, throttled by
     /// the caller. Advances the ambient clock, expires the toast, and
     /// drives the search's progress against real elapsed time.

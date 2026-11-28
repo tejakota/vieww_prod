@@ -21,12 +21,19 @@ use vieww::foundation::Key;
 /// One ambient step. Matches the cadence the shared clock used.
 pub const STEP: Duration = Duration::from_millis(140);
 
+/// The step of [`Ambient::every_frame`]: shorter than any display's frame, so
+/// every frame is a new step.
+const FRAME: Duration = Duration::from_millis(1);
+
 /// Builds a subtree from the current ambient step.
 pub type AmbientBuilder = Rc<dyn Fn(u64) -> WidgetNode>;
 
 #[derive(Clone)]
 pub struct Ambient {
     enabled: bool,
+    /// How long one step lasts: [`STEP`] for decoration, one frame for
+    /// something that reports progress (see [`Self::every_frame`]).
+    interval: Duration,
     /// Added to the element's own step count, so neighbours that mount on
     /// the same frame do not all move in lock-step.
     phase: u64,
@@ -38,7 +45,16 @@ impl Ambient {
     /// `enabled == false` builds once at step `phase` and never ticks.
     #[must_use]
     pub fn new(enabled: bool, build: impl Fn(u64) -> WidgetNode + 'static) -> Self {
-        Self { enabled, phase: 0, builder: Rc::new(build), key: None }
+        Self { enabled, interval: STEP, phase: 0, builder: Rc::new(build), key: None }
+    }
+
+    /// Step on every frame rather than every [`STEP`]: for a widget that
+    /// shows live progress, where 140 ms steps read as a stutter (~7 fps).
+    /// Decoration keeps the slow step.
+    #[must_use]
+    pub const fn every_frame(mut self) -> Self {
+        self.interval = FRAME;
+        self
     }
 
     /// Identity across rebuilds. A list that adds and removes items around
@@ -77,7 +93,12 @@ impl Widget for Ambient {
     }
 
     fn create_state(&self) -> Option<Box<dyn ElementState>> {
-        Some(Box::new(AmbientState { enabled: self.enabled, origin: None, step: 0 }))
+        Some(Box::new(AmbientState {
+            enabled: self.enabled,
+            interval: self.interval,
+            origin: None,
+            step: 0,
+        }))
     }
 
     fn build(&self, ctx: &BuildContext) -> WidgetNode {
@@ -89,14 +110,15 @@ impl Widget for Ambient {
 #[derive(Debug)]
 pub struct AmbientState {
     enabled: bool,
+    interval: Duration,
     origin: Option<Duration>,
     step: u64,
 }
 
 impl AmbientState {
     /// The step at `now`, given where this element's clock started.
-    fn step_at(origin: Duration, now: Duration) -> u64 {
-        (now.saturating_sub(origin).as_millis() / STEP.as_millis()) as u64
+    fn step_at(origin: Duration, now: Duration, interval: Duration) -> u64 {
+        (now.saturating_sub(origin).as_millis() / interval.as_millis().max(1)) as u64
     }
 }
 
@@ -112,6 +134,7 @@ impl ElementState for AmbientState {
     fn widget_updated(&mut self, widget: &WidgetNode) {
         if let Some(w) = widget.downcast_ref::<Ambient>() {
             self.enabled = w.enabled;
+            self.interval = w.interval;
         }
     }
 
@@ -120,7 +143,7 @@ impl ElementState for AmbientState {
             return false;
         }
         let origin = *self.origin.get_or_insert(now);
-        let step = Self::step_at(origin, now);
+        let step = Self::step_at(origin, now, self.interval);
         if step == self.step {
             return false;
         }
@@ -144,7 +167,15 @@ mod tests {
     }
 
     fn state(enabled: bool) -> AmbientState {
-        AmbientState { enabled, origin: None, step: 0 }
+        AmbientState { enabled, interval: STEP, origin: None, step: 0 }
+    }
+
+    #[test]
+    fn a_progress_ambient_steps_every_frame() {
+        let mut s = AmbientState { enabled: true, interval: FRAME, origin: None, step: 0 };
+        assert!(!s.tick(ms(1000)));
+        let rebuilds = (1..=60).filter(|f| s.tick(ms(1000 + f * 16))).count();
+        assert_eq!(rebuilds, 60, "one rebuild per 16 ms frame");
     }
 
     #[test]

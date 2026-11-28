@@ -79,3 +79,49 @@ fn an_idle_library_does_not_rebuild_the_screen_when_the_clock_ticks() {
         "30 clock ticks changed the tree of an idle screen"
     );
 }
+
+/// Element builds over `ticks` ambient steps of an idle library with ambient
+/// motion on (the default: High tier, no reduce motion).
+fn builds_per_step_with_motion_on(ticks: u32) -> (u32, usize) {
+    let (mut driver, _state, mut now) = driver_with(48);
+    // Let the entrance settle so only the ambient clock is moving.
+    for _ in 0..120 {
+        now += Duration::from_millis(16);
+        driver.draw_frame_at(now);
+    }
+    let live = count(&driver.elements().debug_tree(), "Ambient");
+    driver.elements().mark_builds();
+    for _ in 0..ticks * 9 {
+        now += Duration::from_millis(16);
+        driver.draw_frame_at(now);
+    }
+    (driver.elements().builds_since_mark() / ticks, live)
+}
+
+#[test]
+fn a_drifting_tile_rebuilds_its_transform_not_its_content() {
+    let (per_step, live) = builds_per_step_with_motion_on(20);
+    assert!(live > 0, "the sample library drifts with motion on");
+    // One build per moving element per step: the drift wrapper. The tile's
+    // content is handed back by identity and skipped (it was ~77 builds a
+    // step for 17 moving elements before SS-03).
+    assert!(per_step <= live as u32, "{per_step} builds per step for {live} moving elements");
+}
+
+#[test]
+fn an_open_sheet_stills_the_grid_behind_it() {
+    let (mut driver, state, mut now) = driver_with(48);
+    state.open_sheet();
+    // The sheet and the scrim finish their entrance.
+    for _ in 0..120 {
+        now += Duration::from_millis(16);
+        driver.draw_frame_at(now);
+    }
+    driver.elements().mark_builds();
+    for _ in 0..20 * 9 {
+        now += Duration::from_millis(16);
+        driver.draw_frame_at(now);
+    }
+    let builds = driver.elements().builds_since_mark();
+    assert_eq!(builds, 0, "{builds} builds behind an open sheet: {:?}", driver.elements().hotspots(5));
+}

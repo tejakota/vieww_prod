@@ -138,6 +138,12 @@ pub fn build_root(driver: &mut FrameDriver, slot: &SharedState) {
         Some(dir) => state.scan_directory(&dir),
         None => state.fall_back_to_samples(),
     }
+    // The sample tiles turn over to generated stand-ins; build those now,
+    // not inside a build, where the published quality profile lets the grid
+    // move at all (SS-03) — the same profile the grid itself reads.
+    if driver.quality().ambient_motion {
+        crate::widgets::masonry::prewarm_alternates();
+    }
 
     // Without this a fling stops dead the instant the finger leaves.
     state.scroll.attach(driver.tickers());

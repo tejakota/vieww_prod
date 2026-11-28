@@ -279,9 +279,23 @@ pub fn sketch_of(concept: &Concept) -> Image_ {
     gradient_image(concept.top, concept.bottom, 24, 32, 0.0)
 }
 
+thread_local! {
+    static GENERATED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+/// How many bitmaps [`gradient_image`] has made on *this* thread. The
+/// performance tests read it on the UI thread, where builds run: an ambient
+/// step must not allocate pixels (the embedding workers' sketches are their
+/// own threads' business).
+#[must_use]
+pub fn images_generated() -> usize {
+    GENERATED.with(std::cell::Cell::get)
+}
+
 /// A vertical-ish gradient bitmap: `top` at the top, `bottom` at the
 /// bottom, optionally sheared sideways by `skew` for variety.
 pub fn gradient_image(top: Color, bottom: Color, w: u32, h: u32, skew: f32) -> Image_ {
+    GENERATED.with(|n| n.set(n.get() + 1));
     let mut pixels = Vec::with_capacity((w * h * 4) as usize);
     for y in 0..h {
         for x in 0..w {

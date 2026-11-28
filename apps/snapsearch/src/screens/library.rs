@@ -125,9 +125,14 @@ impl Widget for LibraryScreen {
                         let (top, bottom) = crate::state::window_for(band, state.viewport());
                         let grid = Masonry::new(tiles, on_tap).window(top, bottom);
                         // Results hold still and arrive staggered; the
-                        // library is the thing that drifts.
+                        // library is the thing that drifts — but not behind
+                        // a modal (the sheet, a search, the detail view),
+                        // where nobody can see it and it would keep the
+                        // frame loop awake (SS-03).
                         let grid = if results.is_some() {
                             grid.still().reveal(reveal)
+                        } else if dim {
+                            grid.still()
                         } else {
                             grid
                         };
@@ -1096,9 +1101,12 @@ fn progress_dialog(
     let _ = tokens;
     let (state, theme, tokens, encoder) =
         (state.clone(), theme.clone(), FluidTokens::new(), encoder.to_string());
+    // Every frame, not every ambient step: a bar that moves in 140 ms jumps
+    // reads as ~7 fps (SS-04). The card is small and the search short.
     Ambient::new(true, move |_| {
-        progress_card_body(&theme, &tokens, state.progress.peek().clamp(0.0, 1.0), &encoder)
+        progress_card_body(&theme, &tokens, state.live_progress().clamp(0.0, 1.0), &encoder)
     })
+    .every_frame()
     .into()
 }
 

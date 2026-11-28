@@ -7,6 +7,7 @@
 //! not a virtualised list, which is the right trade at "a couple of large
 //! cells per screen": there's nothing here worth virtualising.
 
+use std::cell::RefCell;
 use std::rc::Rc;
 
 use vieww::prelude::*;
@@ -277,8 +278,34 @@ fn tile(
         // with its photo as the virtualised window slides past, and `live`
         // decides whether it ticks. A disabled one builds once and never
         // asks for a frame.
+        // The content changes only when the tile turns over (every `cycle`
+        // steps); between turns an ambient step moves the tile and nothing
+        // else. So the body for the current turn is built once and handed back
+        // as the *same* node, which reconciliation skips by identity, and only
+        // the drift transform above it is new (SS-03). The `RepaintBoundary`
+        // keeps the body's recording, so a step re-records nothing either.
+        let memo: Rc<RefCell<Option<(u64, WidgetNode)>>> = Rc::new(RefCell::new(None));
         Ambient::new(live, move |step| {
-            tile_body(&photo, score, height, index, if live { step } else { 0 }, live, &on_tap, &theme)
+            let tick = if live { step } else { 0 };
+            let turn = tick / turn_cycle(index);
+            let body = {
+                let mut memo = memo.borrow_mut();
+                match &*memo {
+                    Some((at, node)) if *at == turn => node.clone(),
+                    _ => {
+                        let node: WidgetNode = RepaintBoundary::new()
+                            .child(tile_body(&photo, score, height, index, turn, live, &on_tap, &theme))
+                            .into();
+                        *memo = Some((turn, node.clone()));
+                        node
+                    }
+                }
+            };
+            if live {
+                Transformed::translate(drift_at(index, tick)).child(body).into()
+            } else {
+                body
+            }
         })
         // Neighbours must not all breathe in step.
         .phase(index.wrapping_mul(11))
@@ -322,6 +349,21 @@ fn alt_photo(seed: u64) -> Photo {
     })
 }
 
+/// Build every alternate a sample tile can turn over to, up front.
+///
+/// Called once at start-up, outside any build, when the sample library is
+/// what the grid shows and the tier allows ambient motion: the turnover then
+/// only ever *looks up* a stand-in, so no build closure allocates pixels
+/// (SS-03). The whole set is 64 x 4 small gradients (about 3 MB), which is
+/// why a Low-tier phone, where the grid never moves, does not build it.
+pub fn prewarm_alternates() {
+    for index in 0..64 {
+        for turn in 0..4 {
+            let _ = alt_photo(alt_seed(index, turn));
+        }
+    }
+}
+
 /// The seed a tile shows when it has turned over `turn` times.
 ///
 /// Wraps within a small set (per tile) so the cache stays bounded however
@@ -330,39 +372,42 @@ fn alt_seed(index: u64, turn: u64) -> u64 {
     10_000 + (index % 64) * 977 + (turn % 4)
 }
 
-/// One tile, at ambient step `tick`. `tick == 0` with `live == false` is the
-/// still tile: no drift, original photo.
+/// How many ambient steps a sample tile shows one picture before it turns.
+fn turn_cycle(index: u64) -> u64 {
+    220 + (index % 7) * 40
+}
+
+/// Ambient drift: a slow, per-tile-offset wander in x and y, entirely derived
+/// from the ambient step, so it needs no per-tile state.
+fn drift_at(index: u64, tick: u64) -> Offset {
+    let drift_period = 90.0 + (index % 5) as f32 * 18.0;
+    let phase_offset = index as f32 * 0.37;
+    Offset::new(
+        triangle(tick as f32 / drift_period + phase_offset) * 6.0,
+        triangle(tick as f32 / (drift_period * 0.8) + phase_offset + 0.25) * 8.0,
+    )
+}
+
+/// One tile's content after it has turned over `turn` times. `turn == 0` with
+/// `live == false` is the still tile: the original photo. The drift is not
+/// here: it is the transform [`tile`] puts around this, per step.
 #[allow(clippy::too_many_arguments)]
 fn tile_body(
     photo: &Photo,
     score: Option<f32>,
     height: f32,
     index: u64,
-    tick: u64,
+    turn: u64,
     live: bool,
     on_tap: &Handler<Photo>,
     theme: &Rc<ThemeData>,
 ) -> WidgetNode {
-    // Ambient drift: a slow, per-tile-offset wander in x and y, entirely
-    // derived from the ambient step — no per-tile state needed.
-    let drift_period = 90.0 + (index % 5) as f32 * 18.0;
-    let phase_offset = index as f32 * 0.37;
-    let (dx, dy) = if live {
-        (
-            triangle(tick as f32 / drift_period + phase_offset) * 6.0,
-            triangle(tick as f32 / (drift_period * 0.8) + phase_offset + 0.25) * 8.0,
-        )
-    } else {
-        (0.0, 0.0)
-    };
-
     // Live-replace: every `cycle` steps this tile flips to a generated
     // "photo" and back — a page-turn (scale-collapse), since `Transformed`
     // only exposes a 2D matrix.
-    let cycle = 220 + (index % 7) * 40;
-    let showing_alt = live && (tick / cycle + index) % 2 == 1;
+    let showing_alt = live && (turn + index) % 2 == 1;
     let flip_target = if showing_alt { 1.0 } else { 0.0 };
-    let alt = alt_photo(alt_seed(index, tick / cycle));
+    let alt = alt_photo(alt_seed(index, turn));
 
     let shown_photo = photo.clone();
     let shown_alt = alt.clone();
@@ -454,17 +499,12 @@ fn tile_body(
 
     let handler = on_tap.clone();
     let orig = photo.clone();
-    let offset = Offset::new(dx, dy);
 
-    let pressable = Pressable::new(move |_press| card.clone().into()).on_tap(move || {
-        handler(if showing_alt { alt.clone() } else { orig.clone() });
-    });
-
-    if live {
-        Transformed::translate(offset).child(pressable).into()
-    } else {
-        pressable.into()
-    }
+    Pressable::new(move |_press| card.clone().into())
+        .on_tap(move || {
+            handler(if showing_alt { alt.clone() } else { orig.clone() });
+        })
+        .into()
 }
 
 #[cfg(test)]
