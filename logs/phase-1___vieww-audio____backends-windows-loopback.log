@@ -1,0 +1,400 @@
+2026-11-28T11:26:50.0742810Z Updating files:  84% (3037/3615)
+2026-11-28T11:26:50.0864765Z Updating files:  85% (3073/3615)
+2026-11-28T11:26:50.0985254Z Updating files:  86% (3109/3615)
+2026-11-28T11:26:50.1104514Z Updating files:  87% (3146/3615)
+2026-11-28T11:26:50.1473333Z Updating files:  88% (3182/3615)
+2026-11-28T11:26:50.1756871Z Updating files:  89% (3218/3615)
+2026-11-28T11:26:50.1901451Z Updating files:  90% (3254/3615)
+2026-11-28T11:26:50.2024671Z Updating files:  91% (3290/3615)
+2026-11-28T11:26:50.2174390Z Updating files:  92% (3326/3615)
+2026-11-28T11:26:50.2332448Z Updating files:  93% (3362/3615)
+2026-11-28T11:26:50.2423318Z Updating files:  94% (3399/3615)
+2026-11-28T11:26:50.2586971Z Updating files:  95% (3435/3615)
+2026-11-28T11:26:50.2756218Z Updating files:  96% (3471/3615)
+2026-11-28T11:26:50.2870715Z Updating files:  97% (3507/3615)
+2026-11-28T11:26:50.2984070Z Updating files:  98% (3543/3615)
+2026-11-28T11:26:50.4299723Z Updating files:  99% (3579/3615)
+2026-11-28T11:26:50.7035401Z Updating files:  99% (3599/3615)
+2026-11-28T11:26:50.7035859Z Updating files: 100% (3615/3615)
+2026-11-28T11:26:50.7036195Z Updating files: 100% (3615/3615), done.
+2026-11-28T11:26:50.7217252Z Switched to a new branch 'main'
+2026-11-28T11:26:50.7278426Z branch 'main' set up to track 'origin/main'.
+2026-11-28T11:26:50.7833553Z ##[endgroup]
+2026-11-28T11:26:50.8333405Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-28T11:26:50.8703076Z d0e59cd6766b4a59585b5184ae7f668cd2352043
+2026-11-28T11:26:50.9079346Z ##[group]Run actions/setup-python@v5
+2026-11-28T11:26:50.9079754Z with:
+2026-11-28T11:26:50.9079990Z   python-version: 3.12
+2026-11-28T11:26:50.9080261Z   update-environment: false
+2026-11-28T11:26:50.9080546Z   check-latest: false
+2026-11-28T11:26:50.9082839Z   token: ***
+2026-11-28T11:26:50.9083087Z   allow-prereleases: false
+2026-11-28T11:26:50.9083369Z   freethreaded: false
+2026-11-28T11:26:50.9083612Z env:
+2026-11-28T11:26:50.9083828Z   CI_INPUTS: ***
+2026-11-28T11:26:50.9084068Z   CI_MATRIX: ***
+2026-11-28T11:26:50.9085107Z   CI_JOB: ***"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:26:50.9086226Z   CI_PROJECT: vieww-audio
+2026-11-28T11:26:50.9087343Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:26:50.9090777Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:26:50.9091033Z   CI_SECRET_NAMES: 
+2026-11-28T11:26:50.9091349Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:26:50.9091762Z   ANDROID_KEYSTORE: 
+2026-11-28T11:26:50.9092010Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:26:50.9092274Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:26:50.9092507Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:26:50.9092763Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:26:50.9093020Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:26:50.9093258Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:26:50.9093497Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:26:50.9093732Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:26:50.9093983Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:26:50.9094256Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:26:50.9094491Z   AWS_ROLE_ARN: 
+2026-11-28T11:26:50.9094726Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:26:50.9094986Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:26:50.9095230Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:26:50.9095481Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:26:50.9095730Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:26:50.9095979Z   FIREBASE_PROJECT: 
+2026-11-28T11:26:50.9096209Z   FIREBASE_SA_KEY: 
+2026-11-28T11:26:50.9096432Z   IOS_CERT_P12: 
+2026-11-28T11:26:50.9096646Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:26:50.9096875Z   IOS_IDENTITY: 
+2026-11-28T11:26:50.9097082Z   IOS_PROFILE: 
+2026-11-28T11:26:50.9097305Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:26:50.9097547Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:26:50.9097792Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:26:50.9098089Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:26:50.9098378Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:26:50.9098862Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:26:50.9099166Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:26:50.9099467Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:26:50.9099746Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:26:50.9100027Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:26:50.9100336Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:26:50.9100628Z ##[endgroup]
+2026-11-28T11:26:51.0656682Z ##[group]Installed versions
+2026-11-28T11:26:51.0863957Z (node:7988) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:26:51.0864748Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:26:51.0866343Z Successfully set up CPython (3.12.10)
+2026-11-28T11:26:51.0867158Z ##[endgroup]
+2026-11-28T11:26:51.1208191Z ##[group]Run actions/setup-python@v5
+2026-11-28T11:26:51.1208590Z with:
+2026-11-28T11:26:51.1208839Z   python-version: 3.12
+2026-11-28T11:26:51.1209135Z   update-environment: false
+2026-11-28T11:26:51.1209410Z   check-latest: false
+2026-11-28T11:26:51.1211693Z   token: ***
+2026-11-28T11:26:51.1212356Z   allow-prereleases: false
+2026-11-28T11:26:51.1212662Z   freethreaded: false
+2026-11-28T11:26:51.1212968Z env:
+2026-11-28T11:26:51.1213201Z   CI_INPUTS: ***
+2026-11-28T11:26:51.1213443Z   CI_MATRIX: ***
+2026-11-28T11:26:51.1214495Z   CI_JOB: ***"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:26:51.1215633Z   CI_PROJECT: vieww-audio
+2026-11-28T11:26:51.1216773Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:26:51.1219950Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:26:51.1220204Z   CI_SECRET_NAMES: 
+2026-11-28T11:26:51.1220451Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:26:51.1220707Z   ANDROID_KEYSTORE: 
+2026-11-28T11:26:51.1220957Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:26:51.1221223Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:26:51.1221460Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:26:51.1221716Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:26:51.1221972Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:26:51.1222236Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:26:51.1222477Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:26:51.1222709Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:26:51.1222954Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:26:51.1223200Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:26:51.1223436Z   AWS_ROLE_ARN: 
+2026-11-28T11:26:51.1223677Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:26:51.1223927Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:26:51.1224182Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:26:51.1224431Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:26:51.1224689Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:26:51.1224948Z   FIREBASE_PROJECT: 
+2026-11-28T11:26:51.1225172Z   FIREBASE_SA_KEY: 
+2026-11-28T11:26:51.1225402Z   IOS_CERT_P12: 
+2026-11-28T11:26:51.1225627Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:26:51.1225868Z   IOS_IDENTITY: 
+2026-11-28T11:26:51.1226089Z   IOS_PROFILE: 
+2026-11-28T11:26:51.1226311Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:26:51.1226561Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:26:51.1226817Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:26:51.1227119Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:26:51.1227421Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:26:51.1227695Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:26:51.1228003Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:26:51.1228313Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:26:51.1228592Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:26:51.1228880Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:26:51.1229412Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:26:51.1229710Z ##[endgroup]
+2026-11-28T11:26:51.2956439Z ##[group]Installed versions
+2026-11-28T11:26:51.3043239Z (node:7356) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:26:51.3044027Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:26:51.3045650Z Successfully set up CPython (3.12.10)
+2026-11-28T11:26:51.3046330Z ##[endgroup]
+2026-11-28T11:26:51.3314229Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-28T11:26:51.3314822Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-28T11:26:51.3315304Z [36;1m"$***CI_PY:-python3***" ci/lib/prepare.py[0m
+2026-11-28T11:26:51.3331120Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:26:51.3331607Z env:
+2026-11-28T11:26:51.3331832Z   CI_INPUTS: ***
+2026-11-28T11:26:51.3332078Z   CI_MATRIX: ***
+2026-11-28T11:26:51.3333125Z   CI_JOB: ***"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:26:51.3334239Z   CI_PROJECT: vieww-audio
+2026-11-28T11:26:51.3335359Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:26:51.3338998Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:26:51.3339275Z   CI_SECRET_NAMES: 
+2026-11-28T11:26:51.3339515Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:26:51.3339776Z   ANDROID_KEYSTORE: 
+2026-11-28T11:26:51.3340015Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:26:51.3340298Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:26:51.3340538Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:26:51.3340791Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:26:51.3341047Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:26:51.3341281Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:26:51.3341516Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:26:51.3341756Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:26:51.3341990Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:26:51.3342239Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:26:51.3342466Z   AWS_ROLE_ARN: 
+2026-11-28T11:26:51.3342710Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:26:51.3342970Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:26:51.3343221Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:26:51.3343481Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:26:51.3343723Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:26:51.3343980Z   FIREBASE_PROJECT: 
+2026-11-28T11:26:51.3344212Z   FIREBASE_SA_KEY: 
+2026-11-28T11:26:51.3344438Z   IOS_CERT_P12: 
+2026-11-28T11:26:51.3344665Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:26:51.3344898Z   IOS_IDENTITY: 
+2026-11-28T11:26:51.3345118Z   IOS_PROFILE: 
+2026-11-28T11:26:51.3345345Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:26:51.3345591Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:26:51.3345841Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:26:51.3346143Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:26:51.3346440Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:26:51.3346718Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:26:51.3347017Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:26:51.3347325Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:26:51.3347596Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:26:51.3347869Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:26:51.3348173Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:26:51.3348550Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:26:51.3348917Z ##[endgroup]
+2026-11-28T11:26:53.1073427Z ***
+2026-11-28T11:26:53.1073849Z  "go": "true",
+2026-11-28T11:26:53.1074108Z  "tools": "",
+2026-11-28T11:26:53.1074660Z  "has_final": "false"
+2026-11-28T11:26:53.1074924Z ***
+2026-11-28T11:26:53.1588804Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml"
+2026-11-28T11:26:53.1589825Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml"[0m
+2026-11-28T11:26:53.1605419Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:26:53.1605889Z env:
+2026-11-28T11:26:53.1606116Z   CI_INPUTS: ***
+2026-11-28T11:26:53.1606360Z   CI_MATRIX: ***
+2026-11-28T11:26:53.1607402Z   CI_JOB: ***"title": "vieww-audio \u00b7 backends-windows-loopback", "project": "vieww-audio", "id": "backends-windows-loopback", "file": "vieww_base/crates/vieww-audio/ci/jobs/backends-windows-loopback.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:26:53.1608491Z   CI_PROJECT: vieww-audio
+2026-11-28T11:26:53.1609615Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:26:53.1613668Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:26:53.1613952Z   CI_SECRET_NAMES: 
+2026-11-28T11:26:53.1614193Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:26:53.1614447Z   ANDROID_KEYSTORE: 
+2026-11-28T11:26:53.1614711Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:26:53.1615011Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:26:53.1615498Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:26:53.1615803Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:26:53.1616126Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:26:53.1616370Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:26:53.1616610Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:26:53.1616851Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:26:53.1617090Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:26:53.1617358Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:26:53.1617587Z   AWS_ROLE_ARN: 
+2026-11-28T11:26:53.1617825Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:26:53.1618127Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:26:53.1618377Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:26:53.1618627Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:26:53.1618875Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:26:53.1619124Z   FIREBASE_PROJECT: 
+2026-11-28T11:26:53.1619359Z   FIREBASE_SA_KEY: 
+2026-11-28T11:26:53.1619580Z   IOS_CERT_P12: 
+2026-11-28T11:26:53.1619805Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:26:53.1620034Z   IOS_IDENTITY: 
+2026-11-28T11:26:53.1620250Z   IOS_PROFILE: 
+2026-11-28T11:26:53.1620476Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:26:53.1620717Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:26:53.1620964Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:26:53.1621260Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:26:53.1621545Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:26:53.1621823Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:26:53.1622124Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:26:53.1622428Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:26:53.1622700Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:26:53.1622996Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:26:53.1623304Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:26:53.1623684Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:26:53.1624048Z   CI_PART: main
+2026-11-28T11:26:53.1624274Z ##[endgroup]
+2026-11-28T11:26:53.3410172Z ##[group]Install Rust toolchain
+2026-11-28T11:26:54.0653830Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:26:54.5479716Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:26:54.5592655Z info: downloading 3 components
+2026-11-28T11:27:02.2564020Z 
+2026-11-28T11:27:02.2873592Z   1.98.1-x86_64-pc-windows-msvc installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:27:02.2874004Z 
+2026-11-28T11:27:02.4291892Z info: using existing install for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:27:02.4353797Z info: default toolchain set to 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:27:02.4354387Z 
+2026-11-28T11:27:02.4562218Z   1.98.1-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:27:02.4562686Z 
+2026-11-28T11:27:02.4612594Z info: note that the toolchain '1.98.1-x86_64-pc-windows-msvc' is currently in use (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
+2026-11-28T11:27:02.4680322Z ##[endgroup]
+2026-11-28T11:27:02.4700271Z ##[group]Install VB-CABLE
+2026-11-28T11:27:02.8030665Z Cloning into 'D:\a\_temp\sch'...
+2026-11-28T11:27:03.7145548Z Downloading https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack46.zip
+2026-11-28T11:27:03.9412464Z File saved at D:\a\_temp\sch\windows\vbcable.zip
+2026-11-28T11:27:05.0810086Z Installing vbcable\vbMmeCable64_win10.inf
+2026-11-28T11:27:05.8847306Z Device node created. Install is complete when drivers are installed...
+2026-11-28T11:27:05.8849286Z Updating drivers for VBAudioVACWDM from D:\a\_temp\sch\windows\vbcable\vbMmeCable64_win10.inf.
+2026-11-28T11:27:05.8850434Z Drivers installed successfully.
+2026-11-28T11:27:06.6921526Z 
+2026-11-28T11:27:06.6922162Z Status FriendlyName           InstanceId     
+2026-11-28T11:27:06.6922848Z ------ ------------           ----------     
+2026-11-28T11:27:06.6923472Z OK     VB-Audio Virtual Cable ROOT\MEDIA\0000
+2026-11-28T11:27:06.6924186Z 
+2026-11-28T11:27:06.6924202Z 
+2026-11-28T11:27:06.6924215Z 
+2026-11-28T11:27:09.2349536Z 
+2026-11-28T11:27:09.2411957Z [32;1mStatus[0m[32;1m Class        [0m[32;1m FriendlyName                           [0m[32;1m InstanceId[0m
+2026-11-28T11:27:09.2413387Z [32;1m------[0m [32;1m-----        [0m [32;1m------------                           [0m [32;1m----------[0m
+2026-11-28T11:27:09.2415310Z OK     AudioEndpoint CABLE In 16 Ch (VB-Audio Virtual Cable) SWD\MMDEVAPI\***0.0.0.00000000***.***F47EB355-2AD7-4885-A0E4-28…
+2026-11-28T11:27:09.2416334Z OK     AudioEndpoint CABLE Output (VB-Audio Virtual Cable)   SWD\MMDEVAPI\***0.0.1.00000000***.***744EB427-1266-4A64-AAB6-4D…
+2026-11-28T11:27:09.2417271Z OK     AudioEndpoint Speakers (VB-Audio Virtual Cable)       SWD\MMDEVAPI\***0.0.0.00000000***.***38073DF6-5412-4E28-8B9C-4A…
+2026-11-28T11:27:09.2418949Z 
+2026-11-28T11:27:09.3204722Z ##[endgroup]
+2026-11-28T11:27:09.3222979Z ##[group]Allow microphone access (capture)
+2026-11-28T11:27:09.6654789Z 
+2026-11-28T11:27:09.6663578Z [32;1mLetAppsAccessMicrophone : [0m1
+2026-11-28T11:27:09.6666496Z [32;1mPSPath                  : [0mMicrosoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Ap
+2026-11-28T11:27:09.6667454Z                           pPrivacy
+2026-11-28T11:27:09.6668611Z [32;1mPSParentPath            : [0mMicrosoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows
+2026-11-28T11:27:09.6669724Z [32;1mPSChildName             : [0mAppPrivacy
+2026-11-28T11:27:09.6670439Z [32;1mPSDrive                 : [0mHKLM
+2026-11-28T11:27:09.6671295Z [32;1mPSProvider              : [0mMicrosoft.PowerShell.Core\Registry
+2026-11-28T11:27:09.6671847Z 
+2026-11-28T11:27:09.7141928Z ##[endgroup]
+2026-11-28T11:27:09.7159984Z ##[group]Endpoints list and open by id
+2026-11-28T11:27:10.4259811Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:27:10.8789236Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:27:10.9036591Z info: downloading 3 components
+2026-11-28T11:27:15.1151618Z [1m[92m    Updating[0m crates.io index
+2026-11-28T11:27:16.5019491Z [1m[92m Downloading[0m crates ...
+2026-11-28T11:27:16.6295816Z [1m[92m  Downloaded[0m unicode-segmentation v1.13.3
+2026-11-28T11:27:16.7620450Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-28T11:27:16.7621715Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-28T11:27:16.7625001Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-28T11:27:17.1619536Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-28T11:28:59.1435699Z [1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 1m 44s
+2026-11-28T11:28:59.2075942Z [1m[92m     Running[0m unittests src\lib.rs (target\release\deps\vieww_audio-e2dc310f7f7e1a80.exe)
+2026-11-28T11:28:59.2228163Z 
+2026-11-28T11:28:59.2228461Z running 11 tests
+2026-11-28T11:28:59.2232055Z test backend::wasapi::tests::a_default_endpoint_flip_is_followed_at_once ... ignored, needs two render endpoints (self-hosted Windows)
+2026-11-28T11:28:59.2237863Z test backend::wasapi::tests::exclusive_formats_describe_what_is_written ... ok
+2026-11-28T11:28:59.2239310Z test backend::wasapi::tests::low_latency_shared_on_a_real_endpoint ... ignored, needs a real render endpoint (self-hosted Windows)
+2026-11-28T11:28:59.2251105Z test backend::wasapi::tests::mix_format_float_detection ... ok
+2026-11-28T11:28:59.2307522Z test backend::wasapi::tests::endpoint_notifications_register_and_unregister ... ok
+2026-11-28T11:28:59.2315215Z test backend::wasapi::tests::the_format_struct_has_the_sdk_layout ... ok
+2026-11-28T11:28:59.2319686Z test backend::wasapi::tests::the_notification_client_answers_its_interfaces_only ... ok
+2026-11-28T11:28:59.2322670Z test backend::wasapi::tests::the_property_structs_have_the_sdk_layout ... ok
+2026-11-28T11:28:59.5046795Z test backend::wasapi::tests::plays_on_the_default_endpoint_or_refuses_cleanly ... ok
+2026-11-28T11:28:59.5049936Z test backend::wasapi::tests::lists_endpoints_and_opens_one_by_id_or_refuses_cleanly ... ok
+2026-11-28T11:28:59.7925397Z wasapi shared: buffer Some(280) frames, latency Some(5.833333ms), callbacks 114
+2026-11-28T11:28:59.7958213Z test backend::wasapi::tests::a_small_block_shared_stream_reports_buffer_and_latency ... ok
+2026-11-28T11:28:59.7958935Z 
+2026-11-28T11:28:59.7959485Z test result: ok. 9 passed; 0 failed; 2 ignored; 0 measured; 599 filtered out; finished in 0.57s
+2026-11-28T11:28:59.7960180Z 
+2026-11-28T11:28:59.8204754Z ##[endgroup]
+2026-11-28T11:28:59.8233293Z ##[group]Loopback, shared mode
+2026-11-28T11:29:00.2574472Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-28T11:29:58.8765630Z [1m[92m    Finished[0m `release` profile [optimized + debuginfo] target(s) in 58.95s
+2026-11-28T11:29:58.8841651Z [1m[92m     Running[0m tests\device_loopback.rs (target\release\deps\device_loopback-1fa765445b04dd6b.exe)
+2026-11-28T11:29:58.8989586Z 
+2026-11-28T11:29:58.8990054Z running 1 test
+2026-11-28T11:30:01.9868188Z wasapi: output StreamStats *** callbacks: 1127, frames: 144408, xruns: 0, ended: false, priority: Some(Realtime), render_mean: 5.111µs, render_max: 25.7µs, load_peak: 0.009, late: 0, latency: Some(5.833333ms), exclusive: false, disconnected: false, buffer_frames: Some(280), period_frames: Some(128) ***
+2026-11-28T11:30:01.9903465Z wasapi: input StreamStats *** callbacks: 300, frames: 144000, xruns: 0, ended: false, priority: None, render_mean: 0ns, render_max: 0ns, load_peak: 0.0, late: 0, latency: Some(22ms), exclusive: false, disconnected: false, buffer_frames: Some(1056), period_frames: None ***
+2026-11-28T11:30:01.9943758Z wasapi default loopback left: Report *** windows: 288, snr_db: 28.926389402838375, amp_spread_db: 16.384062934368856, phase_spread: 1.8829846149358105, worst_window_snr_db: -7.475875535842248, drift_rad_s: -0.3298063849867313 ***
+2026-11-28T11:30:01.9945380Z 
+2026-11-28T11:30:01.9946035Z thread 'default_device_loopback' (1604) panicked at crates\vieww-audio\tests\device_loopback.rs:140:9:
+2026-11-28T11:30:01.9947190Z wasapi default loopback left: SNR 28.9 dB < 40
+2026-11-28T11:30:01.9947872Z stack backtrace:
+2026-11-28T11:30:02.6415907Z    0: std::panicking::panic_handler
+2026-11-28T11:30:02.6417036Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-11-28T11:30:02.6417696Z    1: core::panicking::panic_fmt
+2026-11-28T11:30:02.6418295Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-11-28T11:30:02.6422380Z    2: device_loopback::Report::check
+2026-11-28T11:30:02.6423348Z              at .\tests\device_loopback.rs:140
+2026-11-28T11:30:02.6424472Z    3: device_loopback::check_stereo
+2026-11-28T11:30:02.6424996Z              at .\tests\device_loopback.rs:265
+2026-11-28T11:30:02.6425526Z    4: device_loopback::default_device_loopback
+2026-11-28T11:30:02.6426528Z              at .\tests\device_loopback.rs:663
+2026-11-28T11:30:02.6427221Z    5: device_loopback::default_device_loopback::closure$0
+2026-11-28T11:30:02.6428033Z              at .\tests\device_loopback.rs:599
+2026-11-28T11:30:02.6429931Z    6: core::ops::function::FnOnce::call_once<device_loopback::default_device_loopback::closure_env$0,tuple$<> >
+2026-11-28T11:30:02.6430841Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-28T11:30:02.6471928Z    7: core::ops::function::FnOnce::call_once
+2026-11-28T11:30:02.6473018Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-28T11:30:02.6536005Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-28T11:30:02.7283404Z test default_device_loopback ... FAILED
+2026-11-28T11:30:02.7283976Z 
+2026-11-28T11:30:02.7284810Z failures:
+2026-11-28T11:30:02.7285030Z 
+2026-11-28T11:30:02.7285215Z failures:
+2026-11-28T11:30:02.7285562Z     default_device_loopback
+2026-11-28T11:30:02.7285837Z 
+2026-11-28T11:30:02.7286207Z test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 3.83s
+2026-11-28T11:30:02.7286681Z 
+2026-11-28T11:30:02.7323226Z [1m[91merror[0m: test failed, to rerun pass `-p vieww-audio --test device_loopback`
+2026-11-28T11:30:02.7478845Z ##[endgroup]
+2026-11-28T11:30:02.7518536Z ##[error]Loopback, shared mode failed (exit 101)
+2026-11-28T11:30:02.8141096Z ##[error]Process completed with exit code 1.
+2026-11-28T11:30:02.8494132Z Post job cleanup.
+2026-11-28T11:30:03.0601268Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-28T11:30:03.1034868Z git version 2.56.1.windows.1
+2026-11-28T11:30:03.1114843Z Temporarily overriding HOME='D:\a\_temp\94b517e4-acb6-4467-a868-66c4ddceb5f8' before making global git config changes
+2026-11-28T11:30:03.1116253Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-28T11:30:03.1127795Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-28T11:30:03.1533405Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-28T11:30:03.1931181Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-28T11:30:03.8525272Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-28T11:30:03.8885049Z http.https://github.com/.extraheader
+2026-11-28T11:30:03.8933852Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-28T11:30:03.9329192Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-28T11:30:04.5711592Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-28T11:30:04.6111383Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-28T11:30:05.2028627Z Cleaning up orphan processes
+2026-11-28T11:30:05.2425033Z Terminate orphan process: pid (2480) (vctip)
+2026-11-28T11:30:05.3056143Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,400 @@
+2026-11-28T11:28:07.6609813Z  "up0_ifnf": "ignore",
+2026-11-28T11:28:07.6609947Z  "up0_days": "",
+2026-11-28T11:28:07.6610081Z  "up0_hidden": "false"
+2026-11-28T11:28:07.6610213Z ***
+2026-11-28T11:28:07.6955549Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/crates/vieww-audio-plugin/ci/jobs/plugins.toml"
+2026-11-28T11:28:07.6956052Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/crates/vieww-audio-plugin/ci/jobs/plugins.toml"[0m
+2026-11-28T11:28:07.6963513Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:28:07.6963753Z env:
+2026-11-28T11:28:07.6963890Z   CI_INPUTS: ***
+2026-11-28T11:28:07.6964045Z   CI_MATRIX: ***"os": "windows-latest"***
+2026-11-28T11:28:07.6964772Z   CI_JOB: ***"title": "vieww-audio-plugin \u00b7 plugins (windows-latest)", "project": "vieww-audio-plugin", "id": "plugins", "file": "vieww_base/crates/vieww-audio-plugin/ci/jobs/plugins.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "vieww-plugins-$*** matrix.os ***", "path": "vieww_base/target/plugins/bundles", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-28T11:28:07.6965510Z   CI_PROJECT: vieww-audio-plugin
+2026-11-28T11:28:07.6966091Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:28:07.6967947Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:28:07.6968090Z   CI_SECRET_NAMES: 
+2026-11-28T11:28:07.6968225Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:28:07.6968375Z   ANDROID_KEYSTORE: 
+2026-11-28T11:28:07.6968518Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:28:07.6968672Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:28:07.6968810Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:28:07.6968956Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:28:07.6969112Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:28:07.6969252Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:28:07.6969387Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:28:07.6969525Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:28:07.6969665Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:28:07.6969809Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:28:07.6969945Z   AWS_ROLE_ARN: 
+2026-11-28T11:28:07.6970081Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:28:07.6970227Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:28:07.6970366Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:28:07.6970511Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:28:07.6970657Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:28:07.6970806Z   FIREBASE_PROJECT: 
+2026-11-28T11:28:07.6970941Z   FIREBASE_SA_KEY: 
+2026-11-28T11:28:07.6971070Z   IOS_CERT_P12: 
+2026-11-28T11:28:07.6971204Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:28:07.6971330Z   IOS_IDENTITY: 
+2026-11-28T11:28:07.6971456Z   IOS_PROFILE: 
+2026-11-28T11:28:07.6971591Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:28:07.6971728Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:28:07.6971872Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:28:07.6972040Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:28:07.6972206Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:28:07.6972371Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:28:07.6972678Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:28:07.6972847Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:28:07.6973009Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:28:07.6973168Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:28:07.6973345Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:28:07.6973548Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:28:07.6974015Z   CI_PART: main
+2026-11-28T11:28:07.6974151Z ##[endgroup]
+2026-11-28T11:28:07.8049993Z ##[group]Install Rust toolchain
+2026-11-28T11:28:08.5148776Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:28:09.0986821Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:28:09.1105976Z info: downloading 4 components
+2026-11-28T11:28:15.8946562Z 
+2026-11-28T11:28:17.0896141Z   1.98.1-x86_64-pc-windows-msvc installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:28:17.0899640Z 
+2026-11-28T11:28:17.1123417Z info: using existing install for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:28:17.1178407Z info: default toolchain set to 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:28:17.1178732Z 
+2026-11-28T11:28:17.1305726Z   1.98.1-x86_64-pc-windows-msvc unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:28:17.1306161Z 
+2026-11-28T11:28:17.1354401Z info: note that the toolchain '1.98.1-x86_64-pc-windows-msvc' is currently in use (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
+2026-11-28T11:28:17.1401212Z ##[endgroup]
+2026-11-28T11:28:17.1413110Z ##[group]Unit tests and clippy
+2026-11-28T11:28:18.3176725Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:28:18.8022804Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:28:18.8146806Z info: component clippy is up to date
+2026-11-28T11:28:18.8227007Z info: downloading 2 components
+2026-11-28T11:28:21.7329717Z [1m[92m    Updating[0m crates.io index
+2026-11-28T11:28:22.9240987Z [1m[92m Downloading[0m crates ...
+2026-11-28T11:28:23.0311377Z [1m[92m  Downloaded[0m adler2 v2.0.1
+2026-11-28T11:28:23.0428234Z [1m[92m  Downloaded[0m font-types v0.12.5
+2026-11-28T11:28:23.0580104Z [1m[92m  Downloaded[0m cfg-if v1.0.5
+2026-11-28T11:28:23.0682377Z [1m[92m  Downloaded[0m flate2 v1.1.10
+2026-11-28T11:28:23.1033079Z [1m[92m  Downloaded[0m fdeflate v0.3.7
+2026-11-28T11:28:23.1187172Z [1m[92m  Downloaded[0m simd-adler32 v0.3.10
+2026-11-28T11:28:23.1304309Z [1m[92m  Downloaded[0m bytemuck_derive v1.12.1
+2026-11-28T11:28:23.1368677Z [1m[92m  Downloaded[0m once_cell v1.21.4
+2026-11-28T11:28:23.1549641Z [1m[92m  Downloaded[0m quote v1.0.47
+2026-11-28T11:28:23.2471856Z [1m[92m  Downloaded[0m crc32fast v1.5.2
+2026-11-28T11:28:23.2567314Z [1m[92m  Downloaded[0m unicode-ident v1.0.26
+2026-11-28T11:28:23.2751842Z [1m[92m  Downloaded[0m bitflags v2.13.2
+2026-11-28T11:28:23.3061015Z [1m[92m  Downloaded[0m proc-macro2 v1.0.107
+2026-11-28T11:28:23.3265425Z [1m[92m  Downloaded[0m bytemuck v1.25.2
+2026-11-28T11:28:23.3449922Z [1m[92m  Downloaded[0m miniz_oxide v0.8.9
+2026-11-28T11:28:23.3600172Z [1m[92m  Downloaded[0m miniz_oxide v0.9.1
+2026-11-28T11:28:23.3696320Z [1m[92m  Downloaded[0m unicode-segmentation v1.13.3
+2026-11-28T11:28:23.3845812Z [1m[92m  Downloaded[0m png v0.18.1
+2026-11-28T11:28:23.4036996Z [1m[92m  Downloaded[0m ttf-parser v0.25.1
+2026-11-28T11:28:23.4670681Z [1m[92m  Downloaded[0m zlib-rs v0.6.8
+2026-11-28T11:28:23.4990638Z [1m[92m  Downloaded[0m skrifa v0.44.0
+2026-11-28T11:28:23.5448476Z [1m[92m  Downloaded[0m syn v3.0.6
+2026-11-28T11:28:23.6018249Z [1m[92m  Downloaded[0m read-fonts v0.41.0
+2026-11-28T11:28:23.8280339Z [1m[92m   Compiling[0m proc-macro2 v1.0.107
+2026-11-28T11:28:23.8281247Z [1m[92m   Compiling[0m unicode-ident v1.0.26
+2026-11-28T11:28:23.8281533Z [1m[92m   Compiling[0m quote v1.0.47
+2026-11-28T11:28:23.8281774Z [1m[92m   Compiling[0m simd-adler32 v0.3.10
+2026-11-28T11:28:23.9225435Z [1m[92m   Compiling[0m adler2 v2.0.1
+2026-11-28T11:28:24.0727255Z [1m[92m   Compiling[0m crc32fast v1.5.2
+2026-11-28T11:28:24.2050648Z [1m[92m   Compiling[0m cfg-if v1.0.5
+2026-11-28T11:28:24.2360132Z [1m[92m   Compiling[0m miniz_oxide v0.9.1
+2026-11-28T11:28:25.9203835Z [1m[92m   Compiling[0m unicode-segmentation v1.13.3
+2026-11-28T11:28:26.4333894Z [1m[92m   Compiling[0m once_cell v1.21.4
+2026-11-28T11:28:26.4964867Z [1m[92m   Compiling[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-28T11:28:26.5553456Z [1m[92m   Compiling[0m flate2 v1.1.10
+2026-11-28T11:28:26.9909386Z [1m[92m   Compiling[0m miniz_oxide v0.8.9
+2026-11-28T11:28:28.3848301Z [1m[92m   Compiling[0m syn v3.0.6
+2026-11-28T11:28:29.6869622Z [1m[92m   Compiling[0m fdeflate v0.3.7
+2026-11-28T11:28:29.7733112Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-28T11:28:29.9256413Z [1m[92m   Compiling[0m bitflags v2.13.2
+2026-11-28T11:28:30.3534777Z [1m[92m   Compiling[0m png v0.18.1
+2026-11-28T11:28:30.9565642Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-28T11:28:31.4917103Z [1m[92m   Compiling[0m ttf-parser v0.25.1
+2026-11-28T11:28:43.5601682Z [1m[92m   Compiling[0m bytemuck_derive v1.12.1
+2026-11-28T11:28:49.9814854Z [1m[92m   Compiling[0m bytemuck v1.25.2
+2026-11-28T11:28:50.1295940Z [1m[92m   Compiling[0m font-types v0.12.5
+2026-11-28T11:28:50.4154180Z [1m[92m   Compiling[0m read-fonts v0.41.0
+2026-11-28T11:28:54.6608134Z [1m[92m   Compiling[0m skrifa v0.44.0
+2026-11-28T11:28:58.1311680Z [1m[92m   Compiling[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-11-28T11:29:17.9275214Z [1m[92m   Compiling[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
+2026-11-28T11:29:20.7555858Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 59.14s
+2026-11-28T11:29:20.8203082Z [1m[92m     Running[0m unittests src\lib.rs (target\debug\deps\vieww_audio_plugin-a0407d24a1b5c5dd.exe)
+2026-11-28T11:29:20.8283402Z 
+2026-11-28T11:29:20.8283935Z running 76 tests
+2026-11-28T11:29:20.8287115Z test aax::tests::the_refusal_is_named_and_precise ... ok
+2026-11-28T11:29:20.8287806Z test auv3::events::tests::a_short_sysex_is_one_complete_packet ... ok
+2026-11-28T11:29:20.8288416Z test auv3::events::tests::a_long_sysex_spans_start_continue_end_packets ... ok
+2026-11-28T11:29:20.8290145Z test auv3::events::tests::an_empty_render_event_list_delivers_nothing ... ok
+2026-11-28T11:29:20.8290644Z test auv3::events::tests::a_full_or_overlong_schedule_drops_and_counts ... ok
+2026-11-28T11:29:20.8291583Z test auv3::events::tests::an_immediate_window_event_lands_at_frame_zero ... ok
+2026-11-28T11:29:20.8292080Z test auv3::events::tests::channel_voice_round_trips ... ok
+2026-11-28T11:29:20.8292606Z test auv3::events::tests::clear_empties_the_ring ... ok
+2026-11-28T11:29:20.8293035Z test auv3::events::tests::immediate_events_land_at_frame_zero_and_past_events_clamp ... ok
+2026-11-28T11:29:20.8293936Z test auv3::events::tests::render_event_layout_offsets_match_the_header ... ok
+2026-11-28T11:29:20.8294495Z test auv3::events::tests::system_common_round_trips ... ok
+2026-11-28T11:29:20.8294951Z test auv3::events::tests::the_immediate_constant_is_the_headers_and_forms_a_window ... ok
+2026-11-28T11:29:20.8295829Z test auv3::events::tests::the_render_event_walk_delivers_midi_parameters_and_sysex ... ok
+2026-11-28T11:29:20.8296468Z test auv3::events::tests::the_schedule_delivers_due_events_in_time_order ... ok
+2026-11-28T11:29:20.8297357Z test auv3::events::tests::unknown_render_event_types_are_skipped_not_guessed ... ok
+2026-11-28T11:29:20.8297866Z test auv3::events::tests::zero_word_counts_and_overruns_are_refused ... ok
+2026-11-28T11:29:20.8298389Z test auv3::manifest::tests::tags_map_to_apples_vocabulary_with_a_default ... ok
+2026-11-28T11:29:20.8299762Z test auv3::manifest::tests::codes_derive_from_the_id_and_vendor ... ok
+2026-11-28T11:29:20.8300772Z test auv3::manifest::tests::versions_pack_and_refuse_to_guess ... ok
+2026-11-28T11:29:20.8301210Z test auv3::manifest::tests::the_entry_and_the_snippet_agree ... ok
+2026-11-28T11:29:20.8301893Z test auv3::tests::descriptions_carry_the_kind_and_derivation ... ok
+2026-11-28T11:29:20.8302383Z test auv3::tests::four_char_codes_are_big_endian ... ok
+2026-11-28T11:29:20.8304073Z test auv3::view::tests::the_queue_coalesces_at_capacity ... ok
+2026-11-28T11:29:20.8304580Z test clap::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-28T11:29:20.8309188Z test clap::tests::an_instrument_receives_notes_and_transport ... ok
+2026-11-28T11:29:20.8309772Z test clap::tests::an_effect_processes_automates_and_reports_through_extensions ... ok
+2026-11-28T11:29:20.8314033Z test clap::tests::state_round_trips_through_clap_streams ... ok
+2026-11-28T11:29:20.8316238Z test clap::tests::the_factory_lists_both_plugins_with_their_features ... ok
+2026-11-28T11:29:20.8322592Z test auv3::view::tests::the_panel_attaches_offscreen_and_renders_deterministically ... ok
+2026-11-28T11:29:20.8325086Z test gui::tests::frames_read_pixels_and_refuse_outside ... ok
+2026-11-28T11:29:20.8328494Z test gui::tests::parents_report_what_they_carry ... ok
+2026-11-28T11:29:20.8355457Z test clap::tests::gui_edits_reach_the_plugin_and_automation_reaches_the_panel ... ok
+2026-11-28T11:29:20.8356293Z test auv3::view::tests::a_drag_round_trips_into_the_edit_queue ... ok
+2026-11-28T11:29:20.8358069Z test gui::tests::pointer_positions_read_back ... ok
+2026-11-28T11:29:20.8359195Z test gui::vieww::tests::a_press_outside_the_rows_edits_nothing ... ok
+2026-11-28T11:29:20.8360003Z test gui::vieww::tests::degenerate_ranges_render_and_hit_at_the_middle ... ok
+2026-11-28T11:29:20.8361285Z test gui::vieww::tests::drags_clamp_and_snap_to_the_taper ... ok
+2026-11-28T11:29:20.8372215Z test gui::vieww::tests::a_drag_round_trips_through_the_host_and_back ... ok
+2026-11-28T11:29:20.8375562Z test gui::vieww::tests::readout_digits_are_the_classic_patterns ... ok
+2026-11-28T11:29:20.8385150Z test gui::vieww::tests::native_parents_are_refused_and_close_notifies ... ok
+2026-11-28T11:29:20.8414303Z test clap::tests::the_gui_extension_lives_the_clap_lifecycle_offscreen ... ok
+2026-11-28T11:29:20.8415817Z test lv2::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-28T11:29:20.8417367Z test gui::vieww::tests::frames_are_deterministic ... ok
+2026-11-28T11:29:20.8418195Z test lv2::tests::a_corrupt_sequence_is_ignored_rather_than_read_past ... ok
+2026-11-28T11:29:20.8423003Z test lv2::tests::an_instrument_receives_midi_notes_and_folds_them_into_events ... ok
+2026-11-28T11:29:20.8425848Z test lv2::tests::an_effect_automates_sample_accurately_and_reports_latency ... ok
+2026-11-28T11:29:20.8426386Z test lv2::tests::descriptors_list_their_uris_and_refuse_unknown_ones ... ok
+2026-11-28T11:29:20.8427947Z test lv2::tests::instantiate_refuses_without_a_urid_map ... ok
+2026-11-28T11:29:20.8428366Z test lv2::tests::midi_note_on_velocity_zero_is_a_note_off ... ok
+2026-11-28T11:29:20.8434556Z test lv2::tests::parameters_round_trip_through_patch_messages ... ok
+2026-11-28T11:29:20.8435534Z test lv2::tests::state_round_trips_through_the_extension ... ok
+2026-11-28T11:29:20.8444155Z test lv2::ttl::tests::effect_ttl_matches_the_wrapper_layout ... ok
+2026-11-28T11:29:20.8450362Z test lv2::ttl::tests::instrument_ttl_supports_midi_and_has_no_audio_inputs ... ok
+2026-11-28T11:29:20.8452548Z test lv2::ttl::tests::manifest_names_the_uri_binary_and_tll ... ok
+2026-11-28T11:29:20.8455317Z test lv2::ttl::tests::numbers_and_versions_are_plain_turtle ... ok
+2026-11-28T11:29:20.8461061Z test lv2::ttl::tests::bundle_files_land_on_disk_with_the_generated_text ... ok
+2026-11-28T11:29:20.8462048Z test lv2::ttl::tests::plugin_class_comes_from_kind_and_features ... ok
+2026-11-28T11:29:20.8465224Z test sanitize_tests::non_finite_plugin_output_becomes_silence ... ok
+2026-11-28T11:29:20.8465690Z test tests::automation_is_sample_accurate ... ok
+2026-11-28T11:29:20.8467235Z test tests::buffers_window_and_pass_through ... ok
+2026-11-28T11:29:20.8467835Z test tests::c_strings_truncate_on_char_boundaries ... ok
+2026-11-28T11:29:20.8470284Z test tests::default_state_round_trips_parameters ... ok
+2026-11-28T11:29:20.8471120Z test tests::denormals_flush_inside_the_guard_and_return_after ... ok
+2026-11-28T11:29:20.8474352Z test tests::events_arrive_relative_to_their_slice ... ok
+2026-11-28T11:29:20.8475618Z test vst3::sys::layout::sizes_and_offsets_match_the_headers ... ok
+2026-11-28T11:29:20.8478566Z test vst3::sys::layout::uids_use_the_platform_byte_order ... ok
+2026-11-28T11:29:20.8479338Z test vst3::sys::layout::utf16_buffers ... ok
+2026-11-28T11:29:20.8483625Z test vst3::tests::an_effect_processes_with_sample_accurate_automation ... ok
+2026-11-28T11:29:20.8489326Z test vst3::tests::midi_parameter_values_become_midi_bytes ... ok
+2026-11-28T11:29:20.8491198Z test gui::vieww::tests::resize_and_scale_change_the_frame_and_geometry_keeps_working ... ok
+2026-11-28T11:29:20.8491834Z test vst3::tests::process_context_becomes_transport ... ok
+2026-11-28T11:29:20.8493463Z test vst3::tests::subcategories_follow_features ... ok
+2026-11-28T11:29:20.8495445Z test vst3::tests::state_moves_between_instances_and_the_controller_follows ... ok
+2026-11-28T11:29:20.8496227Z test vst3::tests::the_factory_describes_both_classes ... ok
+2026-11-28T11:29:20.8520265Z test vst3::tests::an_instrument_gets_notes_cc_parameters_and_context ... ok
+2026-11-28T11:29:20.8541676Z test gui::vieww::tests::the_frame_is_sized_and_opaque ... ok
+2026-11-28T11:29:20.8541901Z 
+2026-11-28T11:29:20.8542127Z test result: ok. 76 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+2026-11-28T11:29:20.8542431Z 
+2026-11-28T11:29:21.9015262Z [1m[92m    Checking[0m simd-adler32 v0.3.10
+2026-11-28T11:29:21.9015832Z [1m[92m    Checking[0m adler2 v2.0.1
+2026-11-28T11:29:21.9018900Z [1m[92m    Checking[0m cfg-if v1.0.5
+2026-11-28T11:29:21.9019293Z [1m[92m    Checking[0m bytemuck v1.25.2
+2026-11-28T11:29:21.9364565Z [1m[92m    Checking[0m crc32fast v1.5.2
+2026-11-28T11:29:21.9657510Z [1m[92m    Checking[0m unicode-segmentation v1.13.3
+2026-11-28T11:29:22.0295509Z [1m[92m    Checking[0m miniz_oxide v0.9.1
+2026-11-28T11:29:22.0414627Z [1m[92m    Checking[0m font-types v0.12.5
+2026-11-28T11:29:22.0486298Z [1m[92m    Checking[0m once_cell v1.21.4
+2026-11-28T11:29:22.1403800Z [1m[92m    Checking[0m miniz_oxide v0.8.9
+2026-11-28T11:29:22.3038610Z [1m[92m    Checking[0m vieww-foundation v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-foundation)
+2026-11-28T11:29:22.3383276Z [1m[92m    Checking[0m read-fonts v0.41.0
+2026-11-28T11:29:22.4320538Z [1m[92m    Checking[0m flate2 v1.1.10
+2026-11-28T11:29:22.5389722Z [1m[92m    Checking[0m fdeflate v0.3.7
+2026-11-28T11:29:22.7346243Z [1m[92m    Checking[0m bitflags v2.13.2
+2026-11-28T11:29:22.8116779Z [1m[92m   Compiling[0m vieww-audio v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio)
+2026-11-28T11:29:22.8505967Z [1m[92m    Checking[0m png v0.18.1
+2026-11-28T11:29:22.9949319Z [1m[92m   Compiling[0m vieww-audio-macros v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-macros)
+2026-11-28T11:29:23.5097453Z [1m[92m    Checking[0m ttf-parser v0.25.1
+2026-11-28T11:29:27.1536338Z [1m[92m    Checking[0m skrifa v0.44.0
+2026-11-28T11:29:28.5693190Z [1m[92m    Checking[0m vieww-paint v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-paint)
+2026-11-28T11:29:29.5155238Z [1m[92m    Checking[0m vieww-audio-plugin v0.1.0 (D:\a\vieww_prod\vieww_prod\vieww_base\crates\vieww-audio-plugin)
+2026-11-28T11:29:30.6640331Z [1m[92m    Finished[0m `dev` profile [unoptimized + debuginfo] target(s) in 9.03s
+2026-11-28T11:29:30.7089645Z ##[endgroup]
+2026-11-28T11:29:30.7102059Z ##[group]Build, bundle and validate (CLAP + VST3 + LV2)
+2026-11-28T11:29:30.8667899Z == building the example plugins (static std, release)
+2026-11-28T11:30:17.2951241Z == bundling
+2026-11-28T11:30:17.4282457Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_gain.lv2
+2026-11-28T11:30:17.4828099Z   /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.clap  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.vst3  /d/a/vieww_prod/vieww_prod/vieww_base/target/plugins/bundles/vieww_synth.lv2
+2026-11-28T11:30:17.4833535Z == Rust hosts loading the built plugins
+2026-11-28T11:30:19.5617823Z 
+2026-11-28T11:30:19.5618562Z running 2 tests
+2026-11-28T11:30:19.5834075Z ..
+2026-11-28T11:30:19.5834952Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-28T11:30:19.5835199Z 
+2026-11-28T11:30:19.5942836Z == Rust LV2 host writing and loading the built bundles
+2026-11-28T11:30:21.4253137Z 
+2026-11-28T11:30:21.4253874Z running 1 test
+2026-11-28T11:30:21.4280825Z .
+2026-11-28T11:30:21.4281170Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-28T11:30:21.4281395Z 
+2026-11-28T11:30:21.4351725Z 
+2026-11-28T11:30:21.4351911Z running 1 test
+2026-11-28T11:30:21.4399155Z .
+2026-11-28T11:30:21.4399507Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-28T11:30:21.4399723Z 
+2026-11-28T11:30:21.4627728Z == C/C++ hosts compiled against the official headers
+2026-11-28T11:30:35.4450593Z -- layouts on this platform (compare with src/*/sys.rs layout tests)
+2026-11-28T11:30:35.4677218Z clap_event_header_t 16
+2026-11-28T11:30:35.4678046Z clap_event_note_t 40
+2026-11-28T11:30:35.4678846Z note.velocity 32
+2026-11-28T11:30:35.4679209Z clap_event_param_value_t 56
+2026-11-28T11:30:35.4679527Z param.value 48
+2026-11-28T11:30:35.4679814Z clap_event_transport_t 104
+2026-11-28T11:30:35.4680093Z clap_event_midi_t 24
+2026-11-28T11:30:35.4680396Z clap_param_info_t 1320
+2026-11-28T11:30:35.5027919Z PFactoryInfo 452 align 4
+2026-11-28T11:30:35.5028294Z   PFactoryInfo.url 64
+2026-11-28T11:30:35.5028796Z   PFactoryInfo.email 320
+2026-11-28T11:30:35.5030454Z   PFactoryInfo.flags 448
+2026-11-28T11:30:35.5031701Z PClassInfo 116 align 4
+2026-11-28T11:30:35.5033645Z   PClassInfo.cardinality 16
+2026-11-28T11:30:35.5034208Z   PClassInfo.category 20
+2026-11-28T11:30:35.5034809Z   PClassInfo.name 52
+2026-11-28T11:30:35.5035115Z PClassInfo2 440 align 4
+2026-11-28T11:30:35.5035338Z   PClassInfo2.classFlags 116
+2026-11-28T11:30:35.5035674Z   PClassInfo2.subCategories 120
+2026-11-28T11:30:35.5036002Z   PClassInfo2.vendor 248
+2026-11-28T11:30:35.5153024Z LV2_Feature 16
+2026-11-28T11:30:35.5153346Z LV2_URID_Map 16
+2026-11-28T11:30:35.5153656Z LV2_URID_Unmap 16
+2026-11-28T11:30:35.5153971Z LV2_Descriptor 64
+2026-11-28T11:30:35.5154277Z LV2_Descriptor.instantiate 8
+2026-11-28T11:30:35.5154637Z LV2_Descriptor.run 32
+2026-11-28T11:30:35.5154967Z LV2_Descriptor.extension_data 56
+2026-11-28T11:30:35.5155280Z LV2_Atom 8
+2026-11-28T11:30:35.5155564Z LV2_Atom_Float 12
+2026-11-28T11:30:35.5155848Z LV2_Atom_Double 16
+2026-11-28T11:30:35.5156118Z LV2_Atom_URID 12
+2026-11-28T11:30:35.5156411Z LV2_Atom_Object_Body 8
+2026-11-28T11:30:35.5156697Z LV2_Atom_Object 16
+2026-11-28T11:30:35.5156999Z LV2_Atom_Property_Body 16
+2026-11-28T11:30:35.5157334Z LV2_Atom_Property_Body.value 8
+2026-11-28T11:30:35.5157588Z LV2_Atom_Property 24
+2026-11-28T11:30:35.5157808Z LV2_Atom_Sequence_Body 8
+2026-11-28T11:30:35.5158015Z LV2_Atom_Sequence 16
+2026-11-28T11:30:35.5158227Z LV2_Atom_Event 16
+2026-11-28T11:30:35.5158453Z LV2_Atom_Event.body 8
+2026-11-28T11:30:35.5158651Z LV2_State_Interface 16
+2026-11-28T11:30:35.5465295Z D:/a/vieww_prod/vieww_prod/vieww_base/crates/vieww-audio-plugin/tools/denormal_bench.c:10:10: fatal error: dlfcn.h: No such file or directory
+2026-11-28T11:30:35.5466004Z    10 | #include <dlfcn.h>
+2026-11-28T11:30:35.5466249Z       |          ^~~~~~~~~
+2026-11-28T11:30:35.5466484Z compilation terminated.
+2026-11-28T11:30:35.5527981Z ##[endgroup]
+2026-11-28T11:30:35.5557994Z ##[error]Build, bundle and validate (CLAP + VST3 + LV2) failed (exit 1)
+2026-11-28T11:30:35.5564136Z ##[group]mark: upload vieww-plugins-$*** matrix.os ***
+2026-11-28T11:30:35.5766438Z ##[endgroup]
+2026-11-28T11:30:35.5953476Z ##[error]Process completed with exit code 1.
+2026-11-28T11:30:35.6095465Z ##[group]Run actions/upload-artifact@v4
+2026-11-28T11:30:35.6095751Z with:
+2026-11-28T11:30:35.6095983Z   name: vieww-plugins-windows-latest
+2026-11-28T11:30:35.6096229Z   path: vieww_base/target/plugins/bundles
+2026-11-28T11:30:35.6096486Z   if-no-files-found: ignore
+2026-11-28T11:30:35.6096731Z   include-hidden-files: false
+2026-11-28T11:30:35.6096951Z   compression-level: 6
+2026-11-28T11:30:35.6097189Z   overwrite: false
+2026-11-28T11:30:35.6097402Z env:
+2026-11-28T11:30:35.6097599Z   CI_INPUTS: ***
+2026-11-28T11:30:35.6097836Z   CI_MATRIX: ***"os": "windows-latest"***
+2026-11-28T11:30:35.6098694Z   CI_JOB: ***"title": "vieww-audio-plugin \u00b7 plugins (windows-latest)", "project": "vieww-audio-plugin", "id": "plugins", "file": "vieww_base/crates/vieww-audio-plugin/ci/jobs/plugins.toml", "if": "", "needs": [], "setup": [], "uploads": [***"name": "vieww-plugins-$*** matrix.os ***", "path": "vieww_base/target/plugins/bundles", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-28T11:30:35.6099505Z   CI_PROJECT: vieww-audio-plugin
+2026-11-28T11:30:35.6100162Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:30:35.6102103Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:30:35.6102321Z   CI_SECRET_NAMES: 
+2026-11-28T11:30:35.6102520Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:30:35.6102744Z   ANDROID_KEYSTORE: 
+2026-11-28T11:30:35.6102954Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:30:35.6103189Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:30:35.6103412Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:30:35.6103625Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:30:35.6103860Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:30:35.6104063Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:30:35.6104283Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:30:35.6104499Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:30:35.6104707Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:30:35.6104935Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:30:35.6105131Z   AWS_ROLE_ARN: 
+2026-11-28T11:30:35.6105351Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:30:35.6105578Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:30:35.6105783Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:30:35.6106004Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:30:35.6106210Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:30:35.6106432Z   FIREBASE_PROJECT: 
+2026-11-28T11:30:35.6106640Z   FIREBASE_SA_KEY: 
+2026-11-28T11:30:35.6106826Z   IOS_CERT_P12: 
+2026-11-28T11:30:35.6107030Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:30:35.6107221Z   IOS_IDENTITY: 
+2026-11-28T11:30:35.6107422Z   IOS_PROFILE: 
+2026-11-28T11:30:35.6107640Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:30:35.6108112Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:30:35.6108364Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:30:35.6108618Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:30:35.6108854Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:30:35.6109096Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:30:35.6109333Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:30:35.6109595Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:30:35.6109833Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:30:35.6110056Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:30:35.6110314Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:30:35.6110737Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:30:35.6111019Z   CI_UPLOAD_0: yes
+2026-11-28T11:30:35.6111236Z ##[endgroup]
+2026-11-28T11:30:35.7292606Z (node:6332) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:30:35.7293055Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:30:35.7362877Z With the provided path, there will be 10 files uploaded
+2026-11-28T11:30:35.7365919Z Artifact name is valid!
+2026-11-28T11:30:35.7368294Z Root directory input is valid!
+2026-11-28T11:30:36.0071549Z Beginning upload of artifact content to blob storage
+2026-11-28T11:30:36.0771492Z (node:6332) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-28T11:30:36.4132137Z Uploaded bytes 1056854
+2026-11-28T11:30:36.4521829Z Finished uploading artifact content to blob storage!
+2026-11-28T11:30:36.4522755Z SHA256 digest of uploaded artifact zip is b95c59ef331dfa91f32ff816295797bd64f5f372bb653d752faac7fc0e727c86
+2026-11-28T11:30:36.4524259Z Finalizing artifact upload
+2026-11-28T11:30:36.8018413Z Artifact vieww-plugins-windows-latest.zip successfully finalized. Artifact ID 15261701812
+2026-11-28T11:30:36.8019174Z Artifact vieww-plugins-windows-latest has been successfully uploaded! Final size is 1056854 bytes. Artifact ID is 15261701812
+2026-11-28T11:30:36.8025601Z Artifact download URL: https://github.com/tejakota/vieww_prod/actions/runs/46139678213/artifacts/15261701812
+2026-11-28T11:30:36.8293669Z Post job cleanup.
+2026-11-28T11:30:36.9240779Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-28T11:30:36.9473163Z git version 2.56.1.windows.1
+2026-11-28T11:30:36.9513500Z Temporarily overriding HOME='D:\a\_temp\060e9708-4c41-4c70-8b50-6c65b678d3c4' before making global git config changes
+2026-11-28T11:30:36.9514104Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-28T11:30:36.9520731Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-28T11:30:36.9760385Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-28T11:30:36.9991581Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-28T11:30:37.3537345Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-28T11:30:37.3758766Z http.https://github.com/.extraheader
+2026-11-28T11:30:37.3788428Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-28T11:30:37.4023522Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-28T11:30:37.7779139Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-28T11:30:37.8014556Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-28T11:30:38.1874319Z Cleaning up orphan processes
+2026-11-28T11:30:38.2112596Z Terminate orphan process: pid (8956) (vctip)
+2026-11-28T11:30:38.2333050Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

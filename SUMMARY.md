@@ -1,0 +1,80 @@
+# main @ d0e59cd6766b4a59585b5184ae7f668cd2352043
+
+run: https://github.com/tejakota/vieww_prod/actions/runs/46139678213
+
+legs: all
+
+- success: plan / plan
+- success: phase-1 / snapsearch · android
+- success: phase-1 / soma · check
+- success: phase-1 / vavlt · android
+- success: phase-1 / vieww · goldens
+- success: phase-1 / twin · check
+- success: phase-1 / soma · ios
+- success: phase-1 / vieww · raster-instructions
+- success: phase-1 / snapsearch · check
+- success: phase-1 / vieww · framework-gate
+- success: phase-1 / three · ios
+- success: phase-1 / vavlt · ios
+- success: phase-1 / snapsearch · ios
+- success: phase-1 / three · android
+- success: phase-1 / vavlt · check
+- success: phase-1 / upxcale · check
+- success: phase-1 / mytlabs · site
+- success: phase-1 / upxcale · ios
+- success: phase-1 / soma · android
+- success: phase-1 / three · check
+- success: phase-1 / upxcale · android
+- success: phase-1 / vieww · framework-gpu-lavapipe
+- success: phase-1 / vieww · framework-web
+- success: phase-1 / vieww · framework-macos
+- success: phase-1 / vieww-audio · backends-desktop (macos-latest)
+- success: phase-1 / vieww-audio · backends-targets
+- success: phase-1 / vieww · framework-android-emulator
+- success: phase-1 / vieww · workflows
+- success: phase-1 / vieww · framework-a11y-gallery
+- success: phase-1 / vieww · framework-windows
+- success: phase-1 / vieww · framework-android
+- success: phase-1 / vieww-audio · backends-linux-servers
+- success: phase-1 / vieww · quick
+- success: phase-1 / vieww-audio · backends-desktop (windows-latest)
+- success: phase-1 / vieww-audio-plugin · plugins (ubuntu-latest)
+- success: phase-1 / vieww-audio · fuzz
+- success: phase-1 / vieww · framework-plugin-compat
+- success: phase-1 / vieww-audio · backends-macos-loopback
+- success: phase-1 / vieww-audio · mobile-logic
+- failure: phase-1 / vieww-audio · backends-windows-loopback
+- success: phase-1 / vieww-audio-plugin · plugins (ubuntu-24.04-arm)
+- success: phase-1 / viewwstudio · suite (macos-15)
+- success: phase-1 / vieww · framework-cross
+- success: phase-1 / vieww-audio-plugin · plugins (macos-latest)
+- success: phase-1 / viewwstudio · suite (ubuntu-24.04)
+- success: phase-1 / wright · update-channel-tests
+- success: phase-1 / vieww-audio · framework-audio-fuzz
+- success: phase-1 / wright · sandbox-linux-escape-suite
+- failure: phase-1 / vieww-audio-plugin · plugins (windows-latest)
+- success: phase-1 / vieww-audio · test
+- skipped: phase-1 / approve
+- success: phase-1 / vieww · framework-ios-simulator
+- failure: phase-1 / vieww-audio · backends-linux-alsa-loopback
+- success: phase-1 / vieww · framework-coverage
+- success: phase-1 / vieww-audio · mobile-android
+- success: phase-1 / wright · sandbox-macos-seatbelt-suite
+- success: phase-1 / viewwsite · site
+- failure: phase-1 / viewwstudio · suite (windows-2022)
+- success: phase-1 / wright · sandbox-quick
+- success: phase-1 / vieww · advisories (vieww_base/apps/wright)
+- success: phase-1 / wright · models-platforms (macos-arm64)
+- failure: phase-1 / wright · models-reference
+- success: phase-1 / vieww-audio · mobile-ios
+- success: phase-1 / vieww · advisories (vieww_base)
+- success: phase-1 / wright · models-platforms (linux-x64)
+- success: phase-1 / wright · models-platforms (windows-x64)
+- skipped: phase-1 / matrix.title
+- success: phase-1 / wright-flow · check
+- failure: phase-1 / wright · sandbox-windows-fail-closed
+- success: phase-1 / wrightsite · site
+- success: phase-1 / wright · sandbox-windows-doctor-fix
+- in_progress: phase-2 / vieww · framework-report
+- skipped: phase-2 / approve
+- skipped: phase-2 / matrix.title

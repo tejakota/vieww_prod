@@ -1,0 +1,400 @@
+2026-11-28T11:35:22.3222104Z test recovery::tests::a_file_round_trips_through_its_own_format ... ok
+2026-11-28T11:35:22.3229120Z test recovery::tests::a_scratch_buffer_says_so_rather_than_inventing_a_path ... ok
+2026-11-28T11:35:22.3233127Z test recovery::tests::an_empty_scratch_recovery_is_not_worth_offering ... ok
+2026-11-28T11:35:22.3236055Z test recovery::tests::text_containing_a_blank_line_survives_intact ... ok
+2026-11-28T11:35:22.3238143Z test recovery::tests::two_paths_ending_in_the_same_name_get_different_files ... ok
+2026-11-28T11:35:22.3239908Z test remote::tests::a_frame_request_round_trips ... ok
+2026-11-28T11:35:22.3243241Z test remote::tests::a_truncated_request_is_an_error_not_a_panic ... ok
+2026-11-28T11:35:22.3246767Z test remote::tests::every_event_kind_round_trips ... ok
+2026-11-28T11:35:22.3249313Z test remote::tests::framing_round_trips_and_rejects_nonsense_lengths ... ok
+2026-11-28T11:35:22.3253739Z test say_ai::tests::a_bad_answer_then_a_good_one_reaches_rustc ... ok
+2026-11-28T11:35:22.3257264Z test say_ai::tests::an_unreachable_model_is_refused_without_a_retry ... ok
+2026-11-28T11:35:22.3261841Z test recovery::tests::a_recovery_matching_the_file_on_disk_is_not_offered ... ok
+2026-11-28T11:35:22.3263656Z test say_ai::tests::fences_are_stripped_only_around_the_reply ... ok
+2026-11-28T11:35:22.3272716Z test say_ai::tests::reply_bodies_are_read_whether_chunked_or_not ... ok
+2026-11-28T11:35:22.3276197Z test say_ai::tests::the_diff_marks_what_changed_and_what_did_not ... ok
+2026-11-28T11:35:22.3285107Z test say_ai::tests::the_fake_records_and_exhausts ... ok
+2026-11-28T11:35:22.3288060Z test say_ai::tests::the_loop_retries_exactly_once_and_refuses ... ok
+2026-11-28T11:35:22.3291842Z test say_ai::tests::the_refusal_sentence_is_one_sentence ... ok
+2026-11-28T11:35:22.3293176Z test scaffold::template_tests::a_module_name_is_stricter_than_a_crate_name ... ok
+2026-11-28T11:35:22.3299454Z test scaffold::template_tests::a_screen_carries_the_entry_point_the_preview_looks_for ... ok
+2026-11-28T11:35:22.3302378Z test scaffold::template_tests::a_widget_has_no_entry_point ... ok
+2026-11-28T11:35:22.3304251Z test scaffold::template_tests::the_type_name_is_derived_rather_than_asked_for_twice ... ok
+2026-11-28T11:35:22.3306707Z test scaffold::tests::a_bad_name_writes_nothing ... ok
+2026-11-28T11:35:22.3312252Z test scaffold::tests::a_name_is_checked_before_anything_is_written ... ok
+2026-11-28T11:35:22.3313255Z test scaffold::tests::a_git_dependency_is_written_as_a_git_table ... ok
+2026-11-28T11:35:22.3319527Z test scaffold::tests::a_version_dependency_is_written_as_a_version ... ok
+2026-11-28T11:35:22.3320974Z test picker::tests::a_volume_path_is_a_valid_picker_at_target ... ok
+2026-11-28T11:35:22.3323759Z test scaffold::tests::a_path_dependency_points_at_the_crates ... ok
+2026-11-28T11:35:22.3367229Z test scaffold::tests::an_existing_directory_with_anything_in_it_is_refused ... ok
+2026-11-28T11:35:22.3372968Z test scaffold::tests::the_first_screen_is_previewable ... ok
+2026-11-28T11:35:22.3377149Z test scaffold::tests::the_mobile_entry_points_match_the_platform_api ... ok
+2026-11-28T11:35:22.3379684Z test scaffold::tests::the_name_reaches_every_place_it_has_to ... ok
+2026-11-28T11:35:22.3388464Z test scaffold::tests::the_say_scaffold_compiles ... ok
+2026-11-28T11:35:22.3391445Z test scaffold::tests::the_scaffold_opts_out_of_any_parent_workspace ... ok
+2026-11-28T11:35:22.3396386Z test scaffold::tests::the_scaffold_pins_the_repositories_exact_toolchain ... ok
+2026-11-28T11:35:22.3400596Z test scaffold::tests::the_template_is_the_whole_project ... ok
+2026-11-28T11:35:22.3403893Z test scaffold::tests::there_is_one_definition_of_the_template ... ok
+2026-11-28T11:35:22.3405925Z test sdk::tests::a_bundle_for_another_target_is_refused ... ok
+2026-11-28T11:35:22.3407302Z test sdk::tests::a_bundle_that_ships_no_compiler_checks_only_what_it_can ... ok
+2026-11-28T11:35:22.3414980Z test sdk::tests::a_bundle_with_no_toolchain_directory_reports_no_compiler ... ok
+2026-11-28T11:35:22.3418334Z test sdk::tests::a_manifest_round_trips_through_its_own_text ... ok
+2026-11-28T11:35:22.3423774Z test sdk::tests::a_missing_field_names_itself ... ok
+2026-11-28T11:35:22.3432843Z test sdk::tests::a_newer_format_is_refused_with_its_version_named ... ok
+2026-11-28T11:35:22.3443727Z test sdk::tests::a_partially_updated_bundle_is_caught ... ok
+2026-11-28T11:35:22.3453792Z test sdk::tests::a_value_with_spaces_and_parentheses_survives ... ok
+2026-11-28T11:35:22.3456817Z test sdk::tests::an_unknown_key_is_ignored_rather_than_fatal ... ok
+2026-11-28T11:35:22.3462569Z test sdk::tests::no_manifest_says_where_it_looked ... ok
+2026-11-28T11:35:22.3465345Z test settings::tests::a_bad_line_costs_its_own_field_and_nothing_else ... ok
+2026-11-28T11:35:22.3469041Z test settings::tests::a_non_finite_float_is_not_written_and_so_reads_back_as_the_default ... ok
+2026-11-28T11:35:22.3472668Z test settings::tests::a_path_containing_an_equals_sign_survives ... ok
+2026-11-28T11:35:22.3473980Z test settings::tests::a_tiny_window_is_not_restored ... ok
+2026-11-28T11:35:22.3475719Z test settings::tests::a_value_with_a_newline_in_it_is_refused_rather_than_written ... ok
+2026-11-28T11:35:22.3478288Z test settings::tests::absurd_values_are_clamped_rather_than_obeyed ... ok
+2026-11-28T11:35:22.3480796Z test settings::tests::an_empty_file_is_every_default ... ok
+2026-11-28T11:35:22.3483130Z test settings::tests::an_unknown_key_is_ignored_so_an_older_studio_can_read_a_newer_file ... ok
+2026-11-28T11:35:22.3485801Z test settings::tests::comments_and_blank_lines_and_missing_equals_are_all_survivable ... ok
+2026-11-28T11:35:22.3487973Z test settings::tests::recent_is_most_recent_first_deduplicated_and_bounded ... ok
+2026-11-28T11:35:22.3492558Z test settings::tests::rendering_is_sorted_so_two_settings_files_diff_cleanly ... ok
+2026-11-28T11:35:22.3498135Z test settings::tests::session_round_trips_paths_with_spaces_and_punctuation ... ok
+2026-11-28T11:35:22.3506167Z test settings::tests::settings_round_trip ... ok
+2026-11-28T11:35:22.3511428Z test settings::tests::whitespace_around_the_equals_does_not_matter ... ok
+2026-11-28T11:35:22.3521276Z test setup::tests::a_command_is_handed_to_a_shell_whole ... ok
+2026-11-28T11:35:22.3525882Z test setup::tests::a_licence_prompt_wants_a_terminal ... ok
+2026-11-28T11:35:22.3531292Z test setup::tests::a_system_package_manager_needs_root ... ok
+2026-11-28T11:35:22.3534787Z test setup::tests::a_terminal_is_asked_for_by_name_and_may_not_be_there ... ok
+2026-11-28T11:35:22.3538757Z test setup::tests::a_user_prefix_installer_does_not ... ok
+2026-11-28T11:35:22.3544005Z test setup::tests::an_unattended_install_stays_in_the_panel ... ok
+2026-11-28T11:35:22.3548138Z test setup::tests::anything_needing_root_wants_a_terminal ... ok
+2026-11-28T11:35:22.3686396Z test scaffold::tests::an_empty_existing_directory_is_fine ... ok
+2026-11-28T11:35:22.3687819Z test scaffold::tests::creating_writes_every_file_and_the_project_is_recognised ... ok
+2026-11-28T11:35:22.3694021Z test showcase::tests::a_script_round_trips_through_its_own_text ... ok
+2026-11-28T11:35:22.3698070Z test showcase::tests::backgrounds_parse ... ok
+2026-11-28T11:35:22.3702440Z test showcase::tests::bad_steps_are_named_by_line ... ok
+2026-11-28T11:35:22.3704220Z test showcase::tests::over_is_straight_alpha ... ok
+2026-11-28T11:35:22.3710082Z test showcase::tests::rounded_corners_cover_inside_and_not_the_corner ... ok
+2026-11-28T11:35:22.3722378Z test showcase::tests::scaling_halves_by_averaging ... ok
+2026-11-28T11:35:22.3726156Z test showcase::tests::steps_parse_in_every_promised_shape ... ok
+2026-11-28T11:35:22.3732648Z test showcase::tests::the_recorder_turns_input_into_steps ... ok
+2026-11-28T11:35:22.3736806Z test showcase::tests::untimed_steps_are_spaced_after_the_previous_one ... ok
+2026-11-28T11:35:22.3742407Z test state::canvas_edit::tests::a_column_inside_a_column_keeps_its_nesting ... ok
+2026-11-28T11:35:22.3745921Z test state::canvas_edit::tests::a_wrapper_inherits_the_enclosing_line ... ok
+2026-11-28T11:35:22.3750149Z test state::canvas_edit::tests::an_unmatchable_line_is_absent_rather_than_wrong ... ok
+2026-11-28T11:35:22.3754862Z test state::canvas_edit::tests::the_counter_maps_row_to_line ... ok
+2026-11-28T11:35:22.3758405Z test state::canvas_edit::tests::three_root_columns_each_get_their_own_line ... ok
+2026-11-28T11:35:22.3761623Z test state::canvas_edit::tests::two_root_columns_do_not_confuse_the_framing_wrapper ... ok
+2026-11-28T11:35:22.3765182Z test state::collab::tests::a_typing_change_is_one_small_edit ... ok
+2026-11-28T11:35:22.3768642Z test state::collab::tests::line_and_column_are_one_based_and_multibyte_safe ... ok
+2026-11-28T11:35:22.3771866Z test state::collab::tests::replica_ids_do_not_repeat_within_a_process ... ok
+2026-11-28T11:35:22.3775997Z test state::decoration_tests::a_blank_line_inside_a_block_keeps_its_guides ... ok
+2026-11-28T11:35:22.3781237Z test state::decoration_tests::a_blank_line_that_closes_a_block_takes_the_shallower_side ... ok
+2026-11-28T11:35:22.3858798Z test showcase::tests::a_frame_surrounds_the_screen_and_keeps_its_pixels ... ok
+2026-11-28T11:35:22.3881238Z test compile::tests::the_sysroot_is_discovered_and_holds_libstd ... ok
+2026-11-28T11:35:22.3883809Z test state::decoration_tests::a_caret_past_the_end_of_the_formatted_text_is_clamped ... ok
+2026-11-28T11:35:22.4917648Z test state::decoration_tests::a_caret_in_whitespace_underlines_nothing ... ok
+2026-11-28T11:35:22.4919795Z test state::decoration_tests::a_column_clamps_to_a_shorter_line ... ok
+2026-11-28T11:35:22.4921839Z test state::decoration_tests::a_caret_move_while_folded_is_not_an_edit ... ok
+2026-11-28T11:35:22.4922865Z test state::decoration_tests::a_column_inside_a_tab_has_nothing_to_mark ... ok
+2026-11-28T11:35:22.4925198Z test state::decoration_tests::a_column_is_counted_in_characters_not_bytes ... ok
+2026-11-28T11:35:22.4926403Z test state::decoration_tests::a_format_puts_the_caret_back_on_the_line_it_was_on ... ok
+2026-11-28T11:35:22.4927979Z test state::decoration_tests::a_guide_marks_every_level_inside_a_line_and_not_its_own ... ok
+2026-11-28T11:35:22.4929183Z test state::decoration_tests::a_guide_names_exactly_one_grapheme ... ok
+2026-11-28T11:35:22.4932737Z test state::decoration_tests::a_point_span_covers_nothing_rather_than_the_line ... ok
+2026-11-28T11:35:22.5387291Z test state::decoration_tests::a_refused_snippet_says_so_and_changes_nothing ... ok
+2026-11-28T11:35:22.5388864Z test state::decoration_tests::a_git_letter_is_looked_up_by_the_path_relative_to_the_root ... ok
+2026-11-28T11:35:22.5392240Z test state::decoration_tests::a_span_resolves_to_the_bytes_it_covers ... ok
+2026-11-28T11:35:22.5395560Z test state::decoration_tests::a_one_character_word_is_left_alone ... ok
+2026-11-28T11:35:22.5398892Z test state::decoration_tests::a_tab_character_counts_to_the_next_stop ... ok
+2026-11-28T11:35:22.5832167Z test state::decoration_tests::a_second_can_run_check ... ok
+2026-11-28T11:35:22.5833529Z test state::decoration_tests::a_workspace_name_is_checked_against_cargo_rules_as_it_is_typed ... ok
+2026-11-28T11:35:22.5855389Z test state::decoration_tests::a_substring_of_a_longer_identifier_is_not_an_occurrence ... ok
+2026-11-28T11:35:22.6273204Z test state::decoration_tests::add_cursor_below_grows_a_column_downwards ... ok
+2026-11-28T11:35:22.6288859Z test state::decoration_tests::add_cursor_below_at_the_last_line_adds_nothing ... ok
+2026-11-28T11:35:22.6297816Z test state::decoration_tests::adding_occurrences_wraps_rather_than_stopping ... ok
+2026-11-28T11:35:22.6708306Z test state::decoration_tests::an_edit_made_while_folded_reaches_the_real_buffer_intact ... ok
+2026-11-28T11:35:22.6739971Z test state::decoration_tests::clearing_and_cancelling_tasks_are_offered_only_with_a_queue ... ok
+2026-11-28T11:35:22.6751867Z test state::decoration_tests::an_unbalanced_file_is_the_normal_state_and_marks_nothing ... ok
+2026-11-28T11:35:22.6756143Z test state::decoration_tests::deeper_nesting_gets_one_guide_per_level ... ok
+2026-11-28T11:35:22.7164238Z test state::decoration_tests::clearing_is_offered_only_when_there_is_something_to_clear ... ok
+2026-11-28T11:35:22.7183156Z test state::decoration_tests::committing_with_nothing_staged_says_so_rather_than_running_git ... ok
+2026-11-28T11:35:22.7224978Z test state::decoration_tests::dragging_a_selection_leaves_the_buffer_alone ... ok
+2026-11-28T11:35:22.7604384Z test state::decoration_tests::escape_clears_the_extra_carets_before_anything_else ... ok
+2026-11-28T11:35:22.7635512Z test state::decoration_tests::every_disabled_command_says_why ... ok
+2026-11-28T11:35:22.7672827Z test state::decoration_tests::folding_at_the_caret_takes_the_innermost_region ... ok
+2026-11-28T11:35:22.8051317Z test state::decoration_tests::folding_the_same_place_twice_unfolds_it ... ok
+2026-11-28T11:35:22.8055110Z test state::decoration_tests::line_of_counts_from_zero_and_survives_a_bad_offset ... ok
+2026-11-28T11:35:22.8074026Z test state::decoration_tests::formatting_a_file_that_is_not_rust_says_so_rather_than_running_rustfmt ... ok
+2026-11-28T11:35:22.8113277Z test state::decoration_tests::guides_are_off_when_the_setting_is_off ... ok
+2026-11-28T11:35:22.8117074Z test state::decoration_tests::opening_a_folder_is_a_command_with_a_chord ... ok
+2026-11-28T11:35:22.8496679Z test state::decoration_tests::new_workspace_opens_the_folder_picker_before_the_name_prompt ... ok
+2026-11-28T11:35:22.8541127Z test state::decoration_tests::open_picker_resets_the_mode_to_open ... ok
+2026-11-28T11:35:22.8585156Z test state::decoration_tests::other_occurrences_of_the_word_are_underlined_and_the_caret_s_own_is_not ... ok
+2026-11-28T11:35:22.8955499Z test state::decoration_tests::renaming_a_buffer_changes_the_tab_metadata ... ok
+2026-11-28T11:35:22.8973211Z test state::decoration_tests::restoring_the_sample_is_one_undo_step ... ok
+2026-11-28T11:35:22.9001639Z test state::decoration_tests::source_control_is_offered_only_where_there_is_a_repository ... ok
+2026-11-28T11:35:22.9410028Z test state::decoration_tests::the_branch_cell_reads_what_git_reported ... ok
+2026-11-28T11:35:22.9415155Z test state::decoration_tests::the_bracket_at_the_caret_and_its_partner_are_both_boxed ... ok
+2026-11-28T11:35:22.9449028Z test state::decoration_tests::the_comforts_do_not_fire_on_a_selection_only_change ... ok
+2026-11-28T11:35:22.9848812Z test state::decoration_tests::the_first_press_of_add_at_next_occurrence_selects_the_word ... ok
+2026-11-28T11:35:22.9851350Z test state::decoration_tests::the_editor_comforts_stand_down_for_multiple_carets ... ok
+2026-11-28T11:35:23.0295161Z test state::decoration_tests::the_gutter_matches_a_fresh_derivation ... ok
+2026-11-28T11:35:23.0302700Z test state::decoration_tests::the_picker_can_jump_across_volumes ... ok
+2026-11-28T11:35:23.0355318Z test state::decoration_tests::the_fold_commands_are_offered_only_when_there_is_something_to_fold ... ok
+2026-11-28T11:35:23.0361119Z test state::decoration_tests::the_tab_width_decides_the_levels ... ok
+2026-11-28T11:35:23.0737429Z test state::decoration_tests::the_picker_opens_navigates_and_closes ... ok
+2026-11-28T11:35:23.0738535Z test state::decoration_tests::the_second_press_adds_the_next_occurrence ... ok
+2026-11-28T11:35:23.0741442Z test state::decoration_tests::the_three_lost_editing_commands_are_reachable ... ok
+2026-11-28T11:35:23.0807784Z test state::decoration_tests::the_tabs_always_match_the_buffers ... ok
+2026-11-28T11:35:23.1181550Z test state::decoration_tests::the_tasks_panel_is_a_tab_like_any_other ... ok
+2026-11-28T11:35:23.1202647Z test state::decoration_tests::typing_does_not_change_the_tab_metadata ... ok
+2026-11-28T11:35:23.1215213Z test state::export::tests::generated_say_trips_the_needs_project_heuristic ... ok
+2026-11-28T11:35:23.1219209Z test state::export::tests::the_scaffolded_screen_itself_reaches_for_nothing ... ok
+2026-11-28T11:35:23.1223493Z test state::inspector_props::tests::a_column_reads_seven_fields ... ok
+2026-11-28T11:35:23.1227029Z test state::inspector_props::tests::a_heading_offers_only_what_it_can_take ... ok
+2026-11-28T11:35:23.1230308Z test state::inspector_props::tests::a_range_round_trips ... ok
+2026-11-28T11:35:23.1233680Z test state::inspector_props::tests::a_text_field_carries_its_own_vocabulary ... ok
+2026-11-28T11:35:23.1237729Z test state::decoration_tests::typing_inside_a_line_does_not_change_the_gutter ... ok
+2026-11-28T11:35:23.1238665Z test state::inspector_props::tests::an_unusual_clause_is_still_shown ... ok
+2026-11-28T11:35:23.1242046Z test state::inspector_props::tests::colour_validation_admits_the_vocabulary ... ok
+2026-11-28T11:35:23.1256266Z test state::inspector_props::tests::the_offered_set_is_the_accepted_set ... ok
+2026-11-28T11:35:23.1589435Z test task::tests::a_line_with_no_trailing_newline_still_arrives ... ok
+2026-11-28T11:35:23.1609211Z test state::decoration_tests::unfolding_everything_restores_the_whole_file ... ok
+2026-11-28T11:35:23.1631862Z test task::tests::a_program_that_does_not_exist_finishes_rather_than_failing_to_start ... ok
+2026-11-28T11:35:23.1920604Z test task::tests::a_non_zero_exit_carries_its_code ... ok
+2026-11-28T11:35:23.2247640Z test task::tests::carriage_returns_are_stripped_with_the_newline ... ok
+2026-11-28T11:35:23.2744942Z test task::tests::a_cancelled_task_is_cancelled_not_failed ... ok
+2026-11-28T11:35:23.3201081Z test task::tests::invalid_utf8_does_not_end_the_stream ... ok
+2026-11-28T11:35:23.3627847Z test task::tests::a_task_that_runs_too_long_times_out ... ok
+2026-11-28T11:35:23.3711138Z test task::tests::every_line_arrives_before_the_outcome ... ok
+2026-11-28T11:35:23.4042391Z test task::tests::stdout_and_stderr_arrive_tagged ... ok
+2026-11-28T11:35:23.4045594Z test task::tests::the_command_line_reads_as_typed ... ok
+2026-11-28T11:35:23.4046960Z test task::tests::poll_is_non_blocking_and_reports_the_end_once ... ok
+2026-11-28T11:35:23.4388115Z test task::tests::the_environment_reaches_the_child ... ok
+2026-11-28T11:35:23.5644357Z test task::tests::the_waker_fires_but_not_once_per_line ... ok
+2026-11-28T11:35:23.5972668Z test task::tests::the_working_directory_is_the_one_asked_for ... ok
+2026-11-28T11:35:23.5973973Z test theme::a11y01_tests::the_studio_theme_passes_the_contrast_audit_in_both_modes ... ok
+2026-11-28T11:35:23.5976730Z test tokens::tests::a_group_with_no_tokens_writes_no_empty_module ... ok
+2026-11-28T11:35:23.5979025Z test tokens::tests::a_surface_is_reported_and_not_judged ... ok
+2026-11-28T11:35:23.5981993Z test tokens::tests::black_can_still_be_lightened ... ok
+2026-11-28T11:35:23.5983179Z test tokens::tests::contrast_matches_the_guideline_at_its_two_endpoints ... ok
+2026-11-28T11:35:23.5984645Z test tokens::tests::hex_is_written_the_way_a_design_tool_writes_one ... ok
+2026-11-28T11:35:23.5985905Z test tokens::tests::lightening_is_proportional_and_saturates ... ok
+2026-11-28T11:35:23.5988204Z test tokens::tests::the_export_is_a_whole_module_rather_than_a_fragment ... ok
+2026-11-28T11:35:23.5990258Z test tokens::tests::the_verdict_uses_the_thresholds_the_guideline_names ... ok
+2026-11-28T11:35:23.6023166Z test toolchains::tests::a_complete_android_setup_is_ready ... ok
+2026-11-28T11:35:23.6025631Z test toolchains::tests::a_keychain_with_no_development_certificate_has_no_identity ... ok
+2026-11-28T11:35:23.6027672Z test toolchains::tests::a_rust_target_is_found_only_when_it_is_installed ... ok
+2026-11-28T11:35:23.6029752Z test toolchains::tests::a_signing_identity_is_read_out_of_securitys_listing ... ok
+2026-11-28T11:35:23.6032399Z test toolchains::tests::a_variable_pointing_at_a_missing_directory_is_not_found ... ok
+2026-11-28T11:35:23.6058409Z test toolchains::tests::an_explicit_ndk_variable_wins_over_the_sdk_copy ... ok
+2026-11-28T11:35:23.6059702Z test toolchains::tests::cargo_is_found_on_path_and_only_if_it_is_executable ... ignored, the executable bit is a Unix idea
+2026-11-28T11:35:23.6073299Z test toolchains::tests::desktop_needs_only_cargo ... ok
+2026-11-28T11:35:23.6076086Z test toolchains::tests::every_missing_requirement_says_how_to_get_it ... ok
+2026-11-28T11:35:23.6078190Z test toolchains::tests::installed_targets_are_parsed_out_of_rustups_listing ... ok
+2026-11-28T11:35:23.6098677Z test toolchains::tests::ios_is_impossible_off_a_mac_and_says_so ... ok
+2026-11-28T11:35:23.6117834Z test toolchains::tests::ios_on_a_mac_is_merely_a_matter_of_installing_things ... ok
+2026-11-28T11:35:23.6137121Z test toolchains::tests::ios_without_a_signing_identity_is_not_ready_and_says_which_piece ... ok
+2026-11-28T11:35:23.6139451Z test toolchains::tests::nothing_installed_is_reported_as_nothing_installed ... ok
+2026-11-28T11:35:23.6140929Z test toolchains::tests::rustups_explanatory_lines_are_not_mistaken_for_triples ... ok
+2026-11-28T11:35:23.6526910Z test toolchains::tests::the_host_environment_finds_the_targets_this_machine_has ... ok
+2026-11-28T11:35:23.6550115Z test toolchains::tests::the_ndk_is_found_under_the_sdk_with_no_variable_set ... ok
+2026-11-28T11:35:23.6567824Z test toolchains::tests::the_refusal_lists_everything_missing_not_the_first_thing ... ok
+2026-11-28T11:35:23.6582542Z test toolchains::tests::windows_looks_for_the_extensions_windows_uses ... ok
+2026-11-28T11:35:23.6584808Z test ui::completion::tests::a_list_near_the_bottom_opens_above_the_caret ... ok
+2026-11-28T11:35:23.6585867Z test ui::completion::tests::a_list_near_the_right_edge_flips_left ... ok
+2026-11-28T11:35:23.6587559Z test ui::completion::tests::a_list_with_room_opens_below_the_caret ... ok
+2026-11-28T11:35:23.6590644Z test ui::completion::tests::a_window_smaller_than_the_list_keeps_it_on_screen ... ok
+2026-11-28T11:35:23.6592604Z test ui::context_menu::tests::a_menu_near_the_bottom_flips_above_the_pointer ... ok
+2026-11-28T11:35:23.6593776Z test ui::context_menu::tests::a_menu_near_the_right_edge_flips_left ... ok
+2026-11-28T11:35:23.6594738Z test ui::context_menu::tests::a_menu_with_room_opens_where_the_pointer_is ... ok
+2026-11-28T11:35:23.6595993Z test ui::context_menu::tests::a_window_smaller_than_the_menu_does_not_push_it_off_the_top ... ok
+2026-11-28T11:35:23.6597226Z test ui::editor::minimap_tests::a_file_with_no_spans_is_still_drawn ... ok
+2026-11-28T11:35:23.6599615Z test ui::editor::minimap_tests::a_tab_counts_as_an_indent_rather_than_as_one_column ... ok
+2026-11-28T11:35:23.6601460Z test ui::editor::minimap_tests::an_empty_buffer_is_one_empty_row_rather_than_a_panic ... ok
+2026-11-28T11:35:23.6603133Z test ui::editor::minimap_tests::each_run_of_non_space_is_its_own_block ... ok
+2026-11-28T11:35:23.6605159Z test ui::editor::minimap_tests::indentation_survives_the_scaling ... ok
+2026-11-28T11:35:23.6606888Z test ui::editor::minimap_tests::the_blocks_are_the_colours_the_code_is ... ok
+2026-11-28T11:35:23.6868062Z test ui::find_bar::tests::a_shut_find_bar_is_not_in_the_tree ... ok
+2026-11-28T11:35:23.6960662Z test task::tests::no_timeout_means_no_timeout ... ok
+2026-11-28T11:35:23.7168945Z test ui::find_bar::tests::an_empty_query_says_nothing_rather_than_no_results ... ok
+2026-11-28T11:35:23.7174066Z test ui::icons::tests::every_path_parses ... ok
+2026-11-28T11:35:23.7176761Z test ui::icons::tests::every_path_stays_on_the_grid ... ok
+2026-11-28T11:35:23.7178929Z test ui::icons::tests::the_weight_is_in_grid_units ... ok
+2026-11-28T11:35:23.7421533Z test ui::find_bar::tests::the_replace_row_appears_only_when_asked_for ... ok
+2026-11-28T11:35:23.7507998Z test ui::palette::tests::a_shut_palette_is_absent_from_the_tree_rather_than_transparent ... ok
+2026-11-28T11:35:23.7711775Z test task::tests::the_outcome_is_last_even_when_output_outlives_the_child ... ok
+2026-11-28T11:35:23.7813770Z test ui::palette::tests::symbols_are_found_by_a_scan_and_the_scan_knows_what_it_misses ... ok
+2026-11-28T11:35:23.7817330Z test ui::shortcuts::tests::a_key_that_matches_nothing_is_not_consumed ... ok
+2026-11-28T11:35:23.7821494Z test ui::shortcuts::tests::a_plain_letter_is_left_for_the_editor ... ok
+2026-11-28T11:35:23.7824734Z test ui::shortcuts::tests::escape_reaches_the_layer_as_a_command ... ok
+2026-11-28T11:35:23.7827738Z test ui::shortcuts::tests::the_layer_takes_focus_so_that_keys_have_somewhere_to_bubble_from ... ok
+2026-11-28T11:35:23.7830733Z test ui::shortcuts::tests::the_modifier_is_what_makes_a_key_a_command ... ok
+2026-11-28T11:35:23.7881329Z test ui::palette::tests::the_omnibar_chip_is_written_for_the_host ... ok
+2026-11-28T11:35:23.8147932Z test ui::palette::tests::the_prefix_chooses_what_the_palette_is_filtering ... ok
+2026-11-28T11:35:23.8152427Z test ui::title_bar::tests::every_menu_title_drops_something ... ok
+2026-11-28T11:35:23.8157437Z test update::tests::a_checksum_match_passes_and_a_mismatch_names_both_digests ... ok
+2026-11-28T11:35:23.8161068Z test update::tests::a_feed_that_is_not_a_releases_feed_says_so ... ok
+2026-11-28T11:35:23.8188875Z test update::tests::a_verified_download_passes_and_a_tampered_one_fails ... ok
+2026-11-28T11:35:23.8211112Z test update::tests::an_sdk_directory_verifies_through_the_manifest_machinery ... ok
+2026-11-28T11:35:23.8239629Z test update::tests::an_sdk_plan_is_refused_without_curl_before_anything_runs ... ok
+2026-11-28T11:35:23.8261662Z test update::tests::an_update_plan_needs_the_release_to_checksum_what_it_ships ... ok
+2026-11-28T11:35:23.8265407Z test update::tests::asset_names_carry_the_stable_scheme_and_the_host ... ok
+2026-11-28T11:35:23.8270496Z test update::tests::sha256_matches_the_nist_vectors ... ok
+2026-11-28T11:35:23.8285568Z test update::tests::sha256_of_a_file_matches_sha256_of_its_bytes ... ok
+2026-11-28T11:35:23.8297286Z test update::tests::sha256_padding_edges_straddle_one_and_two_blocks ... ok
+2026-11-28T11:35:23.8301488Z test update::tests::sums_parse_in_both_published_shapes_and_skip_noise ... ok
+2026-11-28T11:35:23.8304881Z test update::tests::the_feed_yields_the_tag_and_the_assets_and_ignores_the_rest ... ok
+2026-11-28T11:35:23.8308166Z test ui::title_bar::tests::a_menu_is_shut_until_it_is_clicked ... ok
+2026-11-28T11:35:23.8311405Z test update::tests::versions_compare_by_numbers_and_nothing_else_counts_as_newer ... ok
+2026-11-28T11:35:23.8312899Z test update::tests::the_repo_comes_from_the_environment_before_the_stamp ... ok
+2026-11-28T11:35:23.8333934Z test ui::title_bar::tests::a_menu_row_shows_the_chord_that_also_runs_it ... ok
+2026-11-28T11:35:24.7086269Z test showcase::tests::a_recording_becomes_a_framed_gif ... ok
+2026-11-28T11:35:24.7086738Z 
+2026-11-28T11:35:24.7087566Z failures:
+2026-11-28T11:35:24.7088340Z 
+2026-11-28T11:35:24.7089605Z ---- export::tests::a_linux_deb_stages_the_tree_then_builds_it_with_root_owner_group stdout ----
+2026-11-28T11:35:24.7090350Z 
+2026-11-28T11:35:24.7090894Z thread 'export::tests::a_linux_deb_stages_the_tree_then_builds_it_with_root_owner_group' (6856) panicked at apps\viewwstudio\src\export.rs:1790:14:
+2026-11-28T11:35:24.7091619Z the control file is copied
+2026-11-28T11:35:24.7092050Z stack backtrace:
+2026-11-28T11:35:24.7092433Z    0: std::panicking::panic_handler
+2026-11-28T11:35:24.7093392Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-11-28T11:35:24.7094007Z    1: core::panicking::panic_fmt
+2026-11-28T11:35:24.7094538Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-11-28T11:35:24.7095150Z    2: core::panicking::panic_display
+2026-11-28T11:35:24.7095733Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:259
+2026-11-28T11:35:24.7096294Z    3: core::option::expect_failed
+2026-11-28T11:35:24.7096858Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\option.rs:2260
+2026-11-28T11:35:24.7097948Z    4: <core::option::Option<&alloc::string::String>>::expect
+2026-11-28T11:35:24.7098560Z    5: viewwstudio::live_materialize::say_of
+2026-11-28T11:35:24.7099656Z    6: viewwstudio::export::tests::a_linux_deb_stages_the_tree_then_builds_it_with_root_owner_group::***closure#0***
+2026-11-28T11:35:24.7100705Z    7: <viewwstudio::export::tests::a_linux_deb_stages_the_tree_then_builds_it_with_root_owner_group::***closure#0*** as core::ops::function::FnOnce<()>>::call_once
+2026-11-28T11:35:24.7101496Z    8: core::ops::function::FnOnce::call_once
+2026-11-28T11:35:24.7102072Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-28T11:35:24.7102787Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-28T11:35:24.7103172Z 
+2026-11-28T11:35:24.7103538Z ---- export::tests::a_mac_app_bundle_lays_out_contents_from_the_scaffolded_plist stdout ----
+2026-11-28T11:35:24.7103942Z 
+2026-11-28T11:35:24.7104406Z thread 'export::tests::a_mac_app_bundle_lays_out_contents_from_the_scaffolded_plist' (6092) panicked at apps\viewwstudio\src\export.rs:1734:9:
+2026-11-28T11:35:24.7105963Z one mkdir covers every directory: mkdir -p C:\Users\RUNNER~1\AppData\Local\Temp\viewwstudio-export-platform-5940-1795865721580821100\app\target\export\app.app\Contents\MacOS C:\Users\RUNNER~1\AppData\Local\Temp\viewwstudio-export-platform-5940-1795865721580821100\app\target\export\app.app\Contents
+2026-11-28T11:35:24.7107262Z stack backtrace:
+2026-11-28T11:35:24.7107678Z    0: std::panicking::panic_handler
+2026-11-28T11:35:24.7108413Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-11-28T11:35:24.7109044Z    1: core::panicking::panic_fmt
+2026-11-28T11:35:24.7109615Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-11-28T11:35:24.7110186Z    2: viewwstudio::live_materialize::say_of
+2026-11-28T11:35:24.7110830Z    3: viewwstudio::export::tests::a_mac_app_bundle_lays_out_contents_from_the_scaffolded_plist::***closure#0***
+2026-11-28T11:35:24.7111823Z    4: <viewwstudio::export::tests::a_mac_app_bundle_lays_out_contents_from_the_scaffolded_plist::***closure#0*** as core::ops::function::FnOnce<()>>::call_once
+2026-11-28T11:35:24.7112620Z    5: core::ops::function::FnOnce::call_once
+2026-11-28T11:35:24.7113208Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-28T11:35:24.7113955Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-28T11:35:24.7114340Z 
+2026-11-28T11:35:24.7114689Z ---- export::tests::a_web_export_builds_the_module_binds_it_and_copies_the_page stdout ----
+2026-11-28T11:35:24.7115084Z 
+2026-11-28T11:35:24.7115532Z thread 'export::tests::a_web_export_builds_the_module_binds_it_and_copies_the_page' (7152) panicked at apps\viewwstudio\src\export.rs:1651:9:
+2026-11-28T11:35:24.7117151Z wasm-bindgen --target web --no-typescript --out-dir C:\Users\RUNNER~1\AppData\Local\Temp\viewwstudio-export-platform-5940-1795865721916559300\my-app\target\export\web C:\Users\RUNNER~1\AppData\Local\Temp\viewwstudio-export-platform-5940-1795865721916559300\my-app\target\wasm32-unknown-unknown\release\my_app.wasm
+2026-11-28T11:35:24.7118538Z stack backtrace:
+2026-11-28T11:35:24.7118972Z    0: std::panicking::panic_handler
+2026-11-28T11:35:24.7119682Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\std\src\panicking.rs:679
+2026-11-28T11:35:24.7120345Z    1: core::panicking::panic_fmt
+2026-11-28T11:35:24.7120888Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\panicking.rs:80
+2026-11-28T11:35:24.7121483Z    2: viewwstudio::live_materialize::say_of
+2026-11-28T11:35:24.7122154Z    3: viewwstudio::export::tests::a_web_export_builds_the_module_binds_it_and_copies_the_page::***closure#0***
+2026-11-28T11:35:24.7123138Z    4: <viewwstudio::export::tests::a_web_export_builds_the_module_binds_it_and_copies_the_page::***closure#0*** as core::ops::function::FnOnce<()>>::call_once
+2026-11-28T11:35:24.7123908Z    5: core::ops::function::FnOnce::call_once
+2026-11-28T11:35:24.7124484Z              at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library\core\src\ops\function.rs:250
+2026-11-28T11:35:24.7125136Z note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+2026-11-28T11:35:24.7125487Z 
+2026-11-28T11:35:24.7125491Z 
+2026-11-28T11:35:24.7125694Z failures:
+2026-11-28T11:35:24.7126215Z     export::tests::a_linux_deb_stages_the_tree_then_builds_it_with_root_owner_group
+2026-11-28T11:35:24.7126891Z     export::tests::a_mac_app_bundle_lays_out_contents_from_the_scaffolded_plist
+2026-11-28T11:35:24.7127562Z     export::tests::a_web_export_builds_the_module_binds_it_and_copies_the_page
+2026-11-28T11:35:24.7127904Z 
+2026-11-28T11:35:24.7128224Z test result: FAILED. 786 passed; 3 failed; 2 ignored; 0 measured; 0 filtered out; finished in 3.62s
+2026-11-28T11:35:24.7128735Z 
+2026-11-28T11:35:24.7145066Z [1m[91merror[0m: test failed, to rerun pass `-p viewwstudio --lib`
+2026-11-28T11:35:24.7434802Z ##[endgroup]
+2026-11-28T11:35:24.7478308Z ##[error]Unit and integration tests failed (exit 101)
+2026-11-28T11:35:24.7489148Z ##[group]mark: upload studio-screenshots-$*** matrix.os ***
+2026-11-28T11:35:24.7778617Z ##[endgroup]
+2026-11-28T11:35:24.8083710Z ##[error]Process completed with exit code 1.
+2026-11-28T11:35:24.8318421Z ##[group]Run actions/upload-artifact@v4
+2026-11-28T11:35:24.8318946Z with:
+2026-11-28T11:35:24.8319366Z   name: studio-screenshots-windows-2022
+2026-11-28T11:35:24.8319838Z   path: D:\a\_temp/studio-shots
+2026-11-28T11:35:24.8320246Z   if-no-files-found: ignore
+2026-11-28T11:35:24.8320677Z   include-hidden-files: false
+2026-11-28T11:35:24.8321073Z   compression-level: 6
+2026-11-28T11:35:24.8321471Z   overwrite: false
+2026-11-28T11:35:24.8321839Z env:
+2026-11-28T11:35:24.8322206Z   CI_INPUTS: ***
+2026-11-28T11:35:24.8322619Z   CI_MATRIX: ***"os": "windows-2022"***
+2026-11-28T11:35:24.8324507Z   CI_JOB: ***"title": "viewwstudio \u00b7 suite (windows-2022)", "project": "viewwstudio", "id": "suite", "file": "vieww_base/apps/viewwstudio/ci/jobs/suite.toml", "if": "", "needs": [], "setup": [***"uses": "cache", "with": ***"path": "~/.cargo/registry\n~/.cargo/git\nvieww_base/target\n", "key": "studio-$*** runner.os ***-$*** hashFiles('vieww_base/Cargo.lock') ***"***], "uploads": [***"name": "studio-screenshots-$*** matrix.os ***", "path": "$*** runner.temp ***/studio-shots", "if-no-files-found": "ignore"***], "downloads": []***
+2026-11-28T11:35:24.8326253Z   CI_PROJECT: viewwstudio
+2026-11-28T11:35:24.8327372Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:35:24.8330583Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:35:24.8330941Z   CI_SECRET_NAMES: 
+2026-11-28T11:35:24.8331320Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:35:24.8331715Z   ANDROID_KEYSTORE: 
+2026-11-28T11:35:24.8332072Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:35:24.8332481Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:35:24.8333053Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:35:24.8333419Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:35:24.8333811Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:35:24.8334166Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:35:24.8334535Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:35:24.8334916Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:35:24.8335258Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:35:24.8335588Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:35:24.8335932Z   AWS_ROLE_ARN: 
+2026-11-28T11:35:24.8336310Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:35:24.8336707Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:35:24.8337070Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:35:24.8337462Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:35:24.8337823Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:35:24.8338223Z   FIREBASE_PROJECT: 
+2026-11-28T11:35:24.8338596Z   FIREBASE_SA_KEY: 
+2026-11-28T11:35:24.8338936Z   IOS_CERT_P12: 
+2026-11-28T11:35:24.8339310Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:35:24.8339648Z   IOS_IDENTITY: 
+2026-11-28T11:35:24.8340017Z   IOS_PROFILE: 
+2026-11-28T11:35:24.8340381Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:35:24.8340738Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:35:24.8341183Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:35:24.8341590Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:35:24.8342023Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:35:24.8342427Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:35:24.8342815Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:35:24.8343253Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:35:24.8343638Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:35:24.8344061Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:35:24.8344498Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:35:24.8344961Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:35:24.8345449Z   CI_UPLOAD_0: yes
+2026-11-28T11:35:24.8345810Z ##[endgroup]
+2026-11-28T11:35:25.0170979Z (node:2860) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:35:25.0172035Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:35:25.0220059Z No files were found with the provided path: D:\a\_temp/studio-shots. No artifacts will be uploaded.
+2026-11-28T11:35:25.0601673Z Post job cleanup.
+2026-11-28T11:35:25.2377559Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-28T11:35:25.2672346Z git version 2.56.1.windows.1
+2026-11-28T11:35:25.2735164Z Temporarily overriding HOME='D:\a\_temp\1ebd1d2c-eba8-4d3c-aee5-c143b3414980' before making global git config changes
+2026-11-28T11:35:25.2736769Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-28T11:35:25.2749137Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-28T11:35:25.3081034Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-28T11:35:25.3403755Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-28T11:35:25.8525299Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-28T11:35:25.8806158Z http.https://github.com/.extraheader
+2026-11-28T11:35:25.8850777Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-28T11:35:25.9185553Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-28T11:35:26.4788819Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-28T11:35:26.5110815Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-28T11:35:27.0770269Z Cleaning up orphan processes
+2026-11-28T11:35:27.1138528Z Terminate orphan process: pid (7008) (vctip)
+2026-11-28T11:35:27.1545431Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

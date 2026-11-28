@@ -1,0 +1,400 @@
+2026-11-28T11:29:29.4258211Z Updating files:  81% (2929/3615)
+2026-11-28T11:29:29.4303925Z Updating files:  82% (2965/3615)
+2026-11-28T11:29:29.4355659Z Updating files:  83% (3001/3615)
+2026-11-28T11:29:29.4410043Z Updating files:  84% (3037/3615)
+2026-11-28T11:29:29.4458677Z Updating files:  85% (3073/3615)
+2026-11-28T11:29:29.4510620Z Updating files:  86% (3109/3615)
+2026-11-28T11:29:29.4562964Z Updating files:  87% (3146/3615)
+2026-11-28T11:29:29.4792959Z Updating files:  88% (3182/3615)
+2026-11-28T11:29:29.4963035Z Updating files:  89% (3218/3615)
+2026-11-28T11:29:29.5034132Z Updating files:  90% (3254/3615)
+2026-11-28T11:29:29.5087799Z Updating files:  91% (3290/3615)
+2026-11-28T11:29:29.5162388Z Updating files:  92% (3326/3615)
+2026-11-28T11:29:29.5240428Z Updating files:  93% (3362/3615)
+2026-11-28T11:29:29.5277514Z Updating files:  94% (3399/3615)
+2026-11-28T11:29:29.5363767Z Updating files:  95% (3435/3615)
+2026-11-28T11:29:29.5449041Z Updating files:  96% (3471/3615)
+2026-11-28T11:29:29.5494620Z Updating files:  97% (3507/3615)
+2026-11-28T11:29:29.5542371Z Updating files:  98% (3543/3615)
+2026-11-28T11:29:29.8688844Z Updating files:  99% (3579/3615)
+2026-11-28T11:29:29.8689110Z Updating files: 100% (3615/3615)
+2026-11-28T11:29:29.8689409Z Updating files: 100% (3615/3615), done.
+2026-11-28T11:29:29.8799327Z Switched to a new branch 'main'
+2026-11-28T11:29:29.8850015Z branch 'main' set up to track 'origin/main'.
+2026-11-28T11:29:29.9295147Z ##[endgroup]
+2026-11-28T11:29:29.9616805Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-28T11:29:29.9810580Z d0e59cd6766b4a59585b5184ae7f668cd2352043
+2026-11-28T11:29:30.0041269Z ##[group]Run actions/setup-python@v5
+2026-11-28T11:29:30.0041503Z with:
+2026-11-28T11:29:30.0041674Z   python-version: 3.12
+2026-11-28T11:29:30.0041850Z   update-environment: false
+2026-11-28T11:29:30.0042024Z   check-latest: false
+2026-11-28T11:29:30.0043549Z   token: ***
+2026-11-28T11:29:30.0043708Z   allow-prereleases: false
+2026-11-28T11:29:30.0043877Z   freethreaded: false
+2026-11-28T11:29:30.0044034Z env:
+2026-11-28T11:29:30.0044201Z   CI_INPUTS: ***"profile": "debug"***
+2026-11-28T11:29:30.0044389Z   CI_MATRIX: ***
+2026-11-28T11:29:30.0044955Z   CI_JOB: ***"title": "wright \u00b7 sandbox-windows-fail-closed", "project": "wright", "id": "sandbox-windows-fail-closed", "file": "vieww_base/apps/wright/ci/jobs/sandbox-windows-fail-closed.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:29:30.0045536Z   CI_PROJECT: wright
+2026-11-28T11:29:30.0046179Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:30.0048014Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:30.0048178Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:30.0048336Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:30.0048511Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:30.0048673Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:30.0048859Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:30.0049024Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:30.0049195Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:30.0049376Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:30.0049538Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:30.0049700Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:30.0049868Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:30.0050029Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:30.0050208Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:30.0050359Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:30.0050524Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:30.0050692Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:30.0050860Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:30.0051025Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:30.0051186Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:30.0051359Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:30.0051516Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:30.0051663Z   IOS_CERT_P12: 
+2026-11-28T11:29:30.0051816Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:30.0051964Z   IOS_IDENTITY: 
+2026-11-28T11:29:30.0052112Z   IOS_PROFILE: 
+2026-11-28T11:29:30.0052266Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:30.0052429Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:30.0052597Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:30.0052788Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:30.0052984Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:30.0053169Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:30.0053363Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:30.0053570Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:30.0053758Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:30.0054107Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:30.0054314Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:30.0054507Z ##[endgroup]
+2026-11-28T11:29:30.1041065Z ##[group]Installed versions
+2026-11-28T11:29:30.1134408Z (node:3752) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:29:30.1134847Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:29:30.1135290Z Successfully set up CPython (3.12.10)
+2026-11-28T11:29:30.1135737Z ##[endgroup]
+2026-11-28T11:29:30.1347540Z ##[group]Run actions/setup-python@v5
+2026-11-28T11:29:30.1347771Z with:
+2026-11-28T11:29:30.1347922Z   python-version: 3.12
+2026-11-28T11:29:30.1348092Z   update-environment: false
+2026-11-28T11:29:30.1348260Z   check-latest: false
+2026-11-28T11:29:30.1349665Z   token: ***
+2026-11-28T11:29:30.1349818Z   allow-prereleases: false
+2026-11-28T11:29:30.1349980Z   freethreaded: false
+2026-11-28T11:29:30.1350142Z env:
+2026-11-28T11:29:30.1350298Z   CI_INPUTS: ***"profile": "debug"***
+2026-11-28T11:29:30.1350481Z   CI_MATRIX: ***
+2026-11-28T11:29:30.1351039Z   CI_JOB: ***"title": "wright \u00b7 sandbox-windows-fail-closed", "project": "wright", "id": "sandbox-windows-fail-closed", "file": "vieww_base/apps/wright/ci/jobs/sandbox-windows-fail-closed.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:29:30.1351617Z   CI_PROJECT: wright
+2026-11-28T11:29:30.1352237Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:30.1354077Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:30.1354234Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:30.1354394Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:30.1354552Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:30.1354713Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:30.1354884Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:30.1355032Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:30.1355202Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:30.1355372Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:30.1355526Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:30.1355678Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:30.1355830Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:30.1355988Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:30.1356148Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:30.1356294Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:30.1356449Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:30.1356606Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:30.1356765Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:30.1356927Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:30.1357085Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:30.1357249Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:30.1357396Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:30.1357543Z   IOS_CERT_P12: 
+2026-11-28T11:29:30.1357691Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:30.1357840Z   IOS_IDENTITY: 
+2026-11-28T11:29:30.1357979Z   IOS_PROFILE: 
+2026-11-28T11:29:30.1358127Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:30.1358286Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:30.1358448Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:30.1358632Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:30.1358822Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:30.1358998Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:30.1359187Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:30.1359385Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:30.1359561Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:30.1359745Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:30.1359937Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:30.1360118Z ##[endgroup]
+2026-11-28T11:29:30.2357814Z ##[group]Installed versions
+2026-11-28T11:29:30.2395761Z (node:3280) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:29:30.2397138Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:29:30.2397632Z Successfully set up CPython (3.12.10)
+2026-11-28T11:29:30.2397982Z ##[endgroup]
+2026-11-28T11:29:30.2588813Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-28T11:29:30.2589188Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-28T11:29:30.2589464Z [36;1m"$***CI_PY:-python3***" ci/lib/prepare.py[0m
+2026-11-28T11:29:30.2596910Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:29:30.2597177Z env:
+2026-11-28T11:29:30.2597339Z   CI_INPUTS: ***"profile": "debug"***
+2026-11-28T11:29:30.2597523Z   CI_MATRIX: ***
+2026-11-28T11:29:30.2598086Z   CI_JOB: ***"title": "wright \u00b7 sandbox-windows-fail-closed", "project": "wright", "id": "sandbox-windows-fail-closed", "file": "vieww_base/apps/wright/ci/jobs/sandbox-windows-fail-closed.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:29:30.2598675Z   CI_PROJECT: wright
+2026-11-28T11:29:30.2599296Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:30.2601269Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:30.2601428Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:30.2601574Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:30.2601727Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:30.2601879Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:30.2602047Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:30.2602196Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:30.2602352Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:30.2602517Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:30.2602666Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:30.2602819Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:30.2602975Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:30.2603130Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:30.2603284Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:30.2603426Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:30.2603572Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:30.2603730Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:30.2603884Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:30.2604042Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:30.2604200Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:30.2604357Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:30.2604503Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:30.2604643Z   IOS_CERT_P12: 
+2026-11-28T11:29:30.2604786Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:30.2604945Z   IOS_IDENTITY: 
+2026-11-28T11:29:30.2605084Z   IOS_PROFILE: 
+2026-11-28T11:29:30.2605226Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:30.2605382Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:30.2605540Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:30.2605731Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:30.2605916Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:30.2606086Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:30.2606274Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:30.2606463Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:30.2606634Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:30.2606810Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:30.2606994Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:30.2607221Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:29:30.2607443Z ##[endgroup]
+2026-11-28T11:29:31.5880675Z ***
+2026-11-28T11:29:31.5880894Z  "go": "true",
+2026-11-28T11:29:31.5881062Z  "tools": "",
+2026-11-28T11:29:31.5881220Z  "has_final": "false"
+2026-11-28T11:29:31.5881381Z ***
+2026-11-28T11:29:31.6232566Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/apps/wright/ci/jobs/sandbox-windows-fail-closed.toml"
+2026-11-28T11:29:31.6233264Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/apps/wright/ci/jobs/sandbox-windows-fail-closed.toml"[0m
+2026-11-28T11:29:31.6240091Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:29:31.6240360Z env:
+2026-11-28T11:29:31.6240527Z   CI_INPUTS: ***"profile": "debug"***
+2026-11-28T11:29:31.6240713Z   CI_MATRIX: ***
+2026-11-28T11:29:31.6241280Z   CI_JOB: ***"title": "wright \u00b7 sandbox-windows-fail-closed", "project": "wright", "id": "sandbox-windows-fail-closed", "file": "vieww_base/apps/wright/ci/jobs/sandbox-windows-fail-closed.toml", "if": "", "needs": [], "setup": [], "uploads": [], "downloads": []***
+2026-11-28T11:29:31.6241863Z   CI_PROJECT: wright
+2026-11-28T11:29:31.6242480Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:31.6244371Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:31.6244540Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:31.6244698Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:31.6244864Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:31.6245028Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:31.6245207Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:31.6245365Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:31.6245530Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:31.6245700Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:31.6245862Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:31.6246015Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:31.6246176Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:31.6246340Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:31.6246499Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:31.6246653Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:31.6246807Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:31.6246970Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:31.6247136Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:31.6247296Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:31.6247463Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:31.6247629Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:31.6247799Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:31.6247948Z   IOS_CERT_P12: 
+2026-11-28T11:29:31.6248101Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:31.6248252Z   IOS_IDENTITY: 
+2026-11-28T11:29:31.6248398Z   IOS_PROFILE: 
+2026-11-28T11:29:31.6248551Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:31.6248713Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:31.6248884Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:31.6249076Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:31.6249268Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:31.6249448Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:31.6249641Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:31.6249837Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:31.6250015Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:31.6250193Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:31.6250394Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:31.6250625Z   CI_PY: C:\hostedtoolcache\windows\Python\3.12.10\x64\python.exe
+2026-11-28T11:29:31.6250852Z   CI_PART: main
+2026-11-28T11:29:31.6251000Z ##[endgroup]
+2026-11-28T11:29:31.7290122Z ##[group]Rust toolchain
+2026-11-28T11:29:32.2283230Z info: syncing channel updates for 1.98.1-x86_64-pc-windows-msvc
+2026-11-28T11:29:32.6608168Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:29:32.6711393Z info: downloading 6 components
+2026-11-28T11:29:41.2515282Z warn: the missing active toolchain `1.98.1-x86_64-pc-windows-msvc` has been auto-installed
+2026-11-28T11:29:41.2515823Z warn: auto-installation is deprecated for most `rustup` commands
+2026-11-28T11:29:41.2518393Z warn: scripts relying on this behavior in `rustup` may stop working in the future
+2026-11-28T11:29:41.2519018Z warn: to install the active toolchain, use `rustup install` instead
+2026-11-28T11:29:41.2519484Z warn: see <https://github.com/rust-lang/rustup/issues/4836> for more info
+2026-11-28T11:29:41.2520268Z 1.98.1-x86_64-pc-windows-msvc (overridden by 'D:\a\vieww_prod\vieww_prod\vieww_base\rust-toolchain.toml')
+2026-11-28T11:29:41.2579790Z ##[endgroup]
+2026-11-28T11:29:41.2592665Z ##[group]Sandbox refuses cleanly without WSL2
+2026-11-28T11:29:46.3608261Z     Updating crates.io index
+2026-11-28T11:29:47.6255884Z    Compiling wright-core v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\core)
+2026-11-28T11:29:48.5567496Z    Compiling wright-runtime v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\runtime)
+2026-11-28T11:29:51.0897104Z    Compiling wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
+2026-11-28T11:29:54.7980747Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 11.17s
+2026-11-28T11:29:54.8492097Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+2026-11-28T11:29:54.8564180Z 
+2026-11-28T11:29:54.8564749Z running 0 tests
+2026-11-28T11:29:54.8565094Z 
+2026-11-28T11:29:54.8565391Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 71 filtered out; finished in 0.00s
+2026-11-28T11:29:54.8565636Z 
+2026-11-28T11:29:54.8734883Z ##[endgroup]
+2026-11-28T11:29:54.8744228Z ##[group]Credential Manager round trip (WR-06)
+2026-11-28T11:29:55.0141297Z    Compiling wright-runtime v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\runtime)
+2026-11-28T11:29:58.1100764Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 3.17s
+2026-11-28T11:29:58.1146493Z      Running unittests src\lib.rs (target\debug\deps\wright_runtime-bdf67f91ac09b705.exe)
+2026-11-28T11:29:58.1211912Z 
+2026-11-28T11:29:58.1212111Z running 1 test
+2026-11-28T11:29:58.1377730Z test wincred::tests::round_trip_through_credential_manager ... ok
+2026-11-28T11:29:58.1378006Z 
+2026-11-28T11:29:58.1378186Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 103 filtered out; finished in 0.02s
+2026-11-28T11:29:58.1378429Z 
+2026-11-28T11:29:58.1468628Z ##[endgroup]
+2026-11-28T11:29:58.1481589Z ##[group]Worker Job objects (WR-05) � tree killed with the job, process cap
+2026-11-28T11:29:58.2827466Z    Compiling wright-tools v1.0.2 (D:\a\vieww_prod\vieww_prod\vieww_base\apps\wright\tools)
+2026-11-28T11:29:59.9687849Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
+2026-11-28T11:29:59.9735903Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+2026-11-28T11:29:59.9778285Z 
+2026-11-28T11:29:59.9778590Z running 3 tests
+2026-11-28T11:30:00.8231007Z test winjob::tests::closing_the_job_kills_the_whole_tree ... ok
+2026-11-28T11:30:00.8395019Z Not enough quota is available to process this command.
+2026-11-28T11:30:00.8403625Z test winjob::tests::the_process_cap_holds ... ok
+2026-11-28T11:30:00.8646977Z test winjob::tests::workers_can_start_children_under_the_production_limits ... ok
+2026-11-28T11:30:00.8647358Z 
+2026-11-28T11:30:00.8647618Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 68 filtered out; finished in 0.89s
+2026-11-28T11:30:00.8647992Z 
+2026-11-28T11:30:00.8657561Z      Running tests\real_mcp.rs (target\debug\deps\real_mcp-cf2a74a088cb27ff.exe)
+2026-11-28T11:30:00.8714643Z 
+2026-11-28T11:30:00.8714883Z running 0 tests
+2026-11-28T11:30:00.8715040Z 
+2026-11-28T11:30:00.8715310Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+2026-11-28T11:30:00.8715675Z 
+2026-11-28T11:30:00.8807897Z ##[endgroup]
+2026-11-28T11:30:00.8816717Z ##[group]Worker AppContainer (WR-05 tier 2) � escape suite, env, timeout
+2026-11-28T11:30:01.0145947Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+2026-11-28T11:30:01.0191980Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+2026-11-28T11:30:01.0234189Z 
+2026-11-28T11:30:01.0234352Z running 4 tests
+2026-11-28T11:30:03.0349211Z test appcontainer::tests::a_contained_worker_past_its_timeout_is_killed ... ok
+2026-11-28T11:30:03.0532256Z test appcontainer::tests::a_contained_worker_sees_only_the_environment_it_was_given ... ok
+2026-11-28T11:30:03.0532854Z test appcontainer::tests::arguments_survive_quoting ... ok
+2026-11-28T11:30:03.1199282Z test appcontainer::tests::the_copy_is_the_only_place_a_contained_worker_can_write_or_read ... ok
+2026-11-28T11:30:03.1199723Z 
+2026-11-28T11:30:03.1199994Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 67 filtered out; finished in 2.10s
+2026-11-28T11:30:03.1200345Z 
+2026-11-28T11:30:03.1211409Z      Running tests\real_mcp.rs (target\debug\deps\real_mcp-cf2a74a088cb27ff.exe)
+2026-11-28T11:30:03.1247110Z 
+2026-11-28T11:30:03.1247374Z running 0 tests
+2026-11-28T11:30:03.1247554Z 
+2026-11-28T11:30:03.1247771Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s
+2026-11-28T11:30:03.1247998Z 
+2026-11-28T11:30:03.1336941Z ##[endgroup]
+2026-11-28T11:30:03.1346790Z ##[group]Worker tier report (WR-05) � .cmd shims say tier 1, never silently unsandboxed
+2026-11-28T11:30:03.2676776Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+2026-11-28T11:30:03.2723418Z      Running unittests src\lib.rs (target\debug\deps\wright_tools-1a39a0bbfd296e09.exe)
+2026-11-28T11:30:03.2766221Z 
+2026-11-28T11:30:03.2766378Z running 16 tests
+2026-11-28T11:30:05.3036467Z test appcontainer::tests::a_contained_worker_past_its_timeout_is_killed ... ok
+2026-11-28T11:30:05.3220534Z test appcontainer::tests::a_contained_worker_sees_only_the_environment_it_was_given ... ok
+2026-11-28T11:30:05.3883151Z test appcontainer::tests::the_copy_is_the_only_place_a_contained_worker_can_write_or_read ... ok
+2026-11-28T11:30:05.4124882Z test winjob::tests::workers_can_start_children_under_the_production_limits ... ok
+2026-11-28T11:30:05.4832402Z test worker::tests::a_change_outside_the_worker_scope_applies_nothing ... ok
+2026-11-28T11:30:05.4852093Z test worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output ... FAILED
+2026-11-28T11:30:05.5296053Z test worker::tests::a_failing_worker_changes_nothing ... ok
+2026-11-28T11:30:05.5364387Z test worker::tests::a_missing_program_is_named_before_anything_is_copied ... ok
+2026-11-28T11:30:06.5472564Z test worker::tests::a_slow_worker_is_killed_by_its_clock ... ok
+2026-11-28T11:30:06.6145931Z test worker::tests::a_worker_that_writes_a_file_gets_it_applied ... ok
+2026-11-28T11:30:06.6860165Z test worker::tests::deletions_in_scope_are_applied_and_reported ... ok
+2026-11-28T11:30:06.7199364Z test worker::tests::npm_cmd_shims_run_as_tier_one_and_say_so ... ok
+2026-11-28T11:30:06.7199917Z test worker::tests::scope_matching_treats_dirs_and_files_fairly ... ok
+2026-11-28T11:30:06.7655502Z test worker::tests::the_real_project_never_gains_the_worker_copy ... ok
+2026-11-28T11:30:06.7656187Z test worker::tests::the_tier_ladder_is_named_not_silent ... ok
+2026-11-28T11:30:06.7665940Z test worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else ... FAILED
+2026-11-28T11:30:06.7666293Z 
+2026-11-28T11:30:06.7666389Z failures:
+2026-11-28T11:30:06.7666516Z 
+2026-11-28T11:30:06.7666740Z ---- worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output stdout ----
+2026-11-28T11:30:06.7667034Z 
+2026-11-28T11:30:06.7667366Z thread 'worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output' (6592) panicked at tools\src\worker.rs:1200:10:
+2026-11-28T11:30:06.7668379Z called `Result::unwrap()` on an `Err` value: Failed("run 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wright-worker-stub-2892-1795865405483546900.sh' for the worker 'stub-agent': %1 is not a valid Win32 application. (os error 193)")
+2026-11-28T11:30:06.7669338Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-11-28T11:30:06.7669543Z 
+2026-11-28T11:30:06.7670049Z ---- worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else stdout ----
+2026-11-28T11:30:06.7670528Z 
+2026-11-28T11:30:06.7670920Z thread 'worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else' (7848) panicked at tools\src\worker.rs:1226:10:
+2026-11-28T11:30:06.7672393Z called `Result::unwrap()` on an `Err` value: Failed("run 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\wright-worker-stub-2892-1795865406765980900.sh' for the worker 'stub-agent': %1 is not a valid Win32 application. (os error 193)")
+2026-11-28T11:30:06.7673173Z 
+2026-11-28T11:30:06.7673178Z 
+2026-11-28T11:30:06.7673273Z failures:
+2026-11-28T11:30:06.7673579Z     worker::tests::a_chatty_worker_is_not_stalled_by_its_own_output
+2026-11-28T11:30:06.7674009Z     worker::tests::the_worker_gets_its_own_sign_in_and_nothing_else
+2026-11-28T11:30:06.7674279Z 
+2026-11-28T11:30:06.7674548Z test result: FAILED. 14 passed; 2 failed; 0 ignored; 0 measured; 55 filtered out; finished in 3.49s
+2026-11-28T11:30:06.7674916Z 
+2026-11-28T11:30:06.7679889Z error: test failed, to rerun pass `-p wright-tools --lib`
+2026-11-28T11:30:06.7761288Z ##[endgroup]
+2026-11-28T11:30:06.7780760Z ##[error]Worker tier report (WR-05) � .cmd shims say tier 1, never silently unsandboxed failed (exit 101)
+2026-11-28T11:30:06.7932413Z ##[error]Process completed with exit code 1.
+2026-11-28T11:30:06.8126419Z Post job cleanup.
+2026-11-28T11:30:06.9145699Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-28T11:30:06.9353875Z git version 2.56.1.windows.1
+2026-11-28T11:30:06.9396984Z Temporarily overriding HOME='D:\a\_temp\83362c3f-1b0f-4c75-a475-4116a8068a35' before making global git config changes
+2026-11-28T11:30:06.9397723Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-28T11:30:06.9405286Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\vieww_prod\vieww_prod
+2026-11-28T11:30:06.9629358Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-28T11:30:06.9849572Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-28T11:30:07.3486635Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-28T11:30:07.3677011Z http.https://github.com/.extraheader
+2026-11-28T11:30:07.3704936Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-11-28T11:30:07.3925660Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-28T11:30:07.7704798Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-28T11:30:07.7937123Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-28T11:30:08.1912031Z Cleaning up orphan processes
+2026-11-28T11:30:08.2341946Z Terminate orphan process: pid (3504) (vctip)
+2026-11-28T11:30:08.2393382Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

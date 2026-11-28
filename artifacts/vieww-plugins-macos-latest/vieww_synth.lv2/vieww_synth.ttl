@@ -1,0 +1,86 @@
+@prefix atom:  <http://lv2plug.in/ns/ext/atom#> .
+@prefix doap:  <http://usefulinc.com/ns/doap#> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix midi:  <http://lv2plug.in/ns/ext/midi#> .
+@prefix patch: <http://lv2plug.in/ns/ext/patch#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+
+<urn:dev.vieww.synth>
+    a lv2:Plugin , lv2:InstrumentPlugin ;
+    doap:name "vieww Synth" ;
+    doap:maintainer [ foaf:name "vieww" ] ;
+    doap:shortdesc "Sixteen-voice subtractive synthesizer" ;
+    lv2:minorVersion 0 ;
+    lv2:microVersion 0 ;
+    lv2:requiredFeature urid:map ;
+    lv2:extensionData <http://lv2plug.in/ns/ext/state#interface> ;
+    lv2:port [
+        a lv2:InputPort , atom:AtomPort ;
+        lv2:index 0 ;
+        lv2:symbol "control_in" ;
+        lv2:name "Control In" ;
+        atom:bufferType atom:Sequence ;
+         atom:supports midi:MidiEvent , patch:Message
+    ] ,
+    [
+        a lv2:OutputPort , atom:AtomPort ;
+        lv2:index 1 ;
+        lv2:symbol "control_out" ;
+        lv2:name "Control Out" ;
+        atom:bufferType atom:Sequence ;
+         atom:supports patch:Message
+    ] ,
+    [
+        a lv2:OutputPort , lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "latency" ;
+        lv2:name "Latency" ;
+        lv2:portProperty lv2:connectionOptional ;
+         lv2:designation <http://lv2plug.in/ns/ext/latency#latency>
+    ] ,
+    [
+        a lv2:OutputPort , lv2:AudioPort ;
+        lv2:index 3 ;
+        lv2:symbol "out_0" ;
+        lv2:name "Output 1"
+    ] ,
+    [
+        a lv2:OutputPort , lv2:AudioPort ;
+        lv2:index 4 ;
+        lv2:symbol "out_1" ;
+        lv2:name "Output 2"
+    ] ;
+    lv2:parameter <urn:dev.vieww.synth#param-cutoff-0> , <urn:dev.vieww.synth#param-resonance-1> , <urn:dev.vieww.synth#param-level-2> , <urn:dev.vieww.synth#param-glide-3> .
+
+<urn:dev.vieww.synth#param-cutoff-0>
+    a lv2:Parameter ;
+    rdfs:label "Cutoff" ;
+    rdfs:range atom:Float ;
+    lv2:default 2400.0 ;
+    lv2:minimum 40.0 ;
+    lv2:maximum 18000.0 ;
+    rdfs:comment "unit: Hz" .
+<urn:dev.vieww.synth#param-resonance-1>
+    a lv2:Parameter ;
+    rdfs:label "Resonance" ;
+    rdfs:range atom:Float ;
+    lv2:default 1.2 ;
+    lv2:minimum 0.5 ;
+    lv2:maximum 8.0 .
+<urn:dev.vieww.synth#param-level-2>
+    a lv2:Parameter ;
+    rdfs:label "Level" ;
+    rdfs:range atom:Float ;
+    lv2:default 0.7 ;
+    lv2:minimum 0.0 ;
+    lv2:maximum 1.0 .
+<urn:dev.vieww.synth#param-glide-3>
+    a lv2:Parameter ;
+    rdfs:label "Glide" ;
+    rdfs:range atom:Float ;
+    lv2:default 0.0 ;
+    lv2:minimum 0.0 ;
+    lv2:maximum 0.5 ;
+    rdfs:comment "unit: s" .

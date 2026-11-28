@@ -1,0 +1,400 @@
+2026-11-28T11:29:33.7803824Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:33.7804144Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:33.7804434Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:33.7804716Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:33.7805015Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:33.7805288Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:33.7805546Z   IOS_CERT_P12: 
+2026-11-28T11:29:33.7805809Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:33.7806073Z   IOS_IDENTITY: 
+2026-11-28T11:29:33.7806324Z   IOS_PROFILE: 
+2026-11-28T11:29:33.7806592Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:33.7806872Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:33.7807161Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:33.7807775Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:33.7808111Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:33.7808416Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:33.7808763Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:33.7809109Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:33.7809428Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:33.7809745Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:33.7810096Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:33.7810421Z ##[endgroup]
+2026-11-28T11:29:33.9272292Z ##[group]Installed versions
+2026-11-28T11:29:33.9361194Z (node:2153) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:29:33.9362338Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:29:33.9363214Z Successfully set up CPython (3.12.16)
+2026-11-28T11:29:33.9364229Z ##[endgroup]
+2026-11-28T11:29:33.9602929Z ##[group]Run actions/setup-python@v5
+2026-11-28T11:29:33.9603522Z with:
+2026-11-28T11:29:33.9603934Z   python-version: 3.12
+2026-11-28T11:29:33.9604430Z   update-environment: false
+2026-11-28T11:29:33.9604969Z   check-latest: false
+2026-11-28T11:29:33.9610117Z   token: ***
+2026-11-28T11:29:33.9610575Z   allow-prereleases: false
+2026-11-28T11:29:33.9611091Z   freethreaded: false
+2026-11-28T11:29:33.9611546Z env:
+2026-11-28T11:29:33.9611967Z   CI_INPUTS: ***
+2026-11-28T11:29:33.9612415Z   CI_MATRIX: ***
+2026-11-28T11:29:33.9614869Z   CI_JOB: ***"title": "wright \u00b7 models-reference", "project": "wright", "id": "models-reference", "file": "vieww_base/apps/wright/ci/jobs/models-reference.toml", "if": "", "needs": [], "setup": [***"uses": "cache", "with": ***"path": "$*** runner.temp ***/ref", "key": "wright-refs-$*** hashFiles('vieww_base/apps/wright/scripts/models/references.sh') ***"***], "uploads": [], "downloads": []***
+2026-11-28T11:29:33.9617648Z   CI_PROJECT: wright
+2026-11-28T11:29:33.9619704Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:33.9626374Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:33.9626866Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:33.9627326Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:33.9627976Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:33.9628452Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:33.9628974Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:33.9629449Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:33.9629946Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:33.9630452Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:33.9630925Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:33.9631391Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:33.9631865Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:33.9632341Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:33.9632845Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:33.9633296Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:33.9633741Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:33.9634242Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:33.9634727Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:33.9635471Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:33.9635959Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:33.9636460Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:33.9636917Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:33.9637495Z   IOS_CERT_P12: 
+2026-11-28T11:29:33.9637938Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:33.9638385Z   IOS_IDENTITY: 
+2026-11-28T11:29:33.9638829Z   IOS_PROFILE: 
+2026-11-28T11:29:33.9639270Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:33.9639762Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:33.9640238Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:33.9640813Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:33.9641386Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:33.9641913Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:33.9642511Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:33.9643095Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:33.9643611Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:33.9644134Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:33.9644700Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:33.9645236Z ##[endgroup]
+2026-11-28T11:29:34.1155728Z ##[group]Installed versions
+2026-11-28T11:29:34.1214075Z (node:2161) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:29:34.1215321Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:29:34.1216196Z Successfully set up CPython (3.12.16)
+2026-11-28T11:29:34.1217010Z ##[endgroup]
+2026-11-28T11:29:34.1401229Z ##[group]Run [ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"
+2026-11-28T11:29:34.1401849Z [36;1m[ -n "$CI_PY" ] && echo "CI_PY=$CI_PY" >> "$GITHUB_ENV"[0m
+2026-11-28T11:29:34.1402450Z [36;1m"$***CI_PY:-python3***" ci/lib/prepare.py[0m
+2026-11-28T11:29:34.1683471Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:29:34.1684303Z env:
+2026-11-28T11:29:34.1684810Z   CI_INPUTS: ***
+2026-11-28T11:29:34.1685278Z   CI_MATRIX: ***
+2026-11-28T11:29:34.1688035Z   CI_JOB: ***"title": "wright \u00b7 models-reference", "project": "wright", "id": "models-reference", "file": "vieww_base/apps/wright/ci/jobs/models-reference.toml", "if": "", "needs": [], "setup": [***"uses": "cache", "with": ***"path": "$*** runner.temp ***/ref", "key": "wright-refs-$*** hashFiles('vieww_base/apps/wright/scripts/models/references.sh') ***"***], "uploads": [], "downloads": []***
+2026-11-28T11:29:34.1690612Z   CI_PROJECT: wright
+2026-11-28T11:29:34.1692647Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:34.1698478Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:34.1699034Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:34.1699343Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:34.1699646Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:34.1699947Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:34.1700266Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:34.1700559Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:34.1701019Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:34.1701450Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:34.1701765Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:34.1702061Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:34.1702490Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:34.1703005Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:34.1703366Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:34.1703834Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:34.1704286Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:34.1704837Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:34.1705355Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:34.1705867Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:34.1706371Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:34.1706872Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:34.1707478Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:34.1707937Z   IOS_CERT_P12: 
+2026-11-28T11:29:34.1708389Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:34.1709168Z   IOS_IDENTITY: 
+2026-11-28T11:29:34.1709605Z   IOS_PROFILE: 
+2026-11-28T11:29:34.1710062Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:34.1710553Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:34.1711042Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:34.1711614Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:34.1712176Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:34.1712716Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:34.1713310Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:34.1713904Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:34.1714449Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:34.1714998Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:34.1715600Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:34.1716282Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-28T11:29:34.1716937Z ##[endgroup]
+2026-11-28T11:29:35.0095781Z ***
+2026-11-28T11:29:35.0096459Z  "go": "true",
+2026-11-28T11:29:35.0096982Z  "cache_path": "/home/runner/work/_temp/ref",
+2026-11-28T11:29:35.0098050Z  "cache_key": "wright-refs-4c377bb3e3b71ee6193c5ee6ba1e58ce415b0a671cfa6b53ba71c3b45836846a",
+2026-11-28T11:29:35.0098791Z  "cache_restore": "",
+2026-11-28T11:29:35.0099147Z  "tools": "",
+2026-11-28T11:29:35.0099479Z  "has_final": "false"
+2026-11-28T11:29:35.0099830Z ***
+2026-11-28T11:29:35.0400284Z ##[group]Run actions/cache@v4
+2026-11-28T11:29:35.0400635Z with:
+2026-11-28T11:29:35.0400911Z   path: /home/runner/work/_temp/ref
+2026-11-28T11:29:35.0401435Z   key: wright-refs-4c377bb3e3b71ee6193c5ee6ba1e58ce415b0a671cfa6b53ba71c3b45836846a
+2026-11-28T11:29:35.0401966Z   enableCrossOsArchive: false
+2026-11-28T11:29:35.0402294Z   fail-on-cache-miss: false
+2026-11-28T11:29:35.0402593Z   lookup-only: false
+2026-11-28T11:29:35.0402861Z   save-always: false
+2026-11-28T11:29:35.0403124Z env:
+2026-11-28T11:29:35.0403375Z   CI_INPUTS: ***
+2026-11-28T11:29:35.0403642Z   CI_MATRIX: ***
+2026-11-28T11:29:35.0405052Z   CI_JOB: ***"title": "wright \u00b7 models-reference", "project": "wright", "id": "models-reference", "file": "vieww_base/apps/wright/ci/jobs/models-reference.toml", "if": "", "needs": [], "setup": [***"uses": "cache", "with": ***"path": "$*** runner.temp ***/ref", "key": "wright-refs-$*** hashFiles('vieww_base/apps/wright/scripts/models/references.sh') ***"***], "uploads": [], "downloads": []***
+2026-11-28T11:29:35.0406499Z   CI_PROJECT: wright
+2026-11-28T11:29:35.0407799Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:35.0411273Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:35.0411561Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:35.0411835Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:35.0412122Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:35.0412400Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:35.0412709Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:35.0412982Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:35.0413275Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:35.0413571Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:35.0413847Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:35.0414121Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:35.0414397Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:35.0414679Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:35.0414970Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:35.0415234Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:35.0415523Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:35.0415817Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:35.0416101Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:35.0416400Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:35.0416688Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:35.0416979Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:35.0417259Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:35.0417632Z   IOS_CERT_P12: 
+2026-11-28T11:29:35.0417894Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:35.0418157Z   IOS_IDENTITY: 
+2026-11-28T11:29:35.0418618Z   IOS_PROFILE: 
+2026-11-28T11:29:35.0418885Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:35.0419167Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:35.0419452Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:35.0419785Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:35.0420119Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:35.0420439Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:35.0420783Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:35.0421126Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:35.0421439Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:35.0421759Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:35.0422105Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:35.0422498Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-28T11:29:35.0422895Z ##[endgroup]
+2026-11-28T11:29:35.1513505Z (node:2174) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-28T11:29:35.1514946Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-28T11:29:35.2162426Z Cache not found for input keys: wright-refs-4c377bb3e3b71ee6193c5ee6ba1e58ce415b0a671cfa6b53ba71c3b45836846a
+2026-11-28T11:29:35.2350557Z ##[group]Run "$***CI_PY:-python3***" ci/lib/run.py "vieww_base/apps/wright/ci/jobs/models-reference.toml"
+2026-11-28T11:29:35.2351413Z [36;1m"$***CI_PY:-python3***" ci/lib/run.py "vieww_base/apps/wright/ci/jobs/models-reference.toml"[0m
+2026-11-28T11:29:35.2411258Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail ***0***
+2026-11-28T11:29:35.2411701Z env:
+2026-11-28T11:29:35.2411967Z   CI_INPUTS: ***
+2026-11-28T11:29:35.2412241Z   CI_MATRIX: ***
+2026-11-28T11:29:35.2413640Z   CI_JOB: ***"title": "wright \u00b7 models-reference", "project": "wright", "id": "models-reference", "file": "vieww_base/apps/wright/ci/jobs/models-reference.toml", "if": "", "needs": [], "setup": [***"uses": "cache", "with": ***"path": "$*** runner.temp ***/ref", "key": "wright-refs-$*** hashFiles('vieww_base/apps/wright/scripts/models/references.sh') ***"***], "uploads": [], "downloads": []***
+2026-11-28T11:29:35.2415123Z   CI_PROJECT: wright
+2026-11-28T11:29:35.2416266Z   CI_VARS: ***
+  "AWS_REGION": "us-west-2",
+  "AWS_ROLE_ARN": "arn:aws:iam::278061313767:role/GitHubViewWDeviceFarmRole",
+  "DEVICE_FARM_PROJECT_ARN": "arn:aws:devicefarm:us-west-2:278061313767:project:393108fd-d195-4dad-acb4-12581f7a212f",
+  "FIREBASE_DEVICES": "aruba:30,a10:29,bluejay:32"
+***
+2026-11-28T11:29:35.2420062Z   CI_GITHUB_TOKEN: ***
+2026-11-28T11:29:35.2420363Z   CI_SECRET_NAMES: 
+2026-11-28T11:29:35.2420642Z   CI_HAS_AWS_ROLE: false
+2026-11-28T11:29:35.2420926Z   ANDROID_KEYSTORE: 
+2026-11-28T11:29:35.2421202Z   ANDROID_KEYSTORE_PASSWORD: 
+2026-11-28T11:29:35.2421505Z   ANDROID_KEY_ALIAS: 
+2026-11-28T11:29:35.2421774Z   ANDROID_KEY_PASSWORD: 
+2026-11-28T11:29:35.2422070Z   APPLE_DEVELOPER_ID_P12: 
+2026-11-28T11:29:35.2422361Z   APPLE_NOTARY_ISSUER: 
+2026-11-28T11:29:35.2422634Z   APPLE_NOTARY_KEY: 
+2026-11-28T11:29:35.2422908Z   APPLE_NOTARY_KEY_ID: 
+2026-11-28T11:29:35.2423178Z   APPLE_P12_PASSWORD: 
+2026-11-28T11:29:35.2423456Z   APPLE_SIGNING_IDENTITY: 
+2026-11-28T11:29:35.2423737Z   AWS_ACCESS_KEY_ID: 
+2026-11-28T11:29:35.2424000Z   AWS_ROLE_ARN: 
+2026-11-28T11:29:35.2424274Z   AWS_SECRET_ACCESS_KEY: 
+2026-11-28T11:29:35.2424559Z   CARGO_REGISTRY_TOKEN: 
+2026-11-28T11:29:35.2424847Z   CLOUDFLARE_ACCOUNT_ID: 
+2026-11-28T11:29:35.2425137Z   CLOUDFLARE_API_TOKEN: 
+2026-11-28T11:29:35.2425422Z   DEVICE_FARM_PROJECT_ARN: 
+2026-11-28T11:29:35.2425716Z   FIREBASE_PROJECT: 
+2026-11-28T11:29:35.2425977Z   FIREBASE_SA_KEY: 
+2026-11-28T11:29:35.2426238Z   IOS_CERT_P12: 
+2026-11-28T11:29:35.2426493Z   IOS_CERT_PASSWORD: 
+2026-11-28T11:29:35.2426753Z   IOS_IDENTITY: 
+2026-11-28T11:29:35.2426999Z   IOS_PROFILE: 
+2026-11-28T11:29:35.2427253Z   WINDOWS_CERT_PASSWORD: 
+2026-11-28T11:29:35.2427782Z   WINDOWS_CERT_PFX: 
+2026-11-28T11:29:35.2428080Z   WRIGHT_SECRET_MACOS_NOTARY_KEY: 
+2026-11-28T11:29:35.2428622Z   WRIGHT_SECRET_MACOS_NOTARY_KEY_ID: 
+2026-11-28T11:29:35.2428956Z   WRIGHT_SECRET_MACOS_P12: 
+2026-11-28T11:29:35.2429269Z   WRIGHT_SECRET_MACOS_P12_PASSWORD: 
+2026-11-28T11:29:35.2429606Z   WRIGHT_SECRET_MACOS_SIGNING_IDENTITY: 
+2026-11-28T11:29:35.2429948Z   WRIGHT_SECRET_MACOS_TEAM_ID: 
+2026-11-28T11:29:35.2430256Z   WRIGHT_SECRET_WINDOWS_PFX: 
+2026-11-28T11:29:35.2430576Z   WRIGHT_SECRET_WINDOWS_PFX_PASSWORD: 
+2026-11-28T11:29:35.2430915Z   WRIGHT_SECRET_WRIGHT_RELEASE_SIGNING: 
+2026-11-28T11:29:35.2431314Z   CI_PY: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python
+2026-11-28T11:29:35.2431699Z   CI_PART: main
+2026-11-28T11:29:35.2431952Z ##[endgroup]
+2026-11-28T11:29:35.3178520Z ##[group]Rust $*** env.RUST_VERSION ***
+2026-11-28T11:29:35.3528722Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-28T11:29:35.6503557Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:29:35.6504514Z info: downloading 3 components
+2026-11-28T11:29:43.3308339Z 
+2026-11-28T11:29:43.3408134Z   1.98.1-x86_64-unknown-linux-gnu installed - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:29:43.3408716Z 
+2026-11-28T11:29:43.3588623Z info: using existing install for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-28T11:29:43.3595362Z info: default toolchain set to 1.98.1-x86_64-unknown-linux-gnu
+2026-11-28T11:29:43.3595741Z 
+2026-11-28T11:29:43.3692592Z   1.98.1-x86_64-unknown-linux-gnu unchanged - rustc 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:29:43.3693371Z 
+2026-11-28T11:29:43.3708956Z ##[endgroup]
+2026-11-28T11:29:43.3718506Z ##[group]Python tools for the test models
+2026-11-28T11:29:50.6748375Z gguf ok | numpy 2.2.6
+2026-11-28T11:29:50.6869935Z ##[endgroup]
+2026-11-28T11:29:50.6880316Z ##[group]Build llama.cpp and whisper.cpp (pinned)
+2026-11-28T11:29:55.1311886Z CMAKE_BUILD_TYPE=Release
+2026-11-28T11:32:52.3179704Z CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
+2026-11-28T11:32:52.3180813Z   Compatibility with CMake < 3.10 will be removed from a future version of
+2026-11-28T11:32:52.3181625Z   CMake.
+2026-11-28T11:32:52.3181869Z 
+2026-11-28T11:32:52.3182284Z   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+2026-11-28T11:32:52.3183305Z   to tell CMake that the project requires at least <min> but has been updated
+2026-11-28T11:32:52.3184207Z   to work with policies introduced by <max> or earlier.
+2026-11-28T11:32:52.3184678Z 
+2026-11-28T11:32:52.3184694Z 
+2026-11-28T11:33:42.8857778Z references built in /home/runner/work/_temp/ref
+2026-11-28T11:33:42.8863378Z ##[endgroup]
+2026-11-28T11:33:42.8873146Z ##[group]Make the fixtures
+2026-11-28T11:34:18.3808837Z fixtures in /home/runner/work/_temp/fixtures
+2026-11-28T11:34:18.3814398Z ##[endgroup]
+2026-11-28T11:34:18.3825205Z ##[group]Tiny models, token for token
+2026-11-28T11:34:18.4519342Z info: syncing channel updates for 1.98.1-x86_64-unknown-linux-gnu
+2026-11-28T11:34:18.5318663Z info: latest update on 2026-09-03 for version 1.98.1 (48a229cea 2026-09-01)
+2026-11-28T11:34:18.5464568Z info: downloading 3 components
+2026-11-28T11:34:21.7832975Z [1m[92m    Updating[0m crates.io index
+2026-11-28T11:34:22.3330264Z [1m[92m   Compiling[0m wright-core v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/core)
+2026-11-28T11:34:23.4495114Z [1m[92m   Compiling[0m wright-runtime v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/runtime)
+2026-11-28T11:34:27.7279540Z [1m[92m   Compiling[0m wright-infer v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/infer)
+2026-11-28T11:34:36.0293033Z [1m[92m    Finished[0m `release` profile [optimized] target(s) in 14.30s
+2026-11-28T11:34:36.0827032Z [1m[92m     Running[0m unittests src/lib.rs (target/release/deps/wright_infer-c7ed5e8ffc4c0f19)
+2026-11-28T11:34:36.0857784Z 
+2026-11-28T11:34:36.0858072Z running 21 tests
+2026-11-28T11:34:36.0863688Z test backend::tests::only_catalog_models_of_the_right_kind ... ok
+2026-11-28T11:34:36.0864737Z test audio::tests::wav_decodes_to_16k_mono ... ok
+2026-11-28T11:34:36.0869190Z test chat::tests::content_cannot_open_a_turn ... ok
+2026-11-28T11:34:36.0870163Z test chat::tests::renders_like_the_qwen3_template ... ok
+2026-11-28T11:34:36.0871143Z test chat::tests::output_parses_into_text_and_calls ... ok
+2026-11-28T11:34:36.0872119Z test chat::tests::streaming_holds_back_a_tag_in_progress ... ok
+2026-11-28T11:34:36.0873107Z test linear::tests::ranges_cover_everything_once ... ok
+2026-11-28T11:34:36.0874049Z test llm::tests::tool_names_are_spotted_early ... ok
+2026-11-28T11:34:36.0874847Z test num::tests::half_floats_round_trip ... ok
+2026-11-28T11:34:36.0882043Z test linear::tests::threaded_products_match_the_obvious_loop ... ok
+2026-11-28T11:34:36.0882946Z test num::tests::q8_dot_matches_float_dot ... ok
+2026-11-28T11:34:36.0883811Z test qwen3::tests::rope_at_zero_is_identity_and_preserves_length ... ok
+2026-11-28T11:34:36.0884447Z test sample::tests::greedy_takes_the_best_and_top_k_one_is_greedy ... ok
+2026-11-28T11:34:36.0885021Z test tokenizer::tests::pieces_follow_the_qwen_regex ... ok
+2026-11-28T11:34:36.0888140Z test whisper::tests::gelu_is_gelu ... ok
+2026-11-28T11:34:36.0889054Z test whisper::tests::im2col_pads_and_strides ... ok
+2026-11-28T11:34:36.0890255Z test chat::tests::a_later_turn_extends_the_earlier_prompt ... ok
+2026-11-28T11:34:36.0891206Z test sample::tests::sampling_stays_inside_the_nucleus ... ok
+2026-11-28T11:34:36.0892135Z test whisper::tests::special_tokens_follow_the_vocabulary_size ... ok
+2026-11-28T11:34:36.0911125Z test whisper::tests::one_query_matches_the_batched_path ... ok
+2026-11-28T11:34:36.1010417Z test audio::tests::a_tone_lights_up_its_mel_band ... ok
+2026-11-28T11:34:36.1010831Z 
+2026-11-28T11:34:36.1011231Z test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-11-28T11:34:36.1011725Z 
+2026-11-28T11:34:36.1015292Z [1m[92m     Running[0m tests/qwen3.rs (target/release/deps/qwen3-14a1bc0e0b6912e1)
+2026-11-28T11:34:36.1036252Z 
+2026-11-28T11:34:36.1036508Z running 2 tests
+2026-11-28T11:34:36.5245330Z test logits_match_llama_cpp_with_strong_attention ... ok
+2026-11-28T11:34:37.0732980Z test greedy_text_matches_llama_cpp ... ok
+2026-11-28T11:34:37.0733533Z 
+2026-11-28T11:34:37.0734137Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s
+2026-11-28T11:34:37.0734886Z 
+2026-11-28T11:34:37.0801782Z [1m[92m     Running[0m tests/real.rs (target/release/deps/real-8a6d27c130f00c29)
+2026-11-28T11:34:37.0825290Z 
+2026-11-28T11:34:37.0825741Z running 2 tests
+2026-11-28T11:34:37.0829127Z test qwen3_agrees_with_llama_cpp_and_calls_tools ... ok
+2026-11-28T11:34:37.0829870Z test whisper_hears_jfk ... ok
+2026-11-28T11:34:37.0830216Z 
+2026-11-28T11:34:37.0830726Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-28T11:34:37.0831408Z 
+2026-11-28T11:34:37.0832218Z [1m[92m     Running[0m tests/tokenizer.rs (target/release/deps/tokenizer-6926bfb7140f4ee7)
+2026-11-28T11:34:37.0851975Z 
+2026-11-28T11:34:37.0852248Z running 3 tests
+2026-11-28T11:34:37.2619706Z test control_tokens_only_on_request ... ok
+2026-11-28T11:34:37.3246427Z test matches_llama_cpp_on_its_qwen2_cases ... ok
+2026-11-28T11:35:37.0854729Z test fuzz_against_llama_tokenize has been running for over 60 seconds
+2026-11-28T11:36:10.3556291Z test fuzz_against_llama_tokenize ... ok
+2026-11-28T11:36:10.3557656Z 
+2026-11-28T11:36:10.3558520Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 93.27s
+2026-11-28T11:36:10.3559297Z 
+2026-11-28T11:36:10.3583206Z [1m[92m     Running[0m tests/whisper.rs (target/release/deps/whisper-b5ed0e0949059345)
+2026-11-28T11:36:10.3605623Z 
+2026-11-28T11:36:10.3605825Z running 1 test
+2026-11-28T11:36:13.1224911Z test logits_and_language_match_whisper_cpp ... ok
+2026-11-28T11:36:13.1225390Z 
+2026-11-28T11:36:13.1228985Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.76s
+2026-11-28T11:36:13.1229747Z 
+2026-11-28T11:36:13.1270995Z [1m[92m   Doc-tests[0m wright_infer
+2026-11-28T11:36:13.1784368Z 
+2026-11-28T11:36:13.1784906Z running 0 tests
+2026-11-28T11:36:13.1785258Z 
+2026-11-28T11:36:13.1785852Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-11-28T11:36:13.1786578Z 
+2026-11-28T11:36:13.1972322Z ##[endgroup]
+2026-11-28T11:36:13.1981670Z ##[group]Download the real models
+2026-11-28T11:36:13.3227211Z [1m[92m   Compiling[0m wright-tools v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/tools)
+2026-11-28T11:36:13.3230018Z [1m[92m   Compiling[0m wright-agents v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/agents)
+2026-11-28T11:36:14.1481658Z [1m[92m   Compiling[0m wright-engine v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/engine)
+2026-11-28T11:36:16.8399427Z [1m[92m   Compiling[0m wright v1.0.2 (/home/runner/work/vieww_prod/vieww_prod/vieww_base/apps/wright/app)
+2026-11-28T11:36:22.9457119Z [1m[92m    Finished[0m `release` profile [optimized] target(s) in 9.71s
+2026-11-28T11:36:22.9992477Z ./target/release/wright: error while loading shared libraries: libstd-64f5f36fb0927694.so: cannot open shared object file: No such file or directory
+2026-11-28T11:36:22.9995837Z ##[endgroup]
+2026-11-28T11:36:23.0024984Z ##[error]Download the real models failed (exit 127)
+2026-11-28T11:36:23.0111158Z ##[error]Process completed with exit code 1.
+2026-11-28T11:36:23.0328048Z Post job cleanup.
+2026-11-28T11:36:23.1231614Z [command]/usr/bin/git version
+2026-11-28T11:36:23.1279284Z git version 2.56.1
+2026-11-28T11:36:23.1324302Z Temporarily overriding HOME='/home/runner/work/_temp/84719d5f-f5b2-44cf-9430-eba0075cd239' before making global git config changes
+2026-11-28T11:36:23.1325753Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-28T11:36:23.1331587Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/vieww_prod/vieww_prod
+2026-11-28T11:36:23.1377131Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-28T11:36:23.1416861Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-28T11:36:23.1733989Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-28T11:36:23.1765005Z http.https://github.com/.extraheader
+2026-11-28T11:36:23.1782270Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-28T11:36:23.1832141Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-28T11:36:23.2185370Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-28T11:36:23.2262388Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-28T11:36:23.2774970Z Cleaning up orphan processes
+2026-11-28T11:36:23.3102835Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
