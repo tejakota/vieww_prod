@@ -181,38 +181,27 @@ pub fn with_overrides(
 /// keeps one signature for the caller.
 #[must_use]
 pub(crate) fn read_os(android: Option<&AndroidHandle>) -> Accessibility {
+    // One `let` per platform and a single tail: no early `return`s, which
+    // clippy (`needless_return`) flags on whichever platform's branch ends
+    // up last after `cfg` removes the rest.
+    #[cfg(not(target_os = "android"))]
+    let _ = android;
     #[cfg(target_os = "android")]
-    {
-        return android.and_then(read_android).unwrap_or_default();
-    }
+    let read = android.and_then(read_android).unwrap_or_default();
     #[cfg(target_os = "ios")]
-    {
-        let _ = android;
-        return read_ios();
-    }
+    let read = read_ios();
     #[cfg(target_os = "macos")]
-    {
-        let _ = android;
-        return read_macos();
-    }
+    let read = read_macos();
     #[cfg(target_os = "windows")]
-    {
-        let _ = android;
-        return read_windows();
-    }
+    let read = read_windows();
     #[cfg(all(
         unix,
         not(any(target_os = "android", target_os = "ios", target_os = "macos"))
     ))]
-    {
-        let _ = android;
-        return read_gnome();
-    }
+    let read = read_gnome();
     #[cfg(not(any(unix, target_os = "windows")))]
-    {
-        let _ = android;
-        Accessibility::default()
-    }
+    let read = Accessibility::default();
+    read
 }
 
 /// The OS answer with the environment overrides applied.
