@@ -27,7 +27,7 @@ use vieww::element::ScrollController;
 use vieww::foundation::Axis;
 use vieww::gestures::ScrollPhysics;
 use vieww::prelude::*;
-use vieww::widget::widget_node_from;
+use vieww::widget::{widget_node_from, KeyListener};
 
 use crate::model::{Screen, Tab};
 use crate::screens;
@@ -202,11 +202,24 @@ impl Widget for VavltApp {
                 let progress = splash.value();
                 if splash_visible(progress, reduce_motion) {
                     // A tap anywhere ends it: nobody should wait for a logo.
+                    // So does any key on a desktop (VA-01): the overlay takes
+                    // the keyboard while it is up, and the driver hands focus
+                    // back when it goes.
                     let skip = splash.clone();
-                    let overlay = Pressable::new(move |_| {
-                        vavlt_splash(progress, constraints.max_width, constraints.max_height)
+                    let skip_key = splash.clone();
+                    let overlay = KeyListener::new(move |e| {
+                        if e.is_down() {
+                            skip_key.set_progress(1.0);
+                        }
+                        e.is_down()
                     })
-                    .on_tap(move || skip.set_progress(1.0));
+                    .autofocus(true)
+                    .child(
+                        Pressable::new(move |_| {
+                            vavlt_splash(progress, constraints.max_width, constraints.max_height)
+                        })
+                        .on_tap(move || skip.set_progress(1.0)),
+                    );
                     Stack::new()
                         .fit(StackFit::Expand)
                         .children(children![content, overlay])

@@ -36,11 +36,11 @@ use vieww_widget::{
     Align, AspectRatio, BlockSemantics, CircularProgressArc, Clip, ClipShape as WidgetClipShape,
     ColoredBox, Constrained, CursorArea, CustomScrollView, DecoratedBox, ExcludeSemantics,
     Filtered, Fitted, Flex, Flexible, FocusTrap, GestureDetector, Icon, IgnorePointer,
-    Image as ImageWidget, InheritedScope, IntrinsicSize, Measured, MeasuredConstraints, Metrics,
-    Offstage, Opacity, Padding, Painting, PerformanceOverlay, Positioned, RepaintBoundary,
-    RichText, SemanticLiveness, SemanticRole, Semantics, SensitiveMask, SliderBar, SliverAppBar,
-    SliverList, SliverRefresh, Stack, Svg, Text, TextField, ThemeData, Transformed, Viewport,
-    Widget, WidgetNode,
+    Image as ImageWidget, InheritedScope, IntrinsicSize, KeyListener, Measured,
+    MeasuredConstraints, Metrics, Offstage, Opacity, Padding, Painting, PerformanceOverlay,
+    Positioned, RepaintBoundary, RichText, SemanticLiveness, SemanticRole, Semantics,
+    SensitiveMask, SliderBar, SliverAppBar, SliverList, SliverRefresh, Stack, Svg, Text, TextField,
+    ThemeData, Transformed, Viewport, Widget, WidgetNode,
 };
 
 use crate::objects::{
@@ -48,7 +48,7 @@ use crate::objects::{
     RenderCircularProgress, RenderClip, RenderColoredBox, RenderConstrainedBox, RenderCursorArea,
     RenderDecoratedBox, RenderEditableText, RenderExcludeSemantics, RenderFilter, RenderFitted,
     RenderFlex, RenderFlexible, RenderFocusTrap, RenderGestureDetector, RenderIcon,
-    RenderIgnorePointer, RenderImage, RenderIntrinsicSize, RenderMeasured,
+    RenderIgnorePointer, RenderImage, RenderIntrinsicSize, RenderKeyListener, RenderMeasured,
     RenderMeasuredConstraints, RenderOffstage, RenderOpacity, RenderPadding, RenderPainting,
     RenderPerformanceOverlay, RenderPositioned, RenderRepaintBoundary, RenderRichText,
     RenderScrollView, RenderSemantics, RenderSensitive, RenderSlider, RenderSliverAppBar,
@@ -399,6 +399,10 @@ impl RenderFactory {
             RenderBlockSemantics::new(widget.is_blocking())
         });
         factory.register::<FocusTrap, _>(|widget| RenderFocusTrap::new(widget.is_trapping()));
+        factory.register::<KeyListener, _>(|widget| {
+            RenderKeyListener::new(widget.handler(), widget.wants_autofocus())
+                .focus_ring(widget.focus_ring_color())
+        });
         factory.register::<CursorArea, _>(|widget| RenderCursorArea::new(widget.shape()));
         factory
             .register::<IgnorePointer, _>(|widget| RenderIgnorePointer::new(widget.is_ignoring()));

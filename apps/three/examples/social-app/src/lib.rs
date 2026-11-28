@@ -464,7 +464,34 @@ impl SocialState {
         let next = (self.feed_offset - dy).clamp(0.0, max);
         if (next - self.feed_offset).abs() > f32::EPSILON {
             self.feed_offset = next;
+            self.follow_scroll();
             self.pending = true;
+        }
+    }
+    /// One capture plays per viewport, and only while it can be seen: when
+    /// the playing card scrolls out, the card at the viewport's centre takes
+    /// over. A card the user started keeps playing while any of it shows.
+    fn follow_scroll(&mut self) {
+        let posts = &self.app.feed.posts;
+        if posts.is_empty() {
+            return;
+        }
+        let (top, bottom) = (
+            self.feed_offset,
+            self.feed_offset + self.feed_viewport.max(1.0),
+        );
+        let visible = |i: usize| {
+            let (a, b) = (i as f32 * FEED_CARD, (i + 1) as f32 * FEED_CARD);
+            b > top && a < bottom
+        };
+        let playing = self
+            .active
+            .as_ref()
+            .and_then(|id| posts.iter().position(|p| &p.id == id))
+            .unwrap_or(0);
+        if !visible(playing) {
+            let centre = ((top + bottom) / 2.0 / FEED_CARD) as usize;
+            self.active = Some(posts[centre.min(posts.len() - 1)].id.clone());
         }
     }
     fn discard_composer(&mut self) {
@@ -877,7 +904,8 @@ fn moment_card(
     media: Option<Rc<LazyCapture>>,
     handle: Option<Handle>,
 ) -> WidgetNode {
-    let (like, comment, remix, share, play, author) = (
+    let (like, comment, remix, share, play, author, open) = (
+        handle.clone(),
         handle.clone(),
         handle.clone(),
         handle.clone(),
@@ -885,6 +913,7 @@ fn moment_card(
         handle.clone(),
         handle,
     );
+    let id_open = post.id.clone();
     let (id_like, id_comment, id_remix, id_share, id_play) = (
         post.id.clone(),
         post.id.clone(),
@@ -927,7 +956,20 @@ fn moment_card(
                 }),
             ),
         )
-        .push(Text::new(post.caption.clone()).style(theme.text.body))
+        // The caption opens the post on its own screen (the Post route had
+        // no way in).
+        .push(
+            Pressable::new({
+                let caption = post.caption.clone();
+                let style = theme.text.body;
+                move |_| Text::new(caption.clone()).style(style).into()
+            })
+            .on_tap(move || {
+                if let Some(h) = &open {
+                    h.write(|s| s.open_post(&id_open));
+                }
+            }),
+        )
         .push(chamber)
         .push(
             Flex::row()
@@ -1088,19 +1130,6 @@ fn user_screen(
         }
     }
     column.into()
-}
-
-/// The feed card's media: the first post's asset, opened lazily the way
-/// a downloaded asset is. Falls back to the deterministic sample when the
-/// feed is somehow empty, so the card never mounts a blank chamber.
-fn feed_media(snap: &Snapshot) -> Rc<LazyCapture> {
-    match (&snap.media, snap.posts.first()) {
-        (Some(media), Some(_)) => Rc::clone(media),
-        _ => Rc::new(
-            LazyCapture::open(three_runtime::save(&sample_capture()).expect("sample encodes"))
-                .expect("sample opens"),
-        ),
-    }
 }
 
 /// Explore: a live search field over the backend's own people, each card
@@ -2070,5 +2099,19 @@ mod th02 {
         assert!(s.feed_offset > 0.0, "a drag up scrolls into the feed");
         s.scroll_feed(10_000.0);
         assert_eq!(s.feed_offset, 0.0, "and back clamps at the top");
+    }
+
+    #[test]
+    fn the_playing_capture_follows_the_scroll() {
+        let mut s = state();
+        let posts: Vec<PostId> = s.app.feed.posts.iter().map(|p| p.id.clone()).collect();
+        assert!(posts.len() > 1);
+        s.feed_viewport = FEED_CARD;
+        // Partly scrolled: the first card still shows, so it keeps playing.
+        s.scroll_feed(-FEED_CARD * 0.5);
+        assert_eq!(active_post(&s).map(|p| p.id), Some(posts[0].clone()));
+        // Scrolled past it: the card now in view plays instead.
+        s.scroll_feed(-FEED_CARD * 0.6);
+        assert_eq!(active_post(&s).map(|p| p.id), Some(posts[1].clone()));
     }
 }

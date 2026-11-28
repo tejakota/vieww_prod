@@ -24,6 +24,7 @@ mod icon;
 mod ignore_pointer;
 mod image;
 mod intrinsic;
+mod key_listener;
 mod measured;
 mod measured_constraints;
 mod offstage;
@@ -66,6 +67,7 @@ pub use flexible::RenderFlexible;
 pub use focus_trap::RenderFocusTrap;
 pub use gesture_detector::RenderGestureDetector;
 pub use icon::RenderIcon;
+pub use key_listener::RenderKeyListener;
 pub use platform_view::RenderPlatformView;
 pub use rich_text::{LinkHandler, RenderRichText};
 // `RenderImage` holds `vieww_foundation::Image`; the pixels are re-exported by

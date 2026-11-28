@@ -3,7 +3,9 @@
 //! Mirrors `prototype/screens/landing/compare-sheet.css`.
 //!
 //! vieww mapping: `BottomSheet`-shaped composition — `Stack` + `Positioned` +
-//! `Clip` + `Image` + `LayoutBuilder` + `GestureDetector` + `Button`.
+//! `Clip` + `Image` + `LayoutBuilder` + `GestureDetector` + `Button`, with a
+//! `KeyListener` and slider `Semantics` so the divider is a keyboard and
+//! screen-reader control as well.
 //!
 //! # How the reveal actually works
 //!
@@ -37,7 +39,7 @@ use vieww_foundation::{
     Alignment, BoxFit, Color, Constraints, EdgeInsets, Image as Pixels, Offset, Path, Rect, Size,
 };
 use vieww_widget::prelude::*;
-use vieww_widget::widget_node_from;
+use vieww_widget::{widget_node_from, KeyListener, SemanticRole, Semantics};
 
 use crate::icons;
 use crate::photos::{Photo, UPSCALE_FACTOR};
@@ -253,15 +255,58 @@ impl CompareSheet {
                 .into()
         });
 
+        // The keyboard and a screen reader reach the divider too (A11Y-02):
+        // it is a slider in all but appearance — role, value, arrows, Home
+        // and End, Page Up and Page Down — the CompareStage contract in
+        // DESIGN_SPEC §3.
+        let on_key = Rc::clone(&self.on_divider);
+        let keyed = KeyListener::new(move |e| match divider_key(divider, e) {
+            Some(next) => {
+                on_key(next);
+                true
+            }
+            None => false,
+        })
+        .focus_ring(Some(theme_data.colors.focus_ring()))
+        .child(stage);
+        let slider = Semantics::new()
+            .role(SemanticRole::Slider)
+            .label("Before and after divider")
+            .value(format!("{}% upscaled", (divider * 100.0).round() as i32))
+            .child(keyed);
+
         Clip::rounded(corner)
             .child(
                 Container::new()
                     .color(Color::BLACK)
                     .radius(corner)
-                    .child(stage),
+                    .child(slider),
             )
             .into()
     }
+}
+
+/// How far an arrow moves the divider, and a Page key.
+const ARROW_STEP: f32 = 0.05;
+const PAGE_STEP: f32 = 0.25;
+
+/// The divider after `event`, or `None` for a key the divider does not use
+/// (Tab included, so focus still moves on). The ARIA slider keys.
+pub fn divider_key(divider: f32, event: &vieww_foundation::KeyEvent) -> Option<f32> {
+    use vieww_foundation::{LogicalKey, NamedKey};
+    if !event.is_down() {
+        return None;
+    }
+    let next = match event.key {
+        LogicalKey::Named(NamedKey::ArrowRight | NamedKey::ArrowUp) => divider + ARROW_STEP,
+        LogicalKey::Named(NamedKey::ArrowLeft | NamedKey::ArrowDown) => divider - ARROW_STEP,
+        LogicalKey::Named(NamedKey::PageUp) => divider + PAGE_STEP,
+        LogicalKey::Named(NamedKey::PageDown) => divider - PAGE_STEP,
+        LogicalKey::Named(NamedKey::Home) => 0.0,
+        LogicalKey::Named(NamedKey::End) => 1.0,
+        _ => return None,
+    };
+    Some(next.clamp(0.0, 1.0))
 }
 
 widget_node_from!(CompareSheet);
