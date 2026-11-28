@@ -136,6 +136,10 @@ pub struct AppState {
     /// How the render reaches a thread. Held so a screen can start one.
     spawner: Rc<dyn Spawn>,
     waker: Arc<dyn FrameWaker>,
+    /// The platform share sheet, when the host has one (UX-02): a saved
+    /// photo is offered to it, which on iOS is where "Save Image" to the
+    /// photo library lives.
+    share: Rc<RefCell<Option<Rc<dyn vieww_foundation::mobile::Share>>>>,
 }
 
 impl std::fmt::Debug for AppState {
@@ -194,7 +198,13 @@ impl AppState {
             nav,
             spawner,
             waker,
+            share: Rc::new(RefCell::new(None)),
         }
+    }
+
+    /// Offer every saved photo to this share sheet (UX-02).
+    pub fn set_share(&self, share: Rc<dyn vieww_foundation::mobile::Share>) {
+        *self.share.borrow_mut() = Some(share);
     }
 
     // ── picker ──────────────────────────────────────────────────────────────
@@ -447,6 +457,26 @@ impl AppState {
         *self.save.borrow_mut() = None;
         if let crate::export::SaveOutcome::Failed(error) = &outcome {
             eprintln!("upxcale: save failed: {error}");
+        }
+        // The share sheet, where there is one: on iOS it carries "Save
+        // Image" to the photo library. A sheet that cannot take a file
+        // (Android without a FileProvider) leaves the toast's "Saved to …".
+        if let (crate::export::SaveOutcome::Saved(path), Some(share)) =
+            (&outcome, self.share.borrow().clone())
+        {
+            if let Ok(bytes) = std::fs::read(path) {
+                let name = path
+                    .file_name()
+                    .map_or_else(|| "upxcale.png".to_owned(), |n| n.to_string_lossy().into_owned());
+                let item = vieww_foundation::mobile::ShareItem {
+                    text: String::new(),
+                    url: None,
+                    file: Some((name, bytes)),
+                };
+                if let Err(error) = share.share(item) {
+                    eprintln!("upxcale: share sheet: {error}");
+                }
+            }
         }
         self.toast
             .set(Some(crate::export::outcome_message(&outcome)));

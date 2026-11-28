@@ -91,13 +91,24 @@ impl Platform for Ios {
     }
 
     fn share(&self, path: &std::path::Path) {
-        // A `UIActivityViewController` is the right answer and is not written.
-        // Saying so beats a silent no-op: the file is in the app's container
-        // and reachable over the Files app if the bundle declares it.
-        log::info!(
-            "audit exported to {} — the iOS share sheet is not wired up yet",
-            path.display()
-        );
+        // The share sheet (UX-02): the exported file, by URL.
+        use vieww::foundation::mobile::{Share as _, ShareItem};
+        let name = path
+            .file_name()
+            .map_or_else(|| "vavlt-audit".to_owned(), |n| n.to_string_lossy().into_owned());
+        let shared = std::fs::read(path).map_err(|e| e.to_string()).and_then(|bytes| {
+            vieww_platform_winit::mobile_services::IosServices
+                .share(ShareItem { text: String::new(), url: None, file: Some((name, bytes)) })
+                .map_err(|e| e.to_string())
+        });
+        if let Err(error) = shared {
+            log::error!("sharing {}: {error}", path.display());
+        }
+    }
+
+    fn haptic(&self) {
+        use vieww::foundation::mobile::{HapticPattern, Haptics as _};
+        let _ = vieww_platform_winit::mobile_services::IosServices.play(HapticPattern::Selection);
     }
 }
 

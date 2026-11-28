@@ -274,7 +274,10 @@ objc2-ui-kit = { version = "0.2", features = [
 # `NSString`, for handing text to `UIPasteboard`. This was a *dev*-dependency —
 # `examples/shared/device_tests.rs` uses it for `NSLog` — and the library now
 # needs it too, so it is named in both places. Same version, so no second copy.
-objc2-foundation = { version = "0.2", features = ["NSString"] }
+objc2-foundation = { version = "0.2", features = ["NSString", "NSArray", "NSData", "NSThread"] }
+# UX-02: the photo picker's `NSItemProvider` answers through a completion
+# block. The 0.5 generation, the one objc2 0.5 and winit already resolve.
+block2 = "0.5"
 
 # Android does not call `main`: the activity loads a shared library and calls
 # `android_main` inside it, so the entry point has to be a cdylib. A plain

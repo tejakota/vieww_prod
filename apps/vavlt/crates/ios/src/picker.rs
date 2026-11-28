@@ -2,9 +2,11 @@
 //!
 //! # Status: written, never run
 //!
-//! Stated here rather than in a release note. Everything in the `ios` half of
-//! this file has been compiled against `objc2`'s types and has **not executed
-//! on a device or a simulator**, because this workspace has no Mac attached.
+//! Stated here rather than in a release note. The `ios` half of this file now
+//! presents the framework's `PHPickerViewController` bridge
+//! (`vieww_platform_winit::mobile_services`, UX-02); both have compiled for
+//! iOS and **not executed on a device or a simulator**, because this
+//! workspace has no Mac attached.
 //! The Android path opposite it has run on real hardware; this has not, and
 //! nothing below should be read as if it had.
 //!
@@ -122,25 +124,43 @@ mod device {
         }
     }
 
-    /// Present the system photo picker.
+    /// Present the system photo picker (`vieww_platform_winit::mobile_services`,
+    /// UX-02), copy what the person chose into [`picked_dir`], and report it.
     ///
-    /// **Unimplemented, and failing loudly rather than silently.** The delegate
-    /// class this needs is a `declare_class!` with one method
-    /// (`picker:didFinishPicking:`) that has to outlive the presentation, copy
-    /// each `NSItemProvider` into [`picked_dir`], and post the results. That is
-    /// forty lines of `objc2` that must not be guessed at: a delegate that is
-    /// released too early is a crash on the user's first tap, and it cannot be
-    /// found without running it.
-    ///
-    /// So the app reports a picker it cannot open, which is the same thing the
-    /// Android host does when its shim fails to load — a state the UI already
-    /// draws, on the vault screen, in a red card.
-    pub fn present(_max: usize, reply: Sender<Message>, waker: Arc<dyn FrameWaker>) {
-        log::error!("the iOS photo picker is not wired up in this build");
-        let _ = reply.send(Message::PickFailed(
-            "The photo picker is not available in this build of vavlt for iPhone.".into(),
-        ));
-        waker.wake();
+    /// Written against the framework's `PHPickerViewController` bridge, which
+    /// has compiled for iOS and not yet run on a device; the copy-then-report
+    /// shape here is what the Android host does with its descriptors.
+    pub fn present(max: usize, reply: Sender<Message>, waker: Arc<dyn FrameWaker>) {
+        use vieww::foundation::mobile::PhotoPicker as _;
+        vieww_platform_winit::mobile_services::IosServices.pick_photos(
+            max,
+            Box::new(move |result| {
+                let message = match result {
+                    Ok(photos) => {
+                        let dir = picked_dir();
+                        let _ = std::fs::create_dir_all(&dir);
+                        let mut items = Vec::new();
+                        for (i, photo) in photos.into_iter().enumerate() {
+                            // Indexed, so two "IMG_0001.HEIC"s from two albums
+                            // do not overwrite each other.
+                            let path = dir.join(format!("{i:03}-{}", photo.name));
+                            match std::fs::write(&path, &photo.bytes) {
+                                Ok(()) => items.push(vavlt_engine::Item::new(
+                                    path.to_string_lossy().into_owned(),
+                                    photo.name,
+                                    photo.bytes.len() as u64,
+                                )),
+                                Err(error) => log::error!("copying {}: {error}", photo.name),
+                            }
+                        }
+                        Message::Picked(items)
+                    }
+                    Err(error) => Message::PickFailed(format!("The photo picker failed: {error}")),
+                };
+                let _ = reply.send(message);
+                waker.wake();
+            }),
+        );
     }
 }
 

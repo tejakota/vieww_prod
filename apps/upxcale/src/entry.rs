@@ -114,6 +114,9 @@ pub fn boot_with(
     ));
 
     let state = AppState::new(runtime, library, nav.clone(), spawner, Arc::clone(&waker));
+    if let Some(share) = services.get::<dyn vieww_foundation::mobile::Share>() {
+        state.set_share(share);
+    }
 
     let landing = Landing {
         state: state.clone(),

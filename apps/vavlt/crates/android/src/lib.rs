@@ -60,12 +60,19 @@ use picker::PickerSource;
 struct Android {
     picker: Option<Arc<Picker>>,
     data_dir: PathBuf,
+    /// The system haptic (UX-02): `performHapticFeedback` on the activity.
+    native: vieww_platform_winit::mobile_services::AndroidServices,
 }
 
 #[cfg(target_os = "android")]
 impl Platform for Android {
     fn data_dir(&self) -> PathBuf {
         self.data_dir.clone()
+    }
+
+    fn haptic(&self) {
+        use vieww::foundation::mobile::{HapticPattern, Haptics as _};
+        let _ = self.native.play(HapticPattern::Selection);
     }
 
     fn source(&self) -> Arc<dyn Source> {
@@ -132,6 +139,7 @@ fn android_main(android: vieww_platform_winit::AndroidApp) {
         }
     };
 
+    let native = vieww_platform_winit::mobile_services::AndroidServices::new(&android);
     let pump = Pump::new();
     let app = App::new().title("vavlt").on_frame({
         // The pump is what turns a codec worker's results into signal writes.
@@ -165,7 +173,7 @@ fn android_main(android: vieww_platform_winit::AndroidApp) {
     let result = app.run_android(android, move |driver: &mut FrameDriver| {
         let runtime = driver.elements().runtime().clone();
 
-        let platform = Rc::new(Android { picker, data_dir });
+        let platform = Rc::new(Android { picker, data_dir, native: native.clone() });
         let state = VavltState::new(&runtime, platform, waker.clone());
         pump.install(&state);
         *farm_state.borrow_mut() = Some(state.clone());

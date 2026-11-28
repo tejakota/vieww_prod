@@ -128,6 +128,14 @@ pub fn platform() -> Services {
     // where the session cannot host them (a Wayland window).
     #[cfg(not(target_os = "android"))]
     crate::os_platform_views::OsPlatformViews::provide(&mut services);
+    // UX-02: haptics, the share sheet and the photo picker, through UIKit.
+    #[cfg(target_os = "ios")]
+    {
+        let ios = Rc::new(crate::mobile_services::IosServices);
+        services.provide::<dyn vieww_foundation::mobile::Haptics>(ios.clone());
+        services.provide::<dyn vieww_foundation::mobile::Share>(ios.clone());
+        services.provide::<dyn vieww_foundation::mobile::PhotoPicker>(ios);
+    }
     services
 }
 
@@ -196,6 +204,13 @@ pub fn for_android(android: &crate::AndroidApp) -> Services {
     // [`platform`] — Android has no bridge (winit exposes none), but the
     // session machinery is target-independent.
     crate::drag::provide(&mut services);
+    // UX-02: haptics and the share sheet through the activity. No photo
+    // picker: see `mobile_services` for why a NativeActivity cannot host one.
+    let native = Rc::new(crate::mobile_services::AndroidServices {
+        android: android.clone(),
+    });
+    services.provide::<dyn vieww_foundation::mobile::Haptics>(native.clone());
+    services.provide::<dyn vieww_foundation::mobile::Share>(native);
     services
 }
 
@@ -231,15 +246,24 @@ pub fn for_android(android: &crate::AndroidApp) -> Services {
 /// [`AlwaysDenied`](vieww_foundation::permission::AlwaysDenied) is the honest
 /// answer for a build with no bridge behind any of them.
 pub fn unavailable_capabilities(services: &mut Services) {
-    services.provide::<dyn vieww_foundation::mobile::Haptics>(Rc::new(
-        vieww_foundation::mobile::Unsupported,
-    ));
-    services.provide::<dyn vieww_foundation::mobile::PhotoPicker>(Rc::new(
-        vieww_foundation::mobile::Unsupported,
-    ));
-    services.provide::<dyn vieww_foundation::mobile::Share>(Rc::new(
-        vieww_foundation::mobile::Unsupported,
-    ));
+    // The three UX-02 services refuse only where no native one is registered
+    // (`platform` on iOS, `for_android`): a refusal must never replace a
+    // working bridge.
+    if !services.has::<dyn vieww_foundation::mobile::Haptics>() {
+        services.provide::<dyn vieww_foundation::mobile::Haptics>(Rc::new(
+            vieww_foundation::mobile::Unsupported,
+        ));
+    }
+    if !services.has::<dyn vieww_foundation::mobile::PhotoPicker>() {
+        services.provide::<dyn vieww_foundation::mobile::PhotoPicker>(Rc::new(
+            vieww_foundation::mobile::Unsupported,
+        ));
+    }
+    if !services.has::<dyn vieww_foundation::mobile::Share>() {
+        services.provide::<dyn vieww_foundation::mobile::Share>(Rc::new(
+            vieww_foundation::mobile::Unsupported,
+        ));
+    }
     services.provide::<dyn Camera>(Rc::new(NoCamera));
     services.provide::<dyn LocationServices>(Rc::new(NoLocation));
     services.provide::<dyn Notifications>(Rc::new(NoNotifications));
@@ -266,6 +290,27 @@ mod tests {
         // every target — present even where it refuses, so a widget's lookup
         // succeeds and the refusal lands in the call instead.
         assert!(services.has::<dyn crate::drag::PlatformDragStarter>());
+    }
+
+    #[test]
+    fn a_refusal_never_replaces_a_working_bridge() {
+        use vieww_foundation::mobile::{HapticPattern, Haptics, HeadlessHaptics, Share};
+        // UX-02: a host (or iOS's `platform`) registered a real one first.
+        let mut services = platform();
+        let felt = Rc::new(HeadlessHaptics::new());
+        services.provide::<dyn Haptics>(felt.clone());
+        unavailable_capabilities(&mut services);
+        let haptics = services.get::<dyn Haptics>().expect("registered");
+        assert!(
+            haptics.play(HapticPattern::Light).is_ok(),
+            "still the working one"
+        );
+        assert_eq!(felt.played(), [HapticPattern::Light]);
+        // And where nothing was registered, the refusal fills the gap.
+        let share = services.get::<dyn Share>().expect("the refusal");
+        assert!(share
+            .share(vieww_foundation::mobile::ShareItem::default())
+            .is_err());
     }
 
     #[test]

@@ -253,11 +253,18 @@ fn compare_needs_no_ui_thread_resample_and_save_reports_back() {
     assert_eq!((baseline.width(), baseline.height()), (result.width(), result.height()));
 
     state.open_compare("a2");
+    // UX-02: with a share sheet registered, the saved PNG is offered to it.
+    let sheet = std::rc::Rc::new(vieww_foundation::mobile::HeadlessShare::new());
+    state.set_share(sheet.clone());
     assert!(state.save_current());
     // `Inline` ran the encode already; the toast is folded in on the next poll.
     state.poll_save();
     let message = state.toast.peek().expect("a toast after saving");
     assert!(message.starts_with("Saved to "), "{message}");
+    let shared = sheet.shared();
+    assert_eq!(shared.len(), 1, "the saved photo went to the share sheet");
+    let (name, bytes) = shared[0].file.clone().expect("as a file");
+    assert!(name.ends_with(".png") && bytes.starts_with(b"\x89PNG"), "{name}");
     assert!(std::fs::read_dir(&dir).unwrap().count() >= 1, "a file was written");
     std::fs::remove_dir_all(&dir).ok();
 }

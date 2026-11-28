@@ -154,6 +154,8 @@ pub mod drag;
 pub mod farm;
 mod frame_budget;
 mod gpu_route;
+/// Native haptics, share sheet and photo picker (UX-02).
+pub mod mobile_services;
 mod os_accessibility;
 mod perf_hint;
 mod quality;
