@@ -1,0 +1,108 @@
+# CI-01: one mobile app's own scenario on Firebase Test Lab (free).
+#
+# The app, launched as a Game Loop test, plays vieww_platform_winit::farm's
+# scenario — cold start, scroll, open and close a sheet, 10 s idle — twice per
+# phone (scenario 1 CPU rasteriser, 2 GPU path), narrates it in Market Watch's
+# `__MW__` protocol and exits. This job turns the phones' logs into the same
+# report Market Watch's Firebase job writes (to_farm.py, compare_report.py) and
+# uploads `<app>-farm/compare.json`, which the results job turns into the
+# per-app scorecard (SCORE-01).
+#
+# Cost: the Spark plan allows 5 physical-device runs a day, and each phone is
+# one. The phones are the repository variable FIREBASE_APP_DEVICES
+# ("model:version,..." — name one low, one mid and one high phone to fill the
+# scorecard's three tiers), else the first FARM_PHONES (default 2) phones
+# pick_devices.py prefers. The same billing guard as Market Watch's job.
+
+name = "Firebase Test Lab · app scenario"
+
+[defaults]
+shell = "bash"
+working-directory = "."
+
+[env]
+FIREBASE_PROJECT = "${{ secrets.FIREBASE_PROJECT }}"
+FIREBASE_SA_KEY = "${{ secrets.FIREBASE_SA_KEY }}"
+FIREBASE_APP_DEVICES = "${{ vars.FIREBASE_APP_DEVICES }}"
+FIREBASE_ALLOW_BLAZE = "${{ vars.FIREBASE_ALLOW_BLAZE }}"
+FARM_PHONES = "${{ vars.FARM_PHONES }}"
+APP = "${{ matrix.app }}"
+APK = "dist/${{ matrix.apk_name }}.apk"
+OUT = "${{ runner.temp }}/farm"
+PUBLISH = "${{ runner.temp }}/${{ matrix.app }}-farm"
+
+[[step]]
+name = "Check the secrets and the APK are there"
+run = '''
+[ -n "$FIREBASE_PROJECT" ] || { echo "::error::secret FIREBASE_PROJECT is not set (see vieww_base/examples/market-watch/firebase/README.md)"; exit 1; }
+[ -n "$FIREBASE_SA_KEY" ] || { echo "::error::secret FIREBASE_SA_KEY is not set (see vieww_base/examples/market-watch/firebase/README.md)"; exit 1; }
+ls -l "$APK"
+'''
+
+[[step]]
+name = "gcloud"
+run = '''
+if ! command -v gcloud >/dev/null; then
+  curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/google-cloud-sdk.tar.gz | tar -xz -C "$RUNNER_TEMP"
+  echo "$RUNNER_TEMP/google-cloud-sdk/bin" >> "$GITHUB_PATH"
+  export PATH="$RUNNER_TEMP/google-cloud-sdk/bin:$PATH"
+fi
+printf '%s' "$FIREBASE_SA_KEY" > "$RUNNER_TEMP/sa.json"
+gcloud --quiet auth activate-service-account --key-file "$RUNNER_TEMP/sa.json"
+gcloud --quiet config set project "$FIREBASE_PROJECT"
+rm -f "$RUNNER_TEMP/sa.json"
+'''
+
+[[step]]
+name = "Refuse a project that can be billed"
+run = '''
+billing="$(gcloud billing projects describe "$FIREBASE_PROJECT" --format='value(billingEnabled)' 2>/dev/null || echo unknown)"
+echo "billing enabled: $billing" | tee -a "$GITHUB_STEP_SUMMARY"
+case "$billing" in
+  True|true)
+    if [ "$FIREBASE_ALLOW_BLAZE" != yes ]; then
+      echo "::error::Firebase project $FIREBASE_PROJECT has billing enabled (Blaze). Refusing to run: set the repository variable FIREBASE_ALLOW_BLAZE=yes to allow it."
+      exit 1
+    fi ;;
+  unknown)
+    echo "::warning::Could not read the project's billing state. A Spark project cannot be billed; make sure this one is on Spark." ;;
+esac
+'''
+
+[[step]]
+name = "Run on phones"
+run = '''
+mkdir -p "$OUT/results" "$OUT/farm" "$PUBLISH"
+picker=vieww_base/examples/market-watch/firebase/pick_devices.py
+gcloud firebase test android models list --format=json > "$OUT/models.json"
+mapfile -t devices < <(python3 "$picker" "$OUT/models.json" --count "${FARM_PHONES:-2}" --only "$FIREBASE_APP_DEVICES")
+[ "${#devices[@]}" -gt 0 ] || { echo "::error::no physical phone found in the Test Lab catalog"; exit 1; }
+printf '%s on phones: %s\n' "$APP" "${devices[*]}" | tee -a "$GITHUB_STEP_SUMMARY"
+args=()
+for d in "${devices[@]}"; do args+=(--device "$d"); done
+dir="app-$APP-${GITHUB_SHA:0:10}-${GITHUB_RUN_ID}"
+set +e
+# Scenarios 1 and 2 in one launch sequence per phone: about 25 s each plus
+# install and cold start. --timeout is the per-phone ceiling.
+gcloud firebase test android run --type game-loop \
+  --app "$APK" --scenario-numbers 1,2 \
+  "${args[@]}" --timeout 4m --no-record-video --results-dir "$dir" 2>&1 | tee "$OUT/run.log"
+status=${PIPESTATUS[0]}
+set -e
+bucket="$(grep -oE 'storage/browser/[^/ ]+' "$OUT/run.log" | head -1 | cut -d/ -f3)"
+[ -n "$bucket" ] || { echo "::error::could not find the results bucket in gcloud's output"; exit 1; }
+gsutil -m -q cp -r "gs://$bucket/$dir" "$OUT/results/" || gcloud storage cp -r "gs://$bucket/$dir" "$OUT/results/"
+python3 vieww_base/examples/market-watch/firebase/to_farm.py --results "$OUT/results" --out "$OUT/farm" --apk "$APK"
+python3 vieww_base/examples/market-watch/compare_report.py --farm "$OUT/farm" --out "$OUT/report" \
+  --header "$APP · run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} · ${GITHUB_SHA:0:10} · Firebase Test Lab (free) · phases: scroll, sheet, idle" > /dev/null
+cp "$OUT/report/COMPARE.md" "$OUT/report/compare.json" "$PUBLISH/"
+cat "$OUT/report/COMPARE.md" >> "$GITHUB_STEP_SUMMARY"
+echo "gcloud exited $status (a test the app did not finish is 'failed'; the report says which)"
+'''
+
+[[step]]
+name = "mark: upload ${{ matrix.app }}-farm"
+if = "always()"
+run = '''
+echo "CI_UPLOAD_0=yes" >> "$GITHUB_ENV"
+'''

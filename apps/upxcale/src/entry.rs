@@ -156,12 +156,36 @@ fn android_main(android: vieww_platform_winit::AndroidApp) {
         });
     let waker: Arc<dyn FrameWaker> = Arc::new(app.waker());
 
+    // A Firebase Game Loop launch plays the per-app scenario (CI-01); the
+    // sheet phase opens the photo picker and dismisses it.
+    let farm_state: Rc<RefCell<Option<AppState>>> = Rc::new(RefCell::new(None));
+    let app = match vieww_platform_winit::farm::Farm::from_launch(&android, "upxcale") {
+        Some(farm) => {
+            let slot = Rc::clone(&farm_state);
+            farm.sheet(move |open| {
+                if let Some(state) = slot.borrow().as_ref() {
+                    if open {
+                        state
+                            .nav
+                            .push(crate::screens::landing::picker_route(state.clone()));
+                    } else {
+                        state.clear_picks();
+                        state.nav.pop();
+                    }
+                }
+            })
+            .install(app)
+        }
+        None => app,
+    };
+
     // Android's registry knows where the APK's assets live, which is the whole
     // reason this does not just call `boot`.
     let services = SharedServices::new(vieww_platform_winit::services::for_android(&android));
 
     if let Err(error) = app.run_android(android, move |driver| {
         let state = boot_with(driver, waker, services);
+        *farm_state.borrow_mut() = Some(state.clone());
         *pump.borrow_mut() = Some(Pump::new(state));
     }) {
         eprintln!("upxcale: {error}");

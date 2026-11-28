@@ -71,3 +71,54 @@ name = "${{ matrix.app }}-ios-ipa"
 path = "${{ runner.temp }}/${{ matrix.app }}-ios/"
 if-no-files-found = "error"
 retention-days = 30
+
+# CI-01: the app's own scenario on phones — Firebase Test Lab's free plan,
+# one app a day in turn (Devices ▸ Phone farm ▸ "Apps on Firebase Test Lab").
+# The APK is built here rather than taken from Check, so a devices run needs
+# nothing else to have run first. `{name}` in `when` is this app: the planner
+# sets `farm.app.<name>` for the one app whose turn it is.
+[[job]]
+id = "farm-apk"
+title = "farm apk"
+file = "ci/kinds/mobile-app/android.toml"
+requires = "build.android"
+row = { app = "{name}", package = "{build.android.package}", workdir = "{path}", apk_name = "{build.android.apk}" }
+stage = "devices"
+phase = 1
+when = "farm.app.{name}"
+runs_on = "ubuntu-latest"
+timeout = 90
+secrets = ["ANDROID_KEYSTORE", "ANDROID_KEYSTORE_PASSWORD", "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"]
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.setup]]
+uses = "java"
+with = { distribution = "temurin", java-version = "17" }
+[[job.upload]]
+name = "${{ matrix.app }}-farm-apk"
+path = "${{ runner.temp }}/${{ matrix.app }}-android/"
+if-no-files-found = "error"
+retention-days = 7
+
+[[job]]
+id = "farm"
+title = "Firebase Test Lab (free)"
+file = "ci/kinds/mobile-app/farm.toml"
+requires = "build.android"
+row = { app = "{name}", apk_name = "{build.android.apk}" }
+stage = "devices"
+phase = 2
+needs = ["farm-apk"]
+when = "farm.app.{name}"
+runs_on = "ubuntu-24.04"
+timeout = 40
+main_only = true
+secrets = ["FIREBASE_PROJECT", "FIREBASE_SA_KEY"]
+checkout = { persist-credentials = false, fetch-depth = 1 }
+[[job.download]]
+name = "${{ matrix.app }}-farm-apk"
+path = "dist"
+[[job.upload]]
+# The results job turns `<app>-farm/compare.json` into the scorecard (SCORE-01).
+name = "${{ matrix.app }}-farm"
+path = "${{ runner.temp }}/${{ matrix.app }}-farm/"
+if-no-files-found = "warn"

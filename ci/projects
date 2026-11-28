@@ -15,6 +15,7 @@ crate without its own ci.toml is checked as part of the project around it.
 Standard library only (Python 3.11+): it runs on GitHub's machines and on
 the self-hosted ones.
 """
+import datetime
 import fnmatch
 import json
 import os
@@ -38,6 +39,11 @@ COMPARE = "Valdi vs Vieww (Android)"
 COMPARE_WIDE = "Valdi vs Vieww · wide (phones + machines)"
 COMPARE_FIREBASE = "Vieww on Firebase Test Lab (free)"
 COMPARE_QUICK = "Valdi vs Vieww · quick (Vieww only, ~$2)"
+# CI-01: each mobile app's own scenario on Firebase Test Lab's free plan. Five
+# physical runs a day do not cover five apps on three phones, so one app a
+# day, in turn, unless the choice names one.
+APPS_FIREBASE = "Apps on Firebase Test Lab (free · today's app)"
+APPS_FIREBASE_ONE = "App on Firebase Test Lab · "
 SKIP_DIRS = {".git", "target", "node_modules", ".gradle", "build", "dist", "feature_branch_variants", "__pycache__"}
 PHASES = 3
 MACHINE = ["self-hosted", "Linux", "X64", "vieww-linux"]
@@ -451,6 +457,10 @@ def form_flags(workflow, form, vars_):
     # Firebase Test Lab: Vieww's two paths as a Game Loop test on the free
     # Spark plan. It builds the Vieww APK and nothing that runs on AWS.
     flags["farm.firebase"] = farm == COMPARE_FIREBASE
+    # Per-app farm runs (CI-01): `farm.apps` turns them on; `plan` names the
+    # one app (`farm.app.<name>`) once it knows the projects.
+    flags["farm.apps"] = farm == APPS_FIREBASE or farm.startswith(APPS_FIREBASE_ONE)
+    flags["farm.apps_pick"] = farm[len(APPS_FIREBASE_ONE):] if farm.startswith(APPS_FIREBASE_ONE) else ""
     flags["farm.vieww_apk"] = farm in (COMPARE, COMPARE_WIDE, COMPARE_QUICK, COMPARE_FIREBASE)
     # Quick: Vieww's two paths only, no thermal pass, short rests. Valdi is
     # pinned, so its numbers stand from the last full report.
@@ -534,6 +544,14 @@ def plan(workflow, form, vars_, ref):
     phases = {p: {"read": [], "write": []} for p in range(1, PHASES + 1)}
     picked_rows = []
 
+    # CI-01: the one app whose phones run today (or the one the form named).
+    if flags.get("farm.apps"):
+        farm_apps = farm_app_candidates(projects)
+        pick = farm_app_for(farm_apps, flags.get("farm.apps_pick", ""), datetime.date.today())
+        if pick:
+            flags[f"farm.app.{pick}"] = True
+            notes.append(f"phone farm: {pick} on Firebase Test Lab (rotation: {', '.join(farm_apps)})")
+
     for name in sorted(chosen):
         m = projects[name]
         js = jobs_of(m)
@@ -554,7 +572,7 @@ def plan(workflow, form, vars_, ref):
                     continue
             if workflow == "housekeeping" and task != "everything" and j.get("task") != task:
                 continue
-            if j.get("when") and not flags.get(j["when"]):
+            if j.get("when") and not flags.get(j["when"].replace("{name}", name)):
                 continue
             if j.get("main_only") and ref != "refs/heads/main":
                 notes.append(f"{name} · {j['id']}: runs from main only (this run is {ref})")
@@ -588,6 +606,21 @@ def plan(workflow, form, vars_, ref):
     if not picked_rows:
         die("Nothing to run for these choices." + (" " + " ".join(notes) if notes else ""))
     return phases, picked_rows, summary, notes, approval
+
+
+def farm_app_candidates(projects):
+    """The mobile apps a phone farm can run: those that build an APK."""
+    return sorted(n for n, m in projects.items()
+                  if m.get("kind") == "mobile-app" and (m.get("build") or {}).get("android"))
+
+
+def farm_app_for(apps, named, day):
+    """`named` if it is one of `apps`, else the app whose turn `day` is."""
+    if not apps:
+        return None
+    if named:
+        return named if named in apps else None
+    return apps[day.toordinal() % len(apps)]
 
 
 def instances(m, j, flags, platforms, workflow, where, machine, ref):

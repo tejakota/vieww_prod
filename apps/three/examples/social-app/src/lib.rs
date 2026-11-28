@@ -1894,6 +1894,13 @@ pub fn run_desktop() -> Result<(), Box<dyn std::error::Error>> {
 #[no_mangle]
 fn android_main(android: vieww_platform_winit::AndroidApp) {
     let app = App::new().title("3 — social 3D").theme(ThemeData::dark());
+    // A Firebase Game Loop launch plays the per-app scenario (CI-01). No
+    // sheet hook: the feed's state lives inside the screen's element, so the
+    // sheet phase measures the feed at rest.
+    let app = match vieww_platform_winit::farm::Farm::from_launch(&android, "three") {
+        Some(farm) => farm.install(app),
+        None => app,
+    };
 
     if let Err(error) = app.run_android(android, |driver| {
         driver.set_root(WidgetNode::new(SocialScreen));

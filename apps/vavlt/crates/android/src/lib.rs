@@ -140,6 +140,26 @@ fn android_main(android: vieww_platform_winit::AndroidApp) {
         let mut hook = pump.hook();
         move |_log| hook()
     });
+    // A Firebase Game Loop launch plays the per-app scenario (CI-01); the
+    // sheet phase opens the Plan screen and goes back.
+    let farm_state: Rc<std::cell::RefCell<Option<Rc<VavltState>>>> =
+        Rc::new(std::cell::RefCell::new(None));
+    let app = match vieww_platform_winit::farm::Farm::from_launch(&android, "vavlt") {
+        Some(farm) => {
+            let slot = Rc::clone(&farm_state);
+            farm.sheet(move |open| {
+                if let Some(state) = slot.borrow().as_ref() {
+                    if open {
+                        state.go(vavlt_app::model::Screen::Plan);
+                    } else {
+                        state.back();
+                    }
+                }
+            })
+            .install(app)
+        }
+        None => app,
+    };
     let waker = Arc::new(app.waker());
 
     let result = app.run_android(android, move |driver: &mut FrameDriver| {
@@ -148,6 +168,7 @@ fn android_main(android: vieww_platform_winit::AndroidApp) {
         let platform = Rc::new(Android { picker, data_dir });
         let state = VavltState::new(&runtime, platform, waker.clone());
         pump.install(&state);
+        *farm_state.borrow_mut() = Some(state.clone());
 
         let scrolls = Rc::new(Scrolls::new(&runtime));
         scrolls.attach(driver.tickers());

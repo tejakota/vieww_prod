@@ -202,6 +202,39 @@ class Planner(unittest.TestCase):
         for aws in ("compare-farm", "compare-valdi-apk", "compare-report"):
             self.assertNotIn(aws, out)
 
+    def test_apps_on_firebase(self):
+        # CI-01: one app's own scenario a day, in turn, or the one named.
+        form = {"linux": False, "windows": False, "mac": False, "suite": "off", "usb_phone": False,
+                "farm": "App on Firebase Test Lab · snapsearch"}
+        rc, out = plan("devices", form)
+        self.assertEqual(rc, 0, out)
+        self.assertIn("snapsearch · farm-apk", out)
+        self.assertIn("snapsearch · farm", out)
+        for other in ("upxcale", "vavlt", "soma", "three"):
+            self.assertNotIn(f"{other} · farm", out)
+        self.assertNotIn("compare-firebase", out)
+        rc, out = plan("devices", dict(form, farm="Apps on Firebase Test Lab (free · today's app)"))
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(out.count("· farm-apk"), 1, out)
+        # A branch builds the APK but runs no phones.
+        rc, out = plan("devices", form, ref="refs/heads/topic")
+        self.assertIn("farm: runs from main only", out)
+
+    def test_farm_rotation(self):
+        import datetime
+        import importlib.machinery
+        import importlib.util
+        loader = importlib.machinery.SourceFileLoader("projects_mod", os.path.join(ROOT, "ci/projects"))
+        spec = importlib.util.spec_from_loader("projects_mod", loader)
+        mod = importlib.util.module_from_spec(spec)
+        loader.exec_module(mod)
+        apps = ["a", "b", "c"]
+        day = datetime.date(2026, 11, 28)
+        seen = {mod.farm_app_for(apps, "", day + datetime.timedelta(days=i)) for i in range(3)}
+        self.assertEqual(seen, set(apps), "three days cover three apps")
+        self.assertEqual(mod.farm_app_for(apps, "b", day), "b")
+        self.assertIsNone(mod.farm_app_for(apps, "zzz", day))
+
     def test_release_publish_waits(self):
         rc, out = plan("release", {"mode": "publish", "include_machines": False, "version": "2.0.0"})
         self.assertEqual(rc, 0, out)

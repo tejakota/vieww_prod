@@ -26,6 +26,19 @@ class Scorecard(unittest.TestCase):
         self.assertEqual(gaps, {"low", "high"})
         self.assertIn("**no run**", sc.markdown(rows, "abc"))
 
+    def test_an_apps_sheet_phase_fills_the_heavy_columns(self):
+        # CI-01's scenario: scroll, sheet, idle (no storm).
+        doc = {"phones": [{"device": "Pixel 8", "configs": {"vieww-cpu": {
+            "quality": "blur 8 MiB (tier high)", "phases": {
+                "scroll": {"app": {"work_ms": [3.0, 4.0, 5.0, 6.0], "frames": 360}, "app_fps": 60.0},
+                "sheet": {"app": {"work_ms": [7.0, 9.0, 10.0, 11.0], "frames": 240}, "app_fps": 59.0,
+                          "app_jank_pct": 0.4},
+                "idle": {"app": {"work_ms": [0.1], "frames": 0}}}}}}]}
+        r = sc.rows_for("snapsearch", doc, "abc")[0]
+        self.assertEqual((r["tier"], r["scroll_p50_ms"]), ("high", 3.0))
+        self.assertEqual((r["storm_p50_ms"], r["storm_p95_ms"], r["storm_jank_pct"]), (7.0, 9.0, 0.4))
+        self.assertEqual(r["idle_frames"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

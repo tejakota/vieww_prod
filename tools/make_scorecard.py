@@ -49,7 +49,11 @@ def rows_for(app, doc, commit):
         for path, config in sorted((phone.get("configs") or {}).items()):
             phases = config.get("phases") or {}
             scroll = phase_stats(phases, "scroll")
+            # Market Watch's heavy phase is `storm`; an app's own scenario
+            # (CI-01, vieww_platform_winit::farm) has a `sheet` there instead.
             storm = phase_stats(phases, "storm")
+            if storm == (None, None, None, None):
+                storm = phase_stats(phases, "sheet")
             idle = [(p.get("app") or {}).get("frames") for k, p in phases.items() if k.startswith("idle")]
             pss = config.get("pss_kb")
             cold = config.get("cold_start_median")
@@ -89,7 +93,7 @@ def markdown(rows, commit):
              "A tier with no run is listed as **no run**.", ""]
     for app in sorted({r["app"] for r in rows}):
         lines += [f"## {app}", "",
-                  "| tier | device | path | cold start ms | scroll p50 / p95 ms | scroll fps | storm p50 / p95 ms | storm fps | storm jank % | PSS MB | idle frames |",
+                  "| tier | device | path | cold start ms | scroll p50 / p95 ms | scroll fps | storm or sheet p50 / p95 ms | fps | jank % | PSS MB | idle frames |",
                   "|---|---|---|---|---|---|---|---|---|---|---|"]
         for r in sorted((r for r in rows if r["app"] == app),
                         key=lambda r: (TIERS.index(r["tier"]) if r["tier"] in TIERS else 9, r["device"], r["path"])):

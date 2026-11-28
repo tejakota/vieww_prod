@@ -149,6 +149,9 @@ pub mod desktop;
 // platform's OS starter, registered into `services::platform` (FW-19).
 mod device_tier;
 pub mod drag;
+/// Per-app device-farm runs (CI-01): a Game Loop launch plays a fixed
+/// scenario and narrates it in Market Watch's `__MW__` protocol.
+pub mod farm;
 mod frame_budget;
 mod gpu_route;
 mod os_accessibility;

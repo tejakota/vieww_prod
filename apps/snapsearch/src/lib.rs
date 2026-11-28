@@ -26,6 +26,24 @@ fn android_main(android: vieww_platform_winit::AndroidApp) {
         workers::set_android_data_dir(dir);
     }
     let (app, slot) = app::configure(vieww_platform_winit::App::new());
+    // A Firebase Game Loop launch plays the per-app scenario (CI-01); the
+    // sheet phase opens and closes the search sheet.
+    let app = match vieww_platform_winit::farm::Farm::from_launch(&android, "snapsearch") {
+        Some(farm) => {
+            let slot = slot.clone();
+            farm.sheet(move |open| {
+                if let Some(state) = slot.borrow().as_ref() {
+                    if open {
+                        state.open_sheet();
+                    } else {
+                        state.close_sheet();
+                    }
+                }
+            })
+            .install(app)
+        }
+        None => app,
+    };
     let result = app.run_android(android, move |driver| app::build_root(driver, &slot));
     if let Err(err) = result {
         eprintln!("SnapSearch failed to start: {err}");

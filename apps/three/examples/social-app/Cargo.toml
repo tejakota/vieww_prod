@@ -63,3 +63,18 @@ name = "android.permission.CAMERA"
 [package.metadata.android.application.activity]
 orientation = "portrait"
 config_changes = "orientation|screenSize|smallestScreenSize|keyboardHidden|screenLayout|density"
+
+# The launcher entry, spelled out: naming any intent filter replaces
+# cargo-apk's default one.
+[[package.metadata.android.application.activity.intent_filter]]
+actions = ["android.intent.action.MAIN"]
+categories = ["android.intent.category.LAUNCHER"]
+
+# Firebase Test Lab's Game Loop launch (CI-01): scenario 1 CPU, 2 GPU. The
+# app plays vieww_platform_winit::farm's scenario and exits; any other
+# launch is unaffected.
+[[package.metadata.android.application.activity.intent_filter]]
+actions = ["com.google.intent.action.TEST_LOOP"]
+categories = ["android.intent.category.DEFAULT"]
+[[package.metadata.android.application.activity.intent_filter.data]]
+mime_type = "application/javascript"

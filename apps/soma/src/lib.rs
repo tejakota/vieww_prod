@@ -530,8 +530,27 @@ pub fn start() -> Result<(), wasm_bindgen::JsValue> {
 fn android_main(android: vieww_platform_winit::AndroidApp) {
     // The platform wants a mount that returns nothing; the state handle is
     // ours to keep or drop, and on a phone nothing else needs it.
-    if let Err(error) = app().run_android(android, |driver| {
-        mount(driver);
+    // A Firebase Game Loop launch plays the per-app scenario (CI-01); the
+    // sheet phase runs a search (the results card rises) and clears it.
+    let slot: Rc<RefCell<Option<Rc<AppState>>>> = Rc::new(RefCell::new(None));
+    let app = match vieww_platform_winit::farm::Farm::from_launch(&android, "soma") {
+        Some(farm) => {
+            let slot = Rc::clone(&slot);
+            farm.sheet(move |open| {
+                if let Some(state) = slot.borrow().as_ref() {
+                    if open {
+                        search_for(state, "migraine");
+                    } else {
+                        clear(state);
+                    }
+                }
+            })
+            .install(app())
+        }
+        None => app(),
+    };
+    if let Err(error) = app.run_android(android, move |driver| {
+        *slot.borrow_mut() = Some(mount(driver));
     }) {
         log::error!("soma failed to start: {error}");
     }
